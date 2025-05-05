@@ -1,5 +1,5 @@
-#include <windows.h>
 #include <stdio.h>
+#include <windows.h>
 
 LRESULT CALLBACK on_window_event(
 	HWND window,
@@ -10,25 +10,30 @@ LRESULT CALLBACK on_window_event(
 	LRESULT result = 0;
 
 	switch (message) {
-		case WM_SIZE: {
-			/* handle resized */
-			printf("WM_SIZE\n");
-		} break;
-
 		case WM_DESTROY: {
-			printf("WM_DESTROY\n");
 			PostQuitMessage(0);
 			return 0;
 		} break;
 
 		case WM_CLOSE: {
-			printf("WM_CLOSE\n");
 			PostQuitMessage(0);
 			return 0;
 		} break;
 
-		case WM_ACTIVATEAPP: {
-			/* app has been actived */
+		case WM_PAINT: {
+			PAINTSTRUCT paint;
+			HDC device_context = BeginPaint(window, &paint);
+			{
+				PatBlt(
+					device_context, // HDC hdc
+					paint.rcPaint.left, // int x
+					paint.rcPaint.top, // int y
+					paint.rcPaint.right - paint.rcPaint.left, // int w
+					paint.rcPaint.bottom - paint.rcPaint.top, // int h
+					BLACKNESS // DWORD rop
+				);
+			}
+			EndPaint(window, &paint);
 		} break;
 	}
 
