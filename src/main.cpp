@@ -1,5 +1,17 @@
+#include <optional>
 #include <stdio.h>
 #include <windows.h>
+
+namespace core {
+	template<typename T, typename F>
+	T unwrap(std::optional<T>&& optional, F&& on_error) {
+		if (optional) {
+			return *optional;
+		}
+		on_error();
+		throw std::bad_optional_access();
+	}
+} // namespace core
 
 LRESULT CALLBACK on_window_event(
 	HWND window,
@@ -40,12 +52,7 @@ LRESULT CALLBACK on_window_event(
 	return DefWindowProc(window, message, w_param, l_param);
 }
 
-int WINAPI WinMain(
-	HINSTANCE instance,
-	HINSTANCE /*prev_instance*/,
-	LPSTR /*command_line*/,
-	int /*command_show*/
-) {
+std::optional<HWND> initialize_window(HINSTANCE instance) {
 	/* Register window class */
 	WNDCLASSW window_class = {
 		.style =
@@ -53,11 +60,12 @@ int WINAPI WinMain(
 			| CS_HREDRAW | CS_VREDRAW, // redraw window when resized
 		.lpfnWndProc = on_window_event,
 		.hInstance = instance,
+		.hCursor = LoadCursor(NULL, IDC_ARROW),
 		.lpszClassName = L"HandmadeHeroWindowClass",
 	};
-	bool register_result = RegisterClassW(&window_class);
-	if (!register_result) {
-		// TODO handle and abort
+	if (!RegisterClassW(&window_class)) {
+		fprintf(stderr, "failed to register window class, aborting");
+		return std::nullopt;
 	}
 
 	/* Create window */
@@ -77,7 +85,22 @@ int WINAPI WinMain(
 	);
 	if (!window_handle) {
 		// TODO handle and abort
+		return std::nullopt;
 	}
+
+	return window_handle;
+}
+
+int WINAPI WinMain(
+	HINSTANCE instance,
+	HINSTANCE /*prev_instance*/,
+	LPSTR /*command_line*/,
+	int /*command_show*/
+) {
+	/* Create window */
+	HWND window_handle = core::unwrap(initialize_window(instance), [] {
+		fprintf(stderr, "Couldn't initialize window");
+	});
 
 	/* Handle messages */
 	while (true) {
