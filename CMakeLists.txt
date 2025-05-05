@@ -11,7 +11,7 @@ option(WARNINGS_AS_ERRORS "Compile with warnings as errors" OFF)
 # Test Library
 add_executable(rkhero src/main.cpp)
 # target_include_directories(rkhero PUBLIC INC)
-set_property(TARGET rkhero PROPERTY CPP_STANDARD 23)
+set_property(TARGET rkhero PROPERTY CXX_STANDARD 23)
 set_property(TARGET rkhero PROPERTY WIN32_EXECUTABLE TRUE)
 if (WARNINGS_AS_ERRORS)
     target_compile_options(rkhero PUBLIC /WX)
