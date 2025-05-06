@@ -26,6 +26,9 @@ void resize_dib_section(RenderContext* render_context, int width, int height) {
 	if (render_context->bitmap_handle) {
 		DeleteObject(render_context->bitmap_handle);
 	}
+	if (!render_context->device_context) {
+		render_context->device_context = CreateCompatibleDC(0);
+	}
 
 	BITMAPINFO bitmap_info = {
 		.bmiHeader = {
@@ -164,9 +167,6 @@ int WINAPI WinMain(
 	HWND window_handle = core::unwrap(initialize_window(instance), [] {
 		fprintf(stderr, "Couldn't initialize window");
 	});
-
-	/* Initialize render context */
-	g_render_context.device_context = CreateCompatibleDC(0);
 
 	/* Handle messages */
 	while (true) {
