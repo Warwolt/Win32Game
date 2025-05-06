@@ -6,7 +6,8 @@ struct RenderContext {
 	BITMAPINFO bitmap_info;
 	void* bitmap_data;
 	HBITMAP bitmap_handle;
-	HDC device_context;
+	int bitmap_width;
+	int bitmap_height;
 };
 RenderContext g_render_context;
 
@@ -22,32 +23,66 @@ namespace core {
 } // namespace core
 
 void resize_dib_section(RenderContext* render_context, int width, int height) {
-	// free previous bitmap data since we'll reallocate it now
-	if (render_context->bitmap_handle) {
-		DeleteObject(render_context->bitmap_handle);
-	}
-	if (!render_context->device_context) {
-		render_context->device_context = CreateCompatibleDC(0);
+	if (render_context->bitmap_data) {
+		VirtualFree(render_context->bitmap_data, 0, MEM_RELEASE);
 	}
 
-	BITMAPINFO bitmap_info = {
+	constexpr int BYTES_PER_PIXEL = 4;
+	int bitmap_size = width * height * BYTES_PER_PIXEL;
+	render_context->bitmap_data = VirtualAlloc(0, bitmap_size, MEM_COMMIT, PAGE_READWRITE);
+	render_context->bitmap_width = width;
+	render_context->bitmap_height = height;
+	render_context->bitmap_info = {
 		.bmiHeader = {
 			.biSize = sizeof(BITMAPINFOHEADER),
 			.biWidth = width,
-			.biHeight = height,
+			.biHeight = -height,
 			.biPlanes = 1,
 			.biBitCount = 32,
 			.biCompression = BI_RGB,
 		}
 	};
 
-	render_context->bitmap_handle = CreateDIBSection(
-		render_context->device_context,
-		&bitmap_info,
-		DIB_RGB_COLORS,
-		&render_context->bitmap_data,
+	// hack some data into the bitmap
+	struct Pixel {
+		uint8_t b;
+		uint8_t g;
+		uint8_t r;
+		uint8_t padding;
+	};
+	int row_byte_size = width * BYTES_PER_PIXEL;
+	uint8_t* current_row = (uint8_t*)render_context->bitmap_data;
+	for (int y = 0; y < height; y++) {
+		for (int x = 0; x < width; x++) {
+			Pixel* pixel = (Pixel*)current_row + x;
+			pixel->r = 0;
+			pixel->g = (uint8_t)y;
+			pixel->b = (uint8_t)x;
+		}
+		current_row += row_byte_size;
+	}
+}
+
+void paint_window(const RenderContext& render_context, HDC device_context, const RECT& window_rect, int x, int y, int width, int height) {
+	int window_width = window_rect.right - window_rect.left;
+	int window_height = window_rect.bottom - window_rect.top;
+	StretchDIBits(
+		device_context,
+		// destination rect
 		0,
-		0
+		0,
+		render_context.bitmap_width,
+		render_context.bitmap_height,
+		// source rect
+		0,
+		0,
+		window_width,
+		window_height,
+		// data
+		render_context.bitmap_data,
+		&render_context.bitmap_info,
+		DIB_RGB_COLORS,
+		SRCCOPY
 	);
 }
 
@@ -81,18 +116,14 @@ LRESULT CALLBACK on_window_event(
 		case WM_PAINT: {
 			PAINTSTRUCT paint;
 			HDC device_context = BeginPaint(window, &paint);
-			RECT client_rect;
-			GetClientRect(window, &client_rect);
 			{
-				// clear screen black
-				PatBlt(
-					device_context,                           // HDC hdc
-					paint.rcPaint.left,                       // int x
-					paint.rcPaint.top,                        // int y
-					paint.rcPaint.right - paint.rcPaint.left, // int w
-					paint.rcPaint.bottom - paint.rcPaint.top, // int h
-					BLACKNESS                                 // DWORD rop
-				);
+				RECT client_rect;
+				GetClientRect(window, &client_rect);
+				int x = paint.rcPaint.left;
+				int y = paint.rcPaint.top;
+				int width = paint.rcPaint.right - paint.rcPaint.left;
+				int height = paint.rcPaint.top - paint.rcPaint.bottom;
+				paint_window(g_render_context, device_context, client_rect, x, y, width, height);
 			}
 			EndPaint(window, &paint);
 		} break;
