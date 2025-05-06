@@ -138,7 +138,13 @@ std::optional<HWND> initialize_window(HINSTANCE instance) {
 }
 
 void initialize_printf() {
-	if (AttachConsole(ATTACH_PARENT_PROCESS)) {
+	// get a console
+	bool has_console = AttachConsole(ATTACH_PARENT_PROCESS);
+	if (!has_console) {
+		has_console = AllocConsole();
+	}
+	// attach std streams
+	if (has_console) {
 		FILE* fi = 0;
 		freopen_s(&fi, "CONOUT$", "wt", stdout);
 		freopen_s(&fi, "CONOUT$", "wt", stderr);
