@@ -100,25 +100,25 @@ LRESULT CALLBACK on_window_event(
 
 std::optional<HWND> initialize_window(HINSTANCE instance) {
 	/* Register window class */
-	WNDCLASSW window_class = {
+	WNDCLASSA window_class = {
 		.style =
 			CS_OWNDC                   // give this window a unique device context
 			| CS_HREDRAW | CS_VREDRAW, // redraw window when resized
 		.lpfnWndProc = on_window_event,
 		.hInstance = instance,
 		.hCursor = LoadCursor(NULL, IDC_ARROW),
-		.lpszClassName = L"HandmadeHeroWindowClass",
+		.lpszClassName = "HandmadeHeroWindowClass",
 	};
-	if (!RegisterClassW(&window_class)) {
+	if (!RegisterClassA(&window_class)) {
 		fprintf(stderr, "failed to register window class, aborting");
 		return std::nullopt;
 	}
 
 	/* Create window */
-	HWND window_handle = CreateWindowExW(
-		0,                                // DWORD dwExStyle
-		window_class.lpszClassName,       // LPCWSTR lpClassName
-		L"Handmade Hero",                 // LPCWSTR lpWindowName
+	HWND window_handle = CreateWindowExA(
+		0, // DWORD dwExStyle
+		window_class.lpszClassName, // LPCWSTR lpClassName
+		"Handmade Hero", // LPCWSTR lpWindowName
 		WS_OVERLAPPEDWINDOW | WS_VISIBLE, // DWORD dwStyle
 		CW_USEDEFAULT,                    // int X
 		CW_USEDEFAULT,                    // int Y
