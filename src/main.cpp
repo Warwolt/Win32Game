@@ -116,9 +116,9 @@ std::optional<HWND> initialize_window(HINSTANCE instance) {
 
 	/* Create window */
 	HWND window_handle = CreateWindowExA(
-		0, // DWORD dwExStyle
-		window_class.lpszClassName, // LPCWSTR lpClassName
-		"Handmade Hero", // LPCWSTR lpWindowName
+		0,                                // DWORD dwExStyle
+		window_class.lpszClassName,       // LPCWSTR lpClassName
+		"Handmade Hero",                  // LPCWSTR lpWindowName
 		WS_OVERLAPPEDWINDOW | WS_VISIBLE, // DWORD dwStyle
 		CW_USEDEFAULT,                    // int X
 		CW_USEDEFAULT,                    // int Y
@@ -137,10 +137,11 @@ std::optional<HWND> initialize_window(HINSTANCE instance) {
 	return window_handle;
 }
 
-void initialize_stdout() {
-	if (AllocConsole()) {
+void initialize_printf() {
+	if (AttachConsole(ATTACH_PARENT_PROCESS)) {
 		FILE* fi = 0;
-		freopen_s(&fi, "CONOUT$", "w", stdout);
+		freopen_s(&fi, "CONOUT$", "wt", stdout);
+		freopen_s(&fi, "CONOUT$", "wt", stderr);
 	}
 }
 
@@ -150,7 +151,8 @@ int WINAPI WinMain(
 	LPSTR /*command_line*/,
 	int /*command_show*/
 ) {
-	initialize_stdout();
+	initialize_printf();
+	printf("Program Start\n");
 
 	/* Create window */
 	HWND window_handle = core::unwrap(initialize_window(instance), [] {
