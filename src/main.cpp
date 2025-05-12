@@ -70,16 +70,16 @@ void paint_window_bitmap(const RenderContext& rendering, HDC device_context, con
 	int window_height = window_rect.bottom - window_rect.top;
 	StretchDIBits(
 		device_context,
-		// source rect (bitmap)
-		0,
-		0,
-		rendering.bitmap_width,
-		rendering.bitmap_height,
 		// destination rect (window)
 		0,
 		0,
 		window_width,
 		window_height,
+		// source rect (bitmap)
+		0,
+		0,
+		rendering.bitmap_width,
+		rendering.bitmap_height,
 		// bitmap data
 		rendering.bitmap_data,
 		&rendering.bitmap_info,
