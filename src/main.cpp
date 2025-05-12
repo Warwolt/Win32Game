@@ -7,32 +7,31 @@ struct GameState {
 	int x_offset;
 };
 
-struct RenderContext {
-	BITMAPINFO bitmap_info;
-	void* bitmap_data;
-	HBITMAP bitmap_handle;
-	int bitmap_width;
-	int bitmap_height;
+struct Bitmap {
+	BITMAPINFO info;
+	void* data;
+	HBITMAP handle;
+	int width;
+	int height;
+	static constexpr int BYTES_PER_PIXEL = 4;
 };
 
 struct ProgramContext {
-	RenderContext rendering;
+	Bitmap bitmap;
 	GameState game;
 };
 
 static ProgramContext g_context;
 
-constexpr int BYTES_PER_BITMAP_PIXEL = 4;
-
-void draw_gradient(const RenderContext& rendering, int width, int height, int x_offset) {
+void draw_gradient(const Bitmap& bitmap, int width, int height, int x_offset) {
 	struct Pixel {
 		uint8_t b;
 		uint8_t g;
 		uint8_t r;
 		uint8_t padding;
 	};
-	int row_byte_size = width * BYTES_PER_BITMAP_PIXEL;
-	uint8_t* current_row = (uint8_t*)rendering.bitmap_data;
+	int row_byte_size = width * Bitmap::BYTES_PER_PIXEL;
+	uint8_t* current_row = (uint8_t*)bitmap.data;
 	for (int y = 0; y < height; y++) {
 		for (int x = 0; x < width; x++) {
 			Pixel* pixel = (Pixel*)current_row + x;
@@ -44,16 +43,16 @@ void draw_gradient(const RenderContext& rendering, int width, int height, int x_
 	}
 }
 
-void resize_window_bitmap(RenderContext* rendering, int width, int height) {
-	if (rendering->bitmap_data) {
-		VirtualFree(rendering->bitmap_data, 0, MEM_RELEASE);
+void resize_bitmap(Bitmap* bitmap, int width, int height) {
+	if (bitmap->data) {
+		VirtualFree(bitmap->data, 0, MEM_RELEASE);
 	}
 
-	int bitmap_size = width * height * BYTES_PER_BITMAP_PIXEL;
-	rendering->bitmap_data = VirtualAlloc(0, bitmap_size, MEM_COMMIT, PAGE_READWRITE);
-	rendering->bitmap_width = width;
-	rendering->bitmap_height = height;
-	rendering->bitmap_info = {
+	int bitmap_size = width * height * Bitmap::BYTES_PER_PIXEL;
+	bitmap->data = VirtualAlloc(0, bitmap_size, MEM_COMMIT, PAGE_READWRITE);
+	bitmap->width = width;
+	bitmap->height = height;
+	bitmap->info = {
 		.bmiHeader = {
 			.biSize = sizeof(BITMAPINFOHEADER),
 			.biWidth = width,
@@ -65,9 +64,12 @@ void resize_window_bitmap(RenderContext* rendering, int width, int height) {
 	};
 }
 
-void paint_window_bitmap(const RenderContext& rendering, HDC device_context, const RECT& window_rect) {
-	int window_width = window_rect.right - window_rect.left;
-	int window_height = window_rect.bottom - window_rect.top;
+void paint_bitmap_onto_window(const Bitmap& bitmap, HWND window, HDC device_context) {
+	RECT client_rect;
+	GetClientRect(window, &client_rect);
+	int window_width = client_rect.right - client_rect.left;
+	int window_height = client_rect.bottom - client_rect.top;
+
 	StretchDIBits(
 		device_context,
 		// destination rect (window)
@@ -78,11 +80,11 @@ void paint_window_bitmap(const RenderContext& rendering, HDC device_context, con
 		// source rect (bitmap)
 		0,
 		0,
-		rendering.bitmap_width,
-		rendering.bitmap_height,
+		bitmap.width,
+		bitmap.height,
 		// bitmap data
-		rendering.bitmap_data,
-		&rendering.bitmap_info,
+		bitmap.data,
+		&bitmap.info,
 		DIB_RGB_COLORS,
 		SRCCOPY
 	);
@@ -152,7 +154,7 @@ LRESULT CALLBACK on_window_event(
 			GetClientRect(window, &client_rect);
 			int width = client_rect.right - client_rect.left;
 			int height = client_rect.bottom - client_rect.top;
-			resize_window_bitmap(&g_context.rendering, width, height);
+			resize_bitmap(&g_context.bitmap, width, height);
 		} break;
 
 		case WM_DESTROY: {
@@ -169,10 +171,8 @@ LRESULT CALLBACK on_window_event(
 			PAINTSTRUCT paint;
 			HDC device_context = BeginPaint(window, &paint);
 			{
-				RECT client_rect;
-				GetClientRect(window, &client_rect);
-				draw_gradient(g_context.rendering, g_context.rendering.bitmap_width, g_context.rendering.bitmap_height, g_context.game.x_offset);
-				paint_window_bitmap(g_context.rendering, device_context, client_rect);
+				draw_gradient(g_context.bitmap, g_context.bitmap.width, g_context.bitmap.height, g_context.game.x_offset);
+				paint_bitmap_onto_window(g_context.bitmap, window, device_context);
 			}
 			EndPaint(window, &paint);
 		} break;
@@ -219,7 +219,7 @@ int WINAPI WinMain(
 		/* Render */
 		{
 			// draw game
-			draw_gradient(g_context.rendering, g_context.rendering.bitmap_width, g_context.rendering.bitmap_height, g_context.game.x_offset);
+			draw_gradient(g_context.bitmap, g_context.bitmap.width, g_context.bitmap.height, g_context.game.x_offset);
 
 			// render
 			HDC device_context = GetDC(window);
@@ -228,7 +228,7 @@ int WINAPI WinMain(
 				GetClientRect(window, &client_rect);
 				int window_width = client_rect.right - client_rect.left;
 				int window_height = client_rect.bottom - client_rect.top;
-				paint_window_bitmap(g_context.rendering, device_context, client_rect);
+				paint_bitmap_onto_window(g_context.bitmap, window, device_context);
 			}
 			ReleaseDC(window, device_context);
 		}
