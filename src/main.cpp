@@ -10,8 +10,6 @@ struct RenderContext {
 	int bitmap_height;
 };
 
-RenderContext g_render_context;
-
 void resize_bitmap(RenderContext* render_context, int width, int height) {
 	if (render_context->bitmap_data) {
 		VirtualFree(render_context->bitmap_data, 0, MEM_RELEASE);
@@ -82,6 +80,7 @@ LRESULT CALLBACK handle_window_event(
 	WPARAM w_param,
 	LPARAM l_param
 ) {
+	static RenderContext render_context = {};
 	LRESULT result = 0;
 
 	switch (message) {
@@ -90,7 +89,7 @@ LRESULT CALLBACK handle_window_event(
 			GetClientRect(window, &client_rect);
 			int width = client_rect.right - client_rect.left;
 			int height = client_rect.bottom - client_rect.top;
-			resize_bitmap(&g_render_context, width, height);
+			resize_bitmap(&render_context, width, height);
 		} break;
 
 		case WM_DESTROY: {
@@ -113,7 +112,7 @@ LRESULT CALLBACK handle_window_event(
 				int y = paint.rcPaint.top;
 				int width = paint.rcPaint.right - paint.rcPaint.left;
 				int height = paint.rcPaint.top - paint.rcPaint.bottom;
-				paint_bitmap_on_window(g_render_context, device_context, client_rect, x, y, width, height);
+				paint_bitmap_on_window(render_context, device_context, client_rect, x, y, width, height);
 			}
 			EndPaint(window, &paint);
 		} break;
@@ -160,9 +159,9 @@ HWND initialize_window(HINSTANCE instance) {
 
 void initialize_printf() {
 	/* Get console */
-	bool has_console = AttachConsole(ATTACH_PARENT_PROCESS);
+	bool has_console = AttachConsole(ATTACH_PARENT_PROCESS); // attach to parent terminal
 	if (!has_console) {
-		has_console = AllocConsole();
+		has_console = AllocConsole(); // create a new console window
 	}
 
 	/* Attach std streams */
