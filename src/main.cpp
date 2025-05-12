@@ -10,7 +10,7 @@ struct RenderContext {
 	int bitmap_height;
 };
 
-void resize_bitmap(RenderContext* render_context, int width, int height) {
+void resize_window_bitmap(RenderContext* render_context, int width, int height) {
 	if (render_context->bitmap_data) {
 		VirtualFree(render_context->bitmap_data, 0, MEM_RELEASE);
 	}
@@ -51,7 +51,7 @@ void resize_bitmap(RenderContext* render_context, int width, int height) {
 	}
 }
 
-void paint_bitmap_on_window(const RenderContext& render_context, HDC device_context, const RECT& window_rect, int x, int y, int width, int height) {
+void paint_window_bitmap(const RenderContext& render_context, HDC device_context, const RECT& window_rect, int x, int y, int width, int height) {
 	int window_width = window_rect.right - window_rect.left;
 	int window_height = window_rect.bottom - window_rect.top;
 	StretchDIBits(
@@ -74,61 +74,14 @@ void paint_bitmap_on_window(const RenderContext& render_context, HDC device_cont
 	);
 }
 
-LRESULT CALLBACK handle_window_event(
-	HWND window,
-	UINT message,
-	WPARAM w_param,
-	LPARAM l_param
-) {
-	static RenderContext render_context = {};
-	LRESULT result = 0;
-
-	switch (message) {
-		case WM_SIZE: {
-			RECT client_rect;
-			GetClientRect(window, &client_rect);
-			int width = client_rect.right - client_rect.left;
-			int height = client_rect.bottom - client_rect.top;
-			resize_bitmap(&render_context, width, height);
-		} break;
-
-		case WM_DESTROY: {
-			PostQuitMessage(0);
-			return 0;
-		} break;
-
-		case WM_CLOSE: {
-			PostQuitMessage(0);
-			return 0;
-		} break;
-
-		case WM_PAINT: {
-			PAINTSTRUCT paint;
-			HDC device_context = BeginPaint(window, &paint);
-			{
-				RECT client_rect;
-				GetClientRect(window, &client_rect);
-				int x = paint.rcPaint.left;
-				int y = paint.rcPaint.top;
-				int width = paint.rcPaint.right - paint.rcPaint.left;
-				int height = paint.rcPaint.top - paint.rcPaint.bottom;
-				paint_bitmap_on_window(render_context, device_context, client_rect, x, y, width, height);
-			}
-			EndPaint(window, &paint);
-		} break;
-	}
-
-	return DefWindowProc(window, message, w_param, l_param);
-}
-
 // Tries to initialize window, returns nullptr if fails
-HWND initialize_window(HINSTANCE instance) {
+HWND initialize_window(HINSTANCE instance, WNDPROC wnd_proc) {
 	/* Register window class */
 	WNDCLASSA window_class = {
 		.style =
 			CS_OWNDC                   // give this window a unique device context
 			| CS_HREDRAW | CS_VREDRAW, // redraw window when resized
-		.lpfnWndProc = handle_window_event,
+		.lpfnWndProc = wnd_proc,
 		.hInstance = instance,
 		.hCursor = LoadCursor(NULL, IDC_ARROW),
 		.lpszClassName = "HandmadeHeroWindowClass",
@@ -172,6 +125,55 @@ void initialize_printf() {
 	}
 }
 
+LRESULT CALLBACK on_window_event(
+	HWND window,
+	UINT message,
+	WPARAM w_param,
+	LPARAM l_param
+) {
+	/* Program state */
+	static RenderContext render_context = {};
+
+	/* Event handling */
+	LRESULT result = 0;
+	switch (message) {
+		case WM_SIZE: {
+			RECT client_rect;
+			GetClientRect(window, &client_rect);
+			int width = client_rect.right - client_rect.left;
+			int height = client_rect.bottom - client_rect.top;
+			resize_window_bitmap(&render_context, width, height);
+		} break;
+
+		case WM_DESTROY: {
+			PostQuitMessage(0);
+			return 0;
+		} break;
+
+		case WM_CLOSE: {
+			PostQuitMessage(0);
+			return 0;
+		} break;
+
+		case WM_PAINT: {
+			PAINTSTRUCT paint;
+			HDC device_context = BeginPaint(window, &paint);
+			{
+				RECT client_rect;
+				GetClientRect(window, &client_rect);
+				int x = paint.rcPaint.left;
+				int y = paint.rcPaint.top;
+				int width = paint.rcPaint.right - paint.rcPaint.left;
+				int height = paint.rcPaint.top - paint.rcPaint.bottom;
+				paint_window_bitmap(render_context, device_context, client_rect, x, y, width, height);
+			}
+			EndPaint(window, &paint);
+		} break;
+	}
+
+	return DefWindowProc(window, message, w_param, l_param);
+}
+
 int WINAPI WinMain(
 	HINSTANCE instance,
 	HINSTANCE /*prev_instance*/,
@@ -181,7 +183,7 @@ int WINAPI WinMain(
 	initialize_printf();
 
 	/* Create window */
-	if (!initialize_window(instance)) {
+	if (!initialize_window(instance, on_window_event)) {
 		fprintf(stderr, "Couldn't initialize window, aborting");
 		return 1;
 	};
