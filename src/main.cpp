@@ -12,7 +12,7 @@ struct RenderContext {
 
 RenderContext g_render_context;
 
-void resize_dib_section(RenderContext* render_context, int width, int height) {
+void resize_bitmap(RenderContext* render_context, int width, int height) {
 	if (render_context->bitmap_data) {
 		VirtualFree(render_context->bitmap_data, 0, MEM_RELEASE);
 	}
@@ -53,22 +53,22 @@ void resize_dib_section(RenderContext* render_context, int width, int height) {
 	}
 }
 
-void paint_window(const RenderContext& render_context, HDC device_context, const RECT& window_rect, int x, int y, int width, int height) {
+void paint_bitmap_on_window(const RenderContext& render_context, HDC device_context, const RECT& window_rect, int x, int y, int width, int height) {
 	int window_width = window_rect.right - window_rect.left;
 	int window_height = window_rect.bottom - window_rect.top;
 	StretchDIBits(
 		device_context,
-		// destination rect
+		// source rect (bitmap)
 		0,
 		0,
 		render_context.bitmap_width,
 		render_context.bitmap_height,
-		// source rect
+		// destination rect (window)
 		0,
 		0,
 		window_width,
 		window_height,
-		// data
+		// bitmap data
 		render_context.bitmap_data,
 		&render_context.bitmap_info,
 		DIB_RGB_COLORS,
@@ -76,7 +76,7 @@ void paint_window(const RenderContext& render_context, HDC device_context, const
 	);
 }
 
-LRESULT CALLBACK on_window_event(
+LRESULT CALLBACK handle_window_event(
 	HWND window,
 	UINT message,
 	WPARAM w_param,
@@ -90,7 +90,7 @@ LRESULT CALLBACK on_window_event(
 			GetClientRect(window, &client_rect);
 			int width = client_rect.right - client_rect.left;
 			int height = client_rect.bottom - client_rect.top;
-			resize_dib_section(&g_render_context, width, height);
+			resize_bitmap(&g_render_context, width, height);
 		} break;
 
 		case WM_DESTROY: {
@@ -113,7 +113,7 @@ LRESULT CALLBACK on_window_event(
 				int y = paint.rcPaint.top;
 				int width = paint.rcPaint.right - paint.rcPaint.left;
 				int height = paint.rcPaint.top - paint.rcPaint.bottom;
-				paint_window(g_render_context, device_context, client_rect, x, y, width, height);
+				paint_bitmap_on_window(g_render_context, device_context, client_rect, x, y, width, height);
 			}
 			EndPaint(window, &paint);
 		} break;
@@ -129,7 +129,7 @@ HWND initialize_window(HINSTANCE instance) {
 		.style =
 			CS_OWNDC                   // give this window a unique device context
 			| CS_HREDRAW | CS_VREDRAW, // redraw window when resized
-		.lpfnWndProc = on_window_event,
+		.lpfnWndProc = handle_window_event,
 		.hInstance = instance,
 		.hCursor = LoadCursor(NULL, IDC_ARROW),
 		.lpszClassName = "HandmadeHeroWindowClass",
