@@ -9,18 +9,8 @@ struct RenderContext {
 	int bitmap_width;
 	int bitmap_height;
 };
-RenderContext g_render_context;
 
-namespace core {
-	template <typename T, typename F>
-	T unwrap(std::optional<T>&& optional, F&& on_error) {
-		if (optional) {
-			return *optional;
-		}
-		on_error();
-		throw std::bad_optional_access();
-	}
-} // namespace core
+RenderContext g_render_context;
 
 void resize_dib_section(RenderContext* render_context, int width, int height) {
 	if (render_context->bitmap_data) {
@@ -132,7 +122,8 @@ LRESULT CALLBACK on_window_event(
 	return DefWindowProc(window, message, w_param, l_param);
 }
 
-std::optional<HWND> initialize_window(HINSTANCE instance) {
+// Tries to initialize window, returns nullptr if fails
+HWND initialize_window(HINSTANCE instance) {
 	/* Register window class */
 	WNDCLASSA window_class = {
 		.style =
@@ -145,7 +136,7 @@ std::optional<HWND> initialize_window(HINSTANCE instance) {
 	};
 	if (!RegisterClassA(&window_class)) {
 		fprintf(stderr, "failed to register window class, aborting");
-		return std::nullopt;
+		return nullptr;
 	}
 
 	/* Create window */
@@ -163,21 +154,18 @@ std::optional<HWND> initialize_window(HINSTANCE instance) {
 		instance,                         // HINSTANCE hInstance
 		0                                 // LPVOID lpParam
 	);
-	if (!window_handle) {
-		// TODO handle and abort
-		return std::nullopt;
-	}
 
 	return window_handle;
 }
 
 void initialize_printf() {
-	// get a console
+	/* Get console */
 	bool has_console = AttachConsole(ATTACH_PARENT_PROCESS);
 	if (!has_console) {
 		has_console = AllocConsole();
 	}
-	// attach std streams
+
+	/* Attach std streams */
 	if (has_console) {
 		FILE* fi = 0;
 		freopen_s(&fi, "CONOUT$", "wt", stdout);
@@ -192,22 +180,21 @@ int WINAPI WinMain(
 	int /*command_show*/
 ) {
 	initialize_printf();
-	printf("Program Start\n");
 
 	/* Create window */
-	HWND window_handle = core::unwrap(initialize_window(instance), [] {
-		fprintf(stderr, "Couldn't initialize window");
-	});
+	if (!initialize_window(instance)) {
+		fprintf(stderr, "Couldn't initialize window, aborting");
+		return 1;
+	};
 
-	/* Handle messages */
+	/* Main loop */
 	while (true) {
 		MSG message;
-		if (GetMessageW(&message, 0, 0, 0) <= 0) {
+		if (GetMessageA(&message, 0, 0, 0) <= 0) {
 			break;
 		}
-
 		TranslateMessage(&message);
-		DispatchMessageW(&message);
+		DispatchMessageA(&message);
 	}
 
 	return 0;
