@@ -65,7 +65,7 @@ void resize_window_bitmap(RenderContext* rendering, int width, int height) {
 	};
 }
 
-void paint_window_bitmap(const RenderContext& rendering, HDC device_context, const RECT& window_rect, int x, int y, int width, int height) {
+void paint_window_bitmap(const RenderContext& rendering, HDC device_context, const RECT& window_rect) {
 	int window_width = window_rect.right - window_rect.left;
 	int window_height = window_rect.bottom - window_rect.top;
 	StretchDIBits(
@@ -171,12 +171,8 @@ LRESULT CALLBACK on_window_event(
 			{
 				RECT client_rect;
 				GetClientRect(window, &client_rect);
-				int x = paint.rcPaint.left;
-				int y = paint.rcPaint.top;
-				int width = paint.rcPaint.right - paint.rcPaint.left;
-				int height = paint.rcPaint.top - paint.rcPaint.bottom;
 				draw_gradient(g_context.rendering, g_context.rendering.bitmap_width, g_context.rendering.bitmap_height, g_context.game.x_offset);
-				paint_window_bitmap(g_context.rendering, device_context, client_rect, x, y, width, height);
+				paint_window_bitmap(g_context.rendering, device_context, client_rect);
 			}
 			EndPaint(window, &paint);
 		} break;
@@ -232,7 +228,7 @@ int WINAPI WinMain(
 				GetClientRect(window, &client_rect);
 				int window_width = client_rect.right - client_rect.left;
 				int window_height = client_rect.bottom - client_rect.top;
-				paint_window_bitmap(g_context.rendering, device_context, client_rect, 0, 0, window_width, window_height);
+				paint_window_bitmap(g_context.rendering, device_context, client_rect);
 			}
 			ReleaseDC(window, device_context);
 		}
