@@ -10,6 +10,8 @@ struct RenderContext {
 	int bitmap_height;
 };
 
+static RenderContext g_render_context;
+
 constexpr int BYTES_PER_BITMAP_PIXEL = 4;
 
 void draw_gradient(RenderContext* render_context, int width, int height) {
@@ -51,9 +53,6 @@ void resize_window_bitmap(RenderContext* render_context, int width, int height) 
 			.biCompression = BI_RGB,
 		}
 	};
-
-	// hack
-	draw_gradient(render_context, width, height);
 }
 
 void paint_window_bitmap(const RenderContext& render_context, HDC device_context, const RECT& window_rect, int x, int y, int width, int height) {
@@ -136,10 +135,6 @@ LRESULT CALLBACK on_window_event(
 	WPARAM w_param,
 	LPARAM l_param
 ) {
-	/* Program state */
-	static RenderContext render_context = {};
-
-	/* Event handling */
 	LRESULT result = 0;
 	switch (message) {
 		case WM_SIZE: {
@@ -147,7 +142,7 @@ LRESULT CALLBACK on_window_event(
 			GetClientRect(window, &client_rect);
 			int width = client_rect.right - client_rect.left;
 			int height = client_rect.bottom - client_rect.top;
-			resize_window_bitmap(&render_context, width, height);
+			resize_window_bitmap(&g_render_context, width, height);
 		} break;
 
 		case WM_DESTROY: {
@@ -170,7 +165,7 @@ LRESULT CALLBACK on_window_event(
 				int y = paint.rcPaint.top;
 				int width = paint.rcPaint.right - paint.rcPaint.left;
 				int height = paint.rcPaint.top - paint.rcPaint.bottom;
-				paint_window_bitmap(render_context, device_context, client_rect, x, y, width, height);
+				paint_window_bitmap(g_render_context, device_context, client_rect, x, y, width, height);
 			}
 			EndPaint(window, &paint);
 		} break;
@@ -188,7 +183,8 @@ int WINAPI WinMain(
 	initialize_printf();
 
 	/* Create window */
-	if (!initialize_window(instance, on_window_event)) {
+	HWND window = initialize_window(instance, on_window_event);
+	if (!window) {
 		fprintf(stderr, "Couldn't initialize window, aborting");
 		return 1;
 	};
@@ -197,16 +193,33 @@ int WINAPI WinMain(
 	bool should_quit = false;
 	while (!should_quit) {
 		/* Process messages */
-		MSG message;
-		while (PeekMessageA(&message, 0, 0, 0, PM_REMOVE)) {
-			TranslateMessage(&message);
-			DispatchMessageA(&message);
-			if (message.message == WM_QUIT) {
-				should_quit = true;
+		{
+			MSG message;
+			while (PeekMessageA(&message, 0, 0, 0, PM_REMOVE)) {
+				TranslateMessage(&message);
+				DispatchMessageA(&message);
+				if (message.message == WM_QUIT) {
+					should_quit = true;
+				}
 			}
 		}
 
 		/* Render */
+		{
+			// draw game
+			draw_gradient(&g_render_context, g_render_context.bitmap_width, g_render_context.bitmap_height);
+
+			// render
+			HDC device_context = GetDC(window);
+			{
+				RECT client_rect;
+				GetClientRect(window, &client_rect);
+				int window_width = client_rect.right - client_rect.left;
+				int window_height = client_rect.bottom - client_rect.top;
+				paint_window_bitmap(g_render_context, device_context, client_rect, 0, 0, window_width, window_height);
+			}
+			ReleaseDC(window, device_context);
+		}
 	}
 
 	return 0;
