@@ -23,17 +23,17 @@ struct ProgramContext {
 
 static ProgramContext g_context;
 
-void draw_gradient(const Bitmap& bitmap, int width, int height, int x_offset) {
+void draw_gradient(const Bitmap& bitmap, int x_offset) {
 	struct Pixel {
 		uint8_t b;
 		uint8_t g;
 		uint8_t r;
 		uint8_t padding;
 	};
-	int row_byte_size = width * Bitmap::BYTES_PER_PIXEL;
+	int row_byte_size = bitmap.width * Bitmap::BYTES_PER_PIXEL;
 	uint8_t* current_row = (uint8_t*)bitmap.data;
-	for (int y = 0; y < height; y++) {
-		for (int x = 0; x < width; x++) {
+	for (int y = 0; y < bitmap.height; y++) {
+		for (int x = 0; x < bitmap.width; x++) {
 			Pixel* pixel = (Pixel*)current_row + x;
 			pixel->r = 0;
 			pixel->g = (uint8_t)y;
@@ -171,7 +171,7 @@ LRESULT CALLBACK on_window_event(
 			PAINTSTRUCT paint;
 			HDC device_context = BeginPaint(window, &paint);
 			{
-				draw_gradient(g_context.bitmap, g_context.bitmap.width, g_context.bitmap.height, g_context.game.x_offset);
+				draw_gradient(g_context.bitmap, g_context.game.x_offset);
 				paint_bitmap_onto_window(g_context.bitmap, window, device_context);
 			}
 			EndPaint(window, &paint);
@@ -219,7 +219,7 @@ int WINAPI WinMain(
 		/* Render */
 		{
 			// draw game
-			draw_gradient(g_context.bitmap, g_context.bitmap.width, g_context.bitmap.height, g_context.game.x_offset);
+			draw_gradient(g_context.bitmap, g_context.game.x_offset);
 
 			// render
 			HDC device_context = GetDC(window);
