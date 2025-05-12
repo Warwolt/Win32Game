@@ -23,40 +23,46 @@ struct ProgramContext {
 
 static ProgramContext g_context;
 
-void draw_gradient(const Bitmap& bitmap, int x_offset) {
+void draw_game(Bitmap* bitmap, const GameState& game) {
+	// just draws a gradient right now
 	struct Pixel {
 		uint8_t b;
 		uint8_t g;
 		uint8_t r;
 		uint8_t padding;
 	};
-	int row_byte_size = bitmap.width * Bitmap::BYTES_PER_PIXEL;
-	uint8_t* current_row = (uint8_t*)bitmap.data;
-	for (int y = 0; y < bitmap.height; y++) {
-		for (int x = 0; x < bitmap.width; x++) {
+	int row_byte_size = bitmap->width * Bitmap::BYTES_PER_PIXEL;
+	uint8_t* current_row = (uint8_t*)bitmap->data;
+	for (int y = 0; y < bitmap->height; y++) {
+		for (int x = 0; x < bitmap->width; x++) {
 			Pixel* pixel = (Pixel*)current_row + x;
 			pixel->r = 0;
 			pixel->g = (uint8_t)y;
-			pixel->b = (uint8_t)(x + x_offset);
+			pixel->b = (uint8_t)(x + game.x_offset);
 		}
 		current_row += row_byte_size;
 	}
 }
 
-void resize_bitmap(Bitmap* bitmap, int width, int height) {
+void resize_window_bitmap(Bitmap* bitmap, HWND window) {
+	RECT client_rect;
+	GetClientRect(window, &client_rect);
+	int window_width = client_rect.right - client_rect.left;
+	int window_height = client_rect.bottom - client_rect.top;
+
 	if (bitmap->data) {
 		VirtualFree(bitmap->data, 0, MEM_RELEASE);
 	}
 
-	int bitmap_size = width * height * Bitmap::BYTES_PER_PIXEL;
+	int bitmap_size = window_width * window_height * Bitmap::BYTES_PER_PIXEL;
 	bitmap->data = VirtualAlloc(0, bitmap_size, MEM_COMMIT, PAGE_READWRITE);
-	bitmap->width = width;
-	bitmap->height = height;
+	bitmap->width = window_width;
+	bitmap->height = window_height;
 	bitmap->info = {
 		.bmiHeader = {
 			.biSize = sizeof(BITMAPINFOHEADER),
-			.biWidth = width,
-			.biHeight = -height,
+			.biWidth = window_width,
+			.biHeight = -window_height,
 			.biPlanes = 1,
 			.biBitCount = 32,
 			.biCompression = BI_RGB,
@@ -64,7 +70,7 @@ void resize_bitmap(Bitmap* bitmap, int width, int height) {
 	};
 }
 
-void paint_bitmap_onto_window(const Bitmap& bitmap, HWND window, HDC device_context) {
+void render_window(const Bitmap& bitmap, HWND window, HDC device_context) {
 	RECT client_rect;
 	GetClientRect(window, &client_rect);
 	int window_width = client_rect.right - client_rect.left;
@@ -150,11 +156,7 @@ LRESULT CALLBACK on_window_event(
 	LRESULT result = 0;
 	switch (message) {
 		case WM_SIZE: {
-			RECT client_rect;
-			GetClientRect(window, &client_rect);
-			int width = client_rect.right - client_rect.left;
-			int height = client_rect.bottom - client_rect.top;
-			resize_bitmap(&g_context.bitmap, width, height);
+			resize_window_bitmap(&g_context.bitmap, window);
 		} break;
 
 		case WM_DESTROY: {
@@ -171,8 +173,8 @@ LRESULT CALLBACK on_window_event(
 			PAINTSTRUCT paint;
 			HDC device_context = BeginPaint(window, &paint);
 			{
-				draw_gradient(g_context.bitmap, g_context.game.x_offset);
-				paint_bitmap_onto_window(g_context.bitmap, window, device_context);
+				draw_game(&g_context.bitmap, g_context.game);
+				render_window(g_context.bitmap, window, device_context);
 			}
 			EndPaint(window, &paint);
 		} break;
@@ -218,17 +220,10 @@ int WINAPI WinMain(
 
 		/* Render */
 		{
-			// draw game
-			draw_gradient(g_context.bitmap, g_context.game.x_offset);
-
-			// render
 			HDC device_context = GetDC(window);
 			{
-				RECT client_rect;
-				GetClientRect(window, &client_rect);
-				int window_width = client_rect.right - client_rect.left;
-				int window_height = client_rect.bottom - client_rect.top;
-				paint_bitmap_onto_window(g_context.bitmap, window, device_context);
+				draw_game(&g_context.bitmap, g_context.game);
+				render_window(g_context.bitmap, window, device_context);
 			}
 			ReleaseDC(window, device_context);
 		}
