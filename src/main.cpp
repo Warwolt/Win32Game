@@ -10,13 +10,34 @@ struct RenderContext {
 	int bitmap_height;
 };
 
+constexpr int BYTES_PER_BITMAP_PIXEL = 4;
+
+void draw_gradient(RenderContext* render_context, int width, int height) {
+	struct Pixel {
+		uint8_t b;
+		uint8_t g;
+		uint8_t r;
+		uint8_t padding;
+	};
+	int row_byte_size = width * BYTES_PER_BITMAP_PIXEL;
+	uint8_t* current_row = (uint8_t*)render_context->bitmap_data;
+	for (int y = 0; y < height; y++) {
+		for (int x = 0; x < width; x++) {
+			Pixel* pixel = (Pixel*)current_row + x;
+			pixel->r = 0;
+			pixel->g = (uint8_t)y;
+			pixel->b = (uint8_t)x;
+		}
+		current_row += row_byte_size;
+	}
+}
+
 void resize_window_bitmap(RenderContext* render_context, int width, int height) {
 	if (render_context->bitmap_data) {
 		VirtualFree(render_context->bitmap_data, 0, MEM_RELEASE);
 	}
 
-	constexpr int BYTES_PER_PIXEL = 4;
-	int bitmap_size = width * height * BYTES_PER_PIXEL;
+	int bitmap_size = width * height * BYTES_PER_BITMAP_PIXEL;
 	render_context->bitmap_data = VirtualAlloc(0, bitmap_size, MEM_COMMIT, PAGE_READWRITE);
 	render_context->bitmap_width = width;
 	render_context->bitmap_height = height;
@@ -31,24 +52,8 @@ void resize_window_bitmap(RenderContext* render_context, int width, int height) 
 		}
 	};
 
-	// hack some data into the bitmap
-	struct Pixel {
-		uint8_t b;
-		uint8_t g;
-		uint8_t r;
-		uint8_t padding;
-	};
-	int row_byte_size = width * BYTES_PER_PIXEL;
-	uint8_t* current_row = (uint8_t*)render_context->bitmap_data;
-	for (int y = 0; y < height; y++) {
-		for (int x = 0; x < width; x++) {
-			Pixel* pixel = (Pixel*)current_row + x;
-			pixel->r = 0;
-			pixel->g = (uint8_t)y;
-			pixel->b = (uint8_t)x;
-		}
-		current_row += row_byte_size;
-	}
+	// hack
+	draw_gradient(render_context, width, height);
 }
 
 void paint_window_bitmap(const RenderContext& render_context, HDC device_context, const RECT& window_rect, int x, int y, int width, int height) {
@@ -189,13 +194,19 @@ int WINAPI WinMain(
 	};
 
 	/* Main loop */
-	while (true) {
+	bool should_quit = false;
+	while (!should_quit) {
+		/* Process messages */
 		MSG message;
-		if (GetMessageA(&message, 0, 0, 0) <= 0) {
-			break;
+		while (PeekMessageA(&message, 0, 0, 0, PM_REMOVE)) {
+			TranslateMessage(&message);
+			DispatchMessageA(&message);
+			if (message.message == WM_QUIT) {
+				should_quit = true;
+			}
 		}
-		TranslateMessage(&message);
-		DispatchMessageA(&message);
+
+		/* Render */
 	}
 
 	return 0;
