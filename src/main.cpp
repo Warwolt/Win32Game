@@ -94,7 +94,7 @@ HWND initialize_window(HINSTANCE instance, WNDPROC wnd_proc) {
 	WNDCLASSA window_class = {
 		.style =
 			CS_OWNDC                   // give this window a unique device context
-			| CS_HREDRAW | CS_VREDRAW, // redraw window when resized
+			| CS_HREDRAW | CS_VREDRAW, // redraw entire window when it's resized
 		.lpfnWndProc = wnd_proc,
 		.hInstance = instance,
 		.hCursor = LoadCursor(NULL, IDC_ARROW),
