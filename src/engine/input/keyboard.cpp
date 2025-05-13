@@ -28,12 +28,12 @@ namespace engine {
 
 	bool Keyboard::key_is_just_pressed(uint32_t key_id) const {
 		auto it = m_key_states.find(key_id);
-		return it != m_key_states.end() ? it->second.is_just_pressed() : false;
+		return it != m_key_states.end() ? it->second.was_pressed_now() : false;
 	}
 
 	bool Keyboard::key_is_just_released(uint32_t key_id) const {
 		auto it = m_key_states.find(key_id);
-		return it != m_key_states.end() ? it->second.is_just_released() : false;
+		return it != m_key_states.end() ? it->second.was_released_now() : false;
 	}
 
 } // namespace engine

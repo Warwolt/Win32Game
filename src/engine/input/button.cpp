@@ -15,11 +15,11 @@ namespace engine {
 		return !m_pressed;
 	}
 
-	bool Button::is_just_pressed() const {
+	bool Button::was_pressed_now() const {
 		return m_pressed && m_just_changed;
 	}
 
-	bool Button::is_just_released() const {
+	bool Button::was_released_now() const {
 		return !m_pressed && m_just_changed;
 	}
 

@@ -9,8 +9,8 @@ namespace engine {
 		void update(bool pressed);
 		bool is_pressed() const;
 		bool is_released() const;
-		bool is_just_pressed() const;
-		bool is_just_released() const;
+		bool was_pressed_now() const;
+		bool was_released_now() const;
 
 	private:
 		bool m_pressed = false;
