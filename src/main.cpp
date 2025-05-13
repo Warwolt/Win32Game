@@ -1,11 +1,28 @@
-#include <optional>
+#include <stdint.h>
 #include <stdio.h>
 #include <windows.h>
+#include <xinput.h>
 
-struct GameState {
-	// for rendering test gradient
-	int x_offset;
+struct XInputDLL {
+	DWORD (*get_state)(DWORD dwUserIndex, XINPUT_STATE* pState);
+	DWORD (*set_state)(DWORD dwUserIndex, XINPUT_VIBRATION* pVibration);
 };
+
+XInputDLL load_x_input() {
+	if (HMODULE x_input_lib = LoadLibraryA("xinput1_4.dll")) {
+		return XInputDLL {
+			.get_state = (decltype(XInputDLL::get_state))GetProcAddress(x_input_lib, "XInputGetState"),
+			.set_state = (decltype(XInputDLL::set_state))GetProcAddress(x_input_lib, "XInputSetState"),
+		};
+	}
+	else {
+		fprintf(stderr, "Error, failed to load XInput library!\n");
+		return XInputDLL {
+			.get_state = [](DWORD dwUserIndex, XINPUT_STATE* pState) -> DWORD { return 0; },
+			.set_state = [](DWORD dwUserIndex, XINPUT_VIBRATION* pVibration) -> DWORD { return 0; },
+		};
+	}
+}
 
 struct Bitmap {
 	BITMAPINFO info;
@@ -14,6 +31,11 @@ struct Bitmap {
 	int width;
 	int height;
 	static constexpr int BYTES_PER_PIXEL = 4;
+};
+
+struct GameState {
+	// for rendering test gradient
+	int x_offset;
 };
 
 struct ProgramContext {
@@ -58,8 +80,8 @@ void resize_window_bitmap(Bitmap* bitmap, HWND window) {
 	bitmap->data = VirtualAlloc(0, bitmap_size, MEM_COMMIT, PAGE_READWRITE);
 	bitmap->width = window_width;
 	bitmap->height = window_height;
-	bitmap->info = {
-		.bmiHeader = {
+	bitmap->info = BITMAPINFO {
+		.bmiHeader = BITMAPINFOHEADER {
 			.biSize = sizeof(BITMAPINFOHEADER),
 			.biWidth = window_width,
 			.biHeight = -window_height,
@@ -190,6 +212,7 @@ int WINAPI WinMain(
 	int /*command_show*/
 ) {
 	initialize_printf();
+	XInputDLL x_input_dll = load_x_input();
 
 	/* Create window */
 	HWND window = initialize_window(instance, on_window_event);
@@ -201,8 +224,9 @@ int WINAPI WinMain(
 	/* Main loop */
 	bool should_quit = false;
 	while (!should_quit) {
-		/* Process messages */
+		/* Read input */
 		{
+			/* Message loop */
 			MSG message;
 			while (PeekMessageA(&message, 0, 0, 0, PM_REMOVE)) {
 				TranslateMessage(&message);
@@ -211,11 +235,44 @@ int WINAPI WinMain(
 					should_quit = true;
 				}
 			}
+
+			/* Device input */
+			for (DWORD controller_index = 0; controller_index < XUSER_MAX_COUNT; controller_index++) {
+				XINPUT_STATE controller_state = {};
+				if (x_input_dll.get_state(controller_index, &controller_state) == ERROR_SUCCESS) {
+					bool dpad_up = controller_state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP;
+					bool dpad_right = controller_state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT;
+					bool dpad_down = controller_state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN;
+					bool dpad_left = controller_state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT;
+					bool start = controller_state.Gamepad.wButtons & XINPUT_GAMEPAD_START;
+					bool back = controller_state.Gamepad.wButtons & XINPUT_GAMEPAD_BACK;
+					bool left_shoulder = controller_state.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER;
+					bool right_shoulder = controller_state.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER;
+					bool button_a = controller_state.Gamepad.wButtons & XINPUT_GAMEPAD_A;
+					bool button_b = controller_state.Gamepad.wButtons & XINPUT_GAMEPAD_B;
+					bool button_x = controller_state.Gamepad.wButtons & XINPUT_GAMEPAD_X;
+					bool button_y = controller_state.Gamepad.wButtons & XINPUT_GAMEPAD_Y;
+					int16_t stick_x = controller_state.Gamepad.sThumbLX;
+					int16_t stick_y = controller_state.Gamepad.sThumbLY;
+
+					if (stick_x > XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
+						g_context.game.x_offset += stick_x / 10000;
+					}
+					else if (stick_x < -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
+						g_context.game.x_offset += stick_x / 10000;
+					}
+
+					printf("stick_x %d\n", stick_x);
+				}
+				else {
+					// controller disconnected
+				}
+			}
 		}
 
 		/* Update */
 		{
-			g_context.game.x_offset += 1;
+			// g_context.game.x_offset += 1;
 		}
 
 		/* Render */
