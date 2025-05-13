@@ -5,7 +5,7 @@ project(rkhero)
 option(WARNINGS_AS_ERRORS "Compile with warnings as errors" OFF)
 
 set(SRC
-    src/input/button.cpp
+    src/engine/input/button.cpp
 )
 
 add_executable(rkhero WIN32 src/main.cpp ${SRC})
