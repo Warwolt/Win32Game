@@ -80,9 +80,9 @@ namespace engine {
 		};
 	}
 
-	void render_window(const Bitmap& bitmap, HWND window, HDC device_context) {
+	void render_window(const Window& window, HDC device_context) {
 		RECT client_rect;
-		GetClientRect(window, &client_rect);
+		GetClientRect(window.handle, &client_rect);
 		int window_width = client_rect.right - client_rect.left;
 		int window_height = client_rect.bottom - client_rect.top;
 
@@ -96,11 +96,11 @@ namespace engine {
 			// source rect (bitmap)
 			0,
 			0,
-			bitmap.width,
-			bitmap.height,
+			window.bitmap.width,
+			window.bitmap.height,
 			// bitmap data
-			bitmap.data,
-			&bitmap.info,
+			window.bitmap.data,
+			&window.bitmap.info,
 			DIB_RGB_COLORS,
 			SRCCOPY
 		);
