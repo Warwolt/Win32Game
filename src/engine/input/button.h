@@ -2,7 +2,7 @@ namespace engine {
 
 	class Button {
 	public:
-		void tick(bool pressed);
+		void update(bool pressed);
 		bool is_pressed() const;
 		bool is_released() const;
 		bool is_just_pressed() const;

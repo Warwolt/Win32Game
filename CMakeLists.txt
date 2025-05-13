@@ -6,6 +6,7 @@ option(WARNINGS_AS_ERRORS "Compile with warnings as errors" OFF)
 
 set(SRC
     src/engine/input/button.cpp
+    src/engine/input/gamepad.cpp
 )
 
 add_executable(rkhero WIN32 src/main.cpp ${SRC})

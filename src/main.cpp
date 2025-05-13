@@ -1,28 +1,7 @@
-#include <stdint.h>
+#include <engine/input/gamepad.h>
+
 #include <stdio.h>
 #include <windows.h>
-#include <xinput.h>
-
-struct XInputDLL {
-	DWORD (*get_state)(DWORD dwUserIndex, XINPUT_STATE* pState);
-	DWORD (*set_state)(DWORD dwUserIndex, XINPUT_VIBRATION* pVibration);
-};
-
-XInputDLL load_x_input() {
-	if (HMODULE x_input_lib = LoadLibraryA("xinput1_4.dll")) {
-		return XInputDLL {
-			.get_state = (decltype(XInputDLL::get_state))GetProcAddress(x_input_lib, "XInputGetState"),
-			.set_state = (decltype(XInputDLL::set_state))GetProcAddress(x_input_lib, "XInputSetState"),
-		};
-	}
-	else {
-		fprintf(stderr, "Error, failed to load XInput library!\n");
-		return XInputDLL {
-			.get_state = [](DWORD dwUserIndex, XINPUT_STATE* pState) -> DWORD { return 0; },
-			.set_state = [](DWORD dwUserIndex, XINPUT_VIBRATION* pVibration) -> DWORD { return 0; },
-		};
-	}
-}
 
 struct Bitmap {
 	BITMAPINFO info;
@@ -41,6 +20,7 @@ struct GameState {
 
 struct ProgramContext {
 	Bitmap bitmap;
+	engine::Gamepad gamepad;
 	GameState game;
 };
 
@@ -213,7 +193,7 @@ int WINAPI WinMain(
 	int /*command_show*/
 ) {
 	initialize_printf();
-	XInputDLL x_input_dll = load_x_input();
+	engine::initialize_gamepad();
 
 	/* Create window */
 	HWND window = initialize_window(instance, on_window_event);
@@ -238,46 +218,25 @@ int WINAPI WinMain(
 			}
 
 			/* Device input */
-			for (DWORD controller_index = 0; controller_index < XUSER_MAX_COUNT; controller_index++) {
-				XINPUT_STATE controller_state = {};
-				if (x_input_dll.get_state(controller_index, &controller_state) == ERROR_SUCCESS) {
-					bool dpad_up = controller_state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP;
-					bool dpad_right = controller_state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT;
-					bool dpad_down = controller_state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN;
-					bool dpad_left = controller_state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT;
-					bool start = controller_state.Gamepad.wButtons & XINPUT_GAMEPAD_START;
-					bool back = controller_state.Gamepad.wButtons & XINPUT_GAMEPAD_BACK;
-					bool left_shoulder = controller_state.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER;
-					bool right_shoulder = controller_state.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER;
-					bool button_a = controller_state.Gamepad.wButtons & XINPUT_GAMEPAD_A;
-					bool button_b = controller_state.Gamepad.wButtons & XINPUT_GAMEPAD_B;
-					bool button_x = controller_state.Gamepad.wButtons & XINPUT_GAMEPAD_X;
-					bool button_y = controller_state.Gamepad.wButtons & XINPUT_GAMEPAD_Y;
-					int16_t stick_x = controller_state.Gamepad.sThumbLX;
-					int16_t stick_y = controller_state.Gamepad.sThumbLY;
-
-					if (stick_x > XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
-						g_context.game.x_offset += stick_x / 10000;
-					}
-					else if (stick_x < -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
-						g_context.game.x_offset += stick_x / 10000;
-					}
-
-					if (stick_y > XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
-						g_context.game.y_offset -= stick_y / 10000;
-					}
-					else if (stick_y < -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
-						g_context.game.y_offset -= stick_y / 10000;
-					}
-				}
-				else {
-					// controller disconnected
-				}
-			}
+			engine::update_gamepad(&g_context.gamepad);
 		}
 
 		/* Update */
 		{
+			constexpr int16_t XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE = 7849;
+			if (g_context.gamepad.left_stick_x > XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
+				g_context.game.x_offset += g_context.gamepad.left_stick_x / 10000;
+			}
+			else if (g_context.gamepad.left_stick_x < -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
+				g_context.game.x_offset += g_context.gamepad.left_stick_x / 10000;
+			}
+
+			if (g_context.gamepad.left_stick_y > XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
+				g_context.game.y_offset -= g_context.gamepad.left_stick_y / 10000;
+			}
+			else if (g_context.gamepad.left_stick_y < -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
+				g_context.game.y_offset -= g_context.gamepad.left_stick_y / 10000;
+			}
 		}
 
 		/* Render */

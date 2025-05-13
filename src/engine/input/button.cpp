@@ -2,7 +2,7 @@
 
 namespace engine {
 
-	void Button::tick(bool pressed) {
+	void Button::update(bool pressed) {
 		m_just_changed = m_pressed != pressed;
 		m_pressed = pressed;
 	}
