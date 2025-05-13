@@ -8,8 +8,8 @@ TEST(ButtonTests, InitiallyReleased) {
 	Button button;
 
     EXPECT_TRUE(button.is_released());
-    EXPECT_FALSE(button.was_released_now());
 	EXPECT_FALSE(button.is_pressed());
+    EXPECT_FALSE(button.was_released_now());
 	EXPECT_FALSE(button.was_pressed_now());
 }
 
@@ -19,8 +19,8 @@ TEST(ButtonTests, Pressed) {
     button.update(true);
 
 	EXPECT_FALSE(button.is_released());
-    EXPECT_FALSE(button.was_released_now());
 	EXPECT_TRUE(button.is_pressed());
+    EXPECT_FALSE(button.was_released_now());
 	EXPECT_TRUE(button.was_pressed_now());
 }
 
@@ -31,8 +31,8 @@ TEST(ButtonTests, HeldDown) {
     button.update(true);
 
 	EXPECT_FALSE(button.is_released());
-    EXPECT_FALSE(button.was_released_now());
 	EXPECT_TRUE(button.is_pressed());
+    EXPECT_FALSE(button.was_released_now());
 	EXPECT_FALSE(button.was_pressed_now());
 }
 
@@ -43,8 +43,8 @@ TEST(ButtonTests, Released) {
     button.update(false);
 
 	EXPECT_TRUE(button.is_released());
-	EXPECT_TRUE(button.was_released_now());
 	EXPECT_FALSE(button.is_pressed());
+	EXPECT_TRUE(button.was_released_now());
 	EXPECT_FALSE(button.was_pressed_now());
 }
 
@@ -57,7 +57,7 @@ TEST(ButtonTests, HeldUp) {
     button.update(false);
 
 	EXPECT_TRUE(button.is_released());
-	EXPECT_FALSE(button.was_released_now());
 	EXPECT_FALSE(button.is_pressed());
+	EXPECT_FALSE(button.was_released_now());
 	EXPECT_FALSE(button.was_pressed_now());
 }

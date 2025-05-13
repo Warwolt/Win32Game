@@ -134,15 +134,15 @@ int WINAPI WinMain(
 
 		/* Update */
 		{
-			if (g_context.keyboard.key_is_just_pressed(VK_ESCAPE)) {
+			if (g_context.keyboard.key_was_pressed_now(VK_ESCAPE)) {
 				should_quit = true;
 			}
 
-			if (g_context.keyboard.key_is_just_pressed('A')) {
+			if (g_context.keyboard.key_was_pressed_now('A')) {
 				printf("A just pressed\n");
 			}
 
-			if (g_context.keyboard.key_is_just_released('A')) {
+			if (g_context.keyboard.key_was_released_now('A')) {
 				printf("A released\n");
 			}
 

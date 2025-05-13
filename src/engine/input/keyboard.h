@@ -15,8 +15,8 @@ namespace engine {
 
 		bool key_is_pressed(uint32_t key_id) const;
 		bool key_is_released(uint32_t key_id) const;
-		bool key_is_just_pressed(uint32_t key_id) const;
-		bool key_is_just_released(uint32_t key_id) const;
+		bool key_was_pressed_now(uint32_t key_id) const;
+		bool key_was_released_now(uint32_t key_id) const;
 
 	private:
 		std::unordered_map<uint32_t, bool> m_key_events;
