@@ -16,6 +16,7 @@ set(SRC
 
 set(TEST_SRC
     test/engine/button_tests.cpp
+    test/engine/keyboard_tests.cpp
 )
 
 # Src Library
