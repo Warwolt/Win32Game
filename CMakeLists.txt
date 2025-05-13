@@ -18,9 +18,18 @@ set(TEST_SRC
     test/engine/button_tests.cpp
 )
 
+# Src Library
+add_library(source STATIC ${SRC})
+target_include_directories(source PUBLIC src)
+set_property(TARGET source PROPERTY CXX_STANDARD 23)
+if (WARNINGS_AS_ERRORS)
+    target_compile_options(source PUBLIC /WX)
+endif()
+
 # Executable
-add_executable(rkhero WIN32 src/main.cpp ${SRC})
+add_executable(rkhero WIN32 src/main.cpp)
 target_include_directories(rkhero PUBLIC src)
+target_link_libraries(rkhero PUBLIC source)
 set_property(TARGET rkhero PROPERTY CXX_STANDARD 23)
 set_property(TARGET rkhero PROPERTY WIN32_EXECUTABLE TRUE)
 if (WARNINGS_AS_ERRORS)
@@ -29,10 +38,13 @@ endif()
 
 
 # Unit tests
-add_executable(unit_tests test/main.cpp ${SRC} ${TEST_SRC})
+add_executable(unit_tests test/main.cpp ${TEST_SRC})
 target_include_directories(unit_tests PUBLIC src test)
-target_link_libraries(unit_tests PUBLIC gtest gmock)
+target_link_libraries(unit_tests PUBLIC gtest gmock source)
 set_property(TARGET unit_tests PROPERTY CXX_STANDARD 23)
+if (WARNINGS_AS_ERRORS)
+    target_compile_options(unit_tests PUBLIC /WX)
+endif()
 
 # Windows workaround for gtest
 if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
