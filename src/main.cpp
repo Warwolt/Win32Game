@@ -12,14 +12,14 @@ struct GameState {
 };
 
 struct ProgramContext {
-	engine::WindowBitmap bitmap;
+	engine::Bitmap bitmap;
 	engine::Gamepad gamepad;
 	GameState game;
 };
 
 static ProgramContext g_context;
 
-void draw_game(engine::WindowBitmap* bitmap, const GameState& game) {
+void draw_game(engine::Bitmap* bitmap, const GameState& game) {
 	// just draws a gradient right now
 	struct Pixel {
 		uint8_t b;
@@ -27,7 +27,7 @@ void draw_game(engine::WindowBitmap* bitmap, const GameState& game) {
 		uint8_t r;
 		uint8_t padding;
 	};
-	int row_byte_size = bitmap->width * engine::WindowBitmap::BYTES_PER_PIXEL;
+	int row_byte_size = bitmap->width * engine::Bitmap::BYTES_PER_PIXEL;
 	uint8_t* current_row = (uint8_t*)bitmap->data;
 	for (int y = 0; y < bitmap->height; y++) {
 		for (int x = 0; x < bitmap->width; x++) {

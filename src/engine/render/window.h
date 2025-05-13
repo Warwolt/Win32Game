@@ -2,7 +2,7 @@
 
 namespace engine {
 
-	struct WindowBitmap {
+	struct Bitmap {
 		BITMAPINFO info;
 		void* data;
 		HBITMAP handle;
@@ -12,7 +12,7 @@ namespace engine {
 	};
 
 	HWND initialize_window(HINSTANCE instance, WNDPROC wnd_proc);
-	void on_window_resized(WindowBitmap* bitmap, HWND window);
-	void render_window(const engine::WindowBitmap& bitmap, HWND window, HDC device_context);
+	void on_window_resized(Bitmap* bitmap, HWND window);
+	void render_window(const engine::Bitmap& bitmap, HWND window, HDC device_context);
 
 } // namespace engine

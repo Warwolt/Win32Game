@@ -40,7 +40,7 @@ namespace engine {
 		return window_handle;
 	}
 
-	void on_window_resized(WindowBitmap* bitmap, HWND window) {
+	void on_window_resized(Bitmap* bitmap, HWND window) {
 		RECT client_rect;
 		GetClientRect(window, &client_rect);
 		int window_width = client_rect.right - client_rect.left;
@@ -50,7 +50,7 @@ namespace engine {
 			VirtualFree(bitmap->data, 0, MEM_RELEASE);
 		}
 
-		int bitmap_size = window_width * window_height * WindowBitmap::BYTES_PER_PIXEL;
+		int bitmap_size = window_width * window_height * Bitmap::BYTES_PER_PIXEL;
 		bitmap->data = VirtualAlloc(0, bitmap_size, MEM_COMMIT, PAGE_READWRITE);
 		bitmap->width = window_width;
 		bitmap->height = window_height;
@@ -66,7 +66,7 @@ namespace engine {
 		};
 	}
 
-	void render_window(const WindowBitmap& bitmap, HWND window, HDC device_context) {
+	void render_window(const Bitmap& bitmap, HWND window, HDC device_context) {
 		RECT client_rect;
 		GetClientRect(window, &client_rect);
 		int window_width = client_rect.right - client_rect.left;
