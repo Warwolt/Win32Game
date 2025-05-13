@@ -1,5 +1,6 @@
 #include <engine/input/gamepad.h>
 #include <engine/render/window.h>
+#include <engine/logging.h>
 
 #include <stdio.h>
 #include <windows.h>
@@ -100,21 +101,6 @@ void render_window(const Bitmap& bitmap, HWND window, HDC device_context) {
 	);
 }
 
-void initialize_printf() {
-	/* Get console */
-	bool has_console = AttachConsole(ATTACH_PARENT_PROCESS); // attach to parent terminal
-	if (!has_console) {
-		has_console = AllocConsole(); // create a new console window
-	}
-
-	/* Attach std streams */
-	if (has_console) {
-		FILE* fi = 0;
-		freopen_s(&fi, "CONOUT$", "wt", stdout);
-		freopen_s(&fi, "CONOUT$", "wt", stderr);
-	}
-}
-
 LRESULT CALLBACK on_window_event(
 	HWND window,
 	UINT message,
@@ -157,7 +143,7 @@ int WINAPI WinMain(
 	LPSTR /*command_line*/,
 	int /*command_show*/
 ) {
-	initialize_printf();
+	engine::initialize_printf();
 	engine::initialize_gamepad();
 
 	/* Create window */

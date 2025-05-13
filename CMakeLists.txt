@@ -8,6 +8,7 @@ set(SRC
     src/engine/input/button.cpp
     src/engine/input/gamepad.cpp
     src/engine/render/window.cpp
+    src/engine/logging.cpp
 )
 
 add_executable(rkhero WIN32 src/main.cpp ${SRC})
