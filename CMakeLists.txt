@@ -15,6 +15,7 @@ set(SRC
 )
 
 set(TEST_SRC
+    test/engine/button_tests.cpp
 )
 
 # Executable
@@ -28,9 +29,9 @@ endif()
 
 
 # Unit tests
-add_executable(unit_tests test/main.cpp ${TEST_SRC})
-target_include_directories(unit_tests PUBLIC test)
-target_link_libraries(unit_tests PUBLIC gtest gmock ${PLATFORM_LIB} ${EDITOR_LIB} ${ENGINE_LIB})
+add_executable(unit_tests test/main.cpp ${SRC} ${TEST_SRC})
+target_include_directories(unit_tests PUBLIC src test)
+target_link_libraries(unit_tests PUBLIC gtest gmock)
 set_property(TARGET unit_tests PROPERTY CXX_STANDARD 23)
 
 # Windows workaround for gtest

@@ -13,8 +13,8 @@ namespace engine {
 		bool is_just_released() const;
 
 	private:
-		bool m_pressed;
-		bool m_just_changed;
+		bool m_pressed = false;
+		bool m_just_changed = false;
 	};
 
 } // namespace engine
