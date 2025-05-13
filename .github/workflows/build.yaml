@@ -1,0 +1,22 @@
+name: build
+on:
+  push:
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.1
+        with:
+          submodules: true
+
+      - name: Setup CMake
+        uses: threeal/cmake-action@v1.3.0
+        with:
+          options: WARNINGS_AS_ERRORS=ON
+
+      - name: Build
+        run: cmake --build build
+
+      - name: Test
+        run: ./build/Debug/unit_tests.exe
