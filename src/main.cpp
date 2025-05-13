@@ -13,12 +13,24 @@
 #include <windows.h>
 
 struct ProgramContext {
+	bool should_quit;
 	engine::Window window;
 	engine::InputDevices input;
 	game::GameState game;
 };
 
 static ProgramContext g_context;
+
+void pump_window_messages() {
+	MSG message;
+	while (PeekMessageA(&message, 0, 0, 0, PM_REMOVE)) {
+		TranslateMessage(&message);
+		DispatchMessageA(&message);
+		if (message.message == WM_QUIT) {
+			g_context.should_quit = true;
+		}
+	}
+}
 
 LRESULT CALLBACK on_window_event(
 	HWND window,
@@ -85,43 +97,22 @@ int WINAPI WinMain(
 	});
 
 	/* Main loop */
-	bool should_quit = false;
-	while (!should_quit) {
-		/* Read input */
-		{
-			/* Message loop */
-			MSG message;
-			while (PeekMessageA(&message, 0, 0, 0, PM_REMOVE)) {
-				TranslateMessage(&message);
-				DispatchMessageA(&message);
-				if (message.message == WM_QUIT) {
-					should_quit = true;
-				}
-			}
-
-			/* Device input */
-			engine::update_gamepad(&g_context.input.gamepad);
-			g_context.input.keyboard.update();
-		}
+	while (!g_context.should_quit) {
+		/* Input */
+		pump_window_messages();
+		engine::update_input_devices(&g_context.input);
 
 		/* Update */
-		{
-			if (g_context.input.keyboard.key_was_pressed_now(VK_ESCAPE)) {
-				should_quit = true;
-			}
-
-			game::update(&g_context.game, g_context.input);
+		game::update(&g_context.game, g_context.input);
+		if (g_context.input.keyboard.key_was_pressed_now(VK_ESCAPE)) {
+			g_context.should_quit = true;
 		}
 
 		/* Render */
-		{
-			HDC device_context = GetDC(g_context.window.handle);
-			{
-				game::draw(&g_context.window.bitmap, g_context.game);
-				engine::render_window(g_context.window, device_context);
-			}
-			ReleaseDC(g_context.window.handle, device_context);
-		}
+		HDC device_context = GetDC(g_context.window.handle);
+		game::draw(&g_context.window.bitmap, g_context.game);
+		engine::render_window(g_context.window, device_context);
+		ReleaseDC(g_context.window.handle, device_context);
 	}
 
 	return 0;

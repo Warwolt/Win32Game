@@ -9,6 +9,7 @@ option(WARNINGS_AS_ERRORS "Compile with warnings as errors" OFF)
 set(SRC
     src/engine/input/button.cpp
     src/engine/input/gamepad.cpp
+    src/engine/input/input.cpp
     src/engine/input/keyboard.cpp
     src/engine/render/window.cpp
     src/engine/logging.cpp

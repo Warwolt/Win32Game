@@ -10,4 +10,6 @@ namespace engine {
 		Keyboard keyboard;
 	};
 
+	void update_input_devices(InputDevices* input);
+
 } // namespace engine
