@@ -1,3 +1,5 @@
+#include <optional>
+
 namespace engine {
 
 	class Button {

@@ -1,22 +1,13 @@
+#include <core/unwrap.h>
 #include <engine/input/gamepad.h>
 #include <engine/logging.h>
 #include <engine/render/window.h>
 
-#include <stdio.h>
-#include <windows.h>
 #include <format>
-
-namespace core {
-
-	template <typename T, typename E, typename F>
-	T unwrap(std::expected<T, E>&& maybe, F&& on_error) {
-		if (!maybe.has_value()) {
-			on_error(maybe.error());
-		}
-		return maybe.value();
-	}
-
-} // namespace core
+#include <stdio.h>
+#include <unordered_map>
+#include <unordered_set>
+#include <windows.h>
 
 struct GameState {
 	// for rendering test gradient
@@ -24,9 +15,20 @@ struct GameState {
 	int y_offset;
 };
 
+// TODO this should be a class probably
+struct Keyboard {
+	std::unordered_map<uint32_t, bool> events; // key, pressed
+	std::unordered_set<uint32_t> active_keys;
+	std::unordered_map<uint32_t, engine::Button> key;
+};
+
 struct ProgramContext {
+	// rendering
 	engine::Window window;
+	// input
 	engine::Gamepad gamepad;
+	Keyboard keyboard;
+	// game
 	GameState game;
 };
 
@@ -63,8 +65,21 @@ LRESULT CALLBACK on_window_event(
 	switch (message) {
 		case WM_SIZE: {
 			if (window == g_context.window.handle) {
-			engine::on_window_resized(&g_context.window);
+				engine::on_window_resized(&g_context.window);
 			}
+		} break;
+
+		case WM_SYSKEYDOWN:
+		case WM_KEYDOWN: {
+			uint32_t key = (uint32_t)w_param;
+			g_context.keyboard.events.insert({ key, true });
+			g_context.keyboard.active_keys.insert(key);
+		} break;
+
+		case WM_SYSKEYUP:
+		case WM_KEYUP: {
+			uint32_t key = (uint32_t)w_param;
+			g_context.keyboard.events.insert({ key, false });
 		} break;
 
 		case WM_DESTROY: {
@@ -121,10 +136,22 @@ int WINAPI WinMain(
 
 			/* Device input */
 			engine::update_gamepad(&g_context.gamepad);
+
+			// update keyboard
+			for (uint32_t key : g_context.keyboard.active_keys) {
+				auto it = g_context.keyboard.events.find(key);
+				bool pressed = it != g_context.keyboard.events.end() ? it->second : g_context.keyboard.key[key].is_pressed();
+				g_context.keyboard.key[key].update(pressed);
+			}
+			g_context.keyboard.events.clear();
 		}
 
 		/* Update */
 		{
+			if (g_context.keyboard.key[VK_ESCAPE].is_just_pressed()) {
+				should_quit = true;
+			}
+
 			constexpr int16_t XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE = 7849;
 			if (g_context.gamepad.left_stick_x > XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
 				g_context.game.x_offset += g_context.gamepad.left_stick_x / 10000;
@@ -138,6 +165,14 @@ int WINAPI WinMain(
 			}
 			else if (g_context.gamepad.left_stick_y < -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
 				g_context.game.y_offset -= g_context.gamepad.left_stick_y / 10000;
+			}
+
+			if (g_context.keyboard.key['A'].is_just_pressed()) {
+				printf("A just pressed\n");
+			}
+
+			if (g_context.keyboard.key['A'].is_just_released()) {
+				printf("A released\n");
 			}
 		}
 
