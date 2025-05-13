@@ -63,10 +63,13 @@ LRESULT CALLBACK on_window_event(
 		} break;
 
 		case WM_PAINT: {
+			draw_game(&g_context.window.bitmap, g_context.game);
+
 			PAINTSTRUCT paint;
 			HDC device_context = BeginPaint(window, &paint);
-			draw_game(&g_context.window.bitmap, g_context.game);
-			engine::render_window(g_context.window.bitmap, window, device_context);
+			{
+				engine::render_window(g_context.window.bitmap, window, device_context);
+			}
 			EndPaint(window, &paint);
 		} break;
 	}
@@ -84,8 +87,8 @@ int WINAPI WinMain(
 	engine::initialize_gamepad();
 
 	/* Create window */
-	HWND window = engine::initialize_window(instance, on_window_event);
-	if (!window) {
+	g_context.window = engine::initialize_window(instance, on_window_event);
+	if (!g_context.window.handle) {
 		fprintf(stderr, "Couldn't initialize window, aborting");
 		return 1;
 	};
@@ -129,10 +132,13 @@ int WINAPI WinMain(
 
 		/* Render */
 		{
-			HDC device_context = GetDC(window);
 			draw_game(&g_context.window.bitmap, g_context.game);
-			engine::render_window(g_context.window.bitmap, window, device_context);
-			ReleaseDC(window, device_context);
+
+			HDC device_context = GetDC(g_context.window.handle);
+			{
+				engine::render_window(g_context.window.bitmap, g_context.window.handle, device_context);
+			}
+			ReleaseDC(g_context.window.handle, device_context);
 		}
 	}
 

@@ -5,7 +5,9 @@
 namespace engine {
 
 	// Tries to initialize window, returns nullptr if fails
-	HWND initialize_window(HINSTANCE instance, WNDPROC wnd_proc) {
+	Window initialize_window(HINSTANCE instance, WNDPROC wnd_proc) {
+		Window window;
+
 		/* Register window class */
 		WNDCLASSA window_class = {
 			.style =
@@ -18,11 +20,11 @@ namespace engine {
 		};
 		if (!RegisterClassA(&window_class)) {
 			fprintf(stderr, "failed to register window class, aborting");
-			return nullptr;
+			return {};
 		}
 
 		/* Create window */
-		HWND window_handle = CreateWindowExA(
+		window.handle = CreateWindowExA(
 			0,                                // DWORD dwExStyle
 			window_class.lpszClassName,       // LPCWSTR lpClassName
 			"Handmade Hero",                  // LPCWSTR lpWindowName
@@ -37,7 +39,11 @@ namespace engine {
 			0                                 // LPVOID lpParam
 		);
 
-		return window_handle;
+		if (window.handle) {
+			on_window_resized(&window.bitmap, window.handle);
+		}
+
+		return window;
 	}
 
 	void on_window_resized(Bitmap* bitmap, HWND window) {

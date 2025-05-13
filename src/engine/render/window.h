@@ -16,7 +16,8 @@ namespace engine {
 		Bitmap bitmap;
 	};
 
-	HWND initialize_window(HINSTANCE instance, WNDPROC wnd_proc);
+	// FIXME: return std::expected here instead
+	Window initialize_window(HINSTANCE instance, WNDPROC wnd_proc);
 	void on_window_resized(Bitmap* bitmap, HWND window);
 	void render_window(const engine::Bitmap& bitmap, HWND window, HDC device_context);
 
