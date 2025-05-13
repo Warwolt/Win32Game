@@ -1,8 +1,10 @@
 #include <core/unwrap.h>
 #include <engine/input/gamepad.h>
+#include <engine/input/input.h>
 #include <engine/input/keyboard.h>
 #include <engine/logging.h>
 #include <engine/render/window.h>
+#include <game/game.h>
 
 #include <format>
 #include <stdio.h>
@@ -10,44 +12,13 @@
 #include <unordered_set>
 #include <windows.h>
 
-struct GameState {
-	// for rendering test gradient
-	int x_offset;
-	int y_offset;
-};
-
 struct ProgramContext {
-	// rendering
 	engine::Window window;
-	// input
-	engine::Gamepad gamepad;
-	engine::Keyboard keyboard;
-	// game
-	GameState game;
+	engine::InputDevices input;
+	game::GameState game;
 };
 
 static ProgramContext g_context;
-
-void draw_game(engine::Bitmap* bitmap, const GameState& game) {
-	// just draws a gradient right now
-	struct Pixel {
-		uint8_t b;
-		uint8_t g;
-		uint8_t r;
-		uint8_t padding;
-	};
-	int row_byte_size = bitmap->width * engine::Bitmap::BYTES_PER_PIXEL;
-	uint8_t* current_row = (uint8_t*)bitmap->data;
-	for (int y = 0; y < bitmap->height; y++) {
-		for (int x = 0; x < bitmap->width; x++) {
-			Pixel* pixel = (Pixel*)current_row + x;
-			pixel->r = 0;
-			pixel->g = (uint8_t)(y + game.y_offset);
-			pixel->b = (uint8_t)(x + game.x_offset);
-		}
-		current_row += row_byte_size;
-	}
-}
 
 LRESULT CALLBACK on_window_event(
 	HWND window,
@@ -66,13 +37,13 @@ LRESULT CALLBACK on_window_event(
 		case WM_SYSKEYDOWN:
 		case WM_KEYDOWN: {
 			uint32_t key_id = (uint32_t)w_param;
-			g_context.keyboard.on_key_event(key_id, true);
+			g_context.input.keyboard.on_key_event(key_id, true);
 		} break;
 
 		case WM_SYSKEYUP:
 		case WM_KEYUP: {
 			uint32_t key_id = (uint32_t)w_param;
-			g_context.keyboard.on_key_event(key_id, false);
+			g_context.input.keyboard.on_key_event(key_id, false);
 		} break;
 
 		case WM_DESTROY: {
@@ -86,11 +57,12 @@ LRESULT CALLBACK on_window_event(
 		} break;
 
 		case WM_PAINT: {
-			draw_game(&g_context.window.bitmap, g_context.game);
-
 			PAINTSTRUCT paint;
 			HDC device_context = BeginPaint(window, &paint);
-			engine::render_window(g_context.window, device_context);
+			{
+				game::draw(&g_context.window.bitmap, g_context.game);
+				engine::render_window(g_context.window, device_context);
+			}
 			EndPaint(window, &paint);
 		} break;
 	}
@@ -128,38 +100,26 @@ int WINAPI WinMain(
 			}
 
 			/* Device input */
-			engine::update_gamepad(&g_context.gamepad);
-			g_context.keyboard.update();
+			engine::update_gamepad(&g_context.input.gamepad);
+			g_context.input.keyboard.update();
 		}
 
 		/* Update */
 		{
-			if (g_context.keyboard.key_was_pressed_now(VK_ESCAPE)) {
+			if (g_context.input.keyboard.key_was_pressed_now(VK_ESCAPE)) {
 				should_quit = true;
 			}
 
-			constexpr int16_t XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE = 7849;
-			if (g_context.gamepad.left_stick_x > XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
-				g_context.game.x_offset += g_context.gamepad.left_stick_x / 10000;
-			}
-			else if (g_context.gamepad.left_stick_x < -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
-				g_context.game.x_offset += g_context.gamepad.left_stick_x / 10000;
-			}
-
-			if (g_context.gamepad.left_stick_y > XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
-				g_context.game.y_offset -= g_context.gamepad.left_stick_y / 10000;
-			}
-			else if (g_context.gamepad.left_stick_y < -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
-				g_context.game.y_offset -= g_context.gamepad.left_stick_y / 10000;
-			}
+			game::update(&g_context.game, g_context.input);
 		}
 
 		/* Render */
 		{
-			draw_game(&g_context.window.bitmap, g_context.game);
-
 			HDC device_context = GetDC(g_context.window.handle);
-			engine::render_window(g_context.window, device_context);
+			{
+				game::draw(&g_context.window.bitmap, g_context.game);
+				engine::render_window(g_context.window, device_context);
+			}
 			ReleaseDC(g_context.window.handle, device_context);
 		}
 	}

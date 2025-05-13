@@ -12,6 +12,7 @@ set(SRC
     src/engine/input/keyboard.cpp
     src/engine/render/window.cpp
     src/engine/logging.cpp
+    src/game/game.cpp
 )
 
 set(TEST_SRC
