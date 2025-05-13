@@ -16,8 +16,6 @@ namespace engine {
 	std::expected<Window, WindowError> initialize_window(HINSTANCE instance, WNDPROC wnd_proc) {
 		Window window;
 
-		return std::unexpected(WindowError::FailedToRegisterClass);
-
 		/* Register window class */
 		WNDCLASSA window_class = {
 			.style =
@@ -52,25 +50,25 @@ namespace engine {
 			return std::unexpected(WindowError::FailedToCreateWindow);
 		}
 
-		on_window_resized(&window.bitmap, window.handle);
+		on_window_resized(&window);
 		return window;
 	}
 
-	void on_window_resized(Bitmap* bitmap, HWND window) {
+	void on_window_resized(Window* window) {
 		RECT client_rect;
-		GetClientRect(window, &client_rect);
+		GetClientRect(window->handle, &client_rect);
 		int window_width = client_rect.right - client_rect.left;
 		int window_height = client_rect.bottom - client_rect.top;
 
-		if (bitmap->data) {
-			VirtualFree(bitmap->data, 0, MEM_RELEASE);
+		if (window->bitmap.data) {
+			VirtualFree(window->bitmap.data, 0, MEM_RELEASE);
 		}
 
 		int bitmap_size = window_width * window_height * Bitmap::BYTES_PER_PIXEL;
-		bitmap->data = VirtualAlloc(0, bitmap_size, MEM_COMMIT, PAGE_READWRITE);
-		bitmap->width = window_width;
-		bitmap->height = window_height;
-		bitmap->info = BITMAPINFO {
+		window->bitmap.data = VirtualAlloc(0, bitmap_size, MEM_COMMIT, PAGE_READWRITE);
+		window->bitmap.width = window_width;
+		window->bitmap.height = window_height;
+		window->bitmap.info = BITMAPINFO {
 			.bmiHeader = BITMAPINFOHEADER {
 				.biSize = sizeof(BITMAPINFOHEADER),
 				.biWidth = window_width,

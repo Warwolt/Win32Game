@@ -62,7 +62,9 @@ LRESULT CALLBACK on_window_event(
 	LRESULT result = 0;
 	switch (message) {
 		case WM_SIZE: {
-			engine::on_window_resized(&g_context.window.bitmap, window);
+			if (window == g_context.window.handle) {
+			engine::on_window_resized(&g_context.window);
+			}
 		} break;
 
 		case WM_DESTROY: {

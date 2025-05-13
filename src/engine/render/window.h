@@ -25,7 +25,7 @@ namespace engine {
 
 	std::expected<Window, WindowError> initialize_window(HINSTANCE instance, WNDPROC wnd_proc);
 	const char* window_error_to_str(WindowError error);
-	void on_window_resized(Bitmap* bitmap, HWND window);
+	void on_window_resized(Window* window);
 	void render_window(const engine::Bitmap& bitmap, HWND window, HDC device_context);
 
 } // namespace engine
