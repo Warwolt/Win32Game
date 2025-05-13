@@ -1,4 +1,5 @@
 #include <engine/input/gamepad.h>
+#include <engine/render/window.h>
 
 #include <stdio.h>
 #include <windows.h>
@@ -99,42 +100,6 @@ void render_window(const Bitmap& bitmap, HWND window, HDC device_context) {
 	);
 }
 
-// Tries to initialize window, returns nullptr if fails
-HWND initialize_window(HINSTANCE instance, WNDPROC wnd_proc) {
-	/* Register window class */
-	WNDCLASSA window_class = {
-		.style =
-			CS_OWNDC                   // give this window a unique device context
-			| CS_HREDRAW | CS_VREDRAW, // redraw entire window when it's resized
-		.lpfnWndProc = wnd_proc,
-		.hInstance = instance,
-		.hCursor = LoadCursor(NULL, IDC_ARROW),
-		.lpszClassName = "HandmadeHeroWindowClass",
-	};
-	if (!RegisterClassA(&window_class)) {
-		fprintf(stderr, "failed to register window class, aborting");
-		return nullptr;
-	}
-
-	/* Create window */
-	HWND window_handle = CreateWindowExA(
-		0,                                // DWORD dwExStyle
-		window_class.lpszClassName,       // LPCWSTR lpClassName
-		"Handmade Hero",                  // LPCWSTR lpWindowName
-		WS_OVERLAPPEDWINDOW | WS_VISIBLE, // DWORD dwStyle
-		CW_USEDEFAULT,                    // int X
-		CW_USEDEFAULT,                    // int Y
-		CW_USEDEFAULT,                    // int nWidth
-		CW_USEDEFAULT,                    // int nHeight
-		0,                                // HWND hWndParent
-		0,                                // HMENU hMenu
-		instance,                         // HINSTANCE hInstance
-		0                                 // LPVOID lpParam
-	);
-
-	return window_handle;
-}
-
 void initialize_printf() {
 	/* Get console */
 	bool has_console = AttachConsole(ATTACH_PARENT_PROCESS); // attach to parent terminal
@@ -196,7 +161,7 @@ int WINAPI WinMain(
 	engine::initialize_gamepad();
 
 	/* Create window */
-	HWND window = initialize_window(instance, on_window_event);
+	HWND window = engine::initialize_window(instance, on_window_event);
 	if (!window) {
 		fprintf(stderr, "Couldn't initialize window, aborting");
 		return 1;
