@@ -1,18 +1,9 @@
 #include <engine/input/gamepad.h>
-#include <engine/render/window.h>
 #include <engine/logging.h>
+#include <engine/render/window.h>
 
 #include <stdio.h>
 #include <windows.h>
-
-struct Bitmap {
-	BITMAPINFO info;
-	void* data;
-	HBITMAP handle;
-	int width;
-	int height;
-	static constexpr int BYTES_PER_PIXEL = 4;
-};
 
 struct GameState {
 	// for rendering test gradient
@@ -21,14 +12,14 @@ struct GameState {
 };
 
 struct ProgramContext {
-	Bitmap bitmap;
+	engine::WindowBitmap bitmap;
 	engine::Gamepad gamepad;
 	GameState game;
 };
 
 static ProgramContext g_context;
 
-void draw_game(Bitmap* bitmap, const GameState& game) {
+void draw_game(engine::WindowBitmap* bitmap, const GameState& game) {
 	// just draws a gradient right now
 	struct Pixel {
 		uint8_t b;
@@ -36,7 +27,7 @@ void draw_game(Bitmap* bitmap, const GameState& game) {
 		uint8_t r;
 		uint8_t padding;
 	};
-	int row_byte_size = bitmap->width * Bitmap::BYTES_PER_PIXEL;
+	int row_byte_size = bitmap->width * engine::WindowBitmap::BYTES_PER_PIXEL;
 	uint8_t* current_row = (uint8_t*)bitmap->data;
 	for (int y = 0; y < bitmap->height; y++) {
 		for (int x = 0; x < bitmap->width; x++) {
@@ -49,58 +40,6 @@ void draw_game(Bitmap* bitmap, const GameState& game) {
 	}
 }
 
-void resize_window_bitmap(Bitmap* bitmap, HWND window) {
-	RECT client_rect;
-	GetClientRect(window, &client_rect);
-	int window_width = client_rect.right - client_rect.left;
-	int window_height = client_rect.bottom - client_rect.top;
-
-	if (bitmap->data) {
-		VirtualFree(bitmap->data, 0, MEM_RELEASE);
-	}
-
-	int bitmap_size = window_width * window_height * Bitmap::BYTES_PER_PIXEL;
-	bitmap->data = VirtualAlloc(0, bitmap_size, MEM_COMMIT, PAGE_READWRITE);
-	bitmap->width = window_width;
-	bitmap->height = window_height;
-	bitmap->info = BITMAPINFO {
-		.bmiHeader = BITMAPINFOHEADER {
-			.biSize = sizeof(BITMAPINFOHEADER),
-			.biWidth = window_width,
-			.biHeight = -window_height,
-			.biPlanes = 1,
-			.biBitCount = 32,
-			.biCompression = BI_RGB,
-		}
-	};
-}
-
-void render_window(const Bitmap& bitmap, HWND window, HDC device_context) {
-	RECT client_rect;
-	GetClientRect(window, &client_rect);
-	int window_width = client_rect.right - client_rect.left;
-	int window_height = client_rect.bottom - client_rect.top;
-
-	StretchDIBits(
-		device_context,
-		// destination rect (window)
-		0,
-		0,
-		window_width,
-		window_height,
-		// source rect (bitmap)
-		0,
-		0,
-		bitmap.width,
-		bitmap.height,
-		// bitmap data
-		bitmap.data,
-		&bitmap.info,
-		DIB_RGB_COLORS,
-		SRCCOPY
-	);
-}
-
 LRESULT CALLBACK on_window_event(
 	HWND window,
 	UINT message,
@@ -110,7 +49,7 @@ LRESULT CALLBACK on_window_event(
 	LRESULT result = 0;
 	switch (message) {
 		case WM_SIZE: {
-			resize_window_bitmap(&g_context.bitmap, window);
+			engine::on_window_resized(&g_context.bitmap, window);
 		} break;
 
 		case WM_DESTROY: {
@@ -126,10 +65,8 @@ LRESULT CALLBACK on_window_event(
 		case WM_PAINT: {
 			PAINTSTRUCT paint;
 			HDC device_context = BeginPaint(window, &paint);
-			{
-				draw_game(&g_context.bitmap, g_context.game);
-				render_window(g_context.bitmap, window, device_context);
-			}
+			draw_game(&g_context.bitmap, g_context.game);
+			engine::render_window(g_context.bitmap, window, device_context);
 			EndPaint(window, &paint);
 		} break;
 	}
@@ -193,10 +130,8 @@ int WINAPI WinMain(
 		/* Render */
 		{
 			HDC device_context = GetDC(window);
-			{
-				draw_game(&g_context.bitmap, g_context.game);
-				render_window(g_context.bitmap, window, device_context);
-			}
+			draw_game(&g_context.bitmap, g_context.game);
+			engine::render_window(g_context.bitmap, window, device_context);
 			ReleaseDC(window, device_context);
 		}
 	}
