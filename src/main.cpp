@@ -12,7 +12,7 @@ struct GameState {
 };
 
 struct ProgramContext {
-	engine::Bitmap bitmap;
+	engine::Window window;
 	engine::Gamepad gamepad;
 	GameState game;
 };
@@ -49,7 +49,7 @@ LRESULT CALLBACK on_window_event(
 	LRESULT result = 0;
 	switch (message) {
 		case WM_SIZE: {
-			engine::on_window_resized(&g_context.bitmap, window);
+			engine::on_window_resized(&g_context.window.bitmap, window);
 		} break;
 
 		case WM_DESTROY: {
@@ -65,8 +65,8 @@ LRESULT CALLBACK on_window_event(
 		case WM_PAINT: {
 			PAINTSTRUCT paint;
 			HDC device_context = BeginPaint(window, &paint);
-			draw_game(&g_context.bitmap, g_context.game);
-			engine::render_window(g_context.bitmap, window, device_context);
+			draw_game(&g_context.window.bitmap, g_context.game);
+			engine::render_window(g_context.window.bitmap, window, device_context);
 			EndPaint(window, &paint);
 		} break;
 	}
@@ -130,8 +130,8 @@ int WINAPI WinMain(
 		/* Render */
 		{
 			HDC device_context = GetDC(window);
-			draw_game(&g_context.bitmap, g_context.game);
-			engine::render_window(g_context.bitmap, window, device_context);
+			draw_game(&g_context.window.bitmap, g_context.game);
+			engine::render_window(g_context.window.bitmap, window, device_context);
 			ReleaseDC(window, device_context);
 		}
 	}

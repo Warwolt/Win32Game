@@ -11,6 +11,11 @@ namespace engine {
 		static constexpr int BYTES_PER_PIXEL = 4;
 	};
 
+	struct Window {
+		HWND handle;
+		Bitmap bitmap;
+	};
+
 	HWND initialize_window(HINSTANCE instance, WNDPROC wnd_proc);
 	void on_window_resized(Bitmap* bitmap, HWND window);
 	void render_window(const engine::Bitmap& bitmap, HWND window, HDC device_context);
