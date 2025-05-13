@@ -36,6 +36,7 @@ struct Bitmap {
 struct GameState {
 	// for rendering test gradient
 	int x_offset;
+	int y_offset;
 };
 
 struct ProgramContext {
@@ -59,7 +60,7 @@ void draw_game(Bitmap* bitmap, const GameState& game) {
 		for (int x = 0; x < bitmap->width; x++) {
 			Pixel* pixel = (Pixel*)current_row + x;
 			pixel->r = 0;
-			pixel->g = (uint8_t)y;
+			pixel->g = (uint8_t)(y + game.y_offset);
 			pixel->b = (uint8_t)(x + game.x_offset);
 		}
 		current_row += row_byte_size;
@@ -262,7 +263,13 @@ int WINAPI WinMain(
 						g_context.game.x_offset += stick_x / 10000;
 					}
 
-					printf("stick_x %d\n", stick_x);
+					if (stick_y > XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
+						g_context.game.y_offset -= stick_y / 10000;
+					}
+					else if (stick_y < -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
+						g_context.game.y_offset -= stick_y / 10000;
+					}
+
 				}
 				else {
 					// controller disconnected
@@ -272,7 +279,6 @@ int WINAPI WinMain(
 
 		/* Update */
 		{
-			// g_context.game.x_offset += 1;
 		}
 
 		/* Render */
