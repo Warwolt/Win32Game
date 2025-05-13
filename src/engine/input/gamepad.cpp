@@ -7,8 +7,8 @@
 namespace engine {
 
 	struct XInputDLL {
-		DWORD (*get_state)(DWORD dwUserIndex, XINPUT_STATE* pState) = [](DWORD dwUserIndex, XINPUT_STATE* pState) -> DWORD { return 0; };
-		DWORD (*set_state)(DWORD dwUserIndex, XINPUT_VIBRATION* pVibration) = [](DWORD dwUserIndex, XINPUT_VIBRATION* pVibration) -> DWORD { return 0; };
+		DWORD (*get_state)(DWORD dwUserIndex, XINPUT_STATE* pState) = [](DWORD dwUserIndex, XINPUT_STATE* pState) -> DWORD { return ERROR_DEVICE_NOT_CONNECTED; };
+		DWORD (*set_state)(DWORD dwUserIndex, XINPUT_VIBRATION* pVibration) = [](DWORD dwUserIndex, XINPUT_VIBRATION* pVibration) -> DWORD { return ERROR_DEVICE_NOT_CONNECTED; };
 	} g_x_input_dll;
 
 	void initialize_gamepad() {

@@ -138,14 +138,6 @@ int WINAPI WinMain(
 				should_quit = true;
 			}
 
-			if (g_context.keyboard.key_was_pressed_now('A')) {
-				printf("A just pressed\n");
-			}
-
-			if (g_context.keyboard.key_was_released_now('A')) {
-				printf("A released\n");
-			}
-
 			constexpr int16_t XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE = 7849;
 			if (g_context.gamepad.left_stick_x > XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
 				g_context.game.x_offset += g_context.gamepad.left_stick_x / 10000;
