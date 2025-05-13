@@ -4,9 +4,19 @@
 
 namespace engine {
 
+	const char* window_error_to_str(WindowError error) {
+		switch (error) {
+			case WindowError::FailedToRegisterClass: return "FailedToRegisterClass";
+			case WindowError::FailedToCreateWindow: return "FailedToCreateWindow";
+		}
+		return "";
+	}
+
 	// Tries to initialize window, returns nullptr if fails
-	Window initialize_window(HINSTANCE instance, WNDPROC wnd_proc) {
+	std::expected<Window, WindowError> initialize_window(HINSTANCE instance, WNDPROC wnd_proc) {
 		Window window;
+
+		return std::unexpected(WindowError::FailedToRegisterClass);
 
 		/* Register window class */
 		WNDCLASSA window_class = {
@@ -19,8 +29,7 @@ namespace engine {
 			.lpszClassName = "HandmadeHeroWindowClass",
 		};
 		if (!RegisterClassA(&window_class)) {
-			fprintf(stderr, "failed to register window class, aborting");
-			return {};
+			return std::unexpected(WindowError::FailedToRegisterClass);
 		}
 
 		/* Create window */
@@ -39,10 +48,11 @@ namespace engine {
 			0                                 // LPVOID lpParam
 		);
 
-		if (window.handle) {
-			on_window_resized(&window.bitmap, window.handle);
+		if (!window.handle) {
+			return std::unexpected(WindowError::FailedToCreateWindow);
 		}
 
+		on_window_resized(&window.bitmap, window.handle);
 		return window;
 	}
 

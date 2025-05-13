@@ -4,6 +4,19 @@
 
 #include <stdio.h>
 #include <windows.h>
+#include <format>
+
+namespace core {
+
+	template <typename T, typename E, typename F>
+	T unwrap(std::expected<T, E>&& maybe, F&& on_error) {
+		if (!maybe.has_value()) {
+			on_error(maybe.error());
+		}
+		return maybe.value();
+	}
+
+} // namespace core
 
 struct GameState {
 	// for rendering test gradient
@@ -85,13 +98,11 @@ int WINAPI WinMain(
 ) {
 	engine::initialize_printf();
 	engine::initialize_gamepad();
-
-	/* Create window */
-	g_context.window = engine::initialize_window(instance, on_window_event);
-	if (!g_context.window.handle) {
-		fprintf(stderr, "Couldn't initialize window, aborting");
-		return 1;
-	};
+	g_context.window = core::unwrap(engine::initialize_window(instance, on_window_event), [](engine::WindowError error) {
+		std::string message = std::format("Couldn't create window: {}", engine::window_error_to_str(error));
+		MessageBoxA(0, message.c_str(), "Error", MB_OK | MB_ICONERROR);
+		exit(1);
+	});
 
 	/* Main loop */
 	bool should_quit = false;

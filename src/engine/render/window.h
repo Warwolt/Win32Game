@@ -1,3 +1,5 @@
+#include <expected>
+
 #include <windows.h>
 
 namespace engine {
@@ -16,8 +18,13 @@ namespace engine {
 		Bitmap bitmap;
 	};
 
-	// FIXME: return std::expected here instead
-	Window initialize_window(HINSTANCE instance, WNDPROC wnd_proc);
+	enum class WindowError {
+		FailedToRegisterClass,
+		FailedToCreateWindow,
+	};
+
+	std::expected<Window, WindowError> initialize_window(HINSTANCE instance, WNDPROC wnd_proc);
+	const char* window_error_to_str(WindowError error);
 	void on_window_resized(Bitmap* bitmap, HWND window);
 	void render_window(const engine::Bitmap& bitmap, HWND window, HDC device_context);
 
