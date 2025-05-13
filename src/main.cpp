@@ -269,7 +269,6 @@ int WINAPI WinMain(
 					else if (stick_y < -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
 						g_context.game.y_offset -= stick_y / 10000;
 					}
-
 				}
 				else {
 					// controller disconnected
