@@ -1,3 +1,5 @@
+#pragma once
+
 #include <engine/input/button.h>
 
 #include <stdint.h>
