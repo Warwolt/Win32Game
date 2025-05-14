@@ -44,7 +44,6 @@ LRESULT CALLBACK on_window_event(
 	WPARAM w_param,
 	LPARAM l_param
 ) {
-	LRESULT result = 0;
 	switch (message) {
 		case WM_SIZE: {
 			if (window == g_context.window.handle) {
