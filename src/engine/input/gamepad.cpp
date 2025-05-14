@@ -6,16 +6,16 @@
 
 namespace engine {
 
-	struct XInputDLL {
-		DWORD (*get_state)(DWORD dwUserIndex, XINPUT_STATE* pState) = [](DWORD, XINPUT_STATE*) -> DWORD { return ERROR_DEVICE_NOT_CONNECTED; };
-		DWORD (*set_state)(DWORD dwUserIndex, XINPUT_VIBRATION* pVibration) = [](DWORD, XINPUT_VIBRATION*) -> DWORD { return ERROR_DEVICE_NOT_CONNECTED; };
-	} g_x_input_dll;
+	static struct XInputDLL {
+		DWORD (*XInputGetState)(DWORD dwUserIndex, XINPUT_STATE* pState) = [](DWORD, XINPUT_STATE*) -> DWORD { return ERROR_DEVICE_NOT_CONNECTED; };
+		DWORD (*XInputSetState)(DWORD dwUserIndex, XINPUT_VIBRATION* pVibration) = [](DWORD, XINPUT_VIBRATION*) -> DWORD { return ERROR_DEVICE_NOT_CONNECTED; };
+	} g_xinput_dll;
 
 	void initialize_gamepad_support() {
-		if (HMODULE x_input_lib = LoadLibraryA("xinput1_4.dll")) {
-			g_x_input_dll = {
-				.get_state = (decltype(XInputDLL::get_state))GetProcAddress(x_input_lib, "XInputGetState"),
-				.set_state = (decltype(XInputDLL::set_state))GetProcAddress(x_input_lib, "XInputSetState"),
+		if (HMODULE xinput_module = LoadLibraryA("xinput1_4.dll")) {
+			g_xinput_dll = {
+				.XInputGetState = (decltype(XInputDLL::XInputGetState))GetProcAddress(xinput_module, "XInputGetState"),
+				.XInputSetState = (decltype(XInputDLL::XInputSetState))GetProcAddress(xinput_module, "XInputSetState"),
 			};
 		}
 		else {
@@ -25,7 +25,7 @@ namespace engine {
 
 	void update_gamepad(Gamepad* gamepad, int index) {
 		XINPUT_STATE controller_state = {};
-		if (g_x_input_dll.get_state(index, &controller_state) == ERROR_SUCCESS) {
+		if (g_xinput_dll.XInputGetState(index, &controller_state) == ERROR_SUCCESS) {
 			gamepad->dpad_up.update(controller_state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP);
 			gamepad->dpad_right.update(controller_state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT);
 			gamepad->dpad_down.update(controller_state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN);
