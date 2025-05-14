@@ -1,3 +1,4 @@
+#include <engine/audio/audio_player.h>
 #include <engine/input/gamepad.h>
 #include <engine/input/input.h>
 #include <engine/input/keyboard.h>
@@ -12,6 +13,7 @@ struct ProgramContext {
 	bool should_quit;
 	engine::Window window;
 	engine::InputDevices input;
+	engine::AudioPlayer audio;
 	game::GameState game;
 };
 
@@ -87,6 +89,27 @@ LRESULT CALLBACK on_window_event(
 	return DefWindowProc(window, message, w_param, l_param);
 }
 
+engine::AudioID load_audio_from_file(const char* path) {
+	HANDLE cowbell_file = CreateFileA(
+		path,
+		GENERIC_READ,
+		FILE_SHARE_READ,
+		NULL,
+		OPEN_EXISTING,
+		0,
+		NULL
+	);
+	std::expected<engine::AudioID, std::string> result = g_context.audio.add_audio_from_file(cowbell_file);
+	CloseHandle(cowbell_file);
+
+	if (!result.has_value()) {
+		fprintf(stderr, "Failed to load audio file \"%s\": %s\n", path, result.error().c_str());
+		exit(1);
+	}
+
+	return result.value();
+}
+
 int WINAPI WinMain(
 	HINSTANCE instance,
 	HINSTANCE /*prev_instance*/,
@@ -96,6 +119,8 @@ int WINAPI WinMain(
 	engine::initialize_printf();
 	engine::initialize_gamepad_support();
 	g_context.window = initialize_window_or_abort(instance, on_window_event);
+	g_context.audio = engine::initialize_audio_player();
+	engine::AudioID cowbell = load_audio_from_file("assets/audio/808_cowbell.wav");
 
 	/* Main loop */
 	while (!g_context.should_quit) {
@@ -105,8 +130,15 @@ int WINAPI WinMain(
 
 		/* Update */
 		game::update(&g_context.game, g_context.input);
+
+		// quick quit while prototyping
 		if (g_context.input.keyboard.key_was_pressed_now(VK_ESCAPE)) {
 			g_context.should_quit = true;
+		}
+
+		// trigger sound with keyboard
+		if (g_context.input.keyboard.key_was_pressed_now('1')) {
+			g_context.audio.play(cowbell);
 		}
 
 		/* Render */
