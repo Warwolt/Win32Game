@@ -18,8 +18,8 @@ Overall goal:
 - [!] Write Zelda Dungeon game
 
 # Doing
-- Audio support
 
 # Done
+- Audio support
 - Controller and keyboard input
 - Create window and draw to it
