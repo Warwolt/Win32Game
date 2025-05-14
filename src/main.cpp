@@ -90,8 +90,9 @@ namespace engine {
 		friend AudioPlayer initialize_audio_player();
 
 		AudioID add_audio_from_file(HANDLE file);
+		void play(AudioID id);
 
-		// private:
+	private:
 		winrt::com_ptr<IXAudio2> m_audio_engine;
 		IXAudio2MasteringVoice* m_mastering_voice;
 		IXAudio2SourceVoice* m_source_voice;
@@ -155,6 +156,13 @@ namespace engine {
 		m_audio_buffers.insert({ id, buffer });
 
 		return AudioID { id };
+	}
+
+	void AudioPlayer::play(AudioID id) {
+		m_source_voice->Stop();
+		m_source_voice->FlushSourceBuffers();                           // stop current sound
+		m_source_voice->SubmitSourceBuffer(&m_audio_buffers[id.value]); // play sound
+		m_source_voice->Start();
 	}
 
 } // namespace engine
@@ -287,10 +295,7 @@ int WINAPI WinMain(
 
 		// trigger sound with keyboard
 		if (g_context.input.keyboard.key_was_pressed_now('1')) {
-			audio_player.m_source_voice->Stop();
-			audio_player.m_source_voice->FlushSourceBuffers();                                             // stop current sound
-			audio_player.m_source_voice->SubmitSourceBuffer(&audio_player.m_audio_buffers[cowbell.value]); // play sound
-			audio_player.m_source_voice->Start();
+			audio_player.play(cowbell);
 		}
 
 		/* Render */
