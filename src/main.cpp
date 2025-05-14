@@ -109,25 +109,17 @@ int WINAPI WinMain(
 		// code based on https://learn.microsoft.com/en-us/windows/win32/xaudio2/full-project
 
 		// Constant literals.
-		constexpr WORD BITS_PERS_SAMPLE = 16;            // 16 bits per sample.
-		constexpr DWORD SAMPLES_PER_SEC = 44100;         // 44,100 samples per second.
-		constexpr double CYCLES_PER_SEC = 110.0;         // 440 cycles per second (frequency of the audible tone).
-		constexpr double VOLUME = 0.5;                   // 50% volume.
-		constexpr WORD AUDIO_BUFFER_SIZE_IN_CYCLES = 10; // 10 cycles per audio buffer.
+		constexpr WORD BITS_PERS_SAMPLE = 16;
+		constexpr DWORD SAMPLES_PER_SEC = 44100;
+		constexpr double CYCLES_PER_SEC = 220.0;
+		constexpr double VOLUME = 0.5;
+		constexpr WORD AUDIO_BUFFER_SIZE_IN_CYCLES = 10;
 		constexpr double PI = 3.14159265358979323846;
 
 		// Calculated constants.
 		constexpr DWORD SAMPLES_PER_CYCLE = (DWORD)(SAMPLES_PER_SEC / CYCLES_PER_SEC);                     // 200 samples per cycle.
 		constexpr DWORD AUDIO_BUFFER_SIZE_IN_SAMPLES = SAMPLES_PER_CYCLE * AUDIO_BUFFER_SIZE_IN_CYCLES;    // 2,000 samples per buffer.
 		constexpr UINT32 AUDIO_BUFFER_SIZE_IN_BYTES = AUDIO_BUFFER_SIZE_IN_SAMPLES * BITS_PERS_SAMPLE / 8; // 4,000 bytes per
-
-		// FIXME: double check that we actually need to do this?
-		// Initialize COM
-		HRESULT com_result = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
-		if (FAILED(com_result)) {
-			fprintf(stderr, "failed to initialize COM for audio, aborting");
-			exit(1);
-		}
 
 		// Initialize engine and master voice
 		winrt::check_hresult(XAudio2Create(xaudio2_engine.put(), 0, XAUDIO2_DEFAULT_PROCESSOR));
@@ -146,7 +138,7 @@ int WINAPI WinMain(
 		// Create source voice using format
 		winrt::check_hresult(xaudio2_engine->CreateSourceVoice(&xaudio2_source_voice, &wave_format_ex));
 
-		// Fill a buffer
+		// Create sine wave
 		std::array<byte, AUDIO_BUFFER_SIZE_IN_BYTES> sinewave = {};
 		double phase = 0;
 		uint32_t buffer_index = 0;
@@ -157,13 +149,15 @@ int WINAPI WinMain(
 			sinewave[buffer_index++] = (byte)(sample >> 8);
 		}
 
-		// Submit the buffer to the source voice, and start the voice.
+		// Fill buffer
 		x_audio2_buffer = {
 			.Flags = XAUDIO2_END_OF_STREAM,
 			.AudioBytes = AUDIO_BUFFER_SIZE_IN_BYTES,
 			.pAudioData = sinewave.data(),
 		};
-		winrt::check_hresult(xaudio2_source_voice->SubmitSourceBuffer(&x_audio2_buffer));
+
+		// Start voice
+		xaudio2_source_voice->Start(0);
 	}
 
 	/* Main loop */
@@ -178,9 +172,10 @@ int WINAPI WinMain(
 			g_context.should_quit = true;
 		}
 
-		if (g_context.input.keyboard.key_was_pressed_now('A')) {
+		// trigger sound with keyboard
+		if (g_context.input.keyboard.key_was_pressed_now('1')) {
+			printf("source buffer submitted\n");
 			xaudio2_source_voice->SubmitSourceBuffer(&x_audio2_buffer);
-			xaudio2_source_voice->Start(0);
 		}
 
 		/* Render */
