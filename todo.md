@@ -8,11 +8,14 @@ Overall goal:
 - Mouse input
 - Font support
 - Sprite support
+- Asset system (store audio, images, fonts, etc.)
 - Draw API (lines, rectangles, circles)
-- Write Tetris game
+- [!] Write Tetris game
 - Collisions
-- Write Pong game
+- [!] Write Pong game
 - Camera
+- Enemy AI
+- [!] Write Zelda Dungeon game
 
 # Doing
 - Audio support
