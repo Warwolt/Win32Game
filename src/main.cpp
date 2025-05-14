@@ -85,7 +85,7 @@ namespace engine {
 		AudioPlayer() = default;
 		friend AudioPlayer initialize_audio_player();
 
-	// private:
+		// private:
 		winrt::com_ptr<IXAudio2> m_audio_engine;
 		IXAudio2MasteringVoice* m_mastering_voice;
 		IXAudio2SourceVoice* m_source_voice;
@@ -210,9 +210,10 @@ int WINAPI WinMain(
 	engine::initialize_gamepad_support();
 	g_context.window = initialize_window_or_abort(instance, on_window_event);
 	engine::AudioPlayer audio_player = engine::initialize_audio_player();
+	std::unordered_map<uint32_t, XAUDIO2_BUFFER> audio_buffers;
 
 	// Add cowbell audio
-	XAUDIO2_BUFFER cowbell_buffer = {};
+	uint32_t cowbell = 1;
 	{
 		// Load wave file
 		HANDLE cowbell_file = CreateFileA(
@@ -246,9 +247,12 @@ int WINAPI WinMain(
 		BYTE* samples = new BYTE[chunk_size];
 		read_chunk_from_file(cowbell_file, samples, chunk_size, chunk_position);
 
-		cowbell_buffer.AudioBytes = chunk_size;       // size of the audio buffer in bytes
-		cowbell_buffer.pAudioData = samples;          // buffer containing audio data
-		cowbell_buffer.Flags = XAUDIO2_END_OF_STREAM; // tell the source voice not to expect any data after this buffer
+		XAUDIO2_BUFFER buffer = {
+			.Flags = XAUDIO2_END_OF_STREAM,
+			.AudioBytes = chunk_size,
+			.pAudioData = samples,
+		};
+		audio_buffers.insert({ cowbell, buffer });
 	}
 
 	/* Main loop */
@@ -266,8 +270,8 @@ int WINAPI WinMain(
 		// trigger sound with keyboard
 		if (g_context.input.keyboard.key_was_pressed_now('1')) {
 			audio_player.m_source_voice->Stop();
-			audio_player.m_source_voice->FlushSourceBuffers();                // stop current sound
-			audio_player.m_source_voice->SubmitSourceBuffer(&cowbell_buffer); // play sound
+			audio_player.m_source_voice->FlushSourceBuffers();                        // stop current sound
+			audio_player.m_source_voice->SubmitSourceBuffer(&audio_buffers[cowbell]); // play sound
 			audio_player.m_source_voice->Start();
 		}
 
