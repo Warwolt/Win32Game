@@ -1,17 +1,6 @@
 #include <engine/audio/audio_player.h>
 
-#include <winrt/base.h>
-#include <xaudio2.h>
-
 namespace engine {
-
-	struct AudioPlayerContext {
-		winrt::com_ptr<IXAudio2> audio_engine;
-		IXAudio2MasteringVoice* mastering_voice;
-		IXAudio2SourceVoice* source_voice;
-		std::unordered_map<uint32_t, XAUDIO2_BUFFER> audio_buffers;
-		uint32_t next_id = 1;
-	};
 
 	// from https://learn.microsoft.com/en-us/windows/win32/xaudio2/how-to--load-audio-data-files-in-xaudio2
 	constexpr int fourccRIFF = 'FFIR';
@@ -78,15 +67,11 @@ namespace engine {
 		return hr;
 	}
 
-	AudioPlayer::~AudioPlayer() {
-		delete m_context;
-	}
-
 	AudioPlayer initialize_audio_player() {
-		AudioPlayerContext* context = new AudioPlayerContext;
+		AudioPlayer audio_player;
 
-		winrt::check_hresult(XAudio2Create(context->audio_engine.put(), 0, XAUDIO2_DEFAULT_PROCESSOR));
-		winrt::check_hresult(context->audio_engine->CreateMasteringVoice(&context->mastering_voice));
+		winrt::check_hresult(XAudio2Create(audio_player.m_audio_engine.put(), 0, XAUDIO2_DEFAULT_PROCESSOR));
+		winrt::check_hresult(audio_player.m_audio_engine->CreateMasteringVoice(&audio_player.m_mastering_voice));
 
 		// Define a format
 		constexpr WORD NUMBER_OF_CHANNELS = 1;
@@ -105,10 +90,8 @@ namespace engine {
 		};
 
 		// Create source voice using format
-		winrt::check_hresult(context->audio_engine->CreateSourceVoice(&context->source_voice, &wave_format_ex));
+		winrt::check_hresult(audio_player.m_audio_engine->CreateSourceVoice(&audio_player.m_source_voice, &wave_format_ex));
 
-		AudioPlayer audio_player;
-		audio_player.m_context = context;
 		return audio_player;
 	}
 
@@ -130,22 +113,22 @@ namespace engine {
 		BYTE* samples = new BYTE[chunk_size];
 		read_chunk_from_file(file, samples, chunk_size, chunk_position);
 
-		uint32_t id = m_context->next_id++;
+		uint32_t id = m_next_id++;
 		XAUDIO2_BUFFER buffer = {
 			.Flags = XAUDIO2_END_OF_STREAM,
 			.AudioBytes = chunk_size,
 			.pAudioData = samples,
 		};
-		m_context->audio_buffers.insert({ id, buffer });
+		m_audio_buffers.insert({ id, buffer });
 
 		return AudioID { id };
 	}
 
 	void AudioPlayer::play(AudioID id) {
-		m_context->source_voice->Stop();
-		m_context->source_voice->FlushSourceBuffers();                                    // stop previous sound
-		m_context->source_voice->SubmitSourceBuffer(&m_context->audio_buffers[id.value]); // play next sound
-		m_context->source_voice->Start();
+		m_source_voice->Stop();
+		m_source_voice->FlushSourceBuffers();                                    // stop previous sound
+		m_source_voice->SubmitSourceBuffer(&m_audio_buffers[id.value]); // play next sound
+		m_source_voice->Start();
 	}
 
 } // namespace engine

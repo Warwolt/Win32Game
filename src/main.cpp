@@ -13,6 +13,7 @@ struct ProgramContext {
 	bool should_quit;
 	engine::Window window;
 	engine::InputDevices input;
+	engine::AudioPlayer audio;
 	game::GameState game;
 };
 
@@ -97,7 +98,7 @@ int WINAPI WinMain(
 	engine::initialize_printf();
 	engine::initialize_gamepad_support();
 	g_context.window = initialize_window_or_abort(instance, on_window_event);
-	engine::AudioPlayer audio_player = engine::initialize_audio_player();
+	g_context.audio = engine::initialize_audio_player();
 
 	// Add cowbell audio
 	engine::AudioID cowbell;
@@ -118,7 +119,7 @@ int WINAPI WinMain(
 			exit(1);
 		}
 
-		cowbell = audio_player.add_audio_from_file(cowbell_file);
+		cowbell = g_context.audio.add_audio_from_file(cowbell_file);
 
 		CloseHandle(cowbell_file);
 	}
@@ -137,7 +138,7 @@ int WINAPI WinMain(
 
 		// trigger sound with keyboard
 		if (g_context.input.keyboard.key_was_pressed_now('1')) {
-			audio_player.play(cowbell);
+			g_context.audio.play(cowbell);
 		}
 
 		/* Render */
