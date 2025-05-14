@@ -175,18 +175,12 @@ int WINAPI WinMain(
 	{
 		// code based on https://learn.microsoft.com/en-us/windows/win32/xaudio2/full-project
 
-		// Constant literals.
 		constexpr WORD BITS_PERS_SAMPLE = 16;
 		constexpr DWORD SAMPLES_PER_SEC = 44100;
 		constexpr double CYCLES_PER_SEC = 220.0;
-		constexpr double VOLUME = 0.5;
 		constexpr WORD AUDIO_BUFFER_SIZE_IN_CYCLES = 10;
-		constexpr double PI = 3.14159265358979323846;
-
-		// Calculated constants.
-		constexpr DWORD SAMPLES_PER_CYCLE = (DWORD)(SAMPLES_PER_SEC / CYCLES_PER_SEC);                     // 200 samples per cycle.
-		constexpr DWORD AUDIO_BUFFER_SIZE_IN_SAMPLES = SAMPLES_PER_CYCLE * AUDIO_BUFFER_SIZE_IN_CYCLES;    // 2,000 samples per buffer.
-		constexpr UINT32 AUDIO_BUFFER_SIZE_IN_BYTES = AUDIO_BUFFER_SIZE_IN_SAMPLES * BITS_PERS_SAMPLE / 8; // 4,000 bytes per
+		constexpr DWORD SAMPLES_PER_CYCLE = (DWORD)(SAMPLES_PER_SEC / CYCLES_PER_SEC);                  // 200 samples per cycle.
+		constexpr DWORD AUDIO_BUFFER_SIZE_IN_SAMPLES = SAMPLES_PER_CYCLE * AUDIO_BUFFER_SIZE_IN_CYCLES; // 2,000 samples per buffer.
 
 		// Initialize engine and master voice
 		winrt::check_hresult(XAudio2Create(xaudio2_engine.put(), 0, XAUDIO2_DEFAULT_PROCESSOR));
@@ -260,7 +254,7 @@ int WINAPI WinMain(
 		// trigger sound with keyboard
 		if (g_context.input.keyboard.key_was_pressed_now('1')) {
 			xaudio2_source_voice->Stop();
-			xaudio2_source_voice->FlushSourceBuffers(); // stop current sound
+			xaudio2_source_voice->FlushSourceBuffers();                 // stop current sound
 			xaudio2_source_voice->SubmitSourceBuffer(&x_audio2_buffer); // play sound
 			xaudio2_source_voice->Start();
 		}
