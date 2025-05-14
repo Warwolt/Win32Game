@@ -167,11 +167,6 @@ int WINAPI WinMain(
 	engine::initialize_gamepad_support();
 	g_context.window = initialize_window_or_abort(instance, on_window_event);
 
-	struct AudioData {
-		BYTE* samples;
-		XAUDIO2_BUFFER buffer;
-	};
-
 	struct AudioPlayer {
 		winrt::com_ptr<IXAudio2> audio_engine;
 		IXAudio2MasteringVoice* mastering_voice;
@@ -204,7 +199,7 @@ int WINAPI WinMain(
 	}
 
 	// Add cowbell audio
-	XAUDIO2_BUFFER x_audio2_buffer = {};
+	XAUDIO2_BUFFER cowbell_buffer = {};
 	{
 		// Load wave file
 		HANDLE cowbell_file = CreateFileA(
@@ -234,12 +229,12 @@ int WINAPI WinMain(
 		}
 		//fill out the audio data buffer with the contents of the fourccDATA chunk
 		find_chunk_in_file(cowbell_file, fourccDATA, &chunk_size, &chunk_position);
-		BYTE* cowbell_buffer = new BYTE[chunk_size];
-		read_chunk_from_file(cowbell_file, cowbell_buffer, chunk_size, chunk_position);
+		BYTE* samples = new BYTE[chunk_size];
+		read_chunk_from_file(cowbell_file, samples, chunk_size, chunk_position);
 
-		x_audio2_buffer.AudioBytes = chunk_size;       // size of the audio buffer in bytes
-		x_audio2_buffer.pAudioData = cowbell_buffer;   // buffer containing audio data
-		x_audio2_buffer.Flags = XAUDIO2_END_OF_STREAM; // tell the source voice not to expect any data after this buffer
+		cowbell_buffer.AudioBytes = chunk_size;       // size of the audio buffer in bytes
+		cowbell_buffer.pAudioData = samples;  // buffer containing audio data
+		cowbell_buffer.Flags = XAUDIO2_END_OF_STREAM; // tell the source voice not to expect any data after this buffer
 	}
 
 	/* Main loop */
@@ -257,8 +252,8 @@ int WINAPI WinMain(
 		// trigger sound with keyboard
 		if (g_context.input.keyboard.key_was_pressed_now('1')) {
 			audio_player.source_voice->Stop();
-			audio_player.source_voice->FlushSourceBuffers();                 // stop current sound
-			audio_player.source_voice->SubmitSourceBuffer(&x_audio2_buffer); // play sound
+			audio_player.source_voice->FlushSourceBuffers();                // stop current sound
+			audio_player.source_voice->SubmitSourceBuffer(&cowbell_buffer); // play sound
 			audio_player.source_voice->Start();
 		}
 
