@@ -1,4 +1,3 @@
-#include <core/unwrap.h>
 #include <engine/input/gamepad.h>
 #include <engine/input/input.h>
 #include <engine/input/keyboard.h>
@@ -20,6 +19,16 @@ struct ProgramContext {
 };
 
 static ProgramContext g_context;
+
+engine::Window initialize_window_or_abort(HINSTANCE instance, WNDPROC wnd_proc) {
+	std::expected<engine::Window, engine::WindowError> window_result = engine::initialize_window(instance, wnd_proc);
+	if (!window_result.has_value()) {
+		std::string message = std::format("Couldn't create window: {}", engine::window_error_to_str(window_result.error()));
+		MessageBoxA(0, message.c_str(), "Error", MB_OK | MB_ICONERROR);
+		exit(1);
+	}
+	return window_result.value();
+}
 
 void pump_window_messages() {
 	MSG message;
@@ -89,12 +98,8 @@ int WINAPI WinMain(
 	int /*command_show*/
 ) {
 	engine::initialize_printf();
-	engine::initialize_gamepad();
-	g_context.window = core::unwrap(engine::initialize_window(instance, on_window_event), [](engine::WindowError error) {
-		std::string message = std::format("Couldn't create window: {}", engine::window_error_to_str(error));
-		MessageBoxA(0, message.c_str(), "Error", MB_OK | MB_ICONERROR);
-		exit(1);
-	});
+	engine::initialize_gamepad_support();
+	g_context.window = initialize_window_or_abort(instance, on_window_event);
 
 	/* Main loop */
 	while (!g_context.should_quit) {

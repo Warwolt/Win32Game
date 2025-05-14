@@ -24,7 +24,7 @@ namespace engine {
 		int16_t left_stick_y;
 	};
 
-	void initialize_gamepad();
+	void initialize_gamepad_support();
 	void update_gamepad(Gamepad* gamepad, int index = 0);
 
 } // namespace engine

@@ -11,7 +11,7 @@ namespace engine {
 		DWORD (*set_state)(DWORD dwUserIndex, XINPUT_VIBRATION* pVibration) = [](DWORD dwUserIndex, XINPUT_VIBRATION* pVibration) -> DWORD { return ERROR_DEVICE_NOT_CONNECTED; };
 	} g_x_input_dll;
 
-	void initialize_gamepad() {
+	void initialize_gamepad_support() {
 		if (HMODULE x_input_lib = LoadLibraryA("xinput1_4.dll")) {
 			g_x_input_dll = {
 				.get_state = (decltype(XInputDLL::get_state))GetProcAddress(x_input_lib, "XInputGetState"),
