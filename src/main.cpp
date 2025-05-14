@@ -80,15 +80,24 @@ static HRESULT read_chunk_from_file(HANDLE hFile, void* buffer, DWORD buffersize
 
 namespace engine {
 
+	struct AudioID {
+		uint32_t value;
+	};
+
 	class AudioPlayer {
 	public:
 		AudioPlayer() = default;
 		friend AudioPlayer initialize_audio_player();
 
+		AudioID add_audio_from_file(HANDLE file);
+
 		// private:
 		winrt::com_ptr<IXAudio2> m_audio_engine;
 		IXAudio2MasteringVoice* m_mastering_voice;
 		IXAudio2SourceVoice* m_source_voice;
+
+		std::unordered_map<uint32_t, XAUDIO2_BUFFER> m_audio_buffers;
+		uint32_t m_next_id = 1;
 	};
 
 	AudioPlayer initialize_audio_player() {
@@ -117,6 +126,35 @@ namespace engine {
 		winrt::check_hresult(audio_player.m_audio_engine->CreateSourceVoice(&audio_player.m_source_voice, &wave_format_ex));
 
 		return audio_player;
+	}
+
+	AudioID AudioPlayer::add_audio_from_file(HANDLE file) {
+		DWORD chunk_size;
+		DWORD chunk_position;
+		//check the file type, should be fourccWAVE or 'XWMA'
+		find_chunk_in_file(file, fourccRIFF, &chunk_size, &chunk_position);
+		DWORD filetype;
+		read_chunk_from_file(file, &filetype, sizeof(DWORD), chunk_position);
+		// FIXME: return an error code here instead
+		if (filetype != fourccWAVE) {
+			fprintf(stderr, "AudioPlayer::add_audio_from_file called with non .wav file");
+			exit(1);
+		}
+
+		//fill out the audio data buffer with the contents of the fourccDATA chunk
+		find_chunk_in_file(file, fourccDATA, &chunk_size, &chunk_position);
+		BYTE* samples = new BYTE[chunk_size];
+		read_chunk_from_file(file, samples, chunk_size, chunk_position);
+
+		uint32_t id = m_next_id++;
+		XAUDIO2_BUFFER buffer = {
+			.Flags = XAUDIO2_END_OF_STREAM,
+			.AudioBytes = chunk_size,
+			.pAudioData = samples,
+		};
+		m_audio_buffers.insert({ id, buffer });
+
+		return AudioID { id };
 	}
 
 } // namespace engine
@@ -210,10 +248,9 @@ int WINAPI WinMain(
 	engine::initialize_gamepad_support();
 	g_context.window = initialize_window_or_abort(instance, on_window_event);
 	engine::AudioPlayer audio_player = engine::initialize_audio_player();
-	std::unordered_map<uint32_t, XAUDIO2_BUFFER> audio_buffers;
 
 	// Add cowbell audio
-	uint32_t cowbell = 1;
+	engine::AudioID cowbell;
 	{
 		// Load wave file
 		HANDLE cowbell_file = CreateFileA(
@@ -231,28 +268,9 @@ int WINAPI WinMain(
 			exit(1);
 		}
 
-		DWORD chunk_size;
-		DWORD chunk_position;
-		//check the file type, should be fourccWAVE or 'XWMA'
-		find_chunk_in_file(cowbell_file, fourccRIFF, &chunk_size, &chunk_position);
-		DWORD filetype;
-		read_chunk_from_file(cowbell_file, &filetype, sizeof(DWORD), chunk_position);
-		if (filetype != fourccWAVE) {
-			fprintf(stderr, "File wasn't right format");
-			exit(1);
-		}
+		cowbell = audio_player.add_audio_from_file(cowbell_file);
 
-		//fill out the audio data buffer with the contents of the fourccDATA chunk
-		find_chunk_in_file(cowbell_file, fourccDATA, &chunk_size, &chunk_position);
-		BYTE* samples = new BYTE[chunk_size];
-		read_chunk_from_file(cowbell_file, samples, chunk_size, chunk_position);
-
-		XAUDIO2_BUFFER buffer = {
-			.Flags = XAUDIO2_END_OF_STREAM,
-			.AudioBytes = chunk_size,
-			.pAudioData = samples,
-		};
-		audio_buffers.insert({ cowbell, buffer });
+		CloseHandle(cowbell_file);
 	}
 
 	/* Main loop */
@@ -270,8 +288,8 @@ int WINAPI WinMain(
 		// trigger sound with keyboard
 		if (g_context.input.keyboard.key_was_pressed_now('1')) {
 			audio_player.m_source_voice->Stop();
-			audio_player.m_source_voice->FlushSourceBuffers();                        // stop current sound
-			audio_player.m_source_voice->SubmitSourceBuffer(&audio_buffers[cowbell]); // play sound
+			audio_player.m_source_voice->FlushSourceBuffers();                                             // stop current sound
+			audio_player.m_source_voice->SubmitSourceBuffer(&audio_player.m_audio_buffers[cowbell.value]); // play sound
 			audio_player.m_source_voice->Start();
 		}
 
