@@ -11,6 +11,73 @@
 #include <winrt/base.h>
 #include <xaudio2.h>
 
+// from https://learn.microsoft.com/en-us/windows/win32/xaudio2/how-to--load-audio-data-files-in-xaudio2
+constexpr int fourccRIFF = 'FFIR';
+constexpr int fourccDATA = 'atad';
+constexpr int fourccFMT = ' tmf';
+constexpr int fourccWAVE = 'EVAW';
+constexpr int fourccXWMA = 'AMWX';
+constexpr int fourccDPDS = 'sdpd';
+HRESULT FindChunk(HANDLE hFile, DWORD fourcc, DWORD& dwChunkSize, DWORD& dwChunkDataPosition) {
+	HRESULT hr = S_OK;
+	if (INVALID_SET_FILE_POINTER == SetFilePointer(hFile, 0, NULL, FILE_BEGIN))
+		return HRESULT_FROM_WIN32(GetLastError());
+
+	DWORD dwChunkType;
+	DWORD dwChunkDataSize;
+	DWORD dwRIFFDataSize = 0;
+	DWORD dwFileType;
+	DWORD bytesRead = 0;
+	DWORD dwOffset = 0;
+
+	while (hr == S_OK) {
+		DWORD dwRead;
+		if (0 == ReadFile(hFile, &dwChunkType, sizeof(DWORD), &dwRead, NULL))
+			hr = HRESULT_FROM_WIN32(GetLastError());
+
+		if (0 == ReadFile(hFile, &dwChunkDataSize, sizeof(DWORD), &dwRead, NULL))
+			hr = HRESULT_FROM_WIN32(GetLastError());
+
+		switch (dwChunkType) {
+			case fourccRIFF:
+				dwRIFFDataSize = dwChunkDataSize;
+				dwChunkDataSize = 4;
+				if (0 == ReadFile(hFile, &dwFileType, sizeof(DWORD), &dwRead, NULL))
+					hr = HRESULT_FROM_WIN32(GetLastError());
+				break;
+
+			default:
+				if (INVALID_SET_FILE_POINTER == SetFilePointer(hFile, dwChunkDataSize, NULL, FILE_CURRENT))
+					return HRESULT_FROM_WIN32(GetLastError());
+		}
+
+		dwOffset += sizeof(DWORD) * 2;
+
+		if (dwChunkType == fourcc) {
+			dwChunkSize = dwChunkDataSize;
+			dwChunkDataPosition = dwOffset;
+			return S_OK;
+		}
+
+		dwOffset += dwChunkDataSize;
+
+		if (bytesRead >= dwRIFFDataSize) return S_FALSE;
+	}
+
+	return S_OK;
+}
+
+// from https://learn.microsoft.com/en-us/windows/win32/xaudio2/how-to--load-audio-data-files-in-xaudio2
+HRESULT ReadChunkData(HANDLE hFile, void* buffer, DWORD buffersize, DWORD bufferoffset) {
+	HRESULT hr = S_OK;
+	if (INVALID_SET_FILE_POINTER == SetFilePointer(hFile, bufferoffset, NULL, FILE_BEGIN))
+		return HRESULT_FROM_WIN32(GetLastError());
+	DWORD dwRead;
+	if (0 == ReadFile(hFile, buffer, buffersize, &dwRead, NULL))
+		hr = HRESULT_FROM_WIN32(GetLastError());
+	return hr;
+}
+
 struct ProgramContext {
 	bool should_quit;
 	engine::Window window;
@@ -135,29 +202,47 @@ int WINAPI WinMain(
 		wave_format_ex.wBitsPerSample = BITS_PERS_SAMPLE;
 		wave_format_ex.cbSize = 0;
 
-		// Create source voice using format
+		// Create source voice using format and start it
 		winrt::check_hresult(xaudio2_engine->CreateSourceVoice(&xaudio2_source_voice, &wave_format_ex));
+		xaudio2_source_voice->Start(0);
 
-		// Create sine wave
-		std::array<byte, AUDIO_BUFFER_SIZE_IN_BYTES> sinewave = {};
-		double phase = 0;
-		uint32_t buffer_index = 0;
-		while (buffer_index < AUDIO_BUFFER_SIZE_IN_BYTES) {
-			phase += (2 * PI) / SAMPLES_PER_CYCLE;
-			int16_t sample = (int16_t)(sin(phase) * INT16_MAX * VOLUME);
-			sinewave[buffer_index++] = (byte)sample; // values are little-endian
-			sinewave[buffer_index++] = (byte)(sample >> 8);
+		// Load wave file
+		HANDLE cowbell_file = CreateFileA(
+			"assets/audio/808_cowbell.wav",
+			GENERIC_READ,
+			FILE_SHARE_READ,
+			NULL,
+			OPEN_EXISTING,
+			0,
+			NULL
+		);
+
+		if (cowbell_file == INVALID_HANDLE_VALUE) {
+			fprintf(stderr, "couldn't load wave file!\n");
+			exit(1);
 		}
 
-		// Fill buffer
-		x_audio2_buffer = {
-			.Flags = XAUDIO2_END_OF_STREAM,
-			.AudioBytes = AUDIO_BUFFER_SIZE_IN_BYTES,
-			.pAudioData = sinewave.data(),
-		};
+		DWORD chunk_size;
+		DWORD chunk_position;
+		//check the file type, should be fourccWAVE or 'XWMA'
+		FindChunk(cowbell_file, fourccRIFF, chunk_size, chunk_position);
+		DWORD filetype;
+		ReadChunkData(cowbell_file, &filetype, sizeof(DWORD), chunk_position);
+		if (filetype != fourccWAVE) {
+			fprintf(stderr, "File wasn't right format");
+			exit(1);
+		}
+		WAVEFORMATEX cowbell_format = {};
+		FindChunk(cowbell_file, fourccFMT, chunk_size, chunk_position);
+		ReadChunkData(cowbell_file, &cowbell_format, chunk_size, chunk_position);
+		//fill out the audio data buffer with the contents of the fourccDATA chunk
+		FindChunk(cowbell_file, fourccDATA, chunk_size, chunk_position);
+		BYTE* cowbell_buffer = new BYTE[chunk_size];
+		ReadChunkData(cowbell_file, cowbell_buffer, chunk_size, chunk_position);
 
-		// Start voice
-		xaudio2_source_voice->Start(0);
+		x_audio2_buffer.AudioBytes = chunk_size;       //size of the audio buffer in bytes
+		x_audio2_buffer.pAudioData = cowbell_buffer;   //buffer containing audio data
+		x_audio2_buffer.Flags = XAUDIO2_END_OF_STREAM; // tell the source voice not to expect any data after this buffer
 	}
 
 	/* Main loop */
