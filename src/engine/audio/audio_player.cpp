@@ -70,8 +70,8 @@ namespace engine {
 	AudioPlayer initialize_audio_player() {
 		AudioPlayer audio_player;
 
-		winrt::check_hresult(XAudio2Create(audio_player.m_audio_engine.put(), 0, XAUDIO2_DEFAULT_PROCESSOR));
-		winrt::check_hresult(audio_player.m_audio_engine->CreateMasteringVoice(&audio_player.m_mastering_voice));
+		XAudio2Create(&audio_player.m_audio_engine, 0, XAUDIO2_DEFAULT_PROCESSOR);
+		audio_player.m_audio_engine->CreateMasteringVoice(&audio_player.m_mastering_voice);
 
 		// Define a format
 		constexpr WORD NUMBER_OF_CHANNELS = 1;
@@ -90,9 +90,15 @@ namespace engine {
 		};
 
 		// Create source voice using format
-		winrt::check_hresult(audio_player.m_audio_engine->CreateSourceVoice(&audio_player.m_source_voice, &wave_format_ex));
+		audio_player.m_audio_engine->CreateSourceVoice(&audio_player.m_source_voice, &wave_format_ex);
 
 		return audio_player;
+	}
+
+	AudioPlayer::~AudioPlayer() {
+		for (auto& [id, buffer] : m_audio_buffers) {
+			delete buffer.pAudioData;
+		}
 	}
 
 	std::expected<AudioID, std::string> AudioPlayer::add_audio_from_file(HANDLE file) {
