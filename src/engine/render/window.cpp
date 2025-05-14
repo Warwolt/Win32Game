@@ -1,7 +1,5 @@
 #include <engine/render/window.h>
 
-#include <stdio.h>
-
 namespace engine {
 
 	const char* window_error_to_str(WindowError error) {

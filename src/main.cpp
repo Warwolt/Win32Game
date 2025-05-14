@@ -6,9 +6,6 @@
 #include <game/game.h>
 
 #include <format>
-#include <stdio.h>
-#include <unordered_map>
-#include <unordered_set>
 #include <windows.h>
 
 struct ProgramContext {
