@@ -99,9 +99,15 @@ engine::AudioID load_audio_from_file(const char* path) {
 		0,
 		NULL
 	);
-	engine::AudioID id = g_context.audio.add_audio_from_file(cowbell_file);
+	std::expected<engine::AudioID, std::string> result = g_context.audio.add_audio_from_file(cowbell_file);
 	CloseHandle(cowbell_file);
-	return id;
+
+	if (!result.has_value()) {
+		fprintf(stderr, "Failed to load audio file \"%s\": %s\n", path, result.error().c_str());
+		exit(1);
+	}
+
+	return result.value();
 }
 
 int WINAPI WinMain(

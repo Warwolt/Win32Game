@@ -95,29 +95,29 @@ namespace engine {
 		return audio_player;
 	}
 
-	AudioID AudioPlayer::add_audio_from_file(HANDLE file) {
-		if (file == INVALID_HANDLE_VALUE) {
-			fprintf(stderr, "couldn't load wave file!\n");
-			exit(1);
-		}
-
+	std::expected<AudioID, std::string> AudioPlayer::add_audio_from_file(HANDLE file) {
 		DWORD chunk_size;
 		DWORD chunk_position;
-		//check the file type, should be fourccWAVE or 'XWMA'
+
+		/* Check file is open */
+		if (file == INVALID_HANDLE_VALUE) {
+			return std::unexpected("Invalid file handle");
+		}
+
+		/* Check file is wav */
 		find_chunk_in_file(file, fourccRIFF, &chunk_size, &chunk_position);
 		DWORD filetype;
 		read_chunk_from_file(file, &filetype, sizeof(DWORD), chunk_position);
-		// FIXME: return an error code here instead
 		if (filetype != fourccWAVE) {
-			fprintf(stderr, "AudioPlayer::add_audio_from_file called with non .wav file");
-			exit(1);
+			return std::unexpected("File was not a wave file");
 		}
 
-		//fill out the audio data buffer with the contents of the fourccDATA chunk
+		/* Read samples from chunk */
 		find_chunk_in_file(file, fourccDATA, &chunk_size, &chunk_position);
 		BYTE* samples = new BYTE[chunk_size];
 		read_chunk_from_file(file, samples, chunk_size, chunk_position);
 
+		/* Add buffer */
 		uint32_t id = m_next_id++;
 		XAUDIO2_BUFFER buffer = {
 			.Flags = XAUDIO2_END_OF_STREAM,

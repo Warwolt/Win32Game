@@ -2,10 +2,12 @@
 
 #include <memory>
 #include <stdint.h>
-#include <windows.h>
+#include <expected>
 
+#include <windows.h>
 #include <winrt/base.h>
 #include <xaudio2.h>
+#include <string>
 
 namespace engine {
 
@@ -13,14 +15,12 @@ namespace engine {
 		uint32_t value;
 	};
 
-	struct AudioPlayerContext;
-
 	class AudioPlayer {
 	public:
 		AudioPlayer() = default;
 		friend AudioPlayer initialize_audio_player();
 
-		AudioID add_audio_from_file(HANDLE file);
+		std::expected<AudioID, std::string> add_audio_from_file(HANDLE file);
 		void play(AudioID id);
 
 	private:
