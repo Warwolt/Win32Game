@@ -2,7 +2,7 @@
 #include <engine/input/gamepad.h>
 #include <engine/input/input.h>
 #include <engine/input/keyboard.h>
-#include <engine/logging.h>
+#include <engine/debug/logging.h>
 #include <engine/graphics/window.h>
 #include <game/game.h>
 
