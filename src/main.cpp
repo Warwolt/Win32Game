@@ -3,7 +3,7 @@
 #include <engine/input/input.h>
 #include <engine/input/keyboard.h>
 #include <engine/logging.h>
-#include <engine/render/window.h>
+#include <engine/graphics/window.h>
 #include <game/game.h>
 
 #include <format>

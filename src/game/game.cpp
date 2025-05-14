@@ -1,7 +1,7 @@
 #include <game/game.h>
 
 #include <engine/input/input.h>
-#include <engine/render/window.h>
+#include <engine/graphics/window.h>
 
 namespace game {
 

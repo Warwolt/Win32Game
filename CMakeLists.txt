@@ -13,7 +13,7 @@ set(SRC
     src/engine/input/input.cpp
     src/engine/input/keyboard.cpp
     src/engine/logging.cpp
-    src/engine/render/window.cpp
+    src/engine/graphics/window.cpp
     src/game/game.cpp
 )
 
