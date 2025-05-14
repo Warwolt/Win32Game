@@ -78,6 +78,49 @@ static HRESULT read_chunk_from_file(HANDLE hFile, void* buffer, DWORD buffersize
 	return hr;
 }
 
+namespace engine {
+
+	class AudioPlayer {
+	public:
+		AudioPlayer() = default;
+		friend AudioPlayer initialize_audio_player();
+
+	// private:
+		winrt::com_ptr<IXAudio2> m_audio_engine;
+		IXAudio2MasteringVoice* m_mastering_voice;
+		IXAudio2SourceVoice* m_source_voice;
+	};
+
+	AudioPlayer initialize_audio_player() {
+		AudioPlayer audio_player;
+
+		winrt::check_hresult(XAudio2Create(audio_player.m_audio_engine.put(), 0, XAUDIO2_DEFAULT_PROCESSOR));
+		winrt::check_hresult(audio_player.m_audio_engine->CreateMasteringVoice(&audio_player.m_mastering_voice));
+
+		// Define a format
+		constexpr WORD NUMBER_OF_CHANNELS = 1;
+		constexpr WORD BITS_PER_SAMPLE = 16;
+		constexpr WORD SAMPLES_PER_SEC = 44100;
+		constexpr WORD BITS_PER_BYTE = 8;
+		constexpr WORD BLOCK_ALIGNMENT = NUMBER_OF_CHANNELS * BITS_PER_SAMPLE / BITS_PER_BYTE;
+		WAVEFORMATEX wave_format_ex = {
+			.wFormatTag = WAVE_FORMAT_PCM,
+			.nChannels = NUMBER_OF_CHANNELS, // mono or stero
+			.nSamplesPerSec = SAMPLES_PER_SEC,
+			.nAvgBytesPerSec = SAMPLES_PER_SEC * BLOCK_ALIGNMENT,
+			.nBlockAlign = BLOCK_ALIGNMENT,
+			.wBitsPerSample = BITS_PER_SAMPLE,
+			.cbSize = 0,
+		};
+
+		// Create source voice using format
+		winrt::check_hresult(audio_player.m_audio_engine->CreateSourceVoice(&audio_player.m_source_voice, &wave_format_ex));
+
+		return audio_player;
+	}
+
+} // namespace engine
+
 struct ProgramContext {
 	bool should_quit;
 	engine::Window window;
@@ -166,37 +209,7 @@ int WINAPI WinMain(
 	engine::initialize_printf();
 	engine::initialize_gamepad_support();
 	g_context.window = initialize_window_or_abort(instance, on_window_event);
-
-	struct AudioPlayer {
-		winrt::com_ptr<IXAudio2> audio_engine;
-		IXAudio2MasteringVoice* mastering_voice;
-		IXAudio2SourceVoice* source_voice;
-	} audio_player;
-
-	// Initialize audio
-	{
-		winrt::check_hresult(XAudio2Create(audio_player.audio_engine.put(), 0, XAUDIO2_DEFAULT_PROCESSOR));
-		winrt::check_hresult(audio_player.audio_engine->CreateMasteringVoice(&audio_player.mastering_voice));
-
-		// Define a format
-		constexpr WORD NUMBER_OF_CHANNELS = 1;
-		constexpr WORD BITS_PER_SAMPLE = 16;
-		constexpr WORD SAMPLES_PER_SEC = 44100;
-		constexpr WORD BITS_PER_BYTE = 8;
-		constexpr WORD BLOCK_ALIGNMENT = NUMBER_OF_CHANNELS * BITS_PER_SAMPLE / BITS_PER_BYTE;
-		WAVEFORMATEX wave_format_ex = {
-			.wFormatTag = WAVE_FORMAT_PCM,
-			.nChannels = NUMBER_OF_CHANNELS, // mono or stero
-			.nSamplesPerSec = SAMPLES_PER_SEC,
-			.nAvgBytesPerSec = SAMPLES_PER_SEC * BLOCK_ALIGNMENT,
-			.nBlockAlign = BLOCK_ALIGNMENT,
-			.wBitsPerSample = BITS_PER_SAMPLE,
-			.cbSize = 0,
-		};
-
-		// Create source voice using format
-		winrt::check_hresult(audio_player.audio_engine->CreateSourceVoice(&audio_player.source_voice, &wave_format_ex));
-	}
+	engine::AudioPlayer audio_player = engine::initialize_audio_player();
 
 	// Add cowbell audio
 	XAUDIO2_BUFFER cowbell_buffer = {};
@@ -227,13 +240,14 @@ int WINAPI WinMain(
 			fprintf(stderr, "File wasn't right format");
 			exit(1);
 		}
+
 		//fill out the audio data buffer with the contents of the fourccDATA chunk
 		find_chunk_in_file(cowbell_file, fourccDATA, &chunk_size, &chunk_position);
 		BYTE* samples = new BYTE[chunk_size];
 		read_chunk_from_file(cowbell_file, samples, chunk_size, chunk_position);
 
 		cowbell_buffer.AudioBytes = chunk_size;       // size of the audio buffer in bytes
-		cowbell_buffer.pAudioData = samples;  // buffer containing audio data
+		cowbell_buffer.pAudioData = samples;          // buffer containing audio data
 		cowbell_buffer.Flags = XAUDIO2_END_OF_STREAM; // tell the source voice not to expect any data after this buffer
 	}
 
@@ -251,10 +265,10 @@ int WINAPI WinMain(
 
 		// trigger sound with keyboard
 		if (g_context.input.keyboard.key_was_pressed_now('1')) {
-			audio_player.source_voice->Stop();
-			audio_player.source_voice->FlushSourceBuffers();                // stop current sound
-			audio_player.source_voice->SubmitSourceBuffer(&cowbell_buffer); // play sound
-			audio_player.source_voice->Start();
+			audio_player.m_source_voice->Stop();
+			audio_player.m_source_voice->FlushSourceBuffers();                // stop current sound
+			audio_player.m_source_voice->SubmitSourceBuffer(&cowbell_buffer); // play sound
+			audio_player.m_source_voice->Start();
 		}
 
 		/* Render */
