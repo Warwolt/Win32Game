@@ -11,50 +11,6 @@
 #include <winrt/base.h>
 #include <xaudio2.h>
 
-namespace engine {
-
-	class AudioPlayer {
-	public:
-		AudioPlayer() = default;
-		static AudioPlayer initialize_audio_player();
-
-	private:
-		winrt::com_ptr<IXAudio2> m_xaudio2_engine = {};
-		IXAudio2MasteringVoice* m_xaudio2_mastering_voice = {};
-		IXAudio2SourceVoice* m_xaudio2_source_voice = {};
-		XAUDIO2_BUFFER m_x_audio2_buffer = {};
-
-	};
-
-	AudioPlayer AudioPlayer::initialize_audio_player() {
-		AudioPlayer audio_player;
-
-		/* Initialize audio engine */
-		winrt::check_hresult(XAudio2Create(audio_player.m_xaudio2_engine.put(), 0, XAUDIO2_DEFAULT_PROCESSOR));
-		winrt::check_hresult(audio_player.m_xaudio2_engine->CreateMasteringVoice(&audio_player.m_xaudio2_mastering_voice));
-
-		/* Add voices */
-		constexpr WORD NUMBER_OF_CHANNELS = 1;
-		constexpr WORD BITS_PER_SAMPLE = 16;
-		constexpr WORD SAMPLES_PER_SEC = 44100;
-		constexpr WORD BITS_PER_BYTE = 8;
-		constexpr WORD BLOCK_ALIGNMENT = NUMBER_OF_CHANNELS * BITS_PER_SAMPLE / BITS_PER_BYTE;
-		WAVEFORMATEX wav_format = {
-			.wFormatTag = WAVE_FORMAT_PCM,
-			.nChannels = NUMBER_OF_CHANNELS, // mono or stero
-			.nSamplesPerSec = SAMPLES_PER_SEC,
-			.nAvgBytesPerSec = SAMPLES_PER_SEC * BLOCK_ALIGNMENT,
-			.nBlockAlign = BLOCK_ALIGNMENT,
-			.wBitsPerSample = BITS_PER_SAMPLE,
-		};
-
-		winrt::check_hresult(audio_player.m_xaudio2_engine->CreateSourceVoice(&audio_player.m_xaudio2_source_voice, &wav_format));
-
-		return audio_player;
-	}
-
-} // namespace engine
-
 // from https://learn.microsoft.com/en-us/windows/win32/xaudio2/how-to--load-audio-data-files-in-xaudio2
 constexpr int fourccRIFF = 'FFIR';
 constexpr int fourccDATA = 'atad';
@@ -211,25 +167,28 @@ int WINAPI WinMain(
 	engine::initialize_gamepad_support();
 	g_context.window = initialize_window_or_abort(instance, on_window_event);
 
+	struct AudioData {
+		BYTE* samples;
+		XAUDIO2_BUFFER buffer;
+	};
+
+	struct AudioPlayer {
+		winrt::com_ptr<IXAudio2> audio_engine;
+		IXAudio2MasteringVoice* mastering_voice;
+		IXAudio2SourceVoice* source_voice;
+	} audio_player;
+
 	// Initialize audio
-	winrt::com_ptr<IXAudio2> xaudio2_engine = {};
-	IXAudio2MasteringVoice* xaudio2_mastering_voice = {};
-	IXAudio2SourceVoice* xaudio2_source_voice = {};
-	XAUDIO2_BUFFER x_audio2_buffer = {};
 	{
-		// code based on https://learn.microsoft.com/en-us/windows/win32/xaudio2/full-project
+		winrt::check_hresult(XAudio2Create(audio_player.audio_engine.put(), 0, XAUDIO2_DEFAULT_PROCESSOR));
+		winrt::check_hresult(audio_player.audio_engine->CreateMasteringVoice(&audio_player.mastering_voice));
 
-		// Initialize engine and master voice
-		winrt::check_hresult(XAudio2Create(xaudio2_engine.put(), 0, XAUDIO2_DEFAULT_PROCESSOR));
-		winrt::check_hresult(xaudio2_engine->CreateMasteringVoice(&xaudio2_mastering_voice));
-
+		// Define a format
 		constexpr WORD NUMBER_OF_CHANNELS = 1;
 		constexpr WORD BITS_PER_SAMPLE = 16;
 		constexpr WORD SAMPLES_PER_SEC = 44100;
 		constexpr WORD BITS_PER_BYTE = 8;
 		constexpr WORD BLOCK_ALIGNMENT = NUMBER_OF_CHANNELS * BITS_PER_SAMPLE / BITS_PER_BYTE;
-
-		// Define a format
 		WAVEFORMATEX wave_format_ex = {
 			.wFormatTag = WAVE_FORMAT_PCM,
 			.nChannels = NUMBER_OF_CHANNELS, // mono or stero
@@ -241,8 +200,12 @@ int WINAPI WinMain(
 		};
 
 		// Create source voice using format
-		winrt::check_hresult(xaudio2_engine->CreateSourceVoice(&xaudio2_source_voice, &wave_format_ex));
+		winrt::check_hresult(audio_player.audio_engine->CreateSourceVoice(&audio_player.source_voice, &wave_format_ex));
+	}
 
+	// Add cowbell audio
+	XAUDIO2_BUFFER x_audio2_buffer = {};
+	{
 		// Load wave file
 		HANDLE cowbell_file = CreateFileA(
 			"assets/audio/808_cowbell.wav",
@@ -269,9 +232,6 @@ int WINAPI WinMain(
 			fprintf(stderr, "File wasn't right format");
 			exit(1);
 		}
-		WAVEFORMATEX cowbell_format = {};
-		find_chunk_in_file(cowbell_file, fourccFMT, &chunk_size, &chunk_position);
-		read_chunk_from_file(cowbell_file, &cowbell_format, chunk_size, chunk_position);
 		//fill out the audio data buffer with the contents of the fourccDATA chunk
 		find_chunk_in_file(cowbell_file, fourccDATA, &chunk_size, &chunk_position);
 		BYTE* cowbell_buffer = new BYTE[chunk_size];
@@ -296,10 +256,10 @@ int WINAPI WinMain(
 
 		// trigger sound with keyboard
 		if (g_context.input.keyboard.key_was_pressed_now('1')) {
-			xaudio2_source_voice->Stop();
-			xaudio2_source_voice->FlushSourceBuffers();                 // stop current sound
-			xaudio2_source_voice->SubmitSourceBuffer(&x_audio2_buffer); // play sound
-			xaudio2_source_voice->Start();
+			audio_player.source_voice->Stop();
+			audio_player.source_voice->FlushSourceBuffers();                 // stop current sound
+			audio_player.source_voice->SubmitSourceBuffer(&x_audio2_buffer); // play sound
+			audio_player.source_voice->Start();
 		}
 
 		/* Render */
