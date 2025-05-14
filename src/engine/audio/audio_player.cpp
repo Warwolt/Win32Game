@@ -96,6 +96,11 @@ namespace engine {
 	}
 
 	AudioID AudioPlayer::add_audio_from_file(HANDLE file) {
+		if (file == INVALID_HANDLE_VALUE) {
+			fprintf(stderr, "couldn't load wave file!\n");
+			exit(1);
+		}
+
 		DWORD chunk_size;
 		DWORD chunk_position;
 		//check the file type, should be fourccWAVE or 'XWMA'
@@ -126,7 +131,7 @@ namespace engine {
 
 	void AudioPlayer::play(AudioID id) {
 		m_source_voice->Stop();
-		m_source_voice->FlushSourceBuffers();                                    // stop previous sound
+		m_source_voice->FlushSourceBuffers();                           // stop previous sound
 		m_source_voice->SubmitSourceBuffer(&m_audio_buffers[id.value]); // play next sound
 		m_source_voice->Start();
 	}

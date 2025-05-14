@@ -89,6 +89,21 @@ LRESULT CALLBACK on_window_event(
 	return DefWindowProc(window, message, w_param, l_param);
 }
 
+engine::AudioID load_audio_from_file(const char* path) {
+	HANDLE cowbell_file = CreateFileA(
+		path,
+		GENERIC_READ,
+		FILE_SHARE_READ,
+		NULL,
+		OPEN_EXISTING,
+		0,
+		NULL
+	);
+	engine::AudioID id = g_context.audio.add_audio_from_file(cowbell_file);
+	CloseHandle(cowbell_file);
+	return id;
+}
+
 int WINAPI WinMain(
 	HINSTANCE instance,
 	HINSTANCE /*prev_instance*/,
@@ -99,30 +114,7 @@ int WINAPI WinMain(
 	engine::initialize_gamepad_support();
 	g_context.window = initialize_window_or_abort(instance, on_window_event);
 	g_context.audio = engine::initialize_audio_player();
-
-	// Add cowbell audio
-	engine::AudioID cowbell;
-	{
-		// Load wave file
-		HANDLE cowbell_file = CreateFileA(
-			"assets/audio/808_cowbell.wav",
-			GENERIC_READ,
-			FILE_SHARE_READ,
-			NULL,
-			OPEN_EXISTING,
-			0,
-			NULL
-		);
-
-		if (cowbell_file == INVALID_HANDLE_VALUE) {
-			fprintf(stderr, "couldn't load wave file!\n");
-			exit(1);
-		}
-
-		cowbell = g_context.audio.add_audio_from_file(cowbell_file);
-
-		CloseHandle(cowbell_file);
-	}
+	engine::AudioID cowbell = load_audio_from_file("assets/audio/808_cowbell.wav");
 
 	/* Main loop */
 	while (!g_context.should_quit) {
@@ -132,6 +124,8 @@ int WINAPI WinMain(
 
 		/* Update */
 		game::update(&g_context.game, g_context.input);
+
+		// quick quit while prototyping
 		if (g_context.input.keyboard.key_was_pressed_now(VK_ESCAPE)) {
 			g_context.should_quit = true;
 		}
