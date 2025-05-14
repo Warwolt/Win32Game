@@ -7,12 +7,13 @@ add_subdirectory(libs/googletest)
 option(WARNINGS_AS_ERRORS "Compile with warnings as errors" OFF)
 
 set(SRC
+    src/engine/audio/audio_player.cpp
     src/engine/input/button.cpp
     src/engine/input/gamepad.cpp
     src/engine/input/input.cpp
     src/engine/input/keyboard.cpp
-    src/engine/render/window.cpp
     src/engine/logging.cpp
+    src/engine/render/window.cpp
     src/game/game.cpp
 )
 
