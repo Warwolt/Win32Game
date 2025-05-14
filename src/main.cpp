@@ -259,8 +259,10 @@ int WINAPI WinMain(
 
 		// trigger sound with keyboard
 		if (g_context.input.keyboard.key_was_pressed_now('1')) {
-			printf("source buffer submitted\n");
-			xaudio2_source_voice->SubmitSourceBuffer(&x_audio2_buffer);
+			xaudio2_source_voice->Stop();
+			xaudio2_source_voice->FlushSourceBuffers(); // stop current sound
+			xaudio2_source_voice->SubmitSourceBuffer(&x_audio2_buffer); // play sound
+			xaudio2_source_voice->Start();
 		}
 
 		/* Render */
