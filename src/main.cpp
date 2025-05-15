@@ -16,7 +16,6 @@ namespace engine {
 			engine::AudioID cowbell;
 		} audio;
 	};
-
 } // namespace engine
 
 struct ProgramContext {
@@ -31,7 +30,7 @@ struct ProgramContext {
 
 static ProgramContext g_context;
 
-engine::Window initialize_window_or_abort(HINSTANCE instance, WNDPROC wnd_proc, const char* window_title) {
+static engine::Window initialize_window_or_abort(HINSTANCE instance, WNDPROC wnd_proc, const char* window_title) {
 	std::expected<engine::Window, engine::WindowError> window_result = engine::initialize_window(instance, wnd_proc, window_title);
 	if (!window_result.has_value()) {
 		std::string message = std::format("Couldn't create window: {}", engine::window_error_to_str(window_result.error()));
@@ -41,7 +40,7 @@ engine::Window initialize_window_or_abort(HINSTANCE instance, WNDPROC wnd_proc, 
 	return window_result.value();
 }
 
-void pump_window_messages() {
+static void pump_window_messages() {
 	MSG message;
 	while (PeekMessageA(&message, 0, 0, 0, PM_REMOVE)) {
 		TranslateMessage(&message);
@@ -52,7 +51,7 @@ void pump_window_messages() {
 	}
 }
 
-LRESULT CALLBACK on_window_event(
+static LRESULT CALLBACK on_window_event(
 	HWND window,
 	UINT message,
 	WPARAM w_param,
@@ -105,7 +104,7 @@ LRESULT CALLBACK on_window_event(
 	return DefWindowProc(window, message, w_param, l_param);
 }
 
-engine::AudioID load_audio_from_file(const char* path) {
+static engine::AudioID load_audio_from_file(const char* path) {
 	HANDLE cowbell_file = CreateFileA(
 		path,
 		GENERIC_READ,
@@ -138,15 +137,7 @@ int WINAPI WinMain(
 	g_context.audio = engine::initialize_audio_player();
 	g_context.assets.audio.cowbell = load_audio_from_file("assets/audio/808_cowbell.wav");
 
-	// test logging
-	LOG_DEBUG("\"%s\" called", __func__);
-	LOG_INFO("2 + 2 = %d!", 2 + 2);
-	LOG_WARNING("Loading took forever");
-	LOG_ERROR("Couldn't open file %s", "my_face.png");
-	LOG_FATAL("Failed to load %s, aborting.", "important_library.dll");
-
 	/* Main loop */
-	int number = 0;
 	while (!g_context.should_quit) {
 		/* Input */
 		pump_window_messages();
@@ -164,26 +155,6 @@ int WINAPI WinMain(
 		// trigger sound with keyboard
 		if (g_context.input.keyboard.key_was_pressed_now('1')) {
 			g_context.audio.play(g_context.assets.audio.cowbell);
-		}
-
-		if (g_context.input.mouse.left_button.was_pressed_now()) {
-			LOG_INFO("Left mouse button pressed");
-		}
-		if (g_context.input.mouse.right_button.was_pressed_now()) {
-			LOG_INFO("Right mouse button pressed");
-		}
-		if (g_context.input.mouse.middle_button.was_pressed_now()) {
-			LOG_INFO("Middle mouse button pressed");
-		}
-		if (g_context.input.mouse.x1_button.was_pressed_now()) {
-			LOG_INFO("X1 mouse button pressed");
-		}
-		if (g_context.input.mouse.x2_button.was_pressed_now()) {
-			LOG_INFO("X2 mouse button pressed");
-		}
-		if (g_context.input.mouse.mouse_wheel_delta) {
-			number += g_context.input.mouse.mouse_wheel_delta;
-			LOG_INFO("scroll %d", number);
 		}
 
 		/* Render */

@@ -4,8 +4,8 @@ Overall goal:
 - Simple Win32 level editor (create content for the games)
 
 # Todo
-- Font support
 - Sprite support
+- DLL based hot reloading
 - Asset system (store audio, images, fonts, etc.)
 - Draw API (lines, rectangles, circles)
 - CPU Profiling
@@ -17,6 +17,7 @@ Overall goal:
 - [!] Write Zelda Dungeon game
 
 # Doing
+- Font support
 
 # Done
 - Mouse input
