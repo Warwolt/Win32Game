@@ -1,26 +1,36 @@
 #include <engine/audio/audio_player.h>
+#include <engine/debug/logging.h>
+#include <engine/graphics/window.h>
 #include <engine/input/gamepad.h>
 #include <engine/input/input.h>
 #include <engine/input/keyboard.h>
-#include <engine/debug/logging.h>
-#include <engine/graphics/window.h>
 #include <game/game.h>
 
 #include <format>
 #include <windows.h>
+
+namespace engine {
+	struct Assets {
+		struct Audio {
+			engine::AudioID cowbell;
+		} audio;
+	};
+
+} // namespace engine
 
 struct ProgramContext {
 	bool should_quit;
 	engine::Window window;
 	engine::InputDevices input;
 	engine::AudioPlayer audio;
+	engine::Assets assets;
 	game::GameState game;
 };
 
 static ProgramContext g_context;
 
-engine::Window initialize_window_or_abort(HINSTANCE instance, WNDPROC wnd_proc) {
-	std::expected<engine::Window, engine::WindowError> window_result = engine::initialize_window(instance, wnd_proc);
+engine::Window initialize_window_or_abort(HINSTANCE instance, WNDPROC wnd_proc, const char* window_title) {
+	std::expected<engine::Window, engine::WindowError> window_result = engine::initialize_window(instance, wnd_proc, window_title);
 	if (!window_result.has_value()) {
 		std::string message = std::format("Couldn't create window: {}", engine::window_error_to_str(window_result.error()));
 		MessageBoxA(0, message.c_str(), "Error", MB_OK | MB_ICONERROR);
@@ -116,11 +126,18 @@ int WINAPI WinMain(
 	LPSTR /*command_line*/,
 	int /*command_show*/
 ) {
-	engine::initialize_printf();
+	engine::initialize_logging(engine::LogLevel::Debug);
 	engine::initialize_gamepad_support();
-	g_context.window = initialize_window_or_abort(instance, on_window_event);
+	g_context.window = initialize_window_or_abort(instance, on_window_event, "Game");
 	g_context.audio = engine::initialize_audio_player();
-	engine::AudioID cowbell = load_audio_from_file("assets/audio/808_cowbell.wav");
+	g_context.assets.audio.cowbell = load_audio_from_file("assets/audio/808_cowbell.wav");
+
+	// test logging
+	LOG_DEBUG("\"%s\" called", __func__);
+	LOG_INFO("2 + 2 = %d!", 2 + 2);
+	LOG_WARNING("Loading took forever");
+	LOG_ERROR("Couldn't open file %s", "my_face.png");
+	LOG_FATAL("Failed to load %s, aborting.", "important_library.dll");
 
 	/* Main loop */
 	while (!g_context.should_quit) {
@@ -138,7 +155,7 @@ int WINAPI WinMain(
 
 		// trigger sound with keyboard
 		if (g_context.input.keyboard.key_was_pressed_now('1')) {
-			g_context.audio.play(cowbell);
+			g_context.audio.play(g_context.assets.audio.cowbell);
 		}
 
 		/* Render */
