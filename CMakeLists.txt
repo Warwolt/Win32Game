@@ -40,6 +40,7 @@ target_link_libraries(unit_tests PUBLIC gtest gmock source)
 # Set compile options for targets
 foreach(TARGET IN ITEMS source rkhero unit_tests)
     set_property(TARGET ${TARGET} PROPERTY CXX_STANDARD 23)
+    add_compile_definitions(${TARGET} PUBLIC _CRT_SECURE_NO_WARNINGS)
     target_compile_options(${TARGET} PUBLIC
         $<$<CXX_COMPILER_ID:MSVC>: /W4 /w44062>
         $<$<NOT:$<CXX_COMPILER_ID:MSVC>>: -Wall -Wextra -Wpedantic>)

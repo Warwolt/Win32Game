@@ -6,7 +6,6 @@
 #include <engine/input/keyboard.h>
 #include <game/game.h>
 
-
 #include <format>
 #include <windows.h>
 
@@ -127,11 +126,18 @@ int WINAPI WinMain(
 	LPSTR /*command_line*/,
 	int /*command_show*/
 ) {
-	engine::initialize_logging();
+	engine::initialize_logging(engine::LogLevel::Debug);
 	engine::initialize_gamepad_support();
 	g_context.window = initialize_window_or_abort(instance, on_window_event, "Game");
 	g_context.audio = engine::initialize_audio_player();
 	g_context.assets.audio.cowbell = load_audio_from_file("assets/audio/808_cowbell.wav");
+
+	// test logging
+	LOG_DEBUG("\"%s\" called", __func__);
+	LOG_INFO("2 + 2 = %d!", 2 + 2);
+	LOG_WARNING("Loading took forever");
+	LOG_ERROR("Couldn't open file %s", "my_face.png");
+	LOG_FATAL("Failed to load %s, aborting.", "important_library.dll");
 
 	/* Main loop */
 	while (!g_context.should_quit) {
