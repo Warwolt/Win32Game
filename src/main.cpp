@@ -1,19 +1,30 @@
 #include <engine/audio/audio_player.h>
+#include <engine/debug/logging.h>
+#include <engine/graphics/window.h>
 #include <engine/input/gamepad.h>
 #include <engine/input/input.h>
 #include <engine/input/keyboard.h>
-#include <engine/debug/logging.h>
-#include <engine/graphics/window.h>
 #include <game/game.h>
+
 
 #include <format>
 #include <windows.h>
+
+namespace engine {
+	struct Assets {
+		struct Audio {
+			engine::AudioID cowbell;
+		} audio;
+	};
+
+} // namespace engine
 
 struct ProgramContext {
 	bool should_quit;
 	engine::Window window;
 	engine::InputDevices input;
 	engine::AudioPlayer audio;
+	engine::Assets assets;
 	game::GameState game;
 };
 
@@ -120,7 +131,7 @@ int WINAPI WinMain(
 	engine::initialize_gamepad_support();
 	g_context.window = initialize_window_or_abort(instance, on_window_event);
 	g_context.audio = engine::initialize_audio_player();
-	engine::AudioID cowbell = load_audio_from_file("assets/audio/808_cowbell.wav");
+	g_context.assets.audio.cowbell = load_audio_from_file("assets/audio/808_cowbell.wav");
 
 	/* Main loop */
 	while (!g_context.should_quit) {
@@ -138,7 +149,7 @@ int WINAPI WinMain(
 
 		// trigger sound with keyboard
 		if (g_context.input.keyboard.key_was_pressed_now('1')) {
-			g_context.audio.play(cowbell);
+			g_context.audio.play(g_context.assets.audio.cowbell);
 		}
 
 		/* Render */
