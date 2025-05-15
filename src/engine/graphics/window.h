@@ -24,7 +24,7 @@ namespace engine {
 	};
 	const char* window_error_to_str(WindowError error);
 
-	std::expected<Window, WindowError> initialize_window(HINSTANCE instance, WNDPROC wnd_proc);
+	std::expected<Window, WindowError> initialize_window(HINSTANCE instance, WNDPROC wnd_proc, const char* window_title);
 	void on_window_resized(Window* window);
 	void render_window(const Window& window, HDC device_context);
 
