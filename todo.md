@@ -4,11 +4,11 @@ Overall goal:
 - Simple Win32 level editor (create content for the games)
 
 # Todo
-- Mouse input
 - Font support
 - Sprite support
 - Asset system (store audio, images, fonts, etc.)
 - Draw API (lines, rectangles, circles)
+- CPU Profiling
 - [!] Write Tetris game
 - Collisions
 - [!] Write Pong game
@@ -17,9 +17,10 @@ Overall goal:
 - [!] Write Zelda Dungeon game
 
 # Doing
-- Add logging
 
 # Done
+- Mouse input
+- Add logging
 - Audio support
 - Controller and keyboard input
 - Create window and draw to it

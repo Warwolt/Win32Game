@@ -4,6 +4,7 @@
 #include <engine/input/gamepad.h>
 #include <engine/input/input.h>
 #include <engine/input/keyboard.h>
+#include <engine/input/mouse.h>
 #include <game/game.h>
 
 #include <format>
@@ -20,6 +21,7 @@ namespace engine {
 
 struct ProgramContext {
 	bool should_quit;
+	int16_t mouse_wheel_delta;
 	engine::Window window;
 	engine::InputDevices input;
 	engine::AudioPlayer audio;
@@ -85,6 +87,10 @@ LRESULT CALLBACK on_window_event(
 			return 0;
 		} break;
 
+		case WM_MOUSEWHEEL: {
+			g_context.mouse_wheel_delta += GET_WHEEL_DELTA_WPARAM(w_param) / WHEEL_DELTA;
+		} break;
+
 		case WM_PAINT: {
 			PAINTSTRUCT paint;
 			HDC device_context = BeginPaint(window, &paint);
@@ -140,10 +146,12 @@ int WINAPI WinMain(
 	LOG_FATAL("Failed to load %s, aborting.", "important_library.dll");
 
 	/* Main loop */
+	int number = 0;
 	while (!g_context.should_quit) {
 		/* Input */
 		pump_window_messages();
-		engine::update_input_devices(&g_context.input);
+		engine::update_input_devices(&g_context.input, g_context.mouse_wheel_delta);
+		g_context.mouse_wheel_delta = 0;
 
 		/* Update */
 		game::update(&g_context.game, g_context.input);
@@ -156,6 +164,26 @@ int WINAPI WinMain(
 		// trigger sound with keyboard
 		if (g_context.input.keyboard.key_was_pressed_now('1')) {
 			g_context.audio.play(g_context.assets.audio.cowbell);
+		}
+
+		if (g_context.input.mouse.left_button.was_pressed_now()) {
+			LOG_INFO("Left mouse button pressed");
+		}
+		if (g_context.input.mouse.right_button.was_pressed_now()) {
+			LOG_INFO("Right mouse button pressed");
+		}
+		if (g_context.input.mouse.middle_button.was_pressed_now()) {
+			LOG_INFO("Middle mouse button pressed");
+		}
+		if (g_context.input.mouse.x1_button.was_pressed_now()) {
+			LOG_INFO("X1 mouse button pressed");
+		}
+		if (g_context.input.mouse.x2_button.was_pressed_now()) {
+			LOG_INFO("X2 mouse button pressed");
+		}
+		if (g_context.input.mouse.mouse_wheel_delta) {
+			number += g_context.input.mouse.mouse_wheel_delta;
+			LOG_INFO("scroll %d", number);
 		}
 
 		/* Render */
