@@ -1,8 +1,10 @@
 #include <engine/debug/logging.h>
 
 #include <ctime>
+#include <format>
 #include <stdarg.h>
 #include <stdio.h>
+#include <string>
 #include <windows.h>
 
 #pragma warning(disable: 4005) // consoleapi2.h from windows.h has conflicting macros
@@ -31,6 +33,7 @@ namespace engine {
 #define BACKGROUND_WHITE "\033[47m"
 
 	static LogLevel g_log_level;
+	static bool g_colors_enabled = false;
 
 	static const char* log_level_to_str(LogLevel level) {
 		switch (level) {
@@ -67,6 +70,12 @@ namespace engine {
 	void initialize_logging(LogLevel level) {
 		g_log_level = level;
 
+		// If we're debugging, we're using the Visual Studio debug output window
+		// printf won't work, but the LOG_ macros will print there
+		if (IsDebuggerPresent()) {
+			return;
+		}
+
 		/* Get console */
 		bool has_console = AttachConsole(ATTACH_PARENT_PROCESS); // attach to parent terminal
 		if (!has_console) {
@@ -85,10 +94,11 @@ namespace engine {
 		DWORD dwMode = 0;
 		GetConsoleMode(hOut, &dwMode);
 		dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-		SetConsoleMode(hOut, dwMode);
+		g_colors_enabled = SetConsoleMode(hOut, dwMode);
 	}
 
 	void debug_log(LogLevel log_level, const char* fmt, ...) {
+		const bool debugger_present = IsDebuggerPresent();
 		char buffer[1024] = {};
 		int offset = 0;
 
@@ -98,7 +108,9 @@ namespace engine {
 		}
 
 		/* Add color */
-		offset += snprintf(buffer + offset, 1024 - offset, log_level_color(log_level));
+		if (!debugger_present) {
+			offset += snprintf(buffer + offset, 1024 - offset, log_level_color(log_level));
+		}
 
 		/* Add timestamp */
 		std::time_t t = std::time(0); // get time now
@@ -112,11 +124,19 @@ namespace engine {
 		/* Add message */
 		va_list args;
 		va_start(args, fmt);
-		offset += vsnprintf(buffer + offset, 1024, fmt, args);
+		offset += vsnprintf(buffer + offset, 1024 - offset, fmt, args);
+		snprintf(buffer + offset, 1024 - offset, "\n");
 		va_end(args);
 
 		/* Output */
-		printf("%s%s\n", buffer, COLOR_RESET);
+		if (debugger_present) {
+			// log to Visual Studio debug output window
+			OutputDebugStringA(buffer);
+		}
+		else {
+			// log to console
+			printf("%s%s", buffer, COLOR_RESET);
+		}
 	}
 
 } // namespace engine
