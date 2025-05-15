@@ -1,5 +1,5 @@
 namespace engine {
 
-    void initialize_printf();
+    void initialize_logging();
 
 } // namespace engine

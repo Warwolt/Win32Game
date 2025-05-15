@@ -5,7 +5,7 @@
 
 namespace engine {
 
-	void initialize_printf() {
+	void initialize_logging() {
 		/* Get console */
 		bool has_console = AttachConsole(ATTACH_PARENT_PROCESS); // attach to parent terminal
 		if (!has_console) {

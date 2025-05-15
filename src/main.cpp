@@ -127,7 +127,7 @@ int WINAPI WinMain(
 	LPSTR /*command_line*/,
 	int /*command_show*/
 ) {
-	engine::initialize_printf();
+	engine::initialize_logging();
 	engine::initialize_gamepad_support();
 	g_context.window = initialize_window_or_abort(instance, on_window_event, "Game");
 	g_context.audio = engine::initialize_audio_player();
