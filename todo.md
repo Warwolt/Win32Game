@@ -4,7 +4,6 @@ Overall goal:
 - Simple Win32 level editor (create content for the games)
 
 # Todo
-- Add logging
 - Mouse input
 - Font support
 - Sprite support
@@ -18,6 +17,7 @@ Overall goal:
 - [!] Write Zelda Dungeon game
 
 # Doing
+- Add logging
 
 # Done
 - Audio support

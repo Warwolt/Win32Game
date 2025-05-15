@@ -1,4 +1,4 @@
-#include <engine/render/window.h>
+#include <engine/graphics/window.h>
 
 namespace engine {
 
@@ -11,7 +11,7 @@ namespace engine {
 	}
 
 	// Tries to initialize window, returns nullptr if fails
-	std::expected<Window, WindowError> initialize_window(HINSTANCE instance, WNDPROC wnd_proc) {
+	std::expected<Window, WindowError> initialize_window(HINSTANCE instance, WNDPROC wnd_proc, const char* window_title) {
 		Window window;
 
 		/* Register window class */
@@ -32,7 +32,7 @@ namespace engine {
 		window.handle = CreateWindowExA(
 			0,                                // DWORD dwExStyle
 			window_class.lpszClassName,       // LPCWSTR lpClassName
-			"Handmade Hero",                  // LPCWSTR lpWindowName
+			window_title,                     // LPCWSTR lpWindowName
 			WS_OVERLAPPEDWINDOW | WS_VISIBLE, // DWORD dwStyle
 			CW_USEDEFAULT,                    // int X
 			CW_USEDEFAULT,                    // int Y
