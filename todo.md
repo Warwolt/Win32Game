@@ -4,10 +4,12 @@ Overall goal:
 - Simple Win32 level editor (create content for the games)
 
 # Todo
+- Draw API: rectangles, polygons
+- Draw API: circles
 - Sprite support
+- Font support
 - DLL based hot reloading
 - Asset system (store audio, images, fonts, etc.)
-- Draw API (lines, rectangles, circles)
 - CPU Profiling
 - [!] Write Tetris game
 - Collisions
@@ -17,7 +19,7 @@ Overall goal:
 - [!] Write Zelda Dungeon game
 
 # Doing
-- Font support
+- Draw API: lines
 
 # Done
 - Mouse input
