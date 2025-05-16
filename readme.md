@@ -1,3 +1,4 @@
-# RK Handmade Hero
+# RK Win32 Game
 
-Small repo to follow along Casey Muratori's "Handmade Hero" series.
+Win32 based engine programming.
+Losely based on Casey Muratoris "handmade hero" series.
