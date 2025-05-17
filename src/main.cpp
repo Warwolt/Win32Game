@@ -93,10 +93,8 @@ static LRESULT CALLBACK on_window_event(
 		case WM_PAINT: {
 			PAINTSTRUCT paint;
 			HDC device_context = BeginPaint(window, &paint);
-			{
-				game::draw(&g_context.window.bitmap, g_context.game);
-				engine::render_window(g_context.window, device_context);
-			}
+			game::draw(&g_context.window.bitmap, g_context.game);
+			engine::render_window(g_context.window, device_context);
 			EndPaint(window, &paint);
 		} break;
 	}
@@ -158,6 +156,22 @@ int WINAPI WinMain(
 		}
 
 		/* Render */
+		auto put_pixel = [bitmap = g_context.window.bitmap](int x, int y, uint8_t r, uint8_t g, uint8_t b) {
+			struct BGRPixel {
+				uint8_t b;
+				uint8_t g;
+				uint8_t r;
+				uint8_t padding;
+			};
+			if (0 <= x && x <= bitmap.width && 0 <= y && y <= bitmap.height) {
+				((BGRPixel*)bitmap.data)[x + bitmap.width * y] = BGRPixel { b, g, r };
+			}
+		};
+		int line_length = 5;
+		for (int i = 0; i < line_length; i++) {
+			put_pixel(g_context.window.bitmap.width / 2 + i, g_context.window.bitmap.height / 2, 0, 255, 0);
+		}
+
 		HDC device_context = GetDC(g_context.window.handle);
 		game::draw(&g_context.window.bitmap, g_context.game);
 		engine::render_window(g_context.window, device_context);
