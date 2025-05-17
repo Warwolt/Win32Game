@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16.0)
-project(rkhero)
+project(win32game)
 
 add_subdirectory(libs/googletest)
 
@@ -28,10 +28,10 @@ add_library(source STATIC ${SRC})
 target_include_directories(source PUBLIC src)
 
 # Executable
-add_executable(rkhero WIN32 src/main.cpp)
-target_include_directories(rkhero PUBLIC src)
-target_link_libraries(rkhero PUBLIC source)
-set_property(TARGET rkhero PROPERTY WIN32_EXECUTABLE TRUE)
+add_executable(win32game WIN32 src/main.cpp)
+target_include_directories(win32game PUBLIC src)
+target_link_libraries(win32game PUBLIC source)
+set_property(TARGET win32game PROPERTY WIN32_EXECUTABLE TRUE)
 
 # Unit tests
 add_executable(unit_tests test/main.cpp ${TEST_SRC})
@@ -39,7 +39,7 @@ target_include_directories(unit_tests PUBLIC src test)
 target_link_libraries(unit_tests PUBLIC gtest gmock source)
 
 # Set compile options for targets
-foreach(TARGET IN ITEMS source rkhero unit_tests)
+foreach(TARGET IN ITEMS source win32game unit_tests)
     set_property(TARGET ${TARGET} PROPERTY CXX_STANDARD 23)
     add_compile_definitions(${TARGET} PUBLIC _CRT_SECURE_NO_WARNINGS)
     target_compile_options(${TARGET} PUBLIC
