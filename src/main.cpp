@@ -156,6 +156,9 @@ int WINAPI WinMain(
 		}
 
 		/* Render */
+		auto clear_screen = [bitmap = g_context.window.bitmap]() {
+			ZeroMemory(bitmap.data, bitmap.width * bitmap.height * 4);
+		};
 		auto put_pixel = [bitmap = g_context.window.bitmap](int x, int y, uint8_t r, uint8_t g, uint8_t b) {
 			struct BGRPixel {
 				uint8_t b;
@@ -167,9 +170,13 @@ int WINAPI WinMain(
 				((BGRPixel*)bitmap.data)[x + bitmap.width * y] = BGRPixel { b, g, r };
 			}
 		};
-		int line_length = 5;
-		for (int i = 0; i < line_length; i++) {
-			put_pixel(g_context.window.bitmap.width / 2 + i, g_context.window.bitmap.height / 2, 0, 255, 0);
+
+		clear_screen();
+		if (g_context.input.keyboard.key_is_pressed('2')) {
+			int line_length = 5;
+			for (int i = 0; i < line_length; i++) {
+				put_pixel(g_context.window.bitmap.width / 2 + i, g_context.window.bitmap.height / 2, 0, 255, 0);
+			}
 		}
 
 		HDC device_context = GetDC(g_context.window.handle);
