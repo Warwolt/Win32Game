@@ -172,10 +172,33 @@ int WINAPI WinMain(
 		};
 
 		clear_screen();
-		if (g_context.input.keyboard.key_is_pressed('2')) {
-			int line_length = 5;
-			for (int i = 0; i < line_length; i++) {
-				put_pixel(g_context.window.bitmap.width / 2 + i, g_context.window.bitmap.height / 2, 0, 255, 0);
+
+		// https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
+		// plotLine(x0, y0, x1, y1)
+		//     dx = x1 - x0
+		//     dy = y1 - y0
+		//     D = 2*dy - dx
+		//     y = y0
+		//
+		//     for x from x0 to x1
+		//         plot(x, y)
+		//         if D > 0
+		//             y = y + 1
+		//             D = D - 2*dx
+		//         end if
+		//         D = D + 2*dy
+
+		// draw_line(x0, y0, x1, y1)
+		{
+			int x0 = g_context.window.bitmap.width / 2 + 0;
+			int y0 = g_context.window.bitmap.height / 2 + 0;
+			int x1 = g_context.window.bitmap.width / 2 + 6;
+			int y1 = g_context.window.bitmap.height / 2 + 2;
+
+			float m = (float)(y1 - y0) / (float)(x1 - x0);
+			for (int x = x0; x <= x1; x++) {
+				int y = (int)std::round(m * (x - x0) + y0);
+				put_pixel(x, y, 0, 255, 0);
 			}
 		}
 
