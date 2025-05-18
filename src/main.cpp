@@ -5,6 +5,7 @@
 #include <engine/input/input.h>
 #include <engine/input/keyboard.h>
 #include <engine/input/mouse.h>
+#include <engine/math/ivec2.h>
 #include <game/game.h>
 
 #include <format>
@@ -16,60 +17,6 @@ struct Color {
 	uint8_t g;
 	uint8_t b;
 	uint8_t a;
-};
-struct IVec2 {
-	int32_t x;
-	int32_t y;
-
-	IVec2& operator+=(const IVec2& rhs) {
-		this->x += rhs.x;
-		this->y += rhs.y;
-		return *this;
-	}
-	IVec2& operator-=(const IVec2& rhs) {
-		this->x -= rhs.x;
-		this->y -= rhs.y;
-		return *this;
-	}
-	IVec2& operator*=(const IVec2& rhs) {
-		this->x *= rhs.x;
-		this->y *= rhs.y;
-		return *this;
-	}
-	IVec2& operator/=(const IVec2& rhs) {
-		this->x /= rhs.x;
-		this->y /= rhs.y;
-		return *this;
-	}
-
-	friend IVec2 operator+(IVec2 lhs, const IVec2& rhs) {
-		lhs += rhs;
-		return lhs;
-	}
-	friend IVec2 operator-(IVec2 lhs, const IVec2& rhs) {
-		lhs -= rhs;
-		return lhs;
-	}
-	friend IVec2 operator*(IVec2 lhs, const IVec2& rhs) {
-		lhs *= rhs;
-		return lhs;
-	}
-	friend IVec2 operator/(IVec2 lhs, const IVec2& rhs) {
-		lhs /= rhs;
-		return lhs;
-	}
-	friend IVec2 operator*(IVec2 lhs, int rhs) {
-		return IVec2 {
-			.x = lhs.x * rhs,
-			.y = lhs.y * rhs,
-		};
-	}
-	friend IVec2 operator/(IVec2 lhs, int rhs) {
-		return IVec2 {
-			.x = lhs.x / rhs,
-			.y = lhs.y / rhs,
-		};
-	}
 };
 
 namespace engine {
@@ -237,7 +184,7 @@ int WINAPI WinMain(
 				((BGRPixel*)bitmap.data)[x + bitmap.width * y] = BGRPixel { color.b, color.g, color.r };
 			}
 		};
-		auto draw_line = [bitmap = g_context.window.bitmap, draw_pixel](IVec2 start, IVec2 end, Color color) {
+		auto draw_line = [bitmap = g_context.window.bitmap, draw_pixel](engine::IVec2 start, engine::IVec2 end, Color color) {
 			// vertical line
 			if (start.x == end.x) {
 				int y0 = min(start.y, end.y);
@@ -261,16 +208,14 @@ int WINAPI WinMain(
 
 		clear_screen();
 
-		IVec2 window_center = {
+		engine::IVec2 window_center = {
 			g_context.window.bitmap.width / 2,
 			g_context.window.bitmap.height / 2
 		};
-		IVec2 start = window_center + IVec2 { 0, 0 };
-		IVec2 end = IVec2 { g_context.input.mouse.x, g_context.input.mouse.y };
+		engine::IVec2 start = window_center + engine::IVec2 { 0, 0 };
+		engine::IVec2 end = engine::IVec2 { g_context.input.mouse.x, g_context.input.mouse.y };
 		Color color = { 0, 255, 0, 255 };
 		draw_line(start, end, color);
-
-		LOG_INFO("%d %d", end.x, end.y);
 
 		HDC device_context = GetDC(g_context.window.handle);
 		game::draw(&g_context.window.bitmap, g_context.game);
