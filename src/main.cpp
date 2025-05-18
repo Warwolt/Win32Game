@@ -1,5 +1,6 @@
 #include <engine/audio/audio_player.h>
 #include <engine/debug/logging.h>
+#include <engine/graphics/color.h>
 #include <engine/graphics/window.h>
 #include <engine/input/gamepad.h>
 #include <engine/input/input.h>
@@ -8,16 +9,10 @@
 #include <engine/math/ivec2.h>
 #include <game/game.h>
 
+
 #include <format>
 #include <windows.h>
 #include <windowsx.h>
-
-struct Color {
-	uint8_t r;
-	uint8_t g;
-	uint8_t b;
-	uint8_t a;
-};
 
 namespace engine {
 	struct Assets {
@@ -173,7 +168,7 @@ int WINAPI WinMain(
 		auto clear_screen = [bitmap = g_context.window.bitmap]() {
 			ZeroMemory(bitmap.data, bitmap.width * bitmap.height * 4);
 		};
-		auto draw_pixel = [bitmap = g_context.window.bitmap](int x, int y, Color color) {
+		auto draw_pixel = [bitmap = g_context.window.bitmap](int x, int y, engine::Color color) {
 			struct BGRPixel {
 				uint8_t b;
 				uint8_t g;
@@ -184,7 +179,7 @@ int WINAPI WinMain(
 				((BGRPixel*)bitmap.data)[x + bitmap.width * y] = BGRPixel { color.b, color.g, color.r };
 			}
 		};
-		auto draw_line = [bitmap = g_context.window.bitmap, draw_pixel](engine::IVec2 start, engine::IVec2 end, Color color) {
+		auto draw_line = [bitmap = g_context.window.bitmap, draw_pixel](engine::IVec2 start, engine::IVec2 end, engine::Color color) {
 			// vertical line
 			if (start.x == end.x) {
 				int y0 = min(start.y, end.y);
@@ -214,7 +209,7 @@ int WINAPI WinMain(
 		};
 		engine::IVec2 start = window_center + engine::IVec2 { 0, 0 };
 		engine::IVec2 end = engine::IVec2 { g_context.input.mouse.x, g_context.input.mouse.y };
-		Color color = { 0, 255, 0, 255 };
+		engine::Color color = { 0, 255, 0, 255 };
 		draw_line(start, end, color);
 
 		HDC device_context = GetDC(g_context.window.handle);
