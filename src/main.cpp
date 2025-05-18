@@ -151,6 +151,10 @@ static LRESULT CALLBACK on_window_event(
 			g_context.mouse_wheel_delta += GET_WHEEL_DELTA_WPARAM(w_param) / WHEEL_DELTA;
 		} break;
 
+		case WM_MOUSEMOVE: {
+			// FIXME: update mouse here
+		} break;
+
 		case WM_PAINT: {
 			PAINTSTRUCT paint;
 			HDC device_context = BeginPaint(window, &paint);
@@ -227,7 +231,7 @@ int WINAPI WinMain(
 				uint8_t r;
 				uint8_t padding;
 			};
-			if (0 <= x && x <= bitmap.width && 0 <= y && y <= bitmap.height) {
+			if (0 <= x && x < bitmap.width && 0 <= y && y < bitmap.height) {
 				((BGRPixel*)bitmap.data)[x + bitmap.width * y] = BGRPixel { color.b, color.g, color.r };
 			}
 		};
@@ -242,12 +246,13 @@ int WINAPI WinMain(
 			}
 			// sloped line
 			else {
-				int x0 = min(start.x, end.x);
-				int x1 = max(start.x, end.x);
-				float slope = (float)(end.y - start.y) / (float)(end.x - start.x);
-				for (int32_t x = x0; x <= x1; x++) {
-					int32_t y = (int32_t)std::round(slope * (x - start.x) + start.y);
-					draw_pixel(x, y, color);
+				int dx = end.x - start.x;
+				int dy = end.y - start.y;
+				int major_delta = max(std::abs(dx), std::abs(dy));
+				float x_step = (float)dx / (float)major_delta;
+				float y_step = (float)dy / (float)major_delta;
+				for (int32_t i = 0; i <= major_delta; i++) {
+					draw_pixel((int)(start.x + i * x_step), (int)(start.y + i * y_step), color);
 				}
 			}
 		};
@@ -259,9 +264,11 @@ int WINAPI WinMain(
 			g_context.window.bitmap.height / 2
 		};
 		IVec2 start = window_center + IVec2 { 0, 0 };
-		IVec2 end = window_center + IVec2 { 10, 10 };
+		IVec2 end = IVec2 { g_context.input.mouse.x, g_context.input.mouse.y };
 		Color color = { 0, 255, 0, 255 };
 		draw_line(start, end, color);
+
+		LOG_INFO("%d %d", end.x, end.y);
 
 		HDC device_context = GetDC(g_context.window.handle);
 		game::draw(&g_context.window.bitmap, g_context.game);
