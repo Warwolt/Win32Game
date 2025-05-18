@@ -12,6 +12,6 @@ namespace engine {
 		Mouse mouse;
 	};
 
-	void update_input_devices(InputDevices* input, int16_t mouse_wheel_delta);
+	void update_input_devices(InputDevices* input, const MouseEvents& mouse_events);
 
 } // namespace engine

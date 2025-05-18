@@ -9,6 +9,7 @@
 
 #include <format>
 #include <windows.h>
+#include <windowsx.h>
 
 struct Color {
 	uint8_t r;
@@ -81,7 +82,7 @@ namespace engine {
 
 struct ProgramContext {
 	bool should_quit;
-	int16_t mouse_wheel_delta;
+	engine::MouseEvents mouse_events;
 	engine::Window window;
 	engine::InputDevices input;
 	engine::AudioPlayer audio;
@@ -148,11 +149,12 @@ static LRESULT CALLBACK on_window_event(
 		} break;
 
 		case WM_MOUSEWHEEL: {
-			g_context.mouse_wheel_delta += GET_WHEEL_DELTA_WPARAM(w_param) / WHEEL_DELTA;
+			g_context.mouse_events.mouse_wheel_delta += GET_WHEEL_DELTA_WPARAM(w_param) / WHEEL_DELTA;
 		} break;
 
 		case WM_MOUSEMOVE: {
-			// FIXME: update mouse here
+			g_context.mouse_events.mouse_x = (int16_t)GET_X_LPARAM(l_param);
+			g_context.mouse_events.mouse_y = (int16_t)GET_Y_LPARAM(l_param);
 		} break;
 
 		case WM_PAINT: {
@@ -204,8 +206,8 @@ int WINAPI WinMain(
 	while (!g_context.should_quit) {
 		/* Input */
 		pump_window_messages();
-		engine::update_input_devices(&g_context.input, g_context.mouse_wheel_delta);
-		g_context.mouse_wheel_delta = 0;
+		engine::update_input_devices(&g_context.input, g_context.mouse_events);
+		g_context.mouse_events = {};
 
 		/* Update */
 		game::update(&g_context.game, g_context.input);

@@ -4,12 +4,12 @@
 
 namespace engine {
 
-	void update_mouse(Mouse* mouse, int16_t mouse_wheel_delta) {
+	void update_mouse(Mouse* mouse, const MouseEvents& events) {
 		POINT position;
 		GetCursorPos(&position);
-		mouse->x = (int16_t)position.x;
-		mouse->y = (int16_t)position.y;
-		mouse->mouse_wheel_delta = mouse_wheel_delta;
+		mouse->x = events.mouse_x.value_or(mouse->x);
+		mouse->y = events.mouse_y.value_or(mouse->y);
+		mouse->mouse_wheel_delta = events.mouse_wheel_delta;
 
 		mouse->left_button.update(GetKeyState(VK_LBUTTON) & (1 << 16));
 		mouse->right_button.update(GetKeyState(VK_RBUTTON) & (1 << 16));

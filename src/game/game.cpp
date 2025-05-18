@@ -25,7 +25,7 @@ namespace game {
 		}
 	}
 
-	void draw(engine::Bitmap* bitmap, const GameState& game) {
+	void draw(engine::Bitmap* /*bitmap*/, const GameState& /*game*/) {
 		// struct Pixel {
 		// 	uint8_t b;
 		// 	uint8_t g;
