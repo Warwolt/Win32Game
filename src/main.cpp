@@ -232,20 +232,36 @@ int WINAPI WinMain(
 			}
 		};
 		auto draw_line = [bitmap = g_context.window.bitmap, draw_pixel](IVec2 start, IVec2 end, Color color) {
-			float slope = (float)(end.y - start.y) / (float)(end.x - start.x);
-			for (int32_t x = start.x; x <= end.x; x++) {
-				int32_t y = (int32_t)std::round(slope * (x - start.x) + start.y);
-				draw_pixel(x, y, color);
+			// vertical line
+			if (start.x == end.x) {
+				int y0 = min(start.y, end.y);
+				int y1 = max(start.y, end.y);
+				for (int32_t y = y0; y <= y1; y++) {
+					draw_pixel(start.x, y, color);
+				}
+			}
+			// sloped line
+			else {
+				int x0 = min(start.x, end.x);
+				int x1 = max(start.x, end.x);
+				float slope = (float)(end.y - start.y) / (float)(end.x - start.x);
+				for (int32_t x = x0; x <= x1; x++) {
+					int32_t y = (int32_t)std::round(slope * (x - start.x) + start.y);
+					draw_pixel(x, y, color);
+				}
 			}
 		};
 
 		clear_screen();
 
-		int32_t x0 = g_context.window.bitmap.width / 2 + 0;
-		int32_t y0 = g_context.window.bitmap.height / 2 + 0;
-		int32_t x1 = g_context.window.bitmap.width / 2 + 6;
-		int32_t y1 = g_context.window.bitmap.height / 2 + 2;
-		draw_line(IVec2 { x0, y0 }, IVec2 { x1, y1 }, Color { 0, 255, 0, 255 });
+		IVec2 window_center = {
+			g_context.window.bitmap.width / 2,
+			g_context.window.bitmap.height / 2
+		};
+		IVec2 start = window_center + IVec2 { 0, 0 };
+		IVec2 end = window_center + IVec2 { 10, 10 };
+		Color color = { 0, 255, 0, 255 };
+		draw_line(start, end, color);
 
 		HDC device_context = GetDC(g_context.window.handle);
 		game::draw(&g_context.window.bitmap, g_context.game);
