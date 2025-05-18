@@ -10,6 +10,67 @@
 #include <format>
 #include <windows.h>
 
+struct Color {
+	uint8_t r;
+	uint8_t g;
+	uint8_t b;
+	uint8_t a;
+};
+struct IVec2 {
+	int32_t x;
+	int32_t y;
+
+	IVec2& operator+=(const IVec2& rhs) {
+		this->x += rhs.x;
+		this->y += rhs.y;
+		return *this;
+	}
+	IVec2& operator-=(const IVec2& rhs) {
+		this->x -= rhs.x;
+		this->y -= rhs.y;
+		return *this;
+	}
+	IVec2& operator*=(const IVec2& rhs) {
+		this->x *= rhs.x;
+		this->y *= rhs.y;
+		return *this;
+	}
+	IVec2& operator/=(const IVec2& rhs) {
+		this->x /= rhs.x;
+		this->y /= rhs.y;
+		return *this;
+	}
+
+	friend IVec2 operator+(IVec2 lhs, const IVec2& rhs) {
+		lhs += rhs;
+		return lhs;
+	}
+	friend IVec2 operator-(IVec2 lhs, const IVec2& rhs) {
+		lhs -= rhs;
+		return lhs;
+	}
+	friend IVec2 operator*(IVec2 lhs, const IVec2& rhs) {
+		lhs *= rhs;
+		return lhs;
+	}
+	friend IVec2 operator/(IVec2 lhs, const IVec2& rhs) {
+		lhs /= rhs;
+		return lhs;
+	}
+	friend IVec2 operator*(IVec2 lhs, int rhs) {
+		return IVec2 {
+			.x = lhs.x * rhs,
+			.y = lhs.y * rhs,
+		};
+	}
+	friend IVec2 operator/(IVec2 lhs, int rhs) {
+		return IVec2 {
+			.x = lhs.x / rhs,
+			.y = lhs.y / rhs,
+		};
+	}
+};
+
 namespace engine {
 	struct Assets {
 		struct Audio {
@@ -159,7 +220,7 @@ int WINAPI WinMain(
 		auto clear_screen = [bitmap = g_context.window.bitmap]() {
 			ZeroMemory(bitmap.data, bitmap.width * bitmap.height * 4);
 		};
-		auto put_pixel = [bitmap = g_context.window.bitmap](int x, int y, uint8_t r, uint8_t g, uint8_t b) {
+		auto draw_pixel = [bitmap = g_context.window.bitmap](int x, int y, Color color) {
 			struct BGRPixel {
 				uint8_t b;
 				uint8_t g;
@@ -167,40 +228,24 @@ int WINAPI WinMain(
 				uint8_t padding;
 			};
 			if (0 <= x && x <= bitmap.width && 0 <= y && y <= bitmap.height) {
-				((BGRPixel*)bitmap.data)[x + bitmap.width * y] = BGRPixel { b, g, r };
+				((BGRPixel*)bitmap.data)[x + bitmap.width * y] = BGRPixel { color.b, color.g, color.r };
+			}
+		};
+		auto draw_line = [bitmap = g_context.window.bitmap, draw_pixel](IVec2 start, IVec2 end, Color color) {
+			float slope = (float)(end.y - start.y) / (float)(end.x - start.x);
+			for (int32_t x = start.x; x <= end.x; x++) {
+				int32_t y = (int32_t)std::round(slope * (x - start.x) + start.y);
+				draw_pixel(x, y, color);
 			}
 		};
 
 		clear_screen();
 
-		// https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
-		// plotLine(x0, y0, x1, y1)
-		//     dx = x1 - x0
-		//     dy = y1 - y0
-		//     D = 2*dy - dx
-		//     y = y0
-		//
-		//     for x from x0 to x1
-		//         plot(x, y)
-		//         if D > 0
-		//             y = y + 1
-		//             D = D - 2*dx
-		//         end if
-		//         D = D + 2*dy
-
-		// draw_line(x0, y0, x1, y1)
-		{
-			int x0 = g_context.window.bitmap.width / 2 + 0;
-			int y0 = g_context.window.bitmap.height / 2 + 0;
-			int x1 = g_context.window.bitmap.width / 2 + 6;
-			int y1 = g_context.window.bitmap.height / 2 + 2;
-
-			float m = (float)(y1 - y0) / (float)(x1 - x0);
-			for (int x = x0; x <= x1; x++) {
-				int y = (int)std::round(m * (x - x0) + y0);
-				put_pixel(x, y, 0, 255, 0);
-			}
-		}
+		int32_t x0 = g_context.window.bitmap.width / 2 + 0;
+		int32_t y0 = g_context.window.bitmap.height / 2 + 0;
+		int32_t x1 = g_context.window.bitmap.width / 2 + 6;
+		int32_t y1 = g_context.window.bitmap.height / 2 + 2;
+		draw_line(IVec2 { x0, y0 }, IVec2 { x1, y1 }, Color { 0, 255, 0, 255 });
 
 		HDC device_context = GetDC(g_context.window.handle);
 		game::draw(&g_context.window.bitmap, g_context.game);
