@@ -10,8 +10,10 @@ namespace engine {
 		Gamepad gamepad;
 		Keyboard keyboard;
 		Mouse mouse;
+		int32_t window_width;
+		int32_t window_height;
 	};
 
-	void update_input_devices(InputDevices* input, int16_t mouse_wheel_delta);
+	void update_input_devices(InputDevices* input, const MouseEvents& mouse_events);
 
 } // namespace engine

@@ -1,29 +1,41 @@
 #include <engine/audio/audio_player.h>
 #include <engine/debug/logging.h>
+#include <engine/graphics/color.h>
+#include <engine/graphics/renderer.h>
 #include <engine/graphics/window.h>
 #include <engine/input/gamepad.h>
 #include <engine/input/input.h>
 #include <engine/input/keyboard.h>
 #include <engine/input/mouse.h>
+#include <engine/math/ivec2.h>
 #include <game/game.h>
 
 #include <format>
+#include <variant>
+#include <vector>
 #include <windows.h>
+#include <windowsx.h>
 
 namespace engine {
+
 	struct Assets {
 		struct Audio {
 			engine::AudioID cowbell;
 		} audio;
 	};
+
 } // namespace engine
 
 struct ProgramContext {
 	bool should_quit;
-	int16_t mouse_wheel_delta;
-	engine::Window window;
+	// input output
+	engine::MouseEvents mouse_events;
 	engine::InputDevices input;
 	engine::AudioPlayer audio;
+	// graphics
+	engine::Renderer renderer;
+	engine::Window window;
+	// game
 	engine::Assets assets;
 	game::GameState game;
 };
@@ -87,16 +99,19 @@ static LRESULT CALLBACK on_window_event(
 		} break;
 
 		case WM_MOUSEWHEEL: {
-			g_context.mouse_wheel_delta += GET_WHEEL_DELTA_WPARAM(w_param) / WHEEL_DELTA;
+			g_context.mouse_events.mouse_wheel_delta += GET_WHEEL_DELTA_WPARAM(w_param) / WHEEL_DELTA;
+		} break;
+
+		case WM_MOUSEMOVE: {
+			g_context.mouse_events.mouse_x = (int16_t)GET_X_LPARAM(l_param);
+			g_context.mouse_events.mouse_y = (int16_t)GET_Y_LPARAM(l_param);
 		} break;
 
 		case WM_PAINT: {
 			PAINTSTRUCT paint;
 			HDC device_context = BeginPaint(window, &paint);
-			{
-				game::draw(&g_context.window.bitmap, g_context.game);
-				engine::render_window(g_context.window, device_context);
-			}
+			game::draw(&g_context.renderer, g_context.game);
+			g_context.renderer.render(&g_context.window, device_context);
 			EndPaint(window, &paint);
 		} break;
 	}
@@ -141,8 +156,10 @@ int WINAPI WinMain(
 	while (!g_context.should_quit) {
 		/* Input */
 		pump_window_messages();
-		engine::update_input_devices(&g_context.input, g_context.mouse_wheel_delta);
-		g_context.mouse_wheel_delta = 0;
+		engine::update_input_devices(&g_context.input, g_context.mouse_events);
+		g_context.input.window_width = g_context.window.bitmap.width;
+		g_context.input.window_height = g_context.window.bitmap.height;
+		g_context.mouse_events = {};
 
 		/* Update */
 		game::update(&g_context.game, g_context.input);
@@ -159,8 +176,8 @@ int WINAPI WinMain(
 
 		/* Render */
 		HDC device_context = GetDC(g_context.window.handle);
-		game::draw(&g_context.window.bitmap, g_context.game);
-		engine::render_window(g_context.window, device_context);
+		game::draw(&g_context.renderer, g_context.game);
+		g_context.renderer.render(&g_context.window, device_context);
 		ReleaseDC(g_context.window.handle, device_context);
 	}
 

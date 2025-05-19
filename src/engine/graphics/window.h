@@ -1,21 +1,16 @@
-#include <expected>
+#pragma once
 
+#include <engine/graphics/bitmap.h>
+
+#include <expected>
 #include <windows.h>
 
 namespace engine {
 
-	struct Bitmap {
-		BITMAPINFO info;
-		void* data;
-		HBITMAP handle;
-		int width;
-		int height;
-		static constexpr int BYTES_PER_PIXEL = 4;
-	};
-
 	struct Window {
 		HWND handle;
 		Bitmap bitmap;
+		BITMAPINFO bitmap_info;
 	};
 
 	enum class WindowError {
@@ -26,6 +21,5 @@ namespace engine {
 
 	std::expected<Window, WindowError> initialize_window(HINSTANCE instance, WNDPROC wnd_proc, const char* window_title);
 	void on_window_resized(Window* window);
-	void render_window(const Window& window, HDC device_context);
 
 } // namespace engine

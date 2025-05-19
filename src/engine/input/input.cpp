@@ -2,9 +2,9 @@
 
 namespace engine {
 
-	void update_input_devices(InputDevices* input, int16_t mouse_wheel_delta) {
+	void update_input_devices(InputDevices* input, const MouseEvents& mouse_events) {
 		engine::update_gamepad(&input->gamepad);
-		engine::update_mouse(&input->mouse, mouse_wheel_delta);
+		engine::update_mouse(&input->mouse, mouse_events);
 		input->keyboard.update();
 	}
 
