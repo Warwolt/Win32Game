@@ -180,6 +180,9 @@ namespace engine {
 
 		// scan from top to bottom, start filling in polygon insides
 		// FIXME: can we join these two loop-pairs?
+		// FIXME:
+		// If a line has a single pixel, we end up filling everyhing to the right of it.
+		// We need to find all the line-points _first_, and _then_ start filling _if_ there's an even number
 		for (int32_t y = 0; y < height; y++) {
 			bool inside = false;
 			for (int32_t x = 0; x < width; x++) {
