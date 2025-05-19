@@ -10,8 +10,10 @@ namespace engine {
 namespace game {
 
 	struct GameState {
-		engine::IVec2 line_start;
-		engine::IVec2 line_end;
+		int32_t window_width;
+		int32_t window_height;
+		int16_t mouse_x;
+		int16_t mouse_y;
 	};
 
 	void update(GameState* game, const engine::InputDevices& input);
