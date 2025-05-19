@@ -9,17 +9,110 @@
 #include <engine/math/ivec2.h>
 #include <game/game.h>
 
-
 #include <format>
+#include <variant>
+#include <vector>
 #include <windows.h>
 #include <windowsx.h>
 
 namespace engine {
+
 	struct Assets {
 		struct Audio {
 			engine::AudioID cowbell;
 		} audio;
 	};
+
+	class Renderer {
+	public:
+		void clear_screen();
+		void draw_pixel(IVec2 point, Color color);
+		void draw_line(IVec2 start, IVec2 end, Color color);
+
+		void render(engine::Bitmap* bitmap);
+
+	private:
+		struct ClearScreen {
+		};
+		struct DrawPixel {
+			IVec2 point;
+			Color color;
+		};
+		struct DrawLine {
+			IVec2 start;
+			IVec2 end;
+			Color color;
+		};
+		using DrawCommand = std::variant<
+			ClearScreen,
+			DrawPixel,
+			DrawLine>;
+		std::vector<DrawCommand> m_draw_commands;
+
+		void _put_pixel(engine::Bitmap* bitmap, int32_t x, int32_t y, Color color);
+		void _put_line(engine::Bitmap* bitmap, IVec2 start, IVec2 end, Color color);
+	};
+
+	void Renderer::clear_screen() {
+		m_draw_commands.push_back(ClearScreen {});
+	}
+
+	void Renderer::draw_pixel(IVec2 point, Color color) {
+		m_draw_commands.push_back(DrawPixel { point, color });
+	}
+
+	void Renderer::draw_line(IVec2 start, IVec2 end, Color color) {
+		m_draw_commands.push_back(DrawLine { start, end, color });
+	}
+
+	void Renderer::render(engine::Bitmap* bitmap) {
+		for (DrawCommand& command : m_draw_commands) {
+			if (auto* clear_screen = std::get_if<ClearScreen>(&command)) {
+				ZeroMemory(bitmap->data, bitmap->width * bitmap->height * sizeof(int32_t));
+			}
+			if (auto* draw_line = std::get_if<DrawLine>(&command)) {
+				_put_line(bitmap, draw_line->start, draw_line->end, draw_line->color);
+			}
+		}
+	}
+
+	void Renderer::_put_pixel(engine::Bitmap* bitmap, int32_t x, int32_t y, Color color) {
+		struct BGRPixel {
+			uint8_t b;
+			uint8_t g;
+			uint8_t r;
+			uint8_t padding;
+		};
+		if (0 <= x && x < bitmap->width && 0 <= y && y < bitmap->height) {
+			((BGRPixel*)bitmap->data)[x + bitmap->width * y] = BGRPixel { color.b, color.g, color.r };
+		}
+	}
+
+	void Renderer::_put_line(engine::Bitmap* bitmap, IVec2 start, IVec2 end, Color color) {
+		// vertical line
+		if (start.x == end.x) {
+			int32_t y0 = min(start.y, end.y);
+			int32_t y1 = max(start.y, end.y);
+			for (int32_t y = y0; y <= y1; y++) {
+				_put_pixel(bitmap, start.x, y, color);
+			}
+		}
+		// sloped line
+		else {
+			// delta is the longer side of the triangle formed by the line
+			// if dx is greater, x_step will be +1 or -1 and y_step will be the slope
+			// if dy is greater, we flip it along the diagonal
+			int32_t dx = end.x - start.x;
+			int32_t dy = end.y - start.y;
+			int32_t delta = max(std::abs(dx), std::abs(dy));
+			float x_step = (float)dx / (float)delta;
+			float y_step = (float)dy / (float)delta;
+			for (int32_t i = 0; i <= delta; i++) {
+				_put_pixel(bitmap, (int32_t)(start.x + i * x_step), (int32_t)(start.y + i * y_step), color);
+			}
+		}
+	}
+
 } // namespace engine
 
 struct ProgramContext {
@@ -144,6 +237,8 @@ int WINAPI WinMain(
 	g_context.audio = engine::initialize_audio_player();
 	g_context.assets.audio.cowbell = load_audio_from_file("assets/audio/808_cowbell.wav");
 
+	engine::Renderer renderer;
+
 	/* Main loop */
 	while (!g_context.should_quit) {
 		/* Input */
@@ -165,44 +260,7 @@ int WINAPI WinMain(
 		}
 
 		/* Render */
-		auto clear_screen = [bitmap = g_context.window.bitmap]() {
-			ZeroMemory(bitmap.data, bitmap.width * bitmap.height * 4);
-		};
-		auto draw_pixel = [bitmap = g_context.window.bitmap](int x, int y, engine::Color color) {
-			struct BGRPixel {
-				uint8_t b;
-				uint8_t g;
-				uint8_t r;
-				uint8_t padding;
-			};
-			if (0 <= x && x < bitmap.width && 0 <= y && y < bitmap.height) {
-				((BGRPixel*)bitmap.data)[x + bitmap.width * y] = BGRPixel { color.b, color.g, color.r };
-			}
-		};
-		auto draw_line = [bitmap = g_context.window.bitmap, draw_pixel](engine::IVec2 start, engine::IVec2 end, engine::Color color) {
-			// vertical line
-			if (start.x == end.x) {
-				int y0 = min(start.y, end.y);
-				int y1 = max(start.y, end.y);
-				for (int32_t y = y0; y <= y1; y++) {
-					draw_pixel(start.x, y, color);
-				}
-			}
-			// sloped line
-			else {
-				int dx = end.x - start.x;
-				int dy = end.y - start.y;
-				int major_delta = max(std::abs(dx), std::abs(dy));
-				float x_step = (float)dx / (float)major_delta;
-				float y_step = (float)dy / (float)major_delta;
-				for (int32_t i = 0; i <= major_delta; i++) {
-					draw_pixel((int)(start.x + i * x_step), (int)(start.y + i * y_step), color);
-				}
-			}
-		};
-
-		clear_screen();
-
+		renderer.clear_screen();
 		engine::IVec2 window_center = {
 			g_context.window.bitmap.width / 2,
 			g_context.window.bitmap.height / 2
@@ -210,10 +268,11 @@ int WINAPI WinMain(
 		engine::IVec2 start = window_center + engine::IVec2 { 0, 0 };
 		engine::IVec2 end = engine::IVec2 { g_context.input.mouse.x, g_context.input.mouse.y };
 		engine::Color color = { 0, 255, 0, 255 };
-		draw_line(start, end, color);
+		renderer.draw_line(start, end, color);
 
 		HDC device_context = GetDC(g_context.window.handle);
 		game::draw(&g_context.window.bitmap, g_context.game);
+		renderer.render(&g_context.window.bitmap);
 		engine::render_window(g_context.window, device_context);
 		ReleaseDC(g_context.window.handle, device_context);
 	}
