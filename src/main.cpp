@@ -26,16 +26,16 @@ namespace engine {
 	class Renderer {
 	public:
 		void clear_screen();
-		void draw_pixel(IVec2 point, Color color);
+		void draw_pixel(int32_t x, int32_t y, Color color);
 		void draw_line(IVec2 start, IVec2 end, Color color);
-
 		void render(engine::Bitmap* bitmap);
 
 	private:
 		struct ClearScreen {
 		};
 		struct DrawPixel {
-			IVec2 point;
+			int32_t x;
+			int32_t y;
 			Color color;
 		};
 		struct DrawLine {
@@ -49,6 +49,7 @@ namespace engine {
 			DrawLine>;
 		std::vector<DrawCommand> m_draw_commands;
 
+		void _clear_screen(engine::Bitmap* bitmap);
 		void _put_pixel(engine::Bitmap* bitmap, int32_t x, int32_t y, Color color);
 		void _put_line(engine::Bitmap* bitmap, IVec2 start, IVec2 end, Color color);
 	};
@@ -57,8 +58,8 @@ namespace engine {
 		m_draw_commands.push_back(ClearScreen {});
 	}
 
-	void Renderer::draw_pixel(IVec2 point, Color color) {
-		m_draw_commands.push_back(DrawPixel { point, color });
+	void Renderer::draw_pixel(int32_t x, int32_t y, Color color) {
+		m_draw_commands.push_back(DrawPixel { x, y, color });
 	}
 
 	void Renderer::draw_line(IVec2 start, IVec2 end, Color color) {
@@ -68,7 +69,10 @@ namespace engine {
 	void Renderer::render(engine::Bitmap* bitmap) {
 		for (DrawCommand& command : m_draw_commands) {
 			if (auto* clear_screen = std::get_if<ClearScreen>(&command)) {
-				ZeroMemory(bitmap->data, bitmap->width * bitmap->height * sizeof(int32_t));
+				_clear_screen(bitmap);
+			}
+			if (auto* draw_pixel = std::get_if<DrawPixel>(&command)) {
+				_put_pixel(bitmap, draw_pixel->x, draw_pixel->y, draw_pixel->color);
 			}
 			if (auto* draw_line = std::get_if<DrawLine>(&command)) {
 				_put_line(bitmap, draw_line->start, draw_line->end, draw_line->color);
@@ -77,16 +81,12 @@ namespace engine {
 		m_draw_commands.clear();
 	}
 
+	void Renderer::_clear_screen(engine::Bitmap* bitmap) {
+		ZeroMemory(bitmap->data, bitmap->width * bitmap->height * sizeof(int32_t));
+	}
+
 	void Renderer::_put_pixel(engine::Bitmap* bitmap, int32_t x, int32_t y, Color color) {
-		struct BGRPixel {
-			uint8_t b;
-			uint8_t g;
-			uint8_t r;
-			uint8_t padding;
-		};
-		if (0 <= x && x < bitmap->width && 0 <= y && y < bitmap->height) {
-			((BGRPixel*)bitmap->data)[x + bitmap->width * y] = BGRPixel { color.b, color.g, color.r };
-		}
+		bitmap->put(x, y, BGRPixel { color.b, color.g, color.r });
 	}
 
 	void Renderer::_put_line(engine::Bitmap* bitmap, IVec2 start, IVec2 end, Color color) {

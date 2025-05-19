@@ -1,21 +1,14 @@
-#include <expected>
+#include <engine/graphics/bitmap.h>
 
+#include <expected>
 #include <windows.h>
 
 namespace engine {
 
-	struct Bitmap {
-		BITMAPINFO info;
-		void* data;
-		HBITMAP handle;
-		int width;
-		int height;
-		static constexpr int BYTES_PER_PIXEL = 4;
-	};
-
 	struct Window {
 		HWND handle;
 		Bitmap bitmap;
+		BITMAPINFO bitmap_info;
 	};
 
 	enum class WindowError {
