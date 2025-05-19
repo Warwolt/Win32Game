@@ -74,6 +74,7 @@ namespace engine {
 				_put_line(bitmap, draw_line->start, draw_line->end, draw_line->color);
 			}
 		}
+		m_draw_commands.clear();
 	}
 
 	void Renderer::_put_pixel(engine::Bitmap* bitmap, int32_t x, int32_t y, Color color) {
