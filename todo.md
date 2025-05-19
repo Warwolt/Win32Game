@@ -8,9 +8,9 @@ Overall goal:
 - Draw API: circles
 - Sprite support
 - Font support
+- CPU Profiling
 - DLL based hot reloading
 - Asset system (store audio, images, fonts, etc.)
-- CPU Profiling
 - [!] Write Tetris game
 - Collisions
 - [!] Write Pong game
@@ -19,9 +19,9 @@ Overall goal:
 - [!] Write Zelda Dungeon game
 
 # Doing
-- Draw API: lines
 
 # Done
+- Draw API: lines
 - Mouse input
 - Add logging
 - Audio support
