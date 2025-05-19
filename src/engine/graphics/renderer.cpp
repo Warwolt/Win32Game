@@ -17,7 +17,11 @@ namespace engine {
 	}
 
 	void Renderer::draw_rect(Rect rect, Color color) {
-		m_draw_commands.push_back(DrawRect { rect, color });
+		m_draw_commands.push_back(DrawRect { rect, color, false });
+	}
+
+	void Renderer::draw_rect_fill(Rect rect, Color color) {
+		m_draw_commands.push_back(DrawRect { rect, color, true });
 	}
 
 	void Renderer::render(engine::Window* window, HDC device_context) {
@@ -33,7 +37,12 @@ namespace engine {
 				_put_line(&window->bitmap, draw_line->start, draw_line->end, draw_line->color);
 			}
 			if (auto* draw_rect = std::get_if<DrawRect>(&command)) {
-				_put_rect(&window->bitmap, draw_rect->rect, draw_rect->color);
+				if (draw_rect->filled) {
+					_put_rect_fill(&window->bitmap, draw_rect->rect, draw_rect->color);
+				}
+				else {
+					_put_rect(&window->bitmap, draw_rect->rect, draw_rect->color);
+				}
 			}
 		}
 		m_draw_commands.clear();
@@ -108,6 +117,14 @@ namespace engine {
 		_put_line(bitmap, top_right, bottom_right, color);
 		_put_line(bitmap, top_left, top_right, color);
 		_put_line(bitmap, bottom_left, bottom_right, color);
+	}
+
+	void Renderer::_put_rect_fill(engine::Bitmap* bitmap, Rect rect, Color color) {
+		int32_t left = rect.x;
+		int32_t right = rect.x + rect.width - 1;
+		for (int32_t y = rect.y; y < rect.y + rect.height; y++) {
+			_put_line(bitmap, IVec2 { left, y }, IVec2 { right, y }, color);
+		}
 	}
 
 } // namespace engine

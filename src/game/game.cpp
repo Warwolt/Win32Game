@@ -17,16 +17,16 @@ namespace game {
 		engine::IVec2 line_end = { game.mouse_x, game.mouse_y };
 
 		renderer->clear_screen();
-		renderer->draw_line(line_start, line_end, engine::Color { 0, 255, 0 });
-		renderer->draw_rect(
+		renderer->draw_rect_fill(
 			engine::Rect {
 				.x = game.window_width / 2,
 				.y = game.window_height / 2,
-				.width = 10,
-				.height = 10,
+				.width = 100,
+				.height = 100,
 			},
 			engine::Color { 255, 255, 255 }
 		);
+		renderer->draw_line(line_start, line_end, engine::Color { 0, 255, 0 });
 	}
 
 } // namespace game

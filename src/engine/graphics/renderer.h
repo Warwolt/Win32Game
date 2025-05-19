@@ -24,6 +24,7 @@ namespace engine {
 		void draw_pixel(int32_t x, int32_t y, Color color);
 		void draw_line(IVec2 start, IVec2 end, Color color);
 		void draw_rect(Rect rect, Color color);
+		void draw_rect_fill(Rect rect, Color color);
 		void render(engine::Window* window, HDC device_context);
 
 	private:
@@ -44,6 +45,7 @@ namespace engine {
 		struct DrawRect {
 			Rect rect;
 			Color color;
+			bool filled;
 		};
 
 		using DrawCommand = std::variant<
@@ -58,6 +60,7 @@ namespace engine {
 		void _put_pixel(engine::Bitmap* bitmap, int32_t x, int32_t y, Color color);
 		void _put_line(engine::Bitmap* bitmap, IVec2 start, IVec2 end, Color color);
 		void _put_rect(engine::Bitmap* bitmap, Rect rect, Color color);
+		void _put_rect_fill(engine::Bitmap* bitmap, Rect rect, Color color);
 	};
 
 } // namespace engine
