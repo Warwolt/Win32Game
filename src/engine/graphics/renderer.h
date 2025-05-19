@@ -26,6 +26,7 @@ namespace engine {
 		void draw_rect(Rect rect, Color color);
 		void draw_rect_fill(Rect rect, Color color);
 		void draw_polygon(std::vector<IVec2> vertices, Color color);
+		void draw_polygon_fill(std::vector<IVec2> vertices, Color color);
 		void render(engine::Window* window, HDC device_context);
 
 	private:
@@ -48,6 +49,7 @@ namespace engine {
 		struct DrawPolygon {
 			std::vector<IVec2> vertices;
 			Color color;
+			bool filled;
 		};
 
 		using DrawCommand = std::variant<
@@ -64,7 +66,8 @@ namespace engine {
 		void _put_line(engine::Bitmap* bitmap, IVec2 start, IVec2 end, Color color);
 		void _put_rect(engine::Bitmap* bitmap, Rect rect, Color color);
 		void _put_rect_fill(engine::Bitmap* bitmap, Rect rect, Color color);
-		void _put_polygon(engine::Bitmap* bitmap, const std::vector<IVec2> vertices, Color color);
+		void _put_polygon(engine::Bitmap* bitmap, const std::vector<IVec2>& vertices, Color color);
+		void _put_polygon_fill(engine::Bitmap* bitmap, const std::vector<IVec2>& vertices, Color color);
 	};
 
 } // namespace engine

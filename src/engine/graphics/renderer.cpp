@@ -1,5 +1,7 @@
 #include <engine/graphics/renderer.h>
 
+#include <algorithm>
+#include <iterator>
 #include <windows.h>
 
 namespace engine {
@@ -25,7 +27,11 @@ namespace engine {
 	}
 
 	void Renderer::draw_polygon(const std::vector<IVec2> vertices, Color color) {
-		m_draw_commands.push_back(DrawPolygon { vertices, color });
+		m_draw_commands.push_back(DrawPolygon { vertices, color, false });
+	}
+
+	void Renderer::draw_polygon_fill(const std::vector<IVec2> vertices, Color color) {
+		m_draw_commands.push_back(DrawPolygon { vertices, color, true });
 	}
 
 	void Renderer::render(engine::Window* window, HDC device_context) {
@@ -49,7 +55,12 @@ namespace engine {
 				}
 			}
 			if (auto* draw_polygon = std::get_if<DrawPolygon>(&command)) {
-				_put_polygon(&window->bitmap, draw_polygon->vertices, draw_polygon->color);
+				if (draw_polygon->filled) {
+					_put_polygon_fill(&window->bitmap, draw_polygon->vertices, draw_polygon->color);
+				}
+				else {
+					_put_polygon(&window->bitmap, draw_polygon->vertices, draw_polygon->color);
+				}
 			}
 		}
 		m_draw_commands.clear();
@@ -82,15 +93,15 @@ namespace engine {
 		}
 	}
 
-	void Renderer::_clear_screen(engine::Bitmap* bitmap) {
+	void Renderer::_clear_screen(Bitmap* bitmap) {
 		ZeroMemory(bitmap->data, bitmap->width * bitmap->height * sizeof(int32_t));
 	}
 
-	void Renderer::_put_pixel(engine::Bitmap* bitmap, int32_t x, int32_t y, Color color) {
+	void Renderer::_put_pixel(Bitmap* bitmap, int32_t x, int32_t y, Color color) {
 		bitmap->put(x, y, BGRPixel { .b = color.b, .g = color.g, .r = color.r });
 	}
 
-	void Renderer::_put_line(engine::Bitmap* bitmap, IVec2 start, IVec2 end, Color color) {
+	void Renderer::_put_line(Bitmap* bitmap, IVec2 start, IVec2 end, Color color) {
 		// vertical line
 		if (start.x == end.x) {
 			int32_t y0 = min(start.y, end.y);
@@ -115,7 +126,7 @@ namespace engine {
 		}
 	}
 
-	void Renderer::_put_rect(engine::Bitmap* bitmap, Rect rect, Color color) {
+	void Renderer::_put_rect(Bitmap* bitmap, Rect rect, Color color) {
 		IVec2 top_left = { rect.x, rect.y };
 		IVec2 top_right = { rect.x + rect.width - 1, rect.y };
 		IVec2 bottom_left = { rect.x, rect.y + rect.height - 1 };
@@ -126,7 +137,7 @@ namespace engine {
 		_put_line(bitmap, bottom_left, bottom_right, color);
 	}
 
-	void Renderer::_put_rect_fill(engine::Bitmap* bitmap, Rect rect, Color color) {
+	void Renderer::_put_rect_fill(Bitmap* bitmap, Rect rect, Color color) {
 		int32_t left = rect.x;
 		int32_t right = rect.x + rect.width - 1;
 		for (int32_t y = rect.y; y < rect.y + rect.height; y++) {
@@ -134,11 +145,50 @@ namespace engine {
 		}
 	}
 
-	void Renderer::_put_polygon(engine::Bitmap* bitmap, const std::vector<IVec2> vertices, Color color) {
+	void Renderer::_put_polygon(Bitmap* bitmap, const std::vector<IVec2>& vertices, Color color) {
 		for (size_t i = 0; i < vertices.size() - 1; i++) {
 			_put_line(bitmap, vertices[i], vertices[i + 1], color);
 		}
 		_put_line(bitmap, vertices[vertices.size() - 1], vertices[0], color);
+	}
+
+	void Renderer::_put_polygon_fill(Bitmap* bitmap, const std::vector<IVec2>& vertices, Color color) {
+		// figure out bounding box for vertices
+		IVec2 top_left = {};
+		IVec2 bottom_right = {};
+		for (IVec2 vertex : vertices) {
+			top_left.x = min(top_left.x, vertex.x);
+			top_left.y = min(top_left.y, vertex.y);
+			bottom_right.x = max(bottom_right.x, vertex.x);
+			bottom_right.y = max(bottom_right.y, vertex.y);
+		}
+		int32_t width = bottom_right.x - top_left.x;
+		int32_t height = bottom_right.y - top_left.y + 1;
+
+		// create local bitmap that fits bounding box
+		std::vector<BGRPixel> scratchpad_buffer(width * height, BGRPixel { .padding = 255 });
+		Bitmap scratchpad = {
+			.data = scratchpad_buffer.data(),
+			.width = width,
+			.height = height
+		};
+
+		// write polygon lines to bitmap
+		std::vector<IVec2> shifted_vertices;
+		std::transform(vertices.begin(), vertices.end(), std::back_inserter(shifted_vertices), [top_left](IVec2 vertex) { return vertex - top_left; });
+		_put_polygon(&scratchpad, shifted_vertices, color);
+
+		// scan from top to bottom, start filling in polygon insides
+
+		// blit to target bitmap
+		for (int32_t y = 0; y < height; y++) {
+			for (int32_t x = 0; x < width; x++) {
+				BGRPixel pixel = scratchpad_buffer[x + y * width];
+				 if (pixel.padding != 255) {
+					bitmap->put(x, y, pixel);
+				 }
+			}
+		}
 	}
 
 } // namespace engine
