@@ -4,7 +4,6 @@ Overall goal:
 - Simple Win32 level editor (create content for the games)
 
 # Todo
-- Draw API: filled rectangles, filled polygons
 - Draw API: circles
 - Sprite support
 - Font support
@@ -19,7 +18,7 @@ Overall goal:
 - [!] Write Zelda Dungeon game
 
 # Doing
-- Draw API: line rectangles, line polygons
+- Draw API: rectangles, polygons
 
 # Done
 - Draw API: lines

@@ -24,6 +24,10 @@ namespace engine {
 		m_draw_commands.push_back(DrawRect { rect, color, true });
 	}
 
+	void Renderer::draw_polygon(const std::vector<IVec2> vertices, Color color) {
+		m_draw_commands.push_back(DrawPolygon { vertices, color });
+	}
+
 	void Renderer::render(engine::Window* window, HDC device_context) {
 		/* Draw to bitmap */
 		for (DrawCommand& command : m_draw_commands) {
@@ -43,6 +47,9 @@ namespace engine {
 				else {
 					_put_rect(&window->bitmap, draw_rect->rect, draw_rect->color);
 				}
+			}
+			if (auto* draw_polygon = std::get_if<DrawPolygon>(&command)) {
+				_put_polygon(&window->bitmap, draw_polygon->vertices, draw_polygon->color);
 			}
 		}
 		m_draw_commands.clear();
@@ -80,7 +87,7 @@ namespace engine {
 	}
 
 	void Renderer::_put_pixel(engine::Bitmap* bitmap, int32_t x, int32_t y, Color color) {
-		bitmap->put(x, y, BGRPixel { color.b, color.g, color.r });
+		bitmap->put(x, y, BGRPixel { .b = color.b, .g = color.g, .r = color.r });
 	}
 
 	void Renderer::_put_line(engine::Bitmap* bitmap, IVec2 start, IVec2 end, Color color) {
@@ -125,6 +132,13 @@ namespace engine {
 		for (int32_t y = rect.y; y < rect.y + rect.height; y++) {
 			_put_line(bitmap, IVec2 { left, y }, IVec2 { right, y }, color);
 		}
+	}
+
+	void Renderer::_put_polygon(engine::Bitmap* bitmap, const std::vector<IVec2> vertices, Color color) {
+		for (size_t i = 0; i < vertices.size() - 1; i++) {
+			_put_line(bitmap, vertices[i], vertices[i + 1], color);
+		}
+		_put_line(bitmap, vertices[vertices.size() - 1], vertices[0], color);
 	}
 
 } // namespace engine
