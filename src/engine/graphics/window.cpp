@@ -78,30 +78,4 @@ namespace engine {
 		};
 	}
 
-	void render(const Window& window, HDC device_context) {
-		RECT client_rect;
-		GetClientRect(window.handle, &client_rect);
-		int window_width = client_rect.right - client_rect.left;
-		int window_height = client_rect.bottom - client_rect.top;
-
-		StretchDIBits(
-			device_context,
-			// destination rect (window)
-			0,
-			0,
-			window_width,
-			window_height,
-			// source rect (bitmap)
-			0,
-			0,
-			window.bitmap.width,
-			window.bitmap.height,
-			// bitmap data
-			window.bitmap.data,
-			&window.bitmap_info,
-			DIB_RGB_COLORS,
-			SRCCOPY
-		);
-	}
-
 } // namespace engine

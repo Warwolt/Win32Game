@@ -111,8 +111,7 @@ static LRESULT CALLBACK on_window_event(
 			PAINTSTRUCT paint;
 			HDC device_context = BeginPaint(window, &paint);
 			game::draw(&g_context.renderer, g_context.game);
-			g_context.renderer.render(&g_context.window.bitmap);
-			engine::render(g_context.window, device_context);
+			g_context.renderer.render(&g_context.window, device_context);
 			EndPaint(window, &paint);
 		} break;
 	}
@@ -178,8 +177,7 @@ int WINAPI WinMain(
 		/* Render */
 		HDC device_context = GetDC(g_context.window.handle);
 		game::draw(&g_context.renderer, g_context.game);
-		g_context.renderer.render(&g_context.window.bitmap);
-		engine::render(g_context.window, device_context);
+		g_context.renderer.render(&g_context.window, device_context);
 		ReleaseDC(g_context.window.handle, device_context);
 	}
 

@@ -16,19 +16,47 @@ namespace engine {
 		m_draw_commands.push_back(DrawLine { start, end, color });
 	}
 
-	void Renderer::render(engine::Bitmap* bitmap) {
+	void Renderer::render(engine::Window* window, HDC device_context) {
+		/* Draw to bitmap */
 		for (DrawCommand& command : m_draw_commands) {
 			if (auto* clear_screen = std::get_if<ClearScreen>(&command)) {
-				_clear_screen(bitmap);
+				_clear_screen(&window->bitmap);
 			}
 			if (auto* draw_pixel = std::get_if<DrawPixel>(&command)) {
-				_put_pixel(bitmap, draw_pixel->x, draw_pixel->y, draw_pixel->color);
+				_put_pixel(&window->bitmap, draw_pixel->x, draw_pixel->y, draw_pixel->color);
 			}
 			if (auto* draw_line = std::get_if<DrawLine>(&command)) {
-				_put_line(bitmap, draw_line->start, draw_line->end, draw_line->color);
+				_put_line(&window->bitmap, draw_line->start, draw_line->end, draw_line->color);
 			}
 		}
 		m_draw_commands.clear();
+
+		/* Blit bitmap to window */
+		{
+			RECT client_rect;
+			GetClientRect(window->handle, &client_rect);
+			int window_width = client_rect.right - client_rect.left;
+			int window_height = client_rect.bottom - client_rect.top;
+
+			StretchDIBits(
+				device_context,
+				// destination rect (window)
+				0,
+				0,
+				window_width,
+				window_height,
+				// source rect (bitmap)
+				0,
+				0,
+				window->bitmap.width,
+				window->bitmap.height,
+				// bitmap data
+				window->bitmap.data,
+				&window->bitmap_info,
+				DIB_RGB_COLORS,
+				SRCCOPY
+			);
+		}
 	}
 
 	void Renderer::_clear_screen(engine::Bitmap* bitmap) {
