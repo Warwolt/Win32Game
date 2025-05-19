@@ -78,7 +78,7 @@ namespace engine {
 		};
 	}
 
-	void render_window(const Window& window, HDC device_context) {
+	void render(const Window& window, HDC device_context) {
 		RECT client_rect;
 		GetClientRect(window.handle, &client_rect);
 		int window_width = client_rect.right - client_rect.left;

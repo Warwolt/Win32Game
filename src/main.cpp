@@ -28,10 +28,14 @@ namespace engine {
 
 struct ProgramContext {
 	bool should_quit;
+	// input output
 	engine::MouseEvents mouse_events;
-	engine::Window window;
 	engine::InputDevices input;
 	engine::AudioPlayer audio;
+	// graphics
+	engine::Renderer renderer;
+	engine::Window window;
+	// game
 	engine::Assets assets;
 	game::GameState game;
 };
@@ -106,8 +110,9 @@ static LRESULT CALLBACK on_window_event(
 		case WM_PAINT: {
 			PAINTSTRUCT paint;
 			HDC device_context = BeginPaint(window, &paint);
-			game::draw(&g_context.window.bitmap, g_context.game);
-			engine::render_window(g_context.window, device_context);
+			game::draw(&g_context.renderer, g_context.game);
+			g_context.renderer.render(&g_context.window.bitmap);
+			engine::render(g_context.window, device_context);
 			EndPaint(window, &paint);
 		} break;
 	}
@@ -148,13 +153,13 @@ int WINAPI WinMain(
 	g_context.audio = engine::initialize_audio_player();
 	g_context.assets.audio.cowbell = load_audio_from_file("assets/audio/808_cowbell.wav");
 
-	engine::Renderer renderer;
-
 	/* Main loop */
 	while (!g_context.should_quit) {
 		/* Input */
 		pump_window_messages();
 		engine::update_input_devices(&g_context.input, g_context.mouse_events);
+		g_context.input.window_width = g_context.window.bitmap.width;
+		g_context.input.window_height = g_context.window.bitmap.height;
 		g_context.mouse_events = {};
 
 		/* Update */
@@ -171,20 +176,10 @@ int WINAPI WinMain(
 		}
 
 		/* Render */
-		renderer.clear_screen();
-		engine::IVec2 window_center = {
-			g_context.window.bitmap.width / 2,
-			g_context.window.bitmap.height / 2
-		};
-		engine::IVec2 start = window_center + engine::IVec2 { 0, 0 };
-		engine::IVec2 end = engine::IVec2 { g_context.input.mouse.x, g_context.input.mouse.y };
-		engine::Color color = { 0, 255, 0, 255 };
-		renderer.draw_line(start, end, color);
-
 		HDC device_context = GetDC(g_context.window.handle);
-		game::draw(&g_context.window.bitmap, g_context.game);
-		renderer.render(&g_context.window.bitmap);
-		engine::render_window(g_context.window, device_context);
+		game::draw(&g_context.renderer, g_context.game);
+		g_context.renderer.render(&g_context.window.bitmap);
+		engine::render(g_context.window, device_context);
 		ReleaseDC(g_context.window.handle, device_context);
 	}
 
