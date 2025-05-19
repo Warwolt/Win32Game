@@ -9,6 +9,7 @@ option(WARNINGS_AS_ERRORS "Compile with warnings as errors" OFF)
 set(SRC
     src/engine/audio/audio_player.cpp
     src/engine/debug/logging.cpp
+    src/engine/graphics/renderer.cpp
     src/engine/graphics/window.cpp
     src/engine/input/button.cpp
     src/engine/input/gamepad.cpp
