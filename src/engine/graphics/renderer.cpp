@@ -179,14 +179,27 @@ namespace engine {
 		_put_polygon(&scratchpad, shifted_vertices, color);
 
 		// scan from top to bottom, start filling in polygon insides
+		// FIXME: can we join these two loop-pairs?
+		for (int32_t y = 0; y < height; y++) {
+			bool inside = false;
+			for (int32_t x = 0; x < width; x++) {
+				BGRPixel pixel = scratchpad_buffer[x + y * width];
+				if (pixel.padding != 255) {
+					inside = !inside;
+				}
+				if (inside) {
+					scratchpad_buffer[x + y * width] = BGRPixel { .b = color.b, .g = color.g, .r = color.r };
+				}
+			}
+		}
 
 		// blit to target bitmap
 		for (int32_t y = 0; y < height; y++) {
 			for (int32_t x = 0; x < width; x++) {
 				BGRPixel pixel = scratchpad_buffer[x + y * width];
-				 if (pixel.padding != 255) {
+				if (pixel.padding != 255) {
 					bitmap->put(x, y, pixel);
-				 }
+				}
 			}
 		}
 	}
