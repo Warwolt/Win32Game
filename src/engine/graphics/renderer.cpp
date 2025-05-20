@@ -155,71 +155,8 @@ namespace engine {
 	}
 
 	void Renderer::_put_polygon_fill(Bitmap* bitmap, const std::vector<IVec2>& vertices, Color color) {
-		// figure out bounding box for vertices
-		IVec2 top_left = vertices[0];
-		IVec2 bottom_right = vertices[0];
-		for (IVec2 vertex : vertices) {
-			top_left.x = min(top_left.x, vertex.x);
-			top_left.y = min(top_left.y, vertex.y);
-			bottom_right.x = max(bottom_right.x, vertex.x);
-			bottom_right.y = max(bottom_right.y, vertex.y);
-		}
-		const int32_t width = bottom_right.x - top_left.x;
-		const int32_t height = bottom_right.y - top_left.y + 1;
-
-		// create local bitmap that fits bounding box
-		std::vector<BGRPixel> scratchpad_buffer(width * height, BGRPixel { .padding = 255 });
-		Bitmap scratchpad = {
-			.data = scratchpad_buffer.data(),
-			.width = width,
-			.height = height
-		};
-
-		// write polygon lines to bitmap
-		std::vector<IVec2> shifted_vertices;
-		std::transform(vertices.begin(), vertices.end(), std::back_inserter(shifted_vertices), [top_left](IVec2 vertex) { return vertex - top_left; });
-		_put_polygon(&scratchpad, shifted_vertices, color);
-
-		// scan from top to bottom, start filling in polygon insides
-		std::vector<int> vertices_per_row;
-		for (int32_t y = 0; y < height; y++) {
-			int num_vertices = 0;
-			for (int32_t x = 0; x < width - 2; x++) {
-				BGRPixel* window = &scratchpad_buffer[x + y * width];
-				bool left = window[0].padding == 0;
-				bool middle = window[1].padding == 0;
-				bool right = window[2].padding == 0;
-				bool is_left_edge = (!left && middle && right) || (x == 0 && left); // _##
-				bool is_right_edge = left && middle && !right;                      // ##_
-				if (is_left_edge || is_right_edge) {
-					num_vertices++;
-				}
-			}
-			vertices_per_row.push_back(num_vertices);
-		}
-
-		for (int32_t y = 0; y < height; y++) {
-			bool is_inside = false;
-			for (int32_t x = 0; x < width; x++) {
-				BGRPixel pixel = scratchpad_buffer[x + y * width];
-				if (pixel.padding == 0 && vertices_per_row[y] % 2 == 0) {
-					is_inside = !is_inside;
-				}
-				if (is_inside) {
-					scratchpad_buffer[x + y * width] = BGRPixel { .b = color.b, .g = color.g, .r = color.r };
-				}
-			}
-		}
-
-		// blit to target bitmap
-		for (int32_t y = 0; y < height; y++) {
-			for (int32_t x = 0; x < width; x++) {
-				BGRPixel pixel = scratchpad.data[x + width * y];
-				if (pixel.padding == 0) {
-					bitmap->put(top_left.x + x, top_left.y + y, pixel);
-				}
-			}
-		}
+		// I can't figure out this crap
+		// Follow along: https://www.cs.rit.edu/~icss571/filling/how_to.html
 	}
 
 } // namespace engine
