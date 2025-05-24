@@ -164,6 +164,11 @@ namespace engine {
 	}
 
 	void Renderer::_put_polygon_fill(Bitmap* bitmap, const std::vector<IVec2>& vertices, Color color) {
+		/* Check vertices make a polygon */
+		if (vertices.size() < 3) {
+			return;
+		}
+
 		struct Edge {
 			int32_t x0;
 			int32_t y0;
@@ -171,16 +176,11 @@ namespace engine {
 			float inv_slope;
 		};
 
-		// check vertices
-		if (vertices.empty()) {
-			return;
-		}
-
 		std::vector<Edge> edges;
 		int32_t min_y = min(vertices[0].x, vertices[1].x);
 		int32_t max_y = max(vertices[0].x, vertices[1].x);
 
-		// compute edges and bounding box
+		/* Compute edges and bounding box */
 		for (size_t i = 0; i < vertices.size(); i++) {
 			IVec2 first = vertices[i];
 			IVec2 second = vertices[(i + 1) % vertices.size()];
@@ -199,8 +199,9 @@ namespace engine {
 			}
 		}
 
+		/* Scan y from top to bottom, filling in polygon row by row */
 		for (int32_t y = min_y; y <= max_y; y++) {
-			// compute all points at current y, sort by x
+			/* Compute points of edges intersecting current scan line */
 			std::vector<int32_t> xs;
 			for (const Edge& edge : edges) {
 				int32_t y_min = min(edge.y0, edge.y1);
@@ -212,14 +213,17 @@ namespace engine {
 			}
 			std::sort(xs.begin(), xs.end());
 
-			// draw lines between points
+			/* Draw lines between intersection points */
 			for (size_t i = 0; i + 1 < xs.size();) {
-				// skip past duplicate x-coordinates
+				/* Skip past duplicate x-coordinates */
+				// This usually takes care of edges of triangles,
+				// or when two edges cross each other and form an X.
 				if (xs[i] == xs[i + 1]) {
 					i += 1;
 					continue;
 				}
-				// draw line segment 
+
+				/* Fill in polygon slices at current y */
 				IVec2 start = { xs[i], y };
 				IVec2 end = { xs[i + 1], y };
 				_put_line(bitmap, start, end, color);
