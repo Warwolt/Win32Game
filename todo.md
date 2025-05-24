@@ -8,6 +8,7 @@ Overall goal:
 - Sprite support
 - Font support
 - CPU Profiling
+- Measure render API, see if things can be optimized (e.g. less loops, SIMD, less memory allocations etc.)
 - DLL based hot reloading
 - Asset system (store audio, images, fonts, etc.)
 - [!] Write Tetris game

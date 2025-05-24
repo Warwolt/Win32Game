@@ -26,6 +26,20 @@ namespace game {
 			renderer->draw_polygon_fill({ top, left, right }, engine::Color { 0, 0, 255 });
 		}
 
+		// draw convex polygon
+		if (1) {
+			int size = 30;
+			std::vector<engine::IVec2> vertices = {
+				window_center + size * engine::IVec2 { -3, -1 },
+				window_center + size * engine::IVec2 { 0, -3 },
+				window_center + size * engine::IVec2 { 3, -1 },
+				window_center + size * engine::IVec2 { 3, 1 },
+				window_center + size * engine::IVec2 { 0, 3 },
+				window_center + size * engine::IVec2 { -3, 1 },
+			};
+			renderer->draw_polygon_fill(vertices, engine::Color { 0, 255, 0 });
+		}
+
 		// draw concave polygon
 		if (0) {
 			int size = 30;
@@ -41,7 +55,7 @@ namespace game {
 		}
 
 		// draw "fish" polygon
-		if (1) {
+		if (0) {
 			int size = 30;
 			std::vector<engine::IVec2> vertices = {
 				window_center + size * engine::IVec2 { 0, 0 },
