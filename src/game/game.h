@@ -12,8 +12,7 @@ namespace game {
 	struct GameState {
 		int32_t window_width;
 		int32_t window_height;
-		int16_t mouse_x;
-		int16_t mouse_y;
+		engine::IVec2 fish_pos;
 	};
 
 	void update(GameState* game, const engine::InputDevices& input);
