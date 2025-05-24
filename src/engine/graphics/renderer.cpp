@@ -213,10 +213,17 @@ namespace engine {
 			std::sort(xs.begin(), xs.end());
 
 			// draw lines between points
-			for (size_t i = 0; i + 1 < xs.size(); i += 2) {
+			for (size_t i = 0; i + 1 < xs.size();) {
+				// skip past duplicate x-coordinates
+				if (xs[i] == xs[i + 1]) {
+					i += 1;
+					continue;
+				}
+				// draw line segment 
 				IVec2 start = { xs[i], y };
 				IVec2 end = { xs[i + 1], y };
 				_put_line(bitmap, start, end, color);
+				i += 2;
 			}
 		}
 	}
