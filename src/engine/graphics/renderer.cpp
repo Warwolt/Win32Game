@@ -1,10 +1,11 @@
 #include <engine/graphics/renderer.h>
 
+#include <engine/debug/logging.h>
+
 #include <algorithm>
+#include <cmath>
 #include <iterator>
 #include <windows.h>
-
-#include <engine/debug/logging.h>
 
 namespace engine {
 
@@ -29,10 +30,18 @@ namespace engine {
 	}
 
 	void Renderer::draw_polygon(const std::vector<IVec2> vertices, Color color) {
+		if (vertices.size() < 3) {
+			LOG_WARNING("draw_polygon called with less than 3 vertices, ignoring");
+			return;
+		}
 		m_draw_commands.push_back(DrawPolygon { vertices, color, false });
 	}
 
 	void Renderer::draw_polygon_fill(const std::vector<IVec2> vertices, Color color) {
+		if (vertices.size() < 3) {
+			LOG_WARNING("draw_polygon called with less than 3 vertices, ignoring");
+			return;
+		}
 		m_draw_commands.push_back(DrawPolygon { vertices, color, true });
 	}
 
@@ -155,8 +164,61 @@ namespace engine {
 	}
 
 	void Renderer::_put_polygon_fill(Bitmap* bitmap, const std::vector<IVec2>& vertices, Color color) {
-		// I can't figure out this crap
-		// Follow along: https://www.cs.rit.edu/~icss571/filling/how_to.html
+		struct Edge {
+			int32_t x0;
+			int32_t y0;
+			int32_t y1;
+			float inv_slope;
+		};
+
+		// check vertices
+		if (vertices.empty()) {
+			return;
+		}
+
+		std::vector<Edge> edges;
+		int32_t min_y = min(vertices[0].x, vertices[1].x);
+		int32_t max_y = max(vertices[0].x, vertices[1].x);
+
+		// compute edges and bounding box
+		for (size_t i = 0; i < vertices.size(); i++) {
+			IVec2 first = vertices[i];
+			IVec2 second = vertices[(i + 1) % vertices.size()];
+			min_y = min(min_y, min(first.y, second.y));
+			max_y = max(max_y, max(first.y, second.y));
+
+			bool is_horizontal = first.y == second.y;
+			if (!is_horizontal) {
+				float inv_slope = (float)(second.x - first.x) / (float)(second.y - first.y);
+				edges.push_back(Edge {
+					.x0 = first.x,
+					.y0 = first.y,
+					.y1 = second.y,
+					.inv_slope = inv_slope,
+				});
+			}
+		}
+
+		for (int32_t y = min_y; y <= max_y; y++) {
+			// compute all points at current y, sort by x
+			std::vector<int32_t> xs;
+			for (const Edge& edge : edges) {
+				int32_t y_min = min(edge.y0, edge.y1);
+				int32_t y_max = max(edge.y0, edge.y1);
+				if (y_min <= y && y <= y_max) {
+					int32_t x = (int32_t)std::round(edge.inv_slope * (y - edge.y0) + edge.x0);
+					xs.push_back(x);
+				}
+			}
+			std::sort(xs.begin(), xs.end());
+
+			// draw lines between points
+			for (size_t i = 0; i + 1 < xs.size(); i += 2) {
+				IVec2 start = { xs[i], y };
+				IVec2 end = { xs[i + 1], y };
+				_put_line(bitmap, start, end, color);
+			}
+		}
 	}
 
 } // namespace engine
