@@ -213,35 +213,20 @@ namespace engine {
 			}
 			std::sort(xs.begin(), xs.end());
 
-			// HACK: this is a workaround for certain polygons where we end up with several double points
-			int num_doubles = 0;
-			for (size_t i = 0; i + 1 < xs.size(); i++) {
-				if (xs[i] == xs[i + 1]) {
-					num_doubles += 1;
-				}
-			}
-
 			/* Draw lines between intersection points */
 			for (size_t i = 0; i + 1 < xs.size();) {
-				// HACK: workaround for certain polygons, I don't know how
-				// to systematically handle the case where we get multiple
-				// points with the same x-coordinate
-				if (num_doubles > 1 && num_doubles % 2 == 1) {
-					IVec2 start = { xs.front(), y };
-					IVec2 end = { xs.back(), y };
-					_put_line(bitmap, start, end, color);
-					break;
-				}
-
+				/* Skip past duplicate x-coordinates */
+				// This usually takes care of edges of triangles,
+				// or when two edges cross each other and form an X.
 				if (xs[i] == xs[i + 1]) {
-					_put_pixel(bitmap, xs[i], y, color);
-				}
-				else {
-					IVec2 start = { xs[i], y };
-					IVec2 end = { xs[i + 1], y };
-					_put_line(bitmap, start, end, color);
+					i += 1;
+					continue;
 				}
 
+				/* Fill in polygon slices at current y */
+				IVec2 start = { xs[i], y };
+				IVec2 end = { xs[i + 1], y };
+				_put_line(bitmap, start, end, color);
 				i += 2;
 			}
 		}
