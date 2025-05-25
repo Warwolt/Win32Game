@@ -20,22 +20,13 @@ namespace game {
 		// draw fish polygon
 		{
 			int size = 30;
-			// std::vector<engine::IVec2> vertices = {
-			// 	game.fish_pos + size * engine::IVec2 { 2, 0 },
-			// 	game.fish_pos + size * engine::IVec2 { 0, -2 },
-			// 	game.fish_pos + size * engine::IVec2 { 3, -4 },
-			// 	game.fish_pos + size * engine::IVec2 { 8, 0 },
-			// 	game.fish_pos + size * engine::IVec2 { 8, -4 },
-			// 	game.fish_pos + size * engine::IVec2 { 4, 0 },
-			// };
 			std::vector<engine::IVec2> vertices = {
-				window_center + size * engine::IVec2 { -2, 0 },
-				window_center + size * engine::IVec2 { -2, -2 },
-				window_center + size * engine::IVec2 { -1, -3 },
-				window_center + size * engine::IVec2 { 0, -2 },
-				window_center + size * engine::IVec2 { 1, -3 },
-				window_center + size * engine::IVec2 { 2, -2 },
-				window_center + size * engine::IVec2 { 2, 0 },
+				game.fish_pos + size * engine::IVec2 { 2, 0 },
+				game.fish_pos + size * engine::IVec2 { 0, -2 },
+				game.fish_pos + size * engine::IVec2 { 3, -4 },
+				game.fish_pos + size * engine::IVec2 { 8, 0 },
+				game.fish_pos + size * engine::IVec2 { 8, -4 },
+				game.fish_pos + size * engine::IVec2 { 4, 0 },
 			};
 			renderer->draw_polygon_fill(vertices, engine::Color { 0, 255, 0 });
 		}
