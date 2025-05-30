@@ -182,8 +182,6 @@ namespace engine {
 			return;
 		}
 
-
-
 		/* Compute edges and bounding box */
 		std::vector<PolygonEdge> edges;
 		int32_t min_y = min(vertices[0].y, vertices[1].y);
@@ -194,6 +192,8 @@ namespace engine {
 			min_y = min(min_y, min(first.y, second.y));
 			max_y = max(max_y, max(first.y, second.y));
 
+			// Skip horizontal edges since we're filling in the polygon row by
+			// row, and want to avoid edges that overlap with the scanline.
 			bool is_horizontal = first.y == second.y;
 			if (!is_horizontal) {
 				float inv_slope = (float)(second.x - first.x) / (float)(second.y - first.y);
@@ -247,9 +247,10 @@ namespace engine {
 					num_minimum += it->is_minimum ? 1 : 0;
 					num_intersections += 1;
 				}
-				// BUG: If intersection contains both a corner and middle of
-				// edge, then we'll end up not drawing the correct fill.
-				// See e.g. "teeth" shape [(-2,0), (0,-1), (2,-2), (2,1), (0,-1), (0, 2)]
+				// KNOWN BUG: If intersection contains both a corner and middle
+				// of edge, then we'll end up not drawing the correct fill.
+				// Reproduce with: [(-2,0), (0,-1), (2,-2), (2,1), (0,-1), (0, 2)]
+				// (Will draw a set of "teeth", with missing pixels right of (0,-1))
 				bool no_overlapping_vertices = num_maximum == 0 && num_minimum == 0;
 				bool odd_number_of_intersections = num_intersections % 2 == 1;
 				bool is_corner = num_maximum >= 2 || num_minimum >= 2;
