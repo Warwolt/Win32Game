@@ -10,7 +10,7 @@ namespace engine {
 namespace game {
 
 	struct GameState {
-		engine::IVec2 fish_pos;
+		engine::IVec2 figure_pos;
 	};
 
 	void update(GameState* game, const engine::InputDevices& input);

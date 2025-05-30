@@ -164,11 +164,6 @@ namespace engine {
 	}
 
 	void Renderer::_put_polygon_fill(Bitmap* bitmap, const std::vector<IVec2>& vertices, Color color) {
-		/* Check vertices make a polygon */
-		if (vertices.size() < 3) {
-			return;
-		}
-
 		struct PolygonEdge {
 			int32_t x0;
 			int32_t y0;
@@ -182,11 +177,17 @@ namespace engine {
 			bool is_minimum;
 		};
 
+		/* Check vertices make a polygon */
+		if (vertices.size() < 3) {
+			return;
+		}
+
+
+
+		/* Compute edges and bounding box */
 		std::vector<PolygonEdge> edges;
 		int32_t min_y = min(vertices[0].y, vertices[1].y);
 		int32_t max_y = max(vertices[0].y, vertices[1].y);
-
-		/* Compute edges and bounding box */
 		for (size_t i = 0; i < vertices.size(); i++) {
 			IVec2 first = vertices[i];
 			IVec2 second = vertices[(i + 1) % vertices.size()];
@@ -221,6 +222,8 @@ namespace engine {
 					});
 				}
 			}
+
+			/* Sort by x-values to collect equal points */
 			auto intersection_less_than = [](PolygonIntersection lhs, PolygonIntersection rhs) { return lhs.x < rhs.x; };
 			std::sort(intersections.begin(), intersections.end(), intersection_less_than);
 
@@ -229,11 +232,13 @@ namespace engine {
 			std::vector<int32_t> corner_and_cross_points;
 			int32_t current_x = intersections.front().x;
 			while (true) {
+				/* Scan through all points with same x-value */
 				auto equals_current_x = [current_x](const PolygonIntersection& intersection) { return intersection.x == current_x; };
 				auto not_equals_current_x = [current_x](const PolygonIntersection& intersection) { return intersection.x != current_x; };
 				auto begin = std::find_if(intersections.begin(), intersections.end(), equals_current_x);
 				auto end = std::find_if(begin, intersections.end(), not_equals_current_x);
 
+				/* Determine what kind of point (should we draw it as a point or a line?) */
 				int num_maximum = 0;
 				int num_minimum = 0;
 				int num_intersections = 0;
@@ -242,9 +247,12 @@ namespace engine {
 					num_minimum += it->is_minimum ? 1 : 0;
 					num_intersections += 1;
 				}
-
+				bool no_overlapping_vertices = num_maximum == 0 && num_minimum == 0 && num_intersections > 1;
+				bool odd_number_of_intersections = num_intersections % 2 == 1 && num_intersections > 1; // NOTE: just guessing about this one!
 				bool is_corner = num_maximum >= 2 || num_minimum >= 2;
-				bool is_cross = num_maximum == 0 && num_minimum == 0 && num_intersections > 1;
+				bool is_cross = no_overlapping_vertices || odd_number_of_intersections;
+
+				/* Save point to draw later */
 				if (is_corner || is_cross) {
 					corner_and_cross_points.push_back(current_x);
 				}
@@ -252,13 +260,14 @@ namespace engine {
 					points_to_connect.push_back(current_x);
 				}
 
+				/* Iterate */
 				if (end == intersections.end()) {
 					break;
 				}
 				current_x = end->x;
 			}
 
-			/* Connect points */
+			/* Draw all points */
 			// NOTE: we probably should skip the cross points once we start supporting alpha blending?
 			// It's probably important that we don't overdraw points.
 			for (size_t i = 0; i + 1 < points_to_connect.size(); i += 2) {
