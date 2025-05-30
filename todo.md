@@ -22,9 +22,9 @@ Overall goal:
 - [!] Write Zelda Dungeon game
 
 # Doing
-- Draw API: rectangles, polygons
 
 # Done
+- Draw API: rectangles, polygons
 - Draw API: lines
 - Mouse input
 - Add logging
