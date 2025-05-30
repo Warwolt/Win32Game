@@ -7,6 +7,7 @@ Overall goal:
 - Draw API: alpha blending
 - Draw API: circles
 - Bug: ignore keyboard key/mouse buttons if window not focused
+- Borderless full screen
 - Sprite support
 - Font support
 - CPU Profiling
