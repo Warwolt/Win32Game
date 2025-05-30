@@ -10,8 +10,6 @@ namespace engine {
 namespace game {
 
 	struct GameState {
-		int32_t window_width;
-		int32_t window_height;
 		engine::IVec2 fish_pos;
 	};
 

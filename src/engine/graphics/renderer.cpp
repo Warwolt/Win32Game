@@ -183,7 +183,7 @@ namespace engine {
 		};
 
 		std::vector<PolygonEdge> edges;
-		int32_t min_y = min(vertices[0].x, vertices[1].x);
+		int32_t min_y = min(vertices[0].y, vertices[1].y);
 		int32_t max_y = max(vertices[0].y, vertices[1].y);
 
 		/* Compute edges and bounding box */

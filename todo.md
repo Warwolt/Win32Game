@@ -4,6 +4,7 @@ Overall goal:
 - Simple Win32 level editor (create content for the games)
 
 # Todo
+- Draw API: alpha blending
 - Draw API: circles
 - Sprite support
 - Font support
