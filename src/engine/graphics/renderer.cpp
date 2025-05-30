@@ -7,6 +7,11 @@
 #include <iterator>
 #include <windows.h>
 
+// TODO: move into a math header
+template <typename T> int sgn(T val) {
+	return (T(0) < val) - (val < T(0));
+}
+
 namespace engine {
 
 	void Renderer::clear_screen() {
@@ -169,16 +174,28 @@ namespace engine {
 			return;
 		}
 
-		struct Edge {
+		struct PolygonEdge {
 			int32_t x0;
 			int32_t y0;
 			int32_t y1;
 			float inv_slope;
 		};
 
-		std::vector<Edge> edges;
+		struct PolygonIntersection {
+			int32_t x;
+			bool is_maximum;
+			bool is_minimum;
+			int slope_direction; // -1, 0, +0
+		};
+
+		struct PolygonDrawPoint {
+			int32_t x;
+			bool is_tip_or_intersection; // sits on a /\ or a \/ or a X
+		};
+
+		std::vector<PolygonEdge> edges;
 		int32_t min_y = min(vertices[0].x, vertices[1].x);
-		int32_t max_y = max(vertices[0].x, vertices[1].x);
+		int32_t max_y = max(vertices[0].y, vertices[1].y);
 
 		/* Compute edges and bounding box */
 		for (size_t i = 0; i < vertices.size(); i++) {
@@ -190,7 +207,7 @@ namespace engine {
 			bool is_horizontal = first.y == second.y;
 			if (!is_horizontal) {
 				float inv_slope = (float)(second.x - first.x) / (float)(second.y - first.y);
-				edges.push_back(Edge {
+				edges.push_back(PolygonEdge {
 					.x0 = first.x,
 					.y0 = first.y,
 					.y1 = second.y,
@@ -201,33 +218,45 @@ namespace engine {
 
 		/* Scan y from top to bottom, filling in polygon row by row */
 		for (int32_t y = min_y; y <= max_y; y++) {
-			/* Compute points of edges intersecting current scan line */
-			std::vector<int32_t> xs;
-			for (const Edge& edge : edges) {
+			// find intersections points
+			std::vector<PolygonIntersection> intersections;
+			for (const PolygonEdge& edge : edges) {
 				int32_t y_min = min(edge.y0, edge.y1);
 				int32_t y_max = max(edge.y0, edge.y1);
 				if (y_min <= y && y <= y_max) {
 					int32_t x = (int32_t)std::round(edge.inv_slope * (y - edge.y0) + edge.x0);
-					xs.push_back(x);
+					intersections.push_back(PolygonIntersection {
+						.x = x,
+						.is_maximum = y == y_max,
+						.is_minimum = y == y_min,
+						.slope_direction = sgn(edge.inv_slope),
+					});
 				}
 			}
-			std::sort(xs.begin(), xs.end());
 
-			/* Draw lines between intersection points */
-			for (size_t i = 0; i + 1 < xs.size();) {
-				/* Skip past duplicate x-coordinates */
-				// This usually takes care of edges of triangles,
-				// or when two edges cross each other and form an X.
-				if (xs[i] == xs[i + 1]) {
-					i += 1;
-					continue;
+			auto intersection_less_than = [](PolygonIntersection lhs, PolygonIntersection rhs) { return lhs.x < rhs.x; };
+			std::sort(intersections.begin(), intersections.end(), intersection_less_than);
+
+			std::vector<PolygonDrawPoint> draw_points;
+
+			int32_t current_x = intersections.front().x;
+			while (true) {
+				auto begin = std::find_if(intersections.begin(), intersections.end(), [current_x](const PolygonIntersection& intersection) {
+					return intersection.x == current_x;
+				});
+				auto end = std::find_if(begin, intersections.end(), [current_x](const PolygonIntersection& intersection) {
+					return intersection.x != current_x;
+				});
+
+				for (auto it = begin; it != end; it++) {
+					LOG_DEBUG("%d", it->x);
 				}
 
-				/* Fill in polygon slices at current y */
-				IVec2 start = { xs[i], y };
-				IVec2 end = { xs[i + 1], y };
-				_put_line(bitmap, start, end, color);
-				i += 2;
+				if (end == intersections.end()) {
+					break;
+				}
+
+				current_x = end->x;
 			}
 		}
 	}

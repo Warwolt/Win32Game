@@ -17,8 +17,18 @@ namespace game {
 
 		engine::IVec2 window_center = { game.window_width / 2, game.window_height / 2 };
 
-		// draw fish polygon
+		// draw triangle
 		{
+			std::vector<engine::IVec2> vertices = {
+				engine::IVec2 { 0, 0 },
+				engine::IVec2 { 6, 0 },
+				engine::IVec2 { 3, 3 },
+			};
+			renderer->draw_polygon_fill(vertices, engine::Color { 0, 255, 0 });
+		}
+
+		// draw fish polygon
+		if (0) {
 			int size = 30;
 			std::vector<engine::IVec2> vertices = {
 				game.fish_pos + size * engine::IVec2 { 2, 0 },
