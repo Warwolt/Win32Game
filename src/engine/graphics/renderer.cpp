@@ -247,10 +247,13 @@ namespace engine {
 					num_minimum += it->is_minimum ? 1 : 0;
 					num_intersections += 1;
 				}
-				bool no_overlapping_vertices = num_maximum == 0 && num_minimum == 0 && num_intersections > 1;
-				bool odd_number_of_intersections = num_intersections % 2 == 1 && num_intersections > 1; // NOTE: just guessing about this one!
+				// BUG: If intersection contains both a corner and middle of
+				// edge, then we'll end up not drawing the correct fill.
+				// See e.g. "teeth" shape [(-2,0), (0,-1), (2,-2), (2,1), (0,-1), (0, 2)]
+				bool no_overlapping_vertices = num_maximum == 0 && num_minimum == 0;
+				bool odd_number_of_intersections = num_intersections % 2 == 1;
 				bool is_corner = num_maximum >= 2 || num_minimum >= 2;
-				bool is_cross = no_overlapping_vertices || odd_number_of_intersections;
+				bool is_cross = (no_overlapping_vertices || odd_number_of_intersections) && num_intersections > 1;
 
 				/* Save point to draw later */
 				if (is_corner || is_cross) {
