@@ -7,11 +7,6 @@
 #include <iterator>
 #include <windows.h>
 
-// TODO: move into a math header
-template <typename T> int sgn(T val) {
-	return (T(0) < val) - (val < T(0));
-}
-
 namespace engine {
 
 	void Renderer::clear_screen() {
@@ -185,12 +180,6 @@ namespace engine {
 			int32_t x;
 			bool is_maximum;
 			bool is_minimum;
-			int slope_direction; // -1, 0, +0
-		};
-
-		struct PolygonDrawPoint {
-			int32_t x;
-			bool is_tip_or_intersection; // sits on a /\ or a \/ or a X
 		};
 
 		std::vector<PolygonEdge> edges;
@@ -218,7 +207,7 @@ namespace engine {
 
 		/* Scan y from top to bottom, filling in polygon row by row */
 		for (int32_t y = min_y; y <= max_y; y++) {
-			// find intersections points
+			/* Find points of intersection */
 			std::vector<PolygonIntersection> intersections;
 			for (const PolygonEdge& edge : edges) {
 				int32_t y_min = min(edge.y0, edge.y1);
@@ -229,34 +218,56 @@ namespace engine {
 						.x = x,
 						.is_maximum = y == y_max,
 						.is_minimum = y == y_min,
-						.slope_direction = sgn(edge.inv_slope),
 					});
 				}
 			}
-
 			auto intersection_less_than = [](PolygonIntersection lhs, PolygonIntersection rhs) { return lhs.x < rhs.x; };
 			std::sort(intersections.begin(), intersections.end(), intersection_less_than);
 
-			std::vector<PolygonDrawPoint> draw_points;
-
+			/* Determine which points to draw */
+			std::vector<int32_t> points_to_connect;
+			std::vector<int32_t> corner_and_cross_points;
 			int32_t current_x = intersections.front().x;
 			while (true) {
-				auto begin = std::find_if(intersections.begin(), intersections.end(), [current_x](const PolygonIntersection& intersection) {
-					return intersection.x == current_x;
-				});
-				auto end = std::find_if(begin, intersections.end(), [current_x](const PolygonIntersection& intersection) {
-					return intersection.x != current_x;
-				});
+				auto equals_current_x = [current_x](const PolygonIntersection& intersection) { return intersection.x == current_x; };
+				auto not_equals_current_x = [current_x](const PolygonIntersection& intersection) { return intersection.x != current_x; };
+				auto begin = std::find_if(intersections.begin(), intersections.end(), equals_current_x);
+				auto end = std::find_if(begin, intersections.end(), not_equals_current_x);
 
+				int num_maximum = 0;
+				int num_minimum = 0;
+				int num_intersections = 0;
 				for (auto it = begin; it != end; it++) {
-					LOG_DEBUG("%d", it->x);
+					num_maximum += it->is_maximum ? 1 : 0;
+					num_minimum += it->is_minimum ? 1 : 0;
+					num_intersections += 1;
+				}
+
+				bool is_corner = num_maximum >= 2 || num_minimum >= 2;
+				bool is_cross = num_maximum == 0 && num_minimum == 0 && num_intersections > 1;
+				if (is_corner || is_cross) {
+					corner_and_cross_points.push_back(current_x);
+				}
+				else {
+					points_to_connect.push_back(current_x);
 				}
 
 				if (end == intersections.end()) {
 					break;
 				}
-
 				current_x = end->x;
+			}
+
+			/* Connect points */
+			// NOTE: we probably should skip the cross points once we start supporting alpha blending?
+			// It's probably important that we don't overdraw points.
+			for (size_t i = 0; i + 1 < points_to_connect.size(); i += 2) {
+				IVec2 start = { points_to_connect[i], y };
+				IVec2 end = { points_to_connect[i + 1], y };
+				_put_line(bitmap, start, end, color);
+			}
+			for (int32_t x : corner_and_cross_points) {
+				_put_pixel(bitmap, x, y, color);
 			}
 		}
 	}
