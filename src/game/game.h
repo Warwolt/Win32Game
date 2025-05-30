@@ -10,8 +10,7 @@ namespace engine {
 namespace game {
 
 	struct GameState {
-		engine::IVec2 line_start;
-		engine::IVec2 line_end;
+		engine::IVec2 figure_pos;
 	};
 
 	void update(GameState* game, const engine::InputDevices& input);

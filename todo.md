@@ -4,11 +4,14 @@ Overall goal:
 - Simple Win32 level editor (create content for the games)
 
 # Todo
-- Draw API: rectangles, polygons
+- Draw API: alpha blending
 - Draw API: circles
+- Bug: ignore keyboard key/mouse buttons if window not focused
+- Borderless full screen
 - Sprite support
 - Font support
 - CPU Profiling
+- Measure render API, see if things can be optimized (e.g. less loops, SIMD, less memory allocations etc.)
 - DLL based hot reloading
 - Asset system (store audio, images, fonts, etc.)
 - [!] Write Tetris game
@@ -21,6 +24,7 @@ Overall goal:
 # Doing
 
 # Done
+- Draw API: rectangles, polygons
 - Draw API: lines
 - Mouse input
 - Add logging

@@ -45,6 +45,12 @@ namespace engine {
 			.y = lhs.y * rhs,
 		};
 	}
+	IVec2 operator*(int lhs, IVec2 rhs) {
+		return IVec2 {
+			.x = lhs * rhs.x,
+			.y = lhs * rhs.y,
+		};
+	}
 	IVec2 operator/(IVec2 lhs, int rhs) {
 		return IVec2 {
 			.x = lhs.x / rhs,

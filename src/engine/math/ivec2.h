@@ -18,6 +18,7 @@ namespace engine {
 		friend IVec2 operator*(IVec2 lhs, const IVec2& rhs);
 		friend IVec2 operator/(IVec2 lhs, const IVec2& rhs);
 		friend IVec2 operator*(IVec2 lhs, int rhs);
+		friend IVec2 operator*(int lhs, IVec2 rhs);
 		friend IVec2 operator/(IVec2 lhs, int rhs);
 	};
 
