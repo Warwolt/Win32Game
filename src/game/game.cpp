@@ -52,6 +52,11 @@ namespace game {
 			};
 			renderer->draw_polygon_fill(vertices, engine::Color { 0, 255, 0, 127 });
 		}
+
+		// draw circle
+		if (1) {
+			renderer->draw_circle(game.figure_pos.x, game.figure_pos.y, 100, engine::Color { 0, 255, 0 });
+		}
 	}
 
 } // namespace game

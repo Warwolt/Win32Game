@@ -9,6 +9,35 @@
 
 namespace engine {
 
+	static std::vector<IVec2> circle_octant_points(int32_t radius) {
+		/* Compute points in first octant */
+		//              90°
+		//         , - ~ ~ ~ - ,
+		//     , '       |       ' , 45°
+		//   ,           |       ⟋   ,
+		//  ,            |    ⟋       ,
+		// ,             | ⟋           ,
+		// ,             o             ,
+		// ,                           ,
+		//  ,                         ,
+		//   ,                       ,
+		//     ,                  , '
+		//       ' - , _ _ _ ,  '
+		std::vector<IVec2> octant_points;
+		IVec2 point = { 0, radius };
+		while (point.x <= point.y) {
+			octant_points.push_back(point);
+
+			int32_t midpoint_x = point.x + 1;
+			float midpoint_y = point.y - 0.5f;
+			if (pow(midpoint_x, 2) + pow(midpoint_y, 2) > pow(radius, 2)) {
+				point.y -= 1;
+			}
+			point.x += 1;
+		}
+		return octant_points;
+	}
+
 	void Renderer::clear_screen() {
 		m_draw_commands.push_back(ClearScreen {});
 	}
@@ -310,7 +339,18 @@ namespace engine {
 	}
 
 	void Renderer::_put_circle(Bitmap* bitmap, int32_t x, int32_t y, int32_t radius, Color color) {
-		// TODO
+		IVec2 center = { x, y };
+		std::vector<IVec2> octant_points = circle_octant_points(radius);
+		for (IVec2 point : octant_points) {
+			_put_pixel(bitmap, center.x + point.x, center.y + point.y, color);
+			_put_pixel(bitmap, center.x + point.y, center.y + point.x, color);
+			_put_pixel(bitmap, center.x + point.y, center.y - point.x, color);
+			_put_pixel(bitmap, center.x + point.x, center.y - point.y, color);
+			_put_pixel(bitmap, center.x - point.x, center.y + point.y, color);
+			_put_pixel(bitmap, center.x - point.y, center.y + point.x, color);
+			_put_pixel(bitmap, center.x - point.y, center.y - point.x, color);
+			_put_pixel(bitmap, center.x - point.x, center.y - point.y, color);
+		}
 	}
 
 	void Renderer::_put_circle_fill(Bitmap* bitmap, int32_t x, int32_t y, int32_t radius, Color color) {
