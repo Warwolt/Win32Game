@@ -7,6 +7,7 @@ add_subdirectory(libs/googletest)
 option(WARNINGS_AS_ERRORS "Compile with warnings as errors" OFF)
 
 set(SRC
+    src/engine/debug/renderer_test_screen.cpp
     src/engine/audio/audio_player.cpp
     src/engine/debug/logging.cpp
     src/engine/engine.cpp

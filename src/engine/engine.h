@@ -1,13 +1,14 @@
 #pragma once
 
-#include <engine/graphics/renderer.h>
+#include <engine/debug/renderer_test_screen.h>
 
 namespace engine {
 
 	struct InputDevices;
+	class Renderer;
 
 	struct DebugState {
-		RendererTestState renderer_test;
+		RendererTestScreen renderer_test_screen;
 	};
 
 	struct EngineState {
