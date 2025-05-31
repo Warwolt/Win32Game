@@ -27,6 +27,8 @@ namespace engine {
 		void draw_rect_fill(Rect rect, Color color);
 		void draw_polygon(std::vector<IVec2> vertices, Color color);
 		void draw_polygon_fill(std::vector<IVec2> vertices, Color color);
+		void draw_circle(IVec2 center, int32_t radius, Color color);
+		void draw_circle_fill(IVec2 center, int32_t radius, Color color);
 		void render(engine::Window* window, HDC device_context);
 
 	private:
@@ -51,23 +53,32 @@ namespace engine {
 			Color color;
 			bool filled;
 		};
+		struct DrawCircle {
+			IVec2 center;
+			int32_t radius;
+			Color color;
+			bool filled;
+		};
 
 		using DrawCommand = std::variant<
 			ClearScreen,
 			DrawPixel,
 			DrawLine,
 			DrawRect,
-			DrawPolygon>;
+			DrawPolygon,
+			DrawCircle>;
 
 		std::vector<DrawCommand> m_draw_commands;
 
-		void _clear_screen(engine::Bitmap* bitmap);
-		void _put_pixel(engine::Bitmap* bitmap, int32_t x, int32_t y, Color color);
-		void _put_line(engine::Bitmap* bitmap, IVec2 start, IVec2 end, Color color);
-		void _put_rect(engine::Bitmap* bitmap, Rect rect, Color color);
-		void _put_rect_fill(engine::Bitmap* bitmap, Rect rect, Color color);
-		void _put_polygon(engine::Bitmap* bitmap, const std::vector<IVec2>& vertices, Color color);
-		void _put_polygon_fill(engine::Bitmap* bitmap, const std::vector<IVec2>& vertices, Color color);
+		void _clear_screen(Bitmap* bitmap);
+		void _put_pixel(Bitmap* bitmap, int32_t x, int32_t y, Color color);
+		void _put_line(Bitmap* bitmap, IVec2 start, IVec2 end, Color color);
+		void _put_rect(Bitmap* bitmap, Rect rect, Color color);
+		void _put_rect_fill(Bitmap* bitmap, Rect rect, Color color);
+		void _put_polygon(Bitmap* bitmap, const std::vector<IVec2>& vertices, Color color);
+		void _put_polygon_fill(Bitmap* bitmap, const std::vector<IVec2>& vertices, Color color);
+		void _put_circle(Bitmap* bitmap, IVec2 center, int32_t radius, Color color);
+		void _put_circle_fill(Bitmap* bitmap, IVec2 center, int32_t radius, Color color);
 	};
 
 } // namespace engine

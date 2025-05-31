@@ -4,10 +4,42 @@
 
 #include <algorithm>
 #include <cmath>
+#include <functional>
 #include <iterator>
 #include <windows.h>
 
 namespace engine {
+
+	static std::vector<IVec2> circle_octant_points(int32_t radius) {
+		/* Compute points in 2nd octant */
+		// We utilize that y value increases monotonously in the first octant,
+		// and check which pixel is closest to the radius at a given x-value.
+		//               90°
+		//         , - ~ ~ ~ - ,
+		//     , '       |       ' , 45°
+		//   ,           |       ⟋   ,
+		//  ,            |    ⟋       ,
+		// ,             | ⟋           ,
+		// ,             o             ,
+		// ,                           ,
+		//  ,                         ,
+		//   ,                       ,
+		//     ,                  , '
+		//       ' - , _ _ _ ,  '
+		std::vector<IVec2> octant_points;
+		IVec2 point = { 0, radius };
+		while (point.x <= point.y) {
+			octant_points.push_back(point);
+
+			int32_t midpoint_x = point.x + 1;
+			float midpoint_y = point.y - 0.5f;
+			if (pow(midpoint_x, 2) + pow(midpoint_y, 2) > pow(radius, 2)) {
+				point.y -= 1;
+			}
+			point.x += 1;
+		}
+		return octant_points;
+	}
 
 	void Renderer::clear_screen() {
 		m_draw_commands.push_back(ClearScreen {});
@@ -45,6 +77,14 @@ namespace engine {
 		m_draw_commands.push_back(DrawPolygon { vertices, color, true });
 	}
 
+	void Renderer::draw_circle(IVec2 center, int32_t radius, Color color) {
+		m_draw_commands.push_back(DrawCircle { center, radius, color, false });
+	}
+
+	void Renderer::draw_circle_fill(IVec2 center, int32_t radius, Color color) {
+		m_draw_commands.push_back(DrawCircle { center, radius, color, true });
+	}
+
 	void Renderer::render(engine::Window* window, HDC device_context) {
 		/* Draw to bitmap */
 		for (DrawCommand& command : m_draw_commands) {
@@ -71,6 +111,14 @@ namespace engine {
 				}
 				else {
 					_put_polygon(&window->bitmap, draw_polygon->vertices, draw_polygon->color);
+				}
+			}
+			if (auto* draw_circle = std::get_if<DrawCircle>(&command)) {
+				if (draw_circle->filled) {
+					_put_circle_fill(&window->bitmap, draw_circle->center, draw_circle->radius, draw_circle->color);
+				}
+				else {
+					_put_circle(&window->bitmap, draw_circle->center, draw_circle->radius, draw_circle->color);
 				}
 			}
 		}
@@ -290,6 +338,43 @@ namespace engine {
 					_put_pixel(bitmap, x, y, color);
 				}
 			}
+		}
+	}
+
+	void Renderer::_put_circle(Bitmap* bitmap, IVec2 center, int32_t radius, Color color) {
+		std::vector<IVec2> octant_points = circle_octant_points(radius);
+		for (IVec2 point : octant_points) {
+			_put_pixel(bitmap, center.x + point.x, center.y + point.y, color);
+			_put_pixel(bitmap, center.x + point.y, center.y + point.x, color);
+			_put_pixel(bitmap, center.x + point.y, center.y - point.x, color);
+			_put_pixel(bitmap, center.x + point.x, center.y - point.y, color);
+			_put_pixel(bitmap, center.x - point.x, center.y + point.y, color);
+			_put_pixel(bitmap, center.x - point.y, center.y + point.x, color);
+			_put_pixel(bitmap, center.x - point.y, center.y - point.x, color);
+			_put_pixel(bitmap, center.x - point.x, center.y - point.y, color);
+		}
+	}
+
+	void Renderer::_put_circle_fill(Bitmap* bitmap, IVec2 center, int32_t radius, Color color) {
+		/* Compute points for upper half circle */
+		std::vector<IVec2> octant_points = circle_octant_points(radius);
+		std::vector<IVec2> half_circle_points;
+		for (IVec2 point : octant_points) {
+			half_circle_points.push_back({ point.x, point.y });
+			half_circle_points.push_back({ point.y, point.x });
+			half_circle_points.push_back({ -point.x, point.y });
+			half_circle_points.push_back({ -point.y, point.x });
+		}
+
+		/* Remove overlapping x-coordinates to avoid overdraw */
+		auto x_less_than = [](IVec2 lhs, IVec2 rhs) { return lhs.x < rhs.x; };
+		auto xs_equal = [](IVec2 lhs, IVec2 rhs) { return lhs.x == rhs.x; };
+		std::sort(half_circle_points.begin(), half_circle_points.end(), x_less_than);
+		half_circle_points.erase(std::unique(half_circle_points.begin(), half_circle_points.end(), xs_equal), half_circle_points.end());
+
+		/* Draw vertical lines */
+		for (IVec2 point : half_circle_points) {
+			_put_line(bitmap, center + IVec2 { point.x, point.y }, center + IVec2 { point.x, -point.y }, color);
 		}
 	}
 
