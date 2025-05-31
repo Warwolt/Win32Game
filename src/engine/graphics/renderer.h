@@ -21,7 +21,7 @@ namespace engine {
 	class Renderer {
 	public:
 		void clear_screen();
-		void draw_pixel(int32_t x, int32_t y, Color color);
+		void draw_point(IVec2 point, Color color);
 		void draw_line(IVec2 start, IVec2 end, Color color);
 		void draw_rect(Rect rect, Color color);
 		void draw_rect_fill(Rect rect, Color color);
@@ -33,9 +33,8 @@ namespace engine {
 
 	private:
 		struct ClearScreen {};
-		struct DrawPixel {
-			int32_t x;
-			int32_t y;
+		struct DrawPoint {
+			IVec2 point;
 			Color color;
 		};
 		struct DrawLine {
@@ -62,7 +61,7 @@ namespace engine {
 
 		using DrawCommand = std::variant<
 			ClearScreen,
-			DrawPixel,
+			DrawPoint,
 			DrawLine,
 			DrawRect,
 			DrawPolygon,
@@ -71,7 +70,7 @@ namespace engine {
 		std::vector<DrawCommand> m_draw_commands;
 
 		void _clear_screen(Bitmap* bitmap);
-		void _put_pixel(Bitmap* bitmap, int32_t x, int32_t y, Color color);
+		void _put_point(Bitmap* bitmap, IVec2 point, Color color);
 		void _put_line(Bitmap* bitmap, IVec2 start, IVec2 end, Color color);
 		void _put_rect(Bitmap* bitmap, Rect rect, Color color);
 		void _put_rect_fill(Bitmap* bitmap, Rect rect, Color color);
@@ -80,5 +79,7 @@ namespace engine {
 		void _put_circle(Bitmap* bitmap, IVec2 center, int32_t radius, Color color);
 		void _put_circle_fill(Bitmap* bitmap, IVec2 center, int32_t radius, Color color);
 	};
+
+	void draw_renderer_test_screen(Renderer* renderer);
 
 } // namespace engine
