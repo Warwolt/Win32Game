@@ -4,7 +4,6 @@ Overall goal:
 - Simple Win32 level editor (create content for the games)
 
 # Todo
-- Draw API: alpha blending
 - Draw API: circles
 - Bug: ignore keyboard key/mouse buttons if window not focused
 - Borderless full screen
@@ -22,6 +21,7 @@ Overall goal:
 - [!] Write Zelda Dungeon game
 
 # Doing
+- Draw API: alpha blending
 
 # Done
 - Draw API: rectangles, polygons

@@ -109,7 +109,13 @@ namespace engine {
 	}
 
 	void Renderer::_put_pixel(Bitmap* bitmap, int32_t x, int32_t y, Color color) {
-		bitmap->put(x, y, BGRPixel { .b = color.b, .g = color.g, .r = color.r });
+		BGRPixel old_pixel = bitmap->get(x, y);
+		BGRPixel new_pixel = BGRPixel {
+			.b = (uint8_t)std::lerp(old_pixel.b, color.b, color.a / 255.0f) ,
+			.g = (uint8_t)std::lerp(old_pixel.g, color.g, color.a / 255.0f) ,
+			.r = (uint8_t)std::lerp(old_pixel.r, color.r, color.a / 255.0f) ,
+		};
+		bitmap->put(x, y, new_pixel);
 	}
 
 	void Renderer::_put_line(Bitmap* bitmap, IVec2 start, IVec2 end, Color color) {

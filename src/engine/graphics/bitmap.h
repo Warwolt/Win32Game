@@ -21,6 +21,13 @@ namespace engine {
 				this->data[x + this->width * y] = pixel;
 			}
 		}
+
+		inline BGRPixel get(int32_t x, int32_t y) {
+			if (0 <= x && x < this->width && 0 <= y && y < this->height) {
+				return this->data[x + this->width * y];
+			}
+			return {};
+		}
 	};
 
 } // namespace engine
