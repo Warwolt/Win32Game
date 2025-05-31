@@ -17,6 +17,7 @@ set(SRC
     src/engine/input/keyboard.cpp
     src/engine/input/mouse.cpp
     src/engine/math/ivec2.cpp
+    src/engine/math/vec2.cpp
     src/game/game.cpp
 )
 

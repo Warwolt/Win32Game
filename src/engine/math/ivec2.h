@@ -1,5 +1,7 @@
 #pragma once
 
+#include <engine/math/vec2.h>
+
 #include <stdint.h>
 
 namespace engine {
@@ -7,6 +9,8 @@ namespace engine {
 	struct IVec2 {
 		int32_t x;
 		int32_t y;
+
+		static IVec2 from_vec2(Vec2 vec2);
 
 		IVec2& operator+=(const IVec2& rhs);
 		IVec2& operator-=(const IVec2& rhs);
