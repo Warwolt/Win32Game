@@ -111,9 +111,9 @@ namespace engine {
 	void Renderer::_put_pixel(Bitmap* bitmap, int32_t x, int32_t y, Color color) {
 		BGRPixel old_pixel = bitmap->get(x, y);
 		BGRPixel new_pixel = BGRPixel {
-			.b = (uint8_t)std::lerp(old_pixel.b, color.b, color.a / 255.0f) ,
-			.g = (uint8_t)std::lerp(old_pixel.g, color.g, color.a / 255.0f) ,
-			.r = (uint8_t)std::lerp(old_pixel.r, color.r, color.a / 255.0f) ,
+			.b = (uint8_t)std::lerp(old_pixel.b, color.b, color.a / 255.0f),
+			.g = (uint8_t)std::lerp(old_pixel.g, color.g, color.a / 255.0f),
+			.r = (uint8_t)std::lerp(old_pixel.r, color.r, color.a / 255.0f),
 		};
 		bitmap->put(x, y, new_pixel);
 	}
@@ -278,15 +278,17 @@ namespace engine {
 			}
 
 			/* Draw all points */
-			// NOTE: we probably should skip the cross points once we start supporting alpha blending?
-			// It's probably important that we don't overdraw points.
 			for (size_t i = 0; i + 1 < points_to_connect.size(); i += 2) {
 				IVec2 start = { points_to_connect[i], y };
 				IVec2 end = { points_to_connect[i + 1], y };
 				_put_line(bitmap, start, end, color);
 			}
-			for (int32_t x : corner_and_cross_points) {
-				_put_pixel(bitmap, x, y, color);
+			// HACK: Skip drawing points if drawing lines so we don't overdraw,
+			// since this will mess with alpha blending.
+			if (points_to_connect.empty()) {
+				for (int32_t x : corner_and_cross_points) {
+					_put_pixel(bitmap, x, y, color);
+				}
 			}
 		}
 	}
