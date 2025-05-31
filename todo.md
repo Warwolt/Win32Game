@@ -4,7 +4,6 @@ Overall goal:
 - Simple Win32 level editor (create content for the games)
 
 # Todo
-- Draw API: alpha blending
 - Draw API: circles
 - Bug: ignore keyboard key/mouse buttons if window not focused
 - Borderless full screen
@@ -24,6 +23,7 @@ Overall goal:
 # Doing
 
 # Done
+- Draw API: alpha blending
 - Draw API: rectangles, polygons
 - Draw API: lines
 - Mouse input

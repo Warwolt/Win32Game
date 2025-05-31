@@ -25,7 +25,7 @@ namespace game {
 		}
 
 		// draw fish polygon
-		if (0) {
+		if (1) {
 			int size = 30;
 			std::vector<engine::IVec2> vertices = {
 				game.figure_pos + size * engine::IVec2 { 0, 0 },
@@ -35,7 +35,7 @@ namespace game {
 				game.figure_pos + size * engine::IVec2 { 2, 1 },
 				game.figure_pos + size * engine::IVec2 { 2, -1 },
 			};
-			renderer->draw_polygon_fill(vertices, engine::Color { 0, 255, 0 });
+			renderer->draw_polygon_fill(vertices, engine::Color { 0, 255, 0, 50 });
 		}
 
 		// draw crown
@@ -50,7 +50,7 @@ namespace game {
 				game.figure_pos + size * engine::IVec2 { -2, -1 },
 				game.figure_pos + size * engine::IVec2 { -1, 0 },
 			};
-			renderer->draw_polygon_fill(vertices, engine::Color { 0, 255, 0 });
+			renderer->draw_polygon_fill(vertices, engine::Color { 0, 255, 0, 127 });
 		}
 	}
 
