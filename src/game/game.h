@@ -9,10 +9,7 @@ namespace engine {
 
 namespace game {
 
-	struct GameState {
-		engine::IVec2 window_size;
-		bool show_renderer_test_screen;
-	};
+	struct GameState { };
 
 	void update(GameState* game, const engine::InputDevices& input);
     void draw(engine::Renderer* renderer, const GameState& game);

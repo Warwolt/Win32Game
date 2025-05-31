@@ -380,7 +380,7 @@ namespace engine {
 		}
 	}
 
-	void draw_renderer_test_screen(Renderer* renderer, IVec2 window_size) {
+	void draw_renderer_test_screen(Renderer* renderer, const RendererTestState& state) {
 		const engine::Color color = { 0, 255, 0 };
 		const int32_t grid_size = 64;
 		const int32_t grid_spacing = 16;
@@ -395,8 +395,8 @@ namespace engine {
 				});
 		};
 
-		auto next_grid_pos = [grid_size, grid_spacing, window_size](IVec2 pos) {
-			int32_t window_grid_width = window_size.x / (grid_size + grid_spacing);
+		auto next_grid_pos = [grid_size, grid_spacing, state](IVec2 pos) {
+			int32_t window_grid_width = state.window_size.x / (grid_size + grid_spacing);
 			if (pos.x > window_grid_width - 2) {
 				return IVec2 { 0, pos.y + 1 };
 			}
