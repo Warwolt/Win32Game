@@ -36,10 +36,11 @@ namespace engine {
 
 		/* Draw pixel */
 		{
-            renderer->draw_point(transform(Vec2 { 0, 0 }, grid_pos), color);
-        }
+			renderer->draw_point(transform(Vec2 { 0, 0 }, grid_pos), color);
+		}
 
 		/* Draw line */
+#pragma region draw line
 		// horizontal
 		{
 			grid_pos = next_grid_pos(grid_pos);
@@ -98,6 +99,7 @@ namespace engine {
 		}
 
 		/* Draw rect */
+#pragma region draw rect
 		// rect
 		{
 			grid_pos = next_grid_pos(grid_pos);
@@ -123,7 +125,78 @@ namespace engine {
 			renderer->draw_rect_fill(rect, color);
 		}
 
-		// draw polygon
+		/* Draw polygon */
+#pragma region draw polygon
+		// triangle (convex)
+		{
+			grid_pos = next_grid_pos(grid_pos);
+			std::vector<IVec2> vertices {
+				transform(Vec2 { -1.0f, -1.0f }, grid_pos),
+				transform(Vec2 { 0.0f, 1.0f }, grid_pos),
+				transform(Vec2 { 1.0f, -1.0f }, grid_pos),
+			};
+			renderer->draw_polygon(vertices, color);
+		}
+		// triangle fill (convex)
+		{
+			grid_pos = next_grid_pos(grid_pos);
+			std::vector<IVec2> vertices {
+				transform(Vec2 { -1.0f, -1.0f }, grid_pos),
+				transform(Vec2 { 0.0f, 1.0f }, grid_pos),
+				transform(Vec2 { 1.0f, -1.0f }, grid_pos),
+			};
+			renderer->draw_polygon_fill(vertices, color);
+		}
+		// heart (concave)
+		{
+			grid_pos = next_grid_pos(grid_pos);
+			std::vector<IVec2> vertices {
+				transform(Vec2 { -1.0f, 0.5f }, grid_pos),
+				transform(Vec2 { -0.5f, 1.0f }, grid_pos),
+				transform(Vec2 { 0.0f, 0.5f }, grid_pos),
+				transform(Vec2 { 0.5f, 1.0f }, grid_pos),
+				transform(Vec2 { 1.0f, 0.5f }, grid_pos),
+				transform(Vec2 { 0.0f, -1.0f }, grid_pos),
+			};
+			renderer->draw_polygon(vertices, color);
+		}
+		// heart fill (concave)
+		{
+			grid_pos = next_grid_pos(grid_pos);
+			std::vector<IVec2> vertices {
+				transform(Vec2 { -1.0f, 0.5f }, grid_pos),
+				transform(Vec2 { -0.5f, 1.0f }, grid_pos),
+				transform(Vec2 { 0.0f, 0.5f }, grid_pos),
+				transform(Vec2 { 0.5f, 1.0f }, grid_pos),
+				transform(Vec2 { 1.0f, 0.5f }, grid_pos),
+				transform(Vec2 { 0.0f, -1.0f }, grid_pos),
+			};
+			renderer->draw_polygon_fill(vertices, color);
+		}
+		// mountains (complex)
+		{
+			grid_pos = next_grid_pos(grid_pos);
+			std::vector<IVec2> vertices {
+				transform(Vec2 { -1.0f, -1.0f }, grid_pos),
+				transform(Vec2 { -0.5f, 0.5f }, grid_pos),
+				transform(Vec2 { 0.0f, -1.0f }, grid_pos),
+				transform(Vec2 { 0.5f, 1.0f }, grid_pos),
+				transform(Vec2 { 1.0f, -1.0f }, grid_pos),
+			};
+			renderer->draw_polygon(vertices, color);
+		}
+		// mountains fill (complex)
+		{
+			grid_pos = next_grid_pos(grid_pos);
+			std::vector<IVec2> vertices {
+				transform(Vec2 { -1.0f, -1.0f }, grid_pos),
+				transform(Vec2 { -0.5f, 0.5f }, grid_pos),
+				transform(Vec2 { 0.0f, -1.0f }, grid_pos),
+				transform(Vec2 { 0.5f, 1.0f }, grid_pos),
+				transform(Vec2 { 1.0f, -1.0f }, grid_pos),
+			};
+			renderer->draw_polygon_fill(vertices, color);
+		}
 	}
 
 } // namespace engine

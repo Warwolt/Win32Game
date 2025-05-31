@@ -63,20 +63,20 @@ namespace engine {
 		m_draw_commands.push_back(DrawRect { rect, color, true });
 	}
 
-	void Renderer::draw_polygon(const std::vector<IVec2> vertices, Color color) {
+	void Renderer::draw_polygon(std::vector<IVec2> vertices, Color color) {
 		if (vertices.size() < 3) {
 			LOG_WARNING("draw_polygon called with less than 3 vertices, ignoring");
 			return;
 		}
-		m_draw_commands.push_back(DrawPolygon { vertices, color, false });
+		m_draw_commands.push_back(DrawPolygon { std::move(vertices), color, false });
 	}
 
-	void Renderer::draw_polygon_fill(const std::vector<IVec2> vertices, Color color) {
+	void Renderer::draw_polygon_fill(std::vector<IVec2> vertices, Color color) {
 		if (vertices.size() < 3) {
 			LOG_WARNING("draw_polygon called with less than 3 vertices, ignoring");
 			return;
 		}
-		m_draw_commands.push_back(DrawPolygon { vertices, color, true });
+		m_draw_commands.push_back(DrawPolygon { std::move(vertices), color, true });
 	}
 
 	void Renderer::draw_circle(IVec2 center, int32_t radius, Color color) {
