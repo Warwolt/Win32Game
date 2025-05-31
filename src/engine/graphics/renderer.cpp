@@ -45,6 +45,14 @@ namespace engine {
 		m_draw_commands.push_back(DrawPolygon { vertices, color, true });
 	}
 
+	void Renderer::draw_circle(int32_t x, int32_t y, int32_t radius, Color color) {
+		m_draw_commands.push_back(DrawCircle { x, y, radius, color, false });
+	}
+
+	void Renderer::draw_circle_fill(int32_t x, int32_t y, int32_t radius, Color color) {
+		m_draw_commands.push_back(DrawCircle { x, y, radius, color, true });
+	}
+
 	void Renderer::render(engine::Window* window, HDC device_context) {
 		/* Draw to bitmap */
 		for (DrawCommand& command : m_draw_commands) {
@@ -71,6 +79,14 @@ namespace engine {
 				}
 				else {
 					_put_polygon(&window->bitmap, draw_polygon->vertices, draw_polygon->color);
+				}
+			}
+			if (auto* draw_circle = std::get_if<DrawCircle>(&command)) {
+				if (draw_circle->filled) {
+					_put_circle_fill(&window->bitmap, draw_circle->x, draw_circle->y, draw_circle->radius, draw_circle->color);
+				}
+				else {
+					_put_circle(&window->bitmap, draw_circle->x, draw_circle->y, draw_circle->radius, draw_circle->color);
 				}
 			}
 		}
@@ -291,6 +307,14 @@ namespace engine {
 				}
 			}
 		}
+	}
+
+	void Renderer::_put_circle(Bitmap* bitmap, int32_t x, int32_t y, int32_t radius, Color color) {
+		// TODO
+	}
+
+	void Renderer::_put_circle_fill(Bitmap* bitmap, int32_t x, int32_t y, int32_t radius, Color color) {
+		// TODO
 	}
 
 } // namespace engine
