@@ -380,22 +380,26 @@ namespace engine {
 		}
 	}
 
-	void draw_renderer_test_screen(Renderer* renderer) {
+	void draw_renderer_test_screen(Renderer* renderer, IVec2 window_size) {
 		const engine::Color color = { 0, 255, 0 };
 		const int32_t grid_size = 64;
-		const int32_t padding = 16;
+		const int32_t grid_spacing = 16;
 
-		auto transform = [grid_size, padding](Vec2 ndc_vec, IVec2 grid_pos) -> IVec2 {
-			IVec2 padding_offset = padding * IVec2 { grid_pos.x, grid_pos.y + 1 };
+		auto transform = [grid_size, grid_spacing](Vec2 ndc_vec, IVec2 grid_pos) -> IVec2 {
+			IVec2 spacing_offset = grid_spacing * IVec2 { grid_pos.x, grid_pos.y + 1 };
 			IVec2 grid_offset = grid_size * grid_pos;
-			return padding_offset + grid_offset +
+			return spacing_offset + grid_offset +
 				IVec2::from_vec2(Vec2 {
 					.x = grid_size * (ndc_vec.x + 1.0f) / 2.0f,
 					.y = grid_size * (1.0f - ndc_vec.y) / 2.0f,
 				});
 		};
 
-		auto next_grid_pos = [](IVec2 pos) {
+		auto next_grid_pos = [grid_size, grid_spacing, window_size](IVec2 pos) {
+			int32_t window_grid_width = window_size.x / (grid_size + grid_spacing);
+			if (pos.x > window_grid_width - 2) {
+				return IVec2 { 0, pos.y + 1 };
+			}
 			return IVec2 { pos.x + 1, pos.y };
 		};
 

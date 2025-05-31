@@ -80,6 +80,6 @@ namespace engine {
 		void _put_circle_fill(Bitmap* bitmap, IVec2 center, int32_t radius, Color color);
 	};
 
-	void draw_renderer_test_screen(Renderer* renderer);
+	void draw_renderer_test_screen(Renderer* renderer, IVec2 window_size);
 
 } // namespace engine

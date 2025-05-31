@@ -10,6 +10,7 @@ namespace engine {
 namespace game {
 
 	struct GameState {
+		engine::IVec2 window_size;
 		bool show_renderer_test_screen;
 	};
 
