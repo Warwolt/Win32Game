@@ -466,8 +466,30 @@ namespace engine {
 			renderer->draw_line(transform(start, grid_pos), transform(end, grid_pos), color);
 		}
 
-		// draw rect
-		// draw rect fill
+		/* Draw rect */
+		// rect
+		{
+			grid_pos = next_grid_pos(grid_pos);
+			IVec2 pos = transform(Vec2 { -1.0f, 1.0f }, grid_pos);
+			renderer->draw_rect(Rect {
+				.x = pos.x,
+				.y = pos.y,
+				.width = grid_size,
+				.height = grid_size,
+			}, color);
+		}
+		// rect fill
+		{
+			grid_pos = next_grid_pos(grid_pos);
+			IVec2 pos = transform(Vec2 { -1.0f, 1.0f }, grid_pos);
+			renderer->draw_rect_fill(Rect {
+				.x = pos.x,
+				.y = pos.y,
+				.width = grid_size,
+				.height = grid_size,
+			}, color);
+		}
+
 		// draw polygon
 	}
 
