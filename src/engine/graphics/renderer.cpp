@@ -4,14 +4,17 @@
 
 #include <algorithm>
 #include <cmath>
+#include <functional>
 #include <iterator>
 #include <windows.h>
 
 namespace engine {
 
 	static std::vector<IVec2> circle_octant_points(int32_t radius) {
-		/* Compute points in first octant */
-		//              90°
+		/* Compute points in 2nd octant */
+		// We utilize that y value increases monotonously in the first octant,
+		// and check which pixel is closest to the radius at a given x-value.
+		//               90°
 		//         , - ~ ~ ~ - ,
 		//     , '       |       ' , 45°
 		//   ,           |       ⟋   ,
@@ -74,12 +77,12 @@ namespace engine {
 		m_draw_commands.push_back(DrawPolygon { vertices, color, true });
 	}
 
-	void Renderer::draw_circle(int32_t x, int32_t y, int32_t radius, Color color) {
-		m_draw_commands.push_back(DrawCircle { x, y, radius, color, false });
+	void Renderer::draw_circle(IVec2 center, int32_t radius, Color color) {
+		m_draw_commands.push_back(DrawCircle { center, radius, color, false });
 	}
 
-	void Renderer::draw_circle_fill(int32_t x, int32_t y, int32_t radius, Color color) {
-		m_draw_commands.push_back(DrawCircle { x, y, radius, color, true });
+	void Renderer::draw_circle_fill(IVec2 center, int32_t radius, Color color) {
+		m_draw_commands.push_back(DrawCircle { center, radius, color, true });
 	}
 
 	void Renderer::render(engine::Window* window, HDC device_context) {
@@ -112,10 +115,10 @@ namespace engine {
 			}
 			if (auto* draw_circle = std::get_if<DrawCircle>(&command)) {
 				if (draw_circle->filled) {
-					_put_circle_fill(&window->bitmap, draw_circle->x, draw_circle->y, draw_circle->radius, draw_circle->color);
+					_put_circle_fill(&window->bitmap, draw_circle->center, draw_circle->radius, draw_circle->color);
 				}
 				else {
-					_put_circle(&window->bitmap, draw_circle->x, draw_circle->y, draw_circle->radius, draw_circle->color);
+					_put_circle(&window->bitmap, draw_circle->center, draw_circle->radius, draw_circle->color);
 				}
 			}
 		}
@@ -338,8 +341,7 @@ namespace engine {
 		}
 	}
 
-	void Renderer::_put_circle(Bitmap* bitmap, int32_t x, int32_t y, int32_t radius, Color color) {
-		IVec2 center = { x, y };
+	void Renderer::_put_circle(Bitmap* bitmap, IVec2 center, int32_t radius, Color color) {
 		std::vector<IVec2> octant_points = circle_octant_points(radius);
 		for (IVec2 point : octant_points) {
 			_put_pixel(bitmap, center.x + point.x, center.y + point.y, color);
@@ -353,8 +355,27 @@ namespace engine {
 		}
 	}
 
-	void Renderer::_put_circle_fill(Bitmap* bitmap, int32_t x, int32_t y, int32_t radius, Color color) {
-		// TODO
+	void Renderer::_put_circle_fill(Bitmap* bitmap, IVec2 center, int32_t radius, Color color) {
+		/* Compute points for upper half circle */
+		std::vector<IVec2> octant_points = circle_octant_points(radius);
+		std::vector<IVec2> half_circle_points;
+		for (IVec2 point : octant_points) {
+			half_circle_points.push_back({ point.x, point.y });
+			half_circle_points.push_back({ point.y, point.x });
+			half_circle_points.push_back({ -point.x, point.y });
+			half_circle_points.push_back({ -point.y, point.x });
+		}
+
+		/* Remove overlapping x-coordinates to avoid overdraw */
+		auto x_less_than = [](IVec2 lhs, IVec2 rhs) { return lhs.x < rhs.x; };
+		auto xs_equal = [](IVec2 lhs, IVec2 rhs) { return lhs.x == rhs.x; };
+		std::sort(half_circle_points.begin(), half_circle_points.end(), x_less_than);
+		half_circle_points.erase(std::unique(half_circle_points.begin(), half_circle_points.end(), xs_equal), half_circle_points.end());
+
+		/* Draw vertical lines */
+		for (IVec2 point : half_circle_points) {
+			_put_line(bitmap, center + IVec2 { point.x, point.y }, center + IVec2 { point.x, -point.y }, color);
+		}
 	}
 
 } // namespace engine
