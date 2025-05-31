@@ -383,31 +383,85 @@ namespace engine {
 	void draw_renderer_test_screen(Renderer* renderer) {
 		const engine::Color color = { 0, 255, 0 };
 		const int32_t grid_size = 64;
+		const int32_t padding = 16;
 
-		auto transform = [grid_size](Vec2 ndc_vec, IVec2 grid_pos) -> IVec2 {
-			return grid_size * grid_pos +
+		auto transform = [grid_size, padding](Vec2 ndc_vec, IVec2 grid_pos) -> IVec2 {
+			IVec2 padding_offset = padding * IVec2 { grid_pos.x, grid_pos.y + 1 };
+			IVec2 grid_offset = grid_size * grid_pos;
+			return padding_offset + grid_offset +
 				IVec2::from_vec2(Vec2 {
 					.x = grid_size * (ndc_vec.x + 1.0f) / 2.0f,
-					.y = grid_size * (ndc_vec.y + 1.0f) / 2.0f,
+					.y = grid_size * (1.0f - ndc_vec.y) / 2.0f,
 				});
 		};
 
+		auto next_grid_pos = [](IVec2 pos) {
+			return IVec2 { pos.x + 1, pos.y };
+		};
+
+		IVec2 grid_pos = { 0, 0 };
+
 		/* Draw pixel */
-		renderer->draw_point(transform(Vec2 { 0, 0 }, IVec2 { 0, 0 }), color);
+		renderer->draw_point(transform(Vec2 { 0, 0 }, grid_pos), color);
 
 		/* Draw line */
+		// horizontal
 		{
-			// horizontal
+			grid_pos = next_grid_pos(grid_pos);
 			Vec2 start = { -1.0f, 0.0f };
 			Vec2 end = { 1.0f, 0.0f };
-			IVec2 grid_pos = { 1, 0 };
 			renderer->draw_line(transform(start, grid_pos), transform(end, grid_pos), color);
 		}
-		// vertical
-		// slope +1
+		// slope -0.5
+		{
+			grid_pos = next_grid_pos(grid_pos);
+			Vec2 start = { -1.0f, 0.5f };
+			Vec2 end = { 1.0f, -0.5f };
+			renderer->draw_line(transform(start, grid_pos), transform(end, grid_pos), color);
+		}
 		// slope -1
+		{
+			grid_pos = next_grid_pos(grid_pos);
+			Vec2 start = { -1.0f, 1.0f };
+			Vec2 end = { 1.0f, -1.0f };
+			renderer->draw_line(transform(start, grid_pos), transform(end, grid_pos), color);
+		}
+		// slope -2
+		{
+			grid_pos = next_grid_pos(grid_pos);
+			Vec2 start = { -0.5f, 1.0f };
+			Vec2 end = { 0.5f, -1.0f };
+			renderer->draw_line(transform(start, grid_pos), transform(end, grid_pos), color);
+		}
+		// slope inf
+		{
+			grid_pos = next_grid_pos(grid_pos);
+			Vec2 start = { 0.0f, -1.0f };
+			Vec2 end = { 0.0f, 1.0f };
+			renderer->draw_line(transform(start, grid_pos), transform(end, grid_pos), color);
+		}
+		// slope 2
+		{
+			grid_pos = next_grid_pos(grid_pos);
+			Vec2 start = { -0.5f, -1.0f };
+			Vec2 end = { 0.5f, 1.0f };
+			renderer->draw_line(transform(start, grid_pos), transform(end, grid_pos), color);
+		}
+		// slope +1
+		{
+			grid_pos = next_grid_pos(grid_pos);
+			Vec2 start = { -1.0f, -1.0f };
+			Vec2 end = { 1.0f, 1.0f };
+			renderer->draw_line(transform(start, grid_pos), transform(end, grid_pos), color);
+		}
+		// slope +0.5
+		{
+			grid_pos = next_grid_pos(grid_pos);
+			Vec2 start = { -1.0f, -0.5f };
+			Vec2 end = { 1.0f, 0.5f };
+			renderer->draw_line(transform(start, grid_pos), transform(end, grid_pos), color);
+		}
 
-		// draw line
 		// draw rect
 		// draw rect fill
 		// draw polygon
