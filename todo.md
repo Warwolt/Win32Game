@@ -1,10 +1,10 @@
 Overall goal:
-- Very minimal engine in Win32
+- Game programming in Win32
 - Simple complete games (pong, tetris etc.)
 - Simple Win32 level editor (create content for the games)
 
 # Todo
-- Draw API: circles
+- Draw API: Add test screen drawing various shapes
 - Bug: ignore keyboard key/mouse buttons if window not focused
 - Borderless full screen
 - Sprite support
@@ -21,6 +21,7 @@ Overall goal:
 - [!] Write Zelda Dungeon game
 
 # Doing
+- Draw API: circles
 
 # Done
 - Draw API: alpha blending
