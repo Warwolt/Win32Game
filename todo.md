@@ -21,9 +21,9 @@ Overall goal:
 - [!] Write Zelda Dungeon game
 
 # Doing
-- Draw API: alpha blending
 
 # Done
+- Draw API: alpha blending
 - Draw API: rectangles, polygons
 - Draw API: lines
 - Mouse input
