@@ -63,6 +63,13 @@ static void pump_window_messages() {
 	}
 }
 
+static void update_input() {
+	engine::update_input_devices(&g_context.input, g_context.mouse_events);
+	g_context.input.window_width = g_context.window.bitmap.width;
+	g_context.input.window_height = g_context.window.bitmap.height;
+	g_context.mouse_events = {};
+}
+
 static LRESULT CALLBACK on_window_event(
 	HWND window,
 	UINT message,
@@ -110,6 +117,8 @@ static LRESULT CALLBACK on_window_event(
 		case WM_PAINT: {
 			PAINTSTRUCT paint;
 			HDC device_context = BeginPaint(window, &paint);
+			update_input();
+			game::update(&g_context.game, g_context.input);
 			game::draw(&g_context.renderer, g_context.game);
 			g_context.renderer.render(&g_context.window, device_context);
 			EndPaint(window, &paint);
@@ -156,10 +165,7 @@ int WINAPI WinMain(
 	while (!g_context.should_quit) {
 		/* Input */
 		pump_window_messages();
-		engine::update_input_devices(&g_context.input, g_context.mouse_events);
-		g_context.input.window_width = g_context.window.bitmap.width;
-		g_context.input.window_height = g_context.window.bitmap.height;
-		g_context.mouse_events = {};
+		update_input();
 
 		/* Update */
 		game::update(&g_context.game, g_context.input);
