@@ -13,6 +13,7 @@ set(SRC
     src/engine/debug/debug.cpp
     src/engine/debug/logging.cpp
     src/engine/debug/test/rendering_tests.cpp
+    src/engine/graphics/bitmap.cpp
     src/engine/graphics/renderer.cpp
     src/engine/graphics/window.cpp
     src/engine/input/button.cpp

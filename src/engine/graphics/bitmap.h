@@ -13,8 +13,8 @@ namespace engine {
 
 	struct Bitmap {
 		BGRPixel* data;
-		int width;
-		int height;
+		int32_t width;
+		int32_t height;
 
 		inline void put(int32_t x, int32_t y, BGRPixel pixel) {
 			if (0 <= x && x < this->width && 0 <= y && y < this->height) {
@@ -29,5 +29,8 @@ namespace engine {
 			return {};
 		}
 	};
+
+	Bitmap initialize_bitmap(int width, int height);
+	void reallocate_bitmap(Bitmap* bitmap, int width, int height);
 
 } // namespace engine

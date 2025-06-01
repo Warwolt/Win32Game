@@ -6,6 +6,10 @@ namespace engine {
 		m_app_commands.push_back(QuitCommand {});
 	}
 
+	void CommandAPI::toggle_fullscreen() {
+		m_app_commands.push_back(ToggleFullscreenCommand {});
+	}
+
 	void CommandAPI::play_sound(AudioID id) {
 		m_audio_commands.push_back(PlaySoundCommand { id });
 	}

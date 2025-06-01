@@ -6,7 +6,6 @@
 #include <engine/graphics/renderer.h>
 #include <engine/input/input.h>
 
-
 #include <string>
 
 namespace game {
@@ -45,12 +44,17 @@ namespace game {
 			commands->quit();
 		}
 
+		if (input.keyboard.key_was_pressed_now(VK_F11)) {
+			commands->toggle_fullscreen();
+		}
+
 		if (input.keyboard.key_was_pressed_now('1')) {
 			commands->play_sound(game->assets.audio.cowbell);
 		}
 	}
 
-	void draw(engine::Renderer* /*renderer*/, const GameState& /*game*/) {
+	void draw(engine::Renderer* renderer, const GameState& /*game*/) {
+		renderer->clear_screen();
 	}
 
 } // namespace game

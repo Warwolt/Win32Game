@@ -8,20 +8,34 @@
 
 namespace engine {
 
-	struct Window {
-		HWND handle;
-		Bitmap bitmap;
-		IVec2 size;
-		bool is_focused = true;
-	};
-
 	enum class WindowError {
 		FailedToRegisterClass,
 		FailedToCreateWindow,
 	};
-	const char* window_error_to_str(WindowError error);
 
-	std::expected<Window, WindowError> initialize_window(HINSTANCE instance, WNDPROC wnd_proc, const char* window_title);
-	void on_window_resized(Window* window);
+	class Window {
+	public:
+		static std::expected<Window, WindowError> initialize(HINSTANCE instance, WNDPROC wnd_proc, const char* window_title);
+
+		IVec2 size() const;
+		bool is_focused() const;
+
+		IVec2 on_resized();
+		void on_focus_changed(bool is_focused);
+
+		void toggle_fullscreen();
+		void render(const Bitmap& bitmap);
+		void render_wm_paint(const Bitmap& bitmap);
+
+	private:
+		void _render(const Bitmap& bitmap, HDC device_context);
+
+		HWND m_handle;
+		WINDOWPLACEMENT m_placement = { sizeof(WINDOWPLACEMENT) };
+		IVec2 m_size;
+		bool m_is_focused = true;
+	};
+
+	const char* window_error_to_str(WindowError error);
 
 } // namespace engine

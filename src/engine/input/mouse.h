@@ -7,7 +7,7 @@
 
 namespace engine {
 
-	struct Window;
+	class Window;
 
 	struct MouseEvents {
 		int16_t mouse_wheel_delta;

@@ -5,7 +5,7 @@
 namespace engine {
 
     struct InputDevices;
-	struct Window;
+	class Window;
 	class Renderer;
 
 	class RenderingTestScreen {
