@@ -6,7 +6,6 @@
 #include <engine/graphics/renderer.h>
 #include <engine/input/input.h>
 
-
 #include <string>
 
 namespace game {
@@ -43,6 +42,10 @@ namespace game {
 	void update(GameState* game, engine::CommandAPI* commands, const engine::InputDevices& input) {
 		if (input.keyboard.key_was_pressed_now(VK_ESCAPE)) {
 			commands->quit();
+		}
+
+		if (input.keyboard.key_was_pressed_now(VK_F11)) {
+			commands->toggle_fullscreen();
 		}
 
 		if (input.keyboard.key_was_pressed_now('1')) {

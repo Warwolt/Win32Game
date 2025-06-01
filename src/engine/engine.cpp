@@ -26,6 +26,9 @@ namespace engine {
 			if (auto* quit = std::get_if<QuitCommand>(&command)) {
 				engine->should_quit = true;
 			}
+			if (auto* toggle_fullscreen = std::get_if<ToggleFullscreenCommand>(&command)) {
+				engine->window.toggle_fullscreen();
+			}
 		}
 		for (const AudioCommand& command : engine->commands.audio_commands()) {
 			if (auto* play_sound = std::get_if<PlaySoundCommand>(&command)) {

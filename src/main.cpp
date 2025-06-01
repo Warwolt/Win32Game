@@ -136,10 +136,6 @@ int WINAPI WinMain(
 		game::update(&g_context.game, &g_context.engine.commands, g_context.engine.input);
 		engine::update(&g_context.engine, g_context.engine.input);
 
-		if (g_context.engine.input.keyboard.key_was_pressed_now(VK_F11)) {
-			g_context.engine.window.toggle_fullscreen();
-		}
-
 		/* Render */
 		g_context.engine.renderer.clear_screen();
 		game::draw(&g_context.engine.renderer, g_context.game);

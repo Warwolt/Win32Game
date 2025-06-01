@@ -9,19 +9,21 @@ namespace engine {
 
 	// app
 	struct QuitCommand {};
+	struct ToggleFullscreenCommand {};
 
 	// audio
 	struct PlaySoundCommand {
 		AudioID id;
 	};
 
-	using AppCommand = std::variant<QuitCommand>;
+	using AppCommand = std::variant<QuitCommand, ToggleFullscreenCommand>;
 	using AudioCommand = std::variant<PlaySoundCommand>;
 
 	class CommandAPI {
 	public:
 		// app
 		void quit();
+		void toggle_fullscreen();
 
 		// audio
 		void play_sound(AudioID id);
