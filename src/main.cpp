@@ -53,7 +53,7 @@ static LRESULT CALLBACK on_window_event(
 	switch (message) {
 		case WM_SIZE: {
 			if (window == g_context.engine.window.handle) {
-				engine::on_window_resized(&g_context.engine.window);
+				g_context.engine.window.on_resized();
 			}
 		} break;
 

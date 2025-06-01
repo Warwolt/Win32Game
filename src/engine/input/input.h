@@ -7,7 +7,7 @@
 
 namespace engine {
 
-	struct Window;
+	class Window;
 
 	struct InputEvents {
 		bool window_is_focused;

@@ -9,7 +9,7 @@ namespace engine {
 		EngineState engine = {};
 		initialize_logging(LogLevel::Debug);
 		initialize_gamepad_support();
-		if (std::expected<Window, EngineError> window_result = initialize_window(instance, wnd_proc, window_title)) {
+		if (std::expected<Window, EngineError> window_result = Window::initialize(instance, wnd_proc, window_title)) {
 			engine.window = window_result.value();
 		}
 		else {

@@ -11,7 +11,7 @@ namespace engine {
 	}
 
 	// Tries to initialize window, returns nullptr if fails
-	std::expected<Window, WindowError> initialize_window(HINSTANCE instance, WNDPROC wnd_proc, const char* window_title) {
+	std::expected<Window, WindowError> Window::initialize(HINSTANCE instance, WNDPROC wnd_proc, const char* window_title) {
 		Window window;
 
 		/* Register window class */
@@ -48,26 +48,26 @@ namespace engine {
 			return std::unexpected(WindowError::FailedToCreateWindow);
 		}
 
-		on_window_resized(&window);
+		window.on_resized();
 		return window;
 	}
 
-	void on_window_resized(Window* window) {
+	void Window::on_resized() {
 		/* Update size */
 		RECT client_rect;
-		GetClientRect(window->handle, &client_rect);
+		GetClientRect(this->handle, &client_rect);
 		int window_width = client_rect.right - client_rect.left;
 		int window_height = client_rect.bottom - client_rect.top;
-		window->size = {window_width, window_height};
+		this->size = { window_width, window_height };
 
 		/* Re-allocate bitmap */
-		if (window->bitmap.data) {
-			VirtualFree(window->bitmap.data, 0, MEM_RELEASE);
+		if (this->bitmap.data) {
+			VirtualFree(this->bitmap.data, 0, MEM_RELEASE);
 		}
 		int bitmap_size = window_width * window_height * sizeof(BGRPixel);
-		window->bitmap.data = (BGRPixel*)VirtualAlloc(0, bitmap_size, MEM_COMMIT, PAGE_READWRITE);
-		window->bitmap.width = window_width;
-		window->bitmap.height = window_height;
+		this->bitmap.data = (BGRPixel*)VirtualAlloc(0, bitmap_size, MEM_COMMIT, PAGE_READWRITE);
+		this->bitmap.width = window_width;
+		this->bitmap.height = window_height;
 	}
 
 } // namespace engine
