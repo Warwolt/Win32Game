@@ -15,7 +15,7 @@ namespace engine {
 
 	class Window {
 	public:
-		static std::expected<Window, WindowError> initialize(HINSTANCE instance, WNDPROC wnd_proc, const char* window_title);
+		static std::expected<Window, WindowError> initialize(HINSTANCE instance, WNDPROC wnd_proc, IVec2 window_size, const char* window_title);
 
 		IVec2 size() const;
 		bool is_focused() const;

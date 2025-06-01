@@ -9,13 +9,15 @@ namespace engine {
 		EngineState engine = {};
 		initialize_logging(LogLevel::Debug);
 		initialize_gamepad_support();
-		if (std::expected<Window, EngineError> window_result = Window::initialize(instance, wnd_proc, window_title)) {
+		constexpr int scale = 4;
+		IVec2 screen_resolution = IVec2 { 1920 / scale, 1200 / scale };;
+		if (std::expected<Window, EngineError> window_result = Window::initialize(instance, wnd_proc, screen_resolution, window_title)) {
 			engine.window = window_result.value();
 		}
 		else {
 			return std::unexpected(window_result.error());
 		}
-		engine.screen_resolution = engine.window.size();
+		engine.screen_resolution = screen_resolution;
 		engine.bitmap = initialize_bitmap(engine.screen_resolution.x, engine.screen_resolution.y);
 		engine.audio = initialize_audio_player();
 		return engine;

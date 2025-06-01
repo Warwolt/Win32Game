@@ -11,7 +11,7 @@ namespace engine {
 	}
 
 	// Tries to initialize window, returns nullptr if fails
-	std::expected<Window, WindowError> Window::initialize(HINSTANCE instance, WNDPROC wnd_proc, const char* window_title) {
+	std::expected<Window, WindowError> Window::initialize(HINSTANCE instance, WNDPROC wnd_proc, IVec2 window_size, const char* window_title) {
 		Window window;
 
 		/* Register window class */
@@ -36,8 +36,8 @@ namespace engine {
 			WS_OVERLAPPEDWINDOW | WS_VISIBLE, // DWORD dwStyle
 			CW_USEDEFAULT,                    // int X
 			CW_USEDEFAULT,                    // int Y
-			CW_USEDEFAULT,                    // int nWidth
-			CW_USEDEFAULT,                    // int nHeight
+			window_size.x,                    // int nWidth
+			window_size.y,                    // int nHeight
 			0,                                // HWND hWndParent
 			0,                                // HMENU hMenu
 			instance,                         // HINSTANCE hInstance
