@@ -1,6 +1,7 @@
 #pragma once
 
 #include <engine/graphics/color.h>
+#include <engine/graphics/rect.h>
 #include <engine/graphics/window.h>
 #include <engine/math/ivec2.h>
 
@@ -10,13 +11,6 @@
 #include <windows.h>
 
 namespace engine {
-
-	struct Rect {
-		int32_t x;
-		int32_t y;
-		int32_t width;
-		int32_t height;
-	};
 
 	class Renderer {
 	public:

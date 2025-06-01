@@ -4,6 +4,8 @@
 #undef min
 #undef max
 
+#include <engine/graphics/rect.h>
+
 #include <algorithm>
 
 namespace engine {
@@ -14,6 +16,17 @@ namespace engine {
 			case WindowError::FailedToCreateWindow: return "FailedToCreateWindow";
 		}
 		return "";
+	}
+
+	Rect get_monitor_rect(HWND handle) {
+		MONITORINFO monitor_info = { .cbSize = sizeof(monitor_info) };
+		GetMonitorInfo(MonitorFromWindow(handle, MONITOR_DEFAULTTOPRIMARY), &monitor_info);
+		return Rect {
+			.x = monitor_info.rcMonitor.left,
+			.y = monitor_info.rcMonitor.top,
+			.width = monitor_info.rcMonitor.right - monitor_info.rcMonitor.left,
+			.height = monitor_info.rcMonitor.bottom - monitor_info.rcMonitor.top,
+		};
 	}
 
 	// Tries to initialize window, returns nullptr if fails
@@ -44,6 +57,8 @@ namespace engine {
 		int adjusted_window_width = adjusted_window_size.right - adjusted_window_size.left;
 		int adjusted_window_height = adjusted_window_size.bottom - adjusted_window_size.top;
 
+		// get monitor size
+
 		/* Create window */
 		// TODO: set position to center of screen
 		// TODO: disable window resizing
@@ -52,8 +67,8 @@ namespace engine {
 			window_class.lpszClassName,       // LPCWSTR lpClassName
 			window_title,                     // LPCWSTR lpWindowName
 			WS_OVERLAPPEDWINDOW | WS_VISIBLE, // DWORD dwStyle
-			CW_USEDEFAULT,                    // int X
-			CW_USEDEFAULT,                    // int Y
+			0,                                // int X
+			0,                                // int Y
 			adjusted_window_width,            // int nWidth
 			adjusted_window_height,           // int nHeight
 			0,                                // HWND hWndParent
@@ -95,15 +110,10 @@ namespace engine {
 	void Window::toggle_fullscreen() {
 		DWORD style = GetWindowLong(m_handle, GWL_STYLE);
 		if (style & WS_OVERLAPPEDWINDOW) {
-			MONITORINFO monitor_info = { sizeof(monitor_info) };
-			bool got_placement = GetWindowPlacement(m_handle, &m_placement);
-			bool got_monitor_info = GetMonitorInfo(MonitorFromWindow(m_handle, MONITOR_DEFAULTTOPRIMARY), &monitor_info);
-			if (got_placement && got_monitor_info) {
-				SetWindowLong(m_handle, GWL_STYLE, style & ~WS_OVERLAPPEDWINDOW);
-				int monitor_width = monitor_info.rcMonitor.right - monitor_info.rcMonitor.left;
-				int monitor_height = monitor_info.rcMonitor.bottom - monitor_info.rcMonitor.top;
-				SetWindowPos(m_handle, HWND_TOP, monitor_info.rcMonitor.left, monitor_info.rcMonitor.top, monitor_width, monitor_height, SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
-			}
+			GetWindowPlacement(m_handle, &m_placement);
+			SetWindowLong(m_handle, GWL_STYLE, style & ~WS_OVERLAPPEDWINDOW);
+			Rect monitor = get_monitor_rect(m_handle);
+			SetWindowPos(m_handle, HWND_TOP, monitor.x, monitor.y, monitor.width, monitor.height, SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
 		}
 		else {
 			SetWindowLong(m_handle, GWL_STYLE, style | WS_OVERLAPPEDWINDOW);
