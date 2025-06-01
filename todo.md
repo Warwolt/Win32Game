@@ -7,8 +7,7 @@ Maybe ideas:
 - Text mode engine debugging UI (for selecting various test screens and tools)
 
 # Todo
-- Draw API: Per vertex colors, interpolate color between vertices
-- Sprite support
+- Draw API: Textures
 - [!] Write Blackjack game
 - Font support
 - Text Mode UI prototype
@@ -24,6 +23,7 @@ Maybe ideas:
 - [!] Write Zelda Dungeon game
 
 # Doing
+- Draw API: Per vertex colors, interpolate color between vertices
 
 # Done
 - Window: Render at lower resolution and upscale it to fit screen
