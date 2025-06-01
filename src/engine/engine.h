@@ -7,6 +7,9 @@
 #include <engine/graphics/window.h>
 #include <engine/input/input.h>
 
+#include <expected>
+#include <variant>
+
 namespace engine {
 
 	struct InputDevices;
@@ -26,6 +29,9 @@ namespace engine {
 		DebugState debug;
 	};
 
+	using EngineError = std::variant<WindowError>;
+
+	std::expected<EngineState, EngineError> initialize(HINSTANCE instance, WNDPROC wnd_proc, const char* window_title);
 	void update(EngineState* engine, const InputDevices& input);
 	void draw(Renderer* renderer, const EngineState& engine);
 

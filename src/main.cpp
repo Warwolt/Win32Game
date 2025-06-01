@@ -16,14 +16,16 @@ struct ProgramContext {
 
 static ProgramContext g_context;
 
-static engine::Window initialize_window_or_abort(HINSTANCE instance, WNDPROC wnd_proc, const char* window_title) {
-	std::expected<engine::Window, engine::WindowError> window_result = engine::initialize_window(instance, wnd_proc, window_title);
-	if (!window_result.has_value()) {
-		std::string message = std::format("Couldn't create window: {}", engine::window_error_to_str(window_result.error()));
-		MessageBoxA(0, message.c_str(), "Error", MB_OK | MB_ICONERROR);
-		exit(1);
+static engine::EngineState initialize_engine_or_abort(HINSTANCE instance, WNDPROC wnd_proc, const char* window_title) {
+	std::expected<engine::EngineState, engine::EngineError> engine_result = engine::initialize(instance, wnd_proc, window_title);
+	if (!engine_result) {
+		if (auto* window_error = std::get_if<engine::WindowError>(&engine_result.error())) {
+			std::string message = std::format("Couldn't create window: {}", engine::window_error_to_str(*window_error));
+			MessageBoxA(0, message.c_str(), "Error", MB_OK | MB_ICONERROR);
+			exit(1);
+		}
 	}
-	return window_result.value();
+	return engine_result.value();
 }
 
 static void pump_window_messages() {
@@ -136,11 +138,7 @@ int WINAPI WinMain(
 	LPSTR /*command_line*/,
 	int /*command_show*/
 ) {
-	engine::initialize_logging(engine::LogLevel::Debug);
-	// TODO: add `EngineState initialize()` function
-	engine::initialize_gamepad_support();
-	g_context.engine.window = initialize_window_or_abort(instance, on_window_event, "Game");
-	g_context.engine.audio = engine::initialize_audio_player();
+	g_context.engine = initialize_engine_or_abort(instance, on_window_event, "Game");
 	g_context.game.assets.audio.cowbell = load_audio_from_file("assets/audio/808_cowbell.wav");
 
 	/* Main loop */
