@@ -53,7 +53,8 @@ namespace game {
 		}
 	}
 
-	void draw(engine::Renderer* /*renderer*/, const GameState& /*game*/) {
+	void draw(engine::Renderer* renderer, const GameState& /*game*/) {
+		renderer->clear_screen();
 	}
 
 } // namespace game
