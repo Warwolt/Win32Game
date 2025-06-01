@@ -1,5 +1,11 @@
 #include <engine/graphics/window.h>
 
+// undo windows.h macros
+#undef min
+#undef max
+
+#include <algorithm>
+
 namespace engine {
 
 	const char* window_error_to_str(WindowError error) {
@@ -30,6 +36,8 @@ namespace engine {
 		}
 
 		/* Create window */
+		// TODO: set position to center of screen
+		// TODO: disable window resizing
 		window.m_handle = CreateWindowExA(
 			0,                                // DWORD dwExStyle
 			window_class.lpszClassName,       // LPCWSTR lpClassName
@@ -109,6 +117,11 @@ namespace engine {
 	}
 
 	void Window::_render(const Bitmap& bitmap, HDC device_context) {
+		// Can't render empty bitmap
+		if (!bitmap.data) {
+			return;
+		}
+
 		RECT client_rect;
 		GetClientRect(m_handle, &client_rect);
 		int window_width = client_rect.right - client_rect.left;
@@ -125,13 +138,19 @@ namespace engine {
 			}
 		};
 
+		int scale = std::min(
+			std::max(window_width / bitmap.width, 1),
+			std::max(window_height / bitmap.height, 1)
+		);
+		IVec2 upscaled_bitmap_size = scale * IVec2 { bitmap.width, bitmap.height };
+
 		StretchDIBits(
 			device_context,
 			// destination rect (window)
-			(window_width - bitmap.width) / 2,
-			(window_height - bitmap.height) / 2,
-			bitmap.width,
-			bitmap.height,
+			(window_width - upscaled_bitmap_size.x) / 2,
+			(window_height - upscaled_bitmap_size.y) / 2,
+			upscaled_bitmap_size.x,
+			upscaled_bitmap_size.y,
 			// source rect (bitmap)
 			0,
 			0,
