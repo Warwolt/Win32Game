@@ -196,9 +196,10 @@ int WINAPI WinMain(
 		}
 
 		/* Render */
-		HDC device_context = GetDC(g_context.window.handle);
+		g_context.renderer.clear_screen();
 		game::draw(&g_context.renderer, g_context.game);
 		engine::draw(&g_context.renderer, g_context.engine);
+		HDC device_context = GetDC(g_context.window.handle);
 		g_context.renderer.render(&g_context.window, device_context);
 		ReleaseDC(g_context.window.handle, device_context);
 	}

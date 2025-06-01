@@ -3,6 +3,7 @@
 #include <engine/graphics/renderer.h>
 #include <engine/input/input.h>
 
+#include <algorithm>
 #include <array>
 #include <vector>
 
@@ -10,6 +11,7 @@ namespace engine {
 
 	void RendererTestScreen::update(const InputDevices& input) {
 		m_window_size = input.window_size;
+		m_alpha = (uint8_t)std::clamp((int16_t)m_alpha + 16 * input.mouse.mouse_wheel_delta, 0, 255);
 	}
 
 	void RendererTestScreen::draw(Renderer* renderer) const {
@@ -19,10 +21,13 @@ namespace engine {
 		};
 		std::array<DrawMode, 2> modes = { DrawMode::Outline, DrawMode::Filled };
 
-		const engine::Color color = { 0, 255, 0 };
+		const engine::Color color = { 0, 255, 0, m_alpha };
 		const int32_t grid_size = 64;
 		const int32_t grid_spacing = 16;
+		IVec2 grid_pos = { 0, 0 };
 
+		// helper that maps a normalized device coorinate vector into screen
+		// coordinates aligned on a grid for nice display.
 		auto transform = [grid_size, grid_spacing](Vec2 ndc_vec, IVec2 grid_pos) -> IVec2 {
 			IVec2 spacing_offset = grid_spacing * IVec2 { grid_pos.x, grid_pos.y + 1 };
 			IVec2 grid_offset = grid_size * grid_pos;
@@ -40,8 +45,6 @@ namespace engine {
 			}
 			return IVec2 { pos.x + 1, pos.y };
 		};
-
-		IVec2 grid_pos = { 0, 0 };
 
 		/* Draw pixel */
 		{

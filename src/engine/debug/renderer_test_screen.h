@@ -14,6 +14,7 @@ namespace engine {
 
 	private:
 		IVec2 m_window_size;
+		uint8_t m_alpha = 255;
 	};
 
 } // namespace engine
