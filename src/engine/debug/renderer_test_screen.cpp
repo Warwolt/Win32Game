@@ -174,6 +174,7 @@ namespace engine {
 			renderer->draw_polygon_fill(vertices, color);
 		}
 		// mountains (complex)
+		// TODO: rewrite as loop over enum { OUTLINE, FILLED }
 		{
 			grid_pos = next_grid_pos(grid_pos);
 			std::vector<IVec2> vertices {
@@ -196,6 +197,20 @@ namespace engine {
 				transform(Vec2 { 1.0f, -1.0f }, grid_pos),
 			};
 			renderer->draw_polygon_fill(vertices, color);
+		}
+
+#pragma region draw circle
+		// circle
+		{
+			grid_pos = next_grid_pos(grid_pos);
+			IVec2 center = transform(Vec2 { 0.0f, 0.0f }, grid_pos);
+			renderer->draw_circle(center, grid_size / 2, color);
+		}
+		// circle fill
+		{
+			grid_pos = next_grid_pos(grid_pos);
+			IVec2 center = transform(Vec2 { 0.0f, 0.0f }, grid_pos);
+			renderer->draw_circle_fill(center, grid_size / 2, color);
 		}
 	}
 
