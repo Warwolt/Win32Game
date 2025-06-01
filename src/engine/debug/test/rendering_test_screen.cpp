@@ -33,7 +33,7 @@ namespace engine {
 
 		// helper that maps a normalized device coorinate vector into screen
 		// coordinates aligned on a grid for nice display.
-		auto transform = [grid_size, grid_spacing](Vec2 ndc_vec, IVec2 grid_pos) -> IVec2 {
+		auto ndc_to_grid = [grid_size, grid_spacing](Vec2 ndc_vec, IVec2 grid_pos) -> IVec2 {
 			IVec2 spacing_offset = grid_spacing * IVec2 { grid_pos.x, grid_pos.y + 1 };
 			IVec2 grid_offset = grid_size * grid_pos;
 			return spacing_offset + grid_offset +
@@ -51,75 +51,81 @@ namespace engine {
 			return IVec2 { pos.x + 1, pos.y };
 		};
 
+		auto mode_color = [this](RGBA color, ColorMode mode) {
+			return mode == ColorMode::Mono ? RGBA { 0, 255, 0, m_alpha } : color;
+		};
+
 		/* Draw pixel */
 		{
-			renderer->draw_point(transform(Vec2 { 0, 0 }, grid_pos), color);
+			renderer->draw_point(ndc_to_grid(Vec2 { 0, 0 }, grid_pos), color);
 		}
 
 		/* Draw line */
 #pragma region draw line
-		// horizontal
-		{
-			grid_pos = next_grid_pos(grid_pos);
-			Vertex start = { .pos = transform(Vec2 { -1.0f, 0.0f }, grid_pos), .color = { 255, 0, 0, m_alpha } };
-			Vertex end = { .pos = transform(Vec2 { 1.0f, 0.0f }, grid_pos), .color = { 0, 0, 255, m_alpha } };
-			renderer->draw_line(start, end);
+		for (ColorMode color_mode : color_modes) {
+			// horizontal
+			{
+				grid_pos = next_grid_pos(grid_pos);
+				Vertex start = {
+					.pos = ndc_to_grid(Vec2 { -1.0f, 0.0f }, grid_pos),
+					.color = mode_color({ 255, 0, 0, m_alpha }, color_mode),
+				};
+				Vertex end = {
+					.pos = ndc_to_grid(Vec2 { 1.0f, 0.0f }, grid_pos),
+					.color = mode_color({ 0, 0, 255, m_alpha }, color_mode),
+				};
+				renderer->draw_line(start, end);
+			}
 		}
-		// horizontal
-		{
-			grid_pos = next_grid_pos(grid_pos);
-			Vec2 start = { -1.0f, 0.0f };
-			Vec2 end = { 1.0f, 0.0f };
-			renderer->draw_line_OLD(transform(start, grid_pos), transform(end, grid_pos), color);
-		}
+
 		// slope -0.5
 		{
 			grid_pos = next_grid_pos(grid_pos);
 			Vec2 start = { -1.0f, 0.5f };
 			Vec2 end = { 1.0f, -0.5f };
-			renderer->draw_line_OLD(transform(start, grid_pos), transform(end, grid_pos), color);
+			renderer->draw_line_OLD(ndc_to_grid(start, grid_pos), ndc_to_grid(end, grid_pos), color);
 		}
 		// slope -1
 		{
 			grid_pos = next_grid_pos(grid_pos);
 			Vec2 start = { -1.0f, 1.0f };
 			Vec2 end = { 1.0f, -1.0f };
-			renderer->draw_line_OLD(transform(start, grid_pos), transform(end, grid_pos), color);
+			renderer->draw_line_OLD(ndc_to_grid(start, grid_pos), ndc_to_grid(end, grid_pos), color);
 		}
 		// slope -2
 		{
 			grid_pos = next_grid_pos(grid_pos);
 			Vec2 start = { -0.5f, 1.0f };
 			Vec2 end = { 0.5f, -1.0f };
-			renderer->draw_line_OLD(transform(start, grid_pos), transform(end, grid_pos), color);
+			renderer->draw_line_OLD(ndc_to_grid(start, grid_pos), ndc_to_grid(end, grid_pos), color);
 		}
 		// slope inf
 		{
 			grid_pos = next_grid_pos(grid_pos);
 			Vec2 start = { 0.0f, -1.0f };
 			Vec2 end = { 0.0f, 1.0f };
-			renderer->draw_line_OLD(transform(start, grid_pos), transform(end, grid_pos), color);
+			renderer->draw_line_OLD(ndc_to_grid(start, grid_pos), ndc_to_grid(end, grid_pos), color);
 		}
 		// slope 2
 		{
 			grid_pos = next_grid_pos(grid_pos);
 			Vec2 start = { -0.5f, -1.0f };
 			Vec2 end = { 0.5f, 1.0f };
-			renderer->draw_line_OLD(transform(start, grid_pos), transform(end, grid_pos), color);
+			renderer->draw_line_OLD(ndc_to_grid(start, grid_pos), ndc_to_grid(end, grid_pos), color);
 		}
 		// slope +1
 		{
 			grid_pos = next_grid_pos(grid_pos);
 			Vec2 start = { -1.0f, -1.0f };
 			Vec2 end = { 1.0f, 1.0f };
-			renderer->draw_line_OLD(transform(start, grid_pos), transform(end, grid_pos), color);
+			renderer->draw_line_OLD(ndc_to_grid(start, grid_pos), ndc_to_grid(end, grid_pos), color);
 		}
 		// slope +0.5
 		{
 			grid_pos = next_grid_pos(grid_pos);
 			Vec2 start = { -1.0f, -0.5f };
 			Vec2 end = { 1.0f, 0.5f };
-			renderer->draw_line_OLD(transform(start, grid_pos), transform(end, grid_pos), color);
+			renderer->draw_line_OLD(ndc_to_grid(start, grid_pos), ndc_to_grid(end, grid_pos), color);
 		}
 
 		/* Draw rect */
@@ -127,7 +133,7 @@ namespace engine {
 		// rect
 		for (FillMode mode : fill_modes) {
 			grid_pos = next_grid_pos(grid_pos);
-			IVec2 pos = transform(Vec2 { -1.0f, 1.0f }, grid_pos);
+			IVec2 pos = ndc_to_grid(Vec2 { -1.0f, 1.0f }, grid_pos);
 			Rect rect = {
 				.x = pos.x,
 				.y = pos.y,
@@ -144,9 +150,9 @@ namespace engine {
 		for (FillMode mode : fill_modes) {
 			grid_pos = next_grid_pos(grid_pos);
 			std::vector<IVec2> vertices {
-				transform(Vec2 { -1.0f, -1.0f }, grid_pos),
-				transform(Vec2 { 0.0f, 1.0f }, grid_pos),
-				transform(Vec2 { 1.0f, -1.0f }, grid_pos),
+				ndc_to_grid(Vec2 { -1.0f, -1.0f }, grid_pos),
+				ndc_to_grid(Vec2 { 0.0f, 1.0f }, grid_pos),
+				ndc_to_grid(Vec2 { 1.0f, -1.0f }, grid_pos),
 			};
 			if (mode == FillMode::Outline) renderer->draw_polygon(vertices, color);
 			if (mode == FillMode::Filled) renderer->draw_polygon_fill(vertices, color);
@@ -155,12 +161,12 @@ namespace engine {
 		for (FillMode mode : fill_modes) {
 			grid_pos = next_grid_pos(grid_pos);
 			std::vector<IVec2> vertices {
-				transform(Vec2 { -1.0f, 0.5f }, grid_pos),
-				transform(Vec2 { -0.5f, 1.0f }, grid_pos),
-				transform(Vec2 { 0.0f, 0.5f }, grid_pos),
-				transform(Vec2 { 0.5f, 1.0f }, grid_pos),
-				transform(Vec2 { 1.0f, 0.5f }, grid_pos),
-				transform(Vec2 { 0.0f, -1.0f }, grid_pos),
+				ndc_to_grid(Vec2 { -1.0f, 0.5f }, grid_pos),
+				ndc_to_grid(Vec2 { -0.5f, 1.0f }, grid_pos),
+				ndc_to_grid(Vec2 { 0.0f, 0.5f }, grid_pos),
+				ndc_to_grid(Vec2 { 0.5f, 1.0f }, grid_pos),
+				ndc_to_grid(Vec2 { 1.0f, 0.5f }, grid_pos),
+				ndc_to_grid(Vec2 { 0.0f, -1.0f }, grid_pos),
 			};
 			if (mode == FillMode::Outline) renderer->draw_polygon(vertices, color);
 			if (mode == FillMode::Filled) renderer->draw_polygon_fill(vertices, color);
@@ -169,11 +175,11 @@ namespace engine {
 		for (FillMode mode : fill_modes) {
 			grid_pos = next_grid_pos(grid_pos);
 			std::vector<IVec2> vertices {
-				transform(Vec2 { -1.0f, -1.0f }, grid_pos),
-				transform(Vec2 { -0.5f, 0.5f }, grid_pos),
-				transform(Vec2 { 0.0f, -1.0f }, grid_pos),
-				transform(Vec2 { 0.5f, 1.0f }, grid_pos),
-				transform(Vec2 { 1.0f, -1.0f }, grid_pos),
+				ndc_to_grid(Vec2 { -1.0f, -1.0f }, grid_pos),
+				ndc_to_grid(Vec2 { -0.5f, 0.5f }, grid_pos),
+				ndc_to_grid(Vec2 { 0.0f, -1.0f }, grid_pos),
+				ndc_to_grid(Vec2 { 0.5f, 1.0f }, grid_pos),
+				ndc_to_grid(Vec2 { 1.0f, -1.0f }, grid_pos),
 			};
 			if (mode == FillMode::Outline) renderer->draw_polygon(vertices, color);
 			if (mode == FillMode::Filled) renderer->draw_polygon_fill(vertices, color);
@@ -183,7 +189,7 @@ namespace engine {
 		// circle
 		for (FillMode mode : fill_modes) {
 			grid_pos = next_grid_pos(grid_pos);
-			IVec2 center = transform(Vec2 { 0.0f, 0.0f }, grid_pos);
+			IVec2 center = ndc_to_grid(Vec2 { 0.0f, 0.0f }, grid_pos);
 			if (mode == FillMode::Outline) renderer->draw_circle(center, grid_size / 2, color);
 			if (mode == FillMode::Filled) renderer->draw_circle_fill(center, grid_size / 2, color);
 		}

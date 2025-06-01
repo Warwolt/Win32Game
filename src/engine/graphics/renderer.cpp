@@ -171,6 +171,7 @@ namespace engine {
 			float x_step = (float)dx / (float)delta;
 			float y_step = (float)dy / (float)delta;
 			for (int32_t i = 0; i <= delta; i++) {
+				// FIXME: `t` should be computed with the _longer_ side. We can't always use x
 				IVec2 pos = IVec2 { .x = (int32_t)(start.pos.x + i * x_step), .y = (int32_t)(start.pos.y + i * y_step) };
 				float t = (float)(pos.x - start.pos.x) / (float)(end.pos.x - start.pos.x);
 				_put_point(bitmap, pos, RGBA::lerp(start.color, end.color, t));
