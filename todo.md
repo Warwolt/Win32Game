@@ -24,9 +24,9 @@ Maybe ideas:
 - [!] Write Zelda Dungeon game
 
 # Doing
-- Window: Render at lower resolution and upscale it to fit screen
 
 # Done
+- Window: Render at lower resolution and upscale it to fit screen
 - Window: Borderless full screen
 - Bug: ignore keyboard key/mouse buttons if window not focused
 - Add engine and game init functions
