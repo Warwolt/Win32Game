@@ -181,13 +181,6 @@ int WINAPI WinMain(
 		game::update(&g_context.game, &g_context.engine.commands, g_context.input);
 		engine::update(&g_context.engine, g_context.input);
 
-		for (const engine::Command& command : g_context.engine.commands.commands()) {
-			if (auto* quit_command = std::get_if<engine::QuitCommand>(&command)) {
-				g_context.engine.should_quit = true;
-			}
-		}
-		g_context.engine.commands.clear();
-
 		// TODO: move these into game.cpp or engine.cpp
 		{
 			// trigger sound with keyboard
