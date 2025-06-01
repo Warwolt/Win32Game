@@ -1,6 +1,6 @@
 #pragma once
 
-#include <engine/debug/test/rendering_tests.h>
+#include <engine/debug/test/rendering_test_screen.h>
 
 namespace engine {
 

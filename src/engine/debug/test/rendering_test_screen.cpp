@@ -1,4 +1,4 @@
-#include <engine/debug/test/rendering_tests.h>
+#include <engine/debug/test/rendering_test_screen.h>
 
 #include <engine/graphics/renderer.h>
 #include <engine/graphics/window.h>
