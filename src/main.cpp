@@ -134,6 +134,27 @@ int WINAPI WinMain(
 		game::update(&g_context.game, &g_context.engine.commands, g_context.engine.input);
 		engine::update(&g_context.engine, g_context.engine.input);
 
+		if (g_context.engine.input.keyboard.key_was_pressed_now(VK_F11)) {
+			// Raymond Chen hocus pocus
+			// https://devblogs.microsoft.com/oldnewthing/20100412-00/?p=14353
+			HWND hwnd = g_context.engine.window.handle;
+			WINDOWPLACEMENT& g_wpPrev = g_context.engine.window.placement;
+			DWORD dwStyle = GetWindowLong(hwnd, GWL_STYLE);
+			if (dwStyle & WS_OVERLAPPEDWINDOW) {
+				MONITORINFO mi = { sizeof(mi) };
+				if (GetWindowPlacement(hwnd, &g_wpPrev) &&
+					GetMonitorInfo(MonitorFromWindow(hwnd, MONITOR_DEFAULTTOPRIMARY), &mi)) {
+					SetWindowLong(hwnd, GWL_STYLE, dwStyle & ~WS_OVERLAPPEDWINDOW);
+					SetWindowPos(hwnd, HWND_TOP, mi.rcMonitor.left, mi.rcMonitor.top, mi.rcMonitor.right - mi.rcMonitor.left, mi.rcMonitor.bottom - mi.rcMonitor.top, SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
+				}
+			}
+			else {
+				SetWindowLong(hwnd, GWL_STYLE, dwStyle | WS_OVERLAPPEDWINDOW);
+				SetWindowPlacement(hwnd, &g_wpPrev);
+				SetWindowPos(hwnd, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
+			}
+		}
+
 		/* Render */
 		g_context.engine.renderer.clear_screen();
 		game::draw(&g_context.engine.renderer, g_context.game);

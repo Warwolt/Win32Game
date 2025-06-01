@@ -8,8 +8,10 @@
 
 namespace engine {
 
+	// FIXME: make this a class?
 	struct Window {
 		HWND handle;
+		WINDOWPLACEMENT placement = { sizeof(WINDOWPLACEMENT) };
 		Bitmap bitmap;
 		IVec2 size;
 		bool is_focused = true;
@@ -23,5 +25,6 @@ namespace engine {
 
 	std::expected<Window, WindowError> initialize_window(HINSTANCE instance, WNDPROC wnd_proc, const char* window_title);
 	void on_window_resized(Window* window);
+	// void toggle_window_fullscreen(Window* window);
 
 } // namespace engine
