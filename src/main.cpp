@@ -93,14 +93,17 @@ static LRESULT CALLBACK on_window_event(
 		} break;
 
 		case WM_PAINT: {
-			// input
+			/* Input */
 			update_input();
-			// update
+
+			/* Update */
 			game::update(&g_context.game, &g_context.engine.commands, g_context.engine.input);
 			engine::update(&g_context.engine, g_context.engine.input);
-			// render
+
+			/* Render*/
 			game::draw(&g_context.engine.renderer, g_context.game);
 			engine::draw(&g_context.engine.renderer, g_context.engine);
+
 			PAINTSTRUCT paint;
 			HDC device_context = BeginPaint(window, &paint);
 			g_context.engine.renderer.render(&g_context.engine.window, device_context);
@@ -117,8 +120,10 @@ int WINAPI WinMain(
 	LPSTR /*command_line*/,
 	int /*command_show*/
 ) {
+	/* Initialize */
 	g_context.engine = initialize_engine_or_abort(instance, on_window_event, "Game");
 	g_context.game = game::initialize(&g_context.engine);
+
 	/* Main loop */
 	while (!g_context.engine.should_quit) {
 		/* Input */
@@ -133,6 +138,7 @@ int WINAPI WinMain(
 		g_context.engine.renderer.clear_screen();
 		game::draw(&g_context.engine.renderer, g_context.game);
 		engine::draw(&g_context.engine.renderer, g_context.engine);
+
 		HDC device_context = GetDC(g_context.engine.window.handle);
 		g_context.engine.renderer.render(&g_context.engine.window, device_context);
 		ReleaseDC(g_context.engine.window.handle, device_context);
