@@ -171,16 +171,9 @@ namespace engine {
 			float x_step = (float)dx / (float)delta;
 			float y_step = (float)dy / (float)delta;
 			for (int32_t i = 0; i <= delta; i++) {
-				// interpolate color
-				IVec2 point_pos = IVec2 { .x = (int32_t)(start.pos.x + i * x_step), .y = (int32_t)(start.pos.y + i * y_step) };
-				float t = (float)(point_pos.x - start.pos.x) / (float)(end.pos.x - start.pos.x);
-				RGBA color = {
-					.r = (uint8_t)std::lerp(start.color.r, end.color.r, t),
-					.g = (uint8_t)std::lerp(start.color.g, end.color.g, t),
-					.b = (uint8_t)std::lerp(start.color.b, end.color.b, t),
-					.a = (uint8_t)std::lerp(start.color.a, end.color.a, t),
-				};
-				_put_point(bitmap, point_pos, color);
+				IVec2 pos = IVec2 { .x = (int32_t)(start.pos.x + i * x_step), .y = (int32_t)(start.pos.y + i * y_step) };
+				float t = (float)(pos.x - start.pos.x) / (float)(end.pos.x - start.pos.x);
+				_put_point(bitmap, pos, RGBA::lerp(start.color, end.color, t));
 			}
 		}
 	}
