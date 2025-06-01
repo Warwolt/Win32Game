@@ -32,7 +32,7 @@ namespace engine {
 
 		HWND m_handle;
 		WINDOWPLACEMENT m_placement = { sizeof(WINDOWPLACEMENT) };
-		IVec2 m_size;
+		IVec2 m_window_size;
 		bool m_is_focused = true;
 	};
 

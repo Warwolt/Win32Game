@@ -73,9 +73,9 @@ namespace engine {
 	IVec2 Window::on_resized() {
 		RECT client_rect;
 		GetClientRect(m_handle, &client_rect);
-		m_size.x = client_rect.right - client_rect.left;
-		m_size.y = client_rect.bottom - client_rect.top;
-		return m_size;
+		m_window_size.x = client_rect.right - client_rect.left;
+		m_window_size.y = client_rect.bottom - client_rect.top;
+		return m_window_size;
 	}
 
 	void Window::on_focus_changed(bool is_focused) {
@@ -83,7 +83,7 @@ namespace engine {
 	}
 
 	IVec2 Window::size() const {
-		return m_size;
+		return m_window_size;
 	}
 
 	bool Window::is_focused() const {
@@ -131,11 +131,6 @@ namespace engine {
 			return;
 		}
 
-		RECT client_rect;
-		GetClientRect(m_handle, &client_rect);
-		int window_width = client_rect.right - client_rect.left;
-		int window_height = client_rect.bottom - client_rect.top;
-
 		BITMAPINFO bitmap_info = BITMAPINFO {
 			.bmiHeader = BITMAPINFOHEADER {
 				.biSize = sizeof(BITMAPINFOHEADER),
@@ -148,23 +143,26 @@ namespace engine {
 		};
 
 		int scale = std::min(
-			std::max(window_width / bitmap.width, 1),
-			std::max(window_height / bitmap.height, 1)
+			std::max(m_window_size.x / bitmap.width, 1),
+			std::max(m_window_size.y / bitmap.height, 1)
 		);
 		IVec2 upscaled_bitmap_size = scale * IVec2 { bitmap.width, bitmap.height };
 
 		StretchDIBits(
 			device_context,
+
 			// destination rect (window)
-			(window_width - upscaled_bitmap_size.x) / 2,
-			(window_height - upscaled_bitmap_size.y) / 2,
+			(m_window_size.x - upscaled_bitmap_size.x) / 2,
+			(m_window_size.y - upscaled_bitmap_size.y) / 2,
 			upscaled_bitmap_size.x,
 			upscaled_bitmap_size.y,
+
 			// source rect (bitmap)
 			0,
 			0,
 			bitmap.width,
 			bitmap.height,
+
 			// bitmap data
 			bitmap.data,
 			&bitmap_info,
