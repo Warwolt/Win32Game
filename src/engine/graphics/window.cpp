@@ -22,7 +22,7 @@ namespace engine {
 			.lpfnWndProc = wnd_proc,
 			.hInstance = instance,
 			.hCursor = LoadCursor(NULL, IDC_ARROW),
-			.lpszClassName = "HandmadeHeroWindowClass",
+			.lpszClassName = "WindowClass",
 		};
 		if (!RegisterClassA(&window_class)) {
 			return std::unexpected(WindowError::FailedToRegisterClass);
@@ -58,6 +58,27 @@ namespace engine {
 		this->size.x = client_rect.right - client_rect.left;
 		this->size.y = client_rect.bottom - client_rect.top;
 		return this->size;
+	}
+
+	// Based on Raymond Chen's "How do I switch a window between normal and fullscreen?"
+	// https://devblogs.microsoft.com/oldnewthing/20100412-00/?p=14353
+	void Window::toggle_fullscreen() {
+		HWND hwnd = this->handle;
+		WINDOWPLACEMENT& g_wpPrev = this->placement;
+		DWORD dwStyle = GetWindowLong(hwnd, GWL_STYLE);
+		if (dwStyle & WS_OVERLAPPEDWINDOW) {
+			MONITORINFO mi = { sizeof(mi) };
+			if (GetWindowPlacement(hwnd, &g_wpPrev) &&
+				GetMonitorInfo(MonitorFromWindow(hwnd, MONITOR_DEFAULTTOPRIMARY), &mi)) {
+				SetWindowLong(hwnd, GWL_STYLE, dwStyle & ~WS_OVERLAPPEDWINDOW);
+				SetWindowPos(hwnd, HWND_TOP, mi.rcMonitor.left, mi.rcMonitor.top, mi.rcMonitor.right - mi.rcMonitor.left, mi.rcMonitor.bottom - mi.rcMonitor.top, SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
+			}
+		}
+		else {
+			SetWindowLong(hwnd, GWL_STYLE, dwStyle | WS_OVERLAPPEDWINDOW);
+			SetWindowPlacement(hwnd, &g_wpPrev);
+			SetWindowPos(hwnd, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
+		}
 	}
 
 	void Window::render(const Bitmap& bitmap, HDC device_context) {

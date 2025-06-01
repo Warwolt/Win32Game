@@ -17,8 +17,10 @@ namespace engine {
 	public:
 		static std::expected<Window, WindowError> initialize(HINSTANCE instance, WNDPROC wnd_proc, const char* window_title);
 		IVec2 on_resized();
+		void toggle_fullscreen();
 		void render(const Bitmap& bitmap, HDC device_context);
 
+		// FIXME: move these into private
 		HWND handle;
 		WINDOWPLACEMENT placement = { sizeof(WINDOWPLACEMENT) };
 		IVec2 size;
