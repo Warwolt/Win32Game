@@ -42,7 +42,7 @@ namespace engine {
 			.lpfnWndProc = wnd_proc,
 			.hInstance = instance,
 			.hCursor = LoadCursor(NULL, IDC_ARROW),
-			.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH),
+			.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH), // set black background
 			.lpszClassName = "WindowClass",
 		};
 		if (!RegisterClassA(&window_class)) {
@@ -50,7 +50,7 @@ namespace engine {
 		}
 
 		/* Compute window size */
-		// CreateWindowExA width and height will include the menu bar and
+		// NOTE: CreateWindowExA width and height will include the menu bar and
 		// border, so we need to compute what the window size should be from
 		// the given client size (what we call window_size).
 		RECT adjusted_window_size = { 0, 0, window_size.x, window_size.y };
@@ -58,35 +58,32 @@ namespace engine {
 		int adjusted_window_width = adjusted_window_size.right - adjusted_window_size.left;
 		int adjusted_window_height = adjusted_window_size.bottom - adjusted_window_size.top;
 
-		// position window
+		/* Get monitor center */
 		RECT desktop_rect;
 		GetWindowRect(GetDesktopWindow(), &desktop_rect);
 		int32_t monitor_center_x = desktop_rect.right / 2;
 		int32_t monitor_center_y = desktop_rect.bottom / 2;
 
 		/* Create window */
-		// TODO: set position to center of screen
-		// TODO: disable window resizing
 		window.m_handle = CreateWindowExA(
-			0,                                             // DWORD dwExStyle
-			window_class.lpszClassName,                    // LPCWSTR lpClassName
-			window_title,                                  // LPCWSTR lpWindowName
-			WS_OVERLAPPEDWINDOW | WS_VISIBLE,              // DWORD dwStyle
-			monitor_center_x - window.m_window_size.x / 2, // int X
-			monitor_center_y - window.m_window_size.y / 2, // int Y
-			adjusted_window_width,                         // int nWidth
-			adjusted_window_height,                        // int nHeight
-			0,                                             // HWND hWndParent
-			0,                                             // HMENU hMenu
-			instance,                                      // HINSTANCE hInstance
-			0                                              // LPVOID lpParam
+			0,                                                                   // DWORD dwExStyle
+			window_class.lpszClassName,                                          // LPCWSTR lpClassName
+			window_title,                                                        // LPCWSTR lpWindowName
+			WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX & ~WS_THICKFRAME | WS_VISIBLE, // DWORD dwStyle
+			monitor_center_x - window.m_window_size.x / 2,                       // int X
+			monitor_center_y - window.m_window_size.y / 2,                       // int Y
+			adjusted_window_width,                                               // int nWidth
+			adjusted_window_height,                                              // int nHeight
+			0,                                                                   // HWND hWndParent
+			0,                                                                   // HMENU hMenu
+			instance,                                                            // HINSTANCE hInstance
+			0                                                                    // LPVOID lpParam
 		);
 
 		if (!window.m_handle) {
 			return std::unexpected(WindowError::FailedToCreateWindow);
 		}
 
-		window.on_resized();
 		return window;
 	}
 
@@ -121,7 +118,7 @@ namespace engine {
 			SetWindowPos(m_handle, HWND_TOP, monitor.x, monitor.y, monitor.width, monitor.height, SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
 		}
 		else {
-			SetWindowLong(m_handle, GWL_STYLE, style | WS_OVERLAPPEDWINDOW);
+			SetWindowLong(m_handle, GWL_STYLE, style | WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX & ~WS_THICKFRAME);
 			SetWindowPlacement(m_handle, &m_placement);
 			SetWindowPos(m_handle, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
 		}
