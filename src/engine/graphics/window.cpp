@@ -22,6 +22,7 @@ namespace engine {
 			.lpfnWndProc = wnd_proc,
 			.hInstance = instance,
 			.hCursor = LoadCursor(NULL, IDC_ARROW),
+			.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH),
 			.lpszClassName = "WindowClass",
 		};
 		if (!RegisterClassA(&window_class)) {
@@ -127,8 +128,8 @@ namespace engine {
 		StretchDIBits(
 			device_context,
 			// destination rect (window)
-			0,
-			0,
+			(window_width - bitmap.width) / 2,
+			(window_height - bitmap.height) / 2,
 			bitmap.width,
 			bitmap.height,
 			// source rect (bitmap)
