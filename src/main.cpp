@@ -53,7 +53,8 @@ static LRESULT CALLBACK on_window_event(
 	switch (message) {
 		case WM_SIZE: {
 			if (window == g_context.engine.window.handle) {
-				g_context.engine.window.on_resized();
+				engine::IVec2 window_size = g_context.engine.window.on_resized();
+				reallocate_bitmap(&g_context.engine.bitmap, window_size.x, window_size.y);
 			}
 		} break;
 
@@ -106,7 +107,8 @@ static LRESULT CALLBACK on_window_event(
 
 			PAINTSTRUCT paint;
 			HDC device_context = BeginPaint(window, &paint);
-			g_context.engine.renderer.render(&g_context.engine.window, device_context);
+			g_context.engine.renderer.render(&g_context.engine.bitmap);
+			g_context.engine.window.render(g_context.engine.bitmap, device_context);
 			EndPaint(window, &paint);
 		} break;
 	}
@@ -161,7 +163,8 @@ int WINAPI WinMain(
 		engine::draw(&g_context.engine.renderer, g_context.engine);
 
 		HDC device_context = GetDC(g_context.engine.window.handle);
-		g_context.engine.renderer.render(&g_context.engine.window, device_context);
+		g_context.engine.renderer.render(&g_context.engine.bitmap);
+		g_context.engine.window.render(g_context.engine.bitmap, device_context);
 		ReleaseDC(g_context.engine.window.handle, device_context);
 	}
 

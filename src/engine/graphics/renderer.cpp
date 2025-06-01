@@ -87,82 +87,44 @@ namespace engine {
 		m_draw_commands.push_back(DrawCircle { center, radius, color, true });
 	}
 
-	void Renderer::render(engine::Window* window, HDC device_context) {
+	void Renderer::render(Bitmap* bitmap) {
 		/* Draw to bitmap */
 		for (DrawCommand& command : m_draw_commands) {
 			if (auto* clear_screen = std::get_if<ClearScreen>(&command)) {
-				_clear_screen(&window->bitmap);
+				_clear_screen(bitmap);
 			}
 			if (auto* draw_point = std::get_if<DrawPoint>(&command)) {
-				_put_point(&window->bitmap, draw_point->point, draw_point->color);
+				_put_point(bitmap, draw_point->point, draw_point->color);
 			}
 			if (auto* draw_line = std::get_if<DrawLine>(&command)) {
-				_put_line(&window->bitmap, draw_line->start, draw_line->end, draw_line->color);
+				_put_line(bitmap, draw_line->start, draw_line->end, draw_line->color);
 			}
 			if (auto* draw_rect = std::get_if<DrawRect>(&command)) {
 				if (draw_rect->filled) {
-					_put_rect_fill(&window->bitmap, draw_rect->rect, draw_rect->color);
+					_put_rect_fill(bitmap, draw_rect->rect, draw_rect->color);
 				}
 				else {
-					_put_rect(&window->bitmap, draw_rect->rect, draw_rect->color);
+					_put_rect(bitmap, draw_rect->rect, draw_rect->color);
 				}
 			}
 			if (auto* draw_polygon = std::get_if<DrawPolygon>(&command)) {
 				if (draw_polygon->filled) {
-					_put_polygon_fill(&window->bitmap, draw_polygon->vertices, draw_polygon->color);
+					_put_polygon_fill(bitmap, draw_polygon->vertices, draw_polygon->color);
 				}
 				else {
-					_put_polygon(&window->bitmap, draw_polygon->vertices, draw_polygon->color);
+					_put_polygon(bitmap, draw_polygon->vertices, draw_polygon->color);
 				}
 			}
 			if (auto* draw_circle = std::get_if<DrawCircle>(&command)) {
 				if (draw_circle->filled) {
-					_put_circle_fill(&window->bitmap, draw_circle->center, draw_circle->radius, draw_circle->color);
+					_put_circle_fill(bitmap, draw_circle->center, draw_circle->radius, draw_circle->color);
 				}
 				else {
-					_put_circle(&window->bitmap, draw_circle->center, draw_circle->radius, draw_circle->color);
+					_put_circle(bitmap, draw_circle->center, draw_circle->radius, draw_circle->color);
 				}
 			}
 		}
 		m_draw_commands.clear();
-
-		/* Blit bitmap to window */
-		{
-			RECT client_rect;
-			GetClientRect(window->handle, &client_rect);
-			int window_width = client_rect.right - client_rect.left;
-			int window_height = client_rect.bottom - client_rect.top;
-
-			BITMAPINFO bitmap_info = BITMAPINFO {
-				.bmiHeader = BITMAPINFOHEADER {
-					.biSize = sizeof(BITMAPINFOHEADER),
-					.biWidth = window_width,
-					.biHeight = -window_height,
-					.biPlanes = 1,
-					.biBitCount = 32,
-					.biCompression = BI_RGB,
-				}
-			};
-
-			StretchDIBits(
-				device_context,
-				// destination rect (window)
-				0,
-				0,
-				window_width,
-				window_height,
-				// source rect (bitmap)
-				0,
-				0,
-				window->bitmap.width,
-				window->bitmap.height,
-				// bitmap data
-				window->bitmap.data,
-				&bitmap_info,
-				DIB_RGB_COLORS,
-				SRCCOPY
-			);
-		}
 	}
 
 	void Renderer::_clear_screen(Bitmap* bitmap) {

@@ -25,6 +25,7 @@ namespace engine {
 		// graphics
 		Renderer renderer;
 		Window window;
+		Bitmap bitmap;
 		// debug
 		DebugState debug;
 	};

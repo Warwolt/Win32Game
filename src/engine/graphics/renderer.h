@@ -29,7 +29,7 @@ namespace engine {
 		void draw_polygon_fill(std::vector<IVec2> vertices, Color color);
 		void draw_circle(IVec2 center, int32_t radius, Color color);
 		void draw_circle_fill(IVec2 center, int32_t radius, Color color);
-		void render(engine::Window* window, HDC device_context);
+		void render(Bitmap* bitmap);
 
 	private:
 		struct ClearScreen {};

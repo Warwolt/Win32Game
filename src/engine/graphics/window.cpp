@@ -52,22 +52,49 @@ namespace engine {
 		return window;
 	}
 
-	void Window::on_resized() {
-		/* Update size */
+	IVec2 Window::on_resized() {
+		RECT client_rect;
+		GetClientRect(this->handle, &client_rect);
+		this->size.x = client_rect.right - client_rect.left;
+		this->size.y = client_rect.bottom - client_rect.top;
+		return this->size;
+	}
+
+	void Window::render(const Bitmap& bitmap, HDC device_context) {
 		RECT client_rect;
 		GetClientRect(this->handle, &client_rect);
 		int window_width = client_rect.right - client_rect.left;
 		int window_height = client_rect.bottom - client_rect.top;
-		this->size = { window_width, window_height };
 
-		/* Re-allocate bitmap */
-		if (this->bitmap.data) {
-			VirtualFree(this->bitmap.data, 0, MEM_RELEASE);
-		}
-		int bitmap_size = window_width * window_height * sizeof(BGRPixel);
-		this->bitmap.data = (BGRPixel*)VirtualAlloc(0, bitmap_size, MEM_COMMIT, PAGE_READWRITE);
-		this->bitmap.width = window_width;
-		this->bitmap.height = window_height;
+		BITMAPINFO bitmap_info = BITMAPINFO {
+			.bmiHeader = BITMAPINFOHEADER {
+				.biSize = sizeof(BITMAPINFOHEADER),
+				.biWidth = window_width,
+				.biHeight = -window_height,
+				.biPlanes = 1,
+				.biBitCount = 32,
+				.biCompression = BI_RGB,
+			}
+		};
+
+		StretchDIBits(
+			device_context,
+			// destination rect (window)
+			0,
+			0,
+			window_width,
+			window_height,
+			// source rect (bitmap)
+			0,
+			0,
+			bitmap.width,
+			bitmap.height,
+			// bitmap data
+			bitmap.data,
+			&bitmap_info,
+			DIB_RGB_COLORS,
+			SRCCOPY
+		);
 	}
 
 } // namespace engine

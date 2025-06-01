@@ -16,11 +16,11 @@ namespace engine {
 	class Window {
 	public:
 		static std::expected<Window, WindowError> initialize(HINSTANCE instance, WNDPROC wnd_proc, const char* window_title);
-		void on_resized();
+		IVec2 on_resized();
+		void render(const Bitmap& bitmap, HDC device_context);
 
 		HWND handle;
 		WINDOWPLACEMENT placement = { sizeof(WINDOWPLACEMENT) };
-		Bitmap bitmap;
 		IVec2 size;
 		bool is_focused = true;
 
