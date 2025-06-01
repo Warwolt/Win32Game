@@ -20,11 +20,11 @@ namespace engine {
 		engine->commands.clear();
 
 		/* Update engine */
-		engine->debug.test_screens.rendering.update(input);
+		update_debug(&engine->debug, input);
 	}
 
 	void draw(Renderer* renderer, const EngineState& engine) {
-		engine.debug.test_screens.rendering.draw(renderer);
+		draw_debug(renderer, engine.debug);
 	}
 
 } // namespace engine

@@ -25,10 +25,10 @@ Maybe ideas:
 - [!] Write Zelda Dungeon game
 
 # Doing
-- Move quit with escape into game.cpp
-- Move stuff from ProgramContext down into EngineState
 
 # Done
+- Move quit with escape into game.cpp
+- Move stuff from ProgramContext down into EngineState
 - Draw API: Add test screen drawing various shapes
 - Draw API: circles
 - Draw API: alpha blending

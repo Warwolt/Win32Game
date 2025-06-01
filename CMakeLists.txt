@@ -10,6 +10,7 @@ set(SRC
     src/engine/commands.cpp
     src/engine/engine.cpp
     src/engine/audio/audio_player.cpp
+    src/engine/debug/debug.cpp
     src/engine/debug/logging.cpp
     src/engine/debug/test/rendering_tests.cpp
     src/engine/graphics/renderer.cpp

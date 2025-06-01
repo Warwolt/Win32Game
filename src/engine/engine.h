@@ -17,6 +17,6 @@ namespace engine {
 	};
 
 	void update(EngineState* engine, const InputDevices& input);
-	void draw(Renderer* renderer, const EngineState& game);
+	void draw(Renderer* renderer, const EngineState& engine);
 
 } // namespace engine
