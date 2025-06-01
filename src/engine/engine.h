@@ -1,6 +1,7 @@
 #pragma once
 
 #include <engine/debug/renderer_test_screen.h>
+#include <engine/commands.h>
 
 namespace engine {
 
@@ -12,6 +13,8 @@ namespace engine {
 	};
 
 	struct EngineState {
+		bool should_quit = false;
+		CommandAPI commands;
 		DebugState debug;
 	};
 

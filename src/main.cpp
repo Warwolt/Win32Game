@@ -28,7 +28,6 @@ namespace engine {
 } // namespace engine
 
 struct ProgramContext {
-	bool should_quit;
 	// input output
 	engine::MouseEvents mouse_events;
 	engine::InputDevices input;
@@ -62,7 +61,7 @@ static void pump_window_messages() {
 		TranslateMessage(&message);
 		DispatchMessageA(&message);
 		if (message.message == WM_QUIT) {
-			g_context.should_quit = true;
+			g_context.engine.should_quit = true;
 		}
 	}
 }
@@ -124,7 +123,7 @@ static LRESULT CALLBACK on_window_event(
 			// input
 			update_input();
 			// update
-			game::update(&g_context.game, g_context.input);
+			game::update(&g_context.game, &g_context.engine.commands, g_context.input);
 			engine::update(&g_context.engine, g_context.input);
 			// render
 			game::draw(&g_context.renderer, g_context.game);
@@ -173,22 +172,24 @@ int WINAPI WinMain(
 	g_context.assets.audio.cowbell = load_audio_from_file("assets/audio/808_cowbell.wav");
 
 	/* Main loop */
-	while (!g_context.should_quit) {
+	while (!g_context.engine.should_quit) {
 		/* Input */
 		pump_window_messages();
 		update_input();
 
 		/* Update */
-		game::update(&g_context.game, g_context.input);
+		game::update(&g_context.game, &g_context.engine.commands, g_context.input);
 		engine::update(&g_context.engine, g_context.input);
+
+		for (const engine::Command& command : g_context.engine.commands.commands()) {
+			if (auto* quit_command = std::get_if<engine::QuitCommand>(&command)) {
+				g_context.engine.should_quit = true;
+			}
+		}
+		g_context.engine.commands.clear();
 
 		// TODO: move these into game.cpp or engine.cpp
 		{
-			// quick quit while prototyping
-			if (g_context.input.keyboard.key_was_pressed_now(VK_ESCAPE)) {
-				g_context.should_quit = true;
-			}
-
 			// trigger sound with keyboard
 			if (g_context.input.keyboard.key_was_pressed_now('1')) {
 				g_context.audio.play(g_context.assets.audio.cowbell);

@@ -3,8 +3,10 @@ Overall goal:
 - Simple complete games (pong, tetris etc.)
 - Simple Win32 level editor (create content for the games)
 
+Maybe ideas:
+- Text mode engine debugging UI (for selecting various test screens and tools)
+
 # Todo
-- Move quit with escape into game.cpp
 - Move stuff from ProgramContext down into EngineState
 - Bug: ignore keyboard key/mouse buttons if window not focused
 - Window: Borderless full screen
@@ -23,6 +25,7 @@ Overall goal:
 - [!] Write Zelda Dungeon game
 
 # Doing
+- Move quit with escape into game.cpp
 
 # Done
 - Draw API: Add test screen drawing various shapes

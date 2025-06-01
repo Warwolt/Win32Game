@@ -5,13 +5,14 @@
 namespace engine {
     struct InputDevices;
     class Renderer;
+    class CommandAPI;
 } // namespace engine
 
 namespace game {
 
 	struct GameState { };
 
-	void update(GameState* game, const engine::InputDevices& input);
+	void update(GameState* game, engine::CommandAPI* commands, const engine::InputDevices& input);
     void draw(engine::Renderer* renderer, const GameState& game);
 
 } // namespace game
