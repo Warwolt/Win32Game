@@ -18,17 +18,6 @@ namespace engine {
 		return "";
 	}
 
-	Rect get_monitor_rect(HWND handle) {
-		MONITORINFO monitor_info = { .cbSize = sizeof(monitor_info) };
-		GetMonitorInfo(MonitorFromWindow(handle, MONITOR_DEFAULTTOPRIMARY), &monitor_info);
-		return Rect {
-			.x = monitor_info.rcMonitor.left,
-			.y = monitor_info.rcMonitor.top,
-			.width = monitor_info.rcMonitor.right - monitor_info.rcMonitor.left,
-			.height = monitor_info.rcMonitor.bottom - monitor_info.rcMonitor.top,
-		};
-	}
-
 	// Tries to initialize window, returns nullptr if fails
 	std::expected<Window, WindowError> Window::initialize(HINSTANCE instance, WNDPROC wnd_proc, IVec2 window_size, const char* window_title) {
 		Window window = {};
@@ -114,8 +103,13 @@ namespace engine {
 		if (style & WS_OVERLAPPEDWINDOW) {
 			GetWindowPlacement(m_handle, &m_placement);
 			SetWindowLong(m_handle, GWL_STYLE, style & ~WS_OVERLAPPEDWINDOW);
-			Rect monitor = get_monitor_rect(m_handle);
-			SetWindowPos(m_handle, HWND_TOP, monitor.x, monitor.y, monitor.width, monitor.height, SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
+			MONITORINFO monitor_info = { .cbSize = sizeof(monitor_info) };
+			GetMonitorInfo(MonitorFromWindow(m_handle, MONITOR_DEFAULTTOPRIMARY), &monitor_info);
+			int32_t monitor_x = monitor_info.rcMonitor.left;
+			int32_t monitor_y = monitor_info.rcMonitor.top;
+			int32_t monitor_width = monitor_info.rcMonitor.right - monitor_info.rcMonitor.left;
+			int32_t monitor_height = monitor_info.rcMonitor.bottom - monitor_info.rcMonitor.top;
+			SetWindowPos(m_handle, HWND_TOP, monitor_x, monitor_y, monitor_width, monitor_height, SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
 		}
 		else {
 			SetWindowLong(m_handle, GWL_STYLE, style | WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX & ~WS_THICKFRAME);
