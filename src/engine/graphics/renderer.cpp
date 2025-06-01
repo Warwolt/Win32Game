@@ -43,27 +43,27 @@ namespace engine {
 		return octant_points;
 	}
 
-	void Renderer::clear_screen(Color color) {
+	void Renderer::clear_screen(RGBA color) {
 		m_draw_commands.push_back(ClearScreen { color });
 	}
 
-	void Renderer::draw_point(IVec2 point, Color color) {
+	void Renderer::draw_point(IVec2 point, RGBA color) {
 		m_draw_commands.push_back(DrawPoint { point, color });
 	}
 
-	void Renderer::draw_line(IVec2 start, IVec2 end, Color color) {
+	void Renderer::draw_line(IVec2 start, IVec2 end, RGBA color) {
 		m_draw_commands.push_back(DrawLine { start, end, color });
 	}
 
-	void Renderer::draw_rect(Rect rect, Color color) {
+	void Renderer::draw_rect(Rect rect, RGBA color) {
 		m_draw_commands.push_back(DrawRect { rect, color, false });
 	}
 
-	void Renderer::draw_rect_fill(Rect rect, Color color) {
+	void Renderer::draw_rect_fill(Rect rect, RGBA color) {
 		m_draw_commands.push_back(DrawRect { rect, color, true });
 	}
 
-	void Renderer::draw_polygon(std::vector<IVec2> vertices, Color color) {
+	void Renderer::draw_polygon(std::vector<IVec2> vertices, RGBA color) {
 		if (vertices.size() < 3) {
 			LOG_WARNING("draw_polygon called with less than 3 vertices, ignoring");
 			return;
@@ -71,7 +71,7 @@ namespace engine {
 		m_draw_commands.push_back(DrawPolygon { std::move(vertices), color, false });
 	}
 
-	void Renderer::draw_polygon_fill(std::vector<IVec2> vertices, Color color) {
+	void Renderer::draw_polygon_fill(std::vector<IVec2> vertices, RGBA color) {
 		if (vertices.size() < 3) {
 			LOG_WARNING("draw_polygon called with less than 3 vertices, ignoring");
 			return;
@@ -79,11 +79,11 @@ namespace engine {
 		m_draw_commands.push_back(DrawPolygon { std::move(vertices), color, true });
 	}
 
-	void Renderer::draw_circle(IVec2 center, int32_t radius, Color color) {
+	void Renderer::draw_circle(IVec2 center, int32_t radius, RGBA color) {
 		m_draw_commands.push_back(DrawCircle { center, radius, color, false });
 	}
 
-	void Renderer::draw_circle_fill(IVec2 center, int32_t radius, Color color) {
+	void Renderer::draw_circle_fill(IVec2 center, int32_t radius, RGBA color) {
 		m_draw_commands.push_back(DrawCircle { center, radius, color, true });
 	}
 
@@ -127,13 +127,13 @@ namespace engine {
 		m_draw_commands.clear();
 	}
 
-	void Renderer::_clear_screen(Bitmap* bitmap, Color color) {
+	void Renderer::_clear_screen(Bitmap* bitmap, RGBA color) {
 		for (size_t i = 0; i < bitmap->width * bitmap->height; i++) {
 			bitmap->data[i] = BGRPixel::from_rgba(color);
 		}
 	}
 
-	void Renderer::_put_point(Bitmap* bitmap, IVec2 point, Color color) {
+	void Renderer::_put_point(Bitmap* bitmap, IVec2 point, RGBA color) {
 		BGRPixel old_color = bitmap->get(point.x, point.y);
 		BGRPixel new_color = BGRPixel {
 			.b = (uint8_t)std::lerp(old_color.b, color.b, color.a / 255.0f),
@@ -143,7 +143,7 @@ namespace engine {
 		bitmap->put(point.x, point.y, new_color);
 	}
 
-	void Renderer::_put_line(Bitmap* bitmap, IVec2 start, IVec2 end, Color color) {
+	void Renderer::_put_line(Bitmap* bitmap, IVec2 start, IVec2 end, RGBA color) {
 		// vertical line
 		if (start.x == end.x) {
 			int32_t y0 = min(start.y, end.y);
@@ -168,7 +168,7 @@ namespace engine {
 		}
 	}
 
-	void Renderer::_put_rect(Bitmap* bitmap, Rect rect, Color color) {
+	void Renderer::_put_rect(Bitmap* bitmap, Rect rect, RGBA color) {
 		IVec2 top_left = { rect.x, rect.y };
 		IVec2 top_right = { rect.x + rect.width - 1, rect.y };
 		IVec2 bottom_left = { rect.x, rect.y + rect.height - 1 };
@@ -179,7 +179,7 @@ namespace engine {
 		_put_line(bitmap, bottom_left, bottom_right, color);
 	}
 
-	void Renderer::_put_rect_fill(Bitmap* bitmap, Rect rect, Color color) {
+	void Renderer::_put_rect_fill(Bitmap* bitmap, Rect rect, RGBA color) {
 		int32_t left = rect.x;
 		int32_t right = rect.x + rect.width - 1;
 		for (int32_t y = rect.y; y < rect.y + rect.height; y++) {
@@ -187,14 +187,14 @@ namespace engine {
 		}
 	}
 
-	void Renderer::_put_polygon(Bitmap* bitmap, const std::vector<IVec2>& vertices, Color color) {
+	void Renderer::_put_polygon(Bitmap* bitmap, const std::vector<IVec2>& vertices, RGBA color) {
 		for (size_t i = 0; i < vertices.size() - 1; i++) {
 			_put_line(bitmap, vertices[i], vertices[i + 1], color);
 		}
 		_put_line(bitmap, vertices[vertices.size() - 1], vertices[0], color);
 	}
 
-	void Renderer::_put_polygon_fill(Bitmap* bitmap, const std::vector<IVec2>& vertices, Color color) {
+	void Renderer::_put_polygon_fill(Bitmap* bitmap, const std::vector<IVec2>& vertices, RGBA color) {
 		struct PolygonEdge {
 			int32_t x0;
 			int32_t y0;
@@ -318,7 +318,7 @@ namespace engine {
 		}
 	}
 
-	void Renderer::_put_circle(Bitmap* bitmap, IVec2 center, int32_t radius, Color color) {
+	void Renderer::_put_circle(Bitmap* bitmap, IVec2 center, int32_t radius, RGBA color) {
 		std::vector<IVec2> octant_points = circle_octant_points(radius);
 		for (IVec2 point : octant_points) {
 			_put_point(bitmap, center + IVec2 { point.x, point.y }, color);
@@ -332,7 +332,7 @@ namespace engine {
 		}
 	}
 
-	void Renderer::_put_circle_fill(Bitmap* bitmap, IVec2 center, int32_t radius, Color color) {
+	void Renderer::_put_circle_fill(Bitmap* bitmap, IVec2 center, int32_t radius, RGBA color) {
 		/* Compute points for upper half circle */
 		std::vector<IVec2> octant_points = circle_octant_points(radius);
 		std::vector<IVec2> half_circle_points;

@@ -21,7 +21,7 @@ namespace engine {
 		};
 		std::array<DrawMode, 2> modes = { DrawMode::Outline, DrawMode::Filled };
 
-		const engine::Color color = { 0, 255, 0, m_alpha };
+		const engine::RGBA color = { 0, 255, 0, m_alpha };
 		const int32_t grid_size = 64;
 		const int32_t grid_spacing = 16;
 		IVec2 grid_pos = { 0, 0 };
