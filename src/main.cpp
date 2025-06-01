@@ -40,7 +40,7 @@ static void pump_window_messages() {
 }
 
 static void update_input() {
-	engine::update_input_devices(&g_context.engine.input, g_context.engine.events);
+	engine::update_input_devices(&g_context.engine.input, g_context.engine.events, g_context.engine.window);
 	g_context.engine.events = {};
 }
 
@@ -89,7 +89,7 @@ static LRESULT CALLBACK on_window_event(
 		} break;
 
 		case WM_ACTIVATE: {
-			g_context.engine.window.is_focused = LOWORD(w_param) == WA_INACTIVE;
+			g_context.engine.window.is_focused = LOWORD(w_param) != WA_INACTIVE;
 		} break;
 
 		case WM_PAINT: {
