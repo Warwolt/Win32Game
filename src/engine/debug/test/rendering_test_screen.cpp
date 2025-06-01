@@ -70,36 +70,40 @@ namespace engine {
 				Vertex end = { .pos = get_pos({ 1.0f, 0.0f }, grid_pos), .color = get_color({ 0, 0, 255, m_alpha }, color_mode) };
 				renderer->draw_line(start, end);
 			}
+
+			// slope -0.5
+			{
+				grid_pos = next_grid_pos(grid_pos);
+				Vertex start = { .pos = get_pos({ -1.0f, 0.5f }, grid_pos), .color = get_color({ 255, 0, 0, m_alpha }, color_mode) };
+				Vertex end = { .pos = get_pos({ 1.0f, -0.5f }, grid_pos), .color = get_color({ 0, 0, 255, m_alpha }, color_mode) };
+				renderer->draw_line(start, end);
+			}
+
+			// slope -1
+			{
+				grid_pos = next_grid_pos(grid_pos);
+				Vertex start = { .pos = get_pos({ -1.0f, 1.0f }, grid_pos), .color = get_color({ 255, 0, 0, m_alpha }, color_mode) };
+				Vertex end = { .pos = get_pos({ 1.0f, -1.0f }, grid_pos), .color = get_color({ 0, 0, 255, m_alpha }, color_mode) };
+				renderer->draw_line(start, end);
+			}
+
+			// slope -2
+			{
+				grid_pos = next_grid_pos(grid_pos);
+				Vertex start = { .pos = get_pos({ -0.5f, 1.0f }, grid_pos), .color = get_color({ 255, 0, 0, m_alpha }, color_mode) };
+				Vertex end = { .pos = get_pos({ 0.5f, -1.0f }, grid_pos), .color = get_color({ 0, 0, 255, m_alpha }, color_mode) };
+				renderer->draw_line(start, end);
+			}
+
+			{
+				// slope inf
+				grid_pos = next_grid_pos(grid_pos);
+				Vertex start = { .pos = get_pos({ 0.0f, 1.0f }, grid_pos), .color = get_color({ 255, 0, 0, m_alpha }, color_mode) };
+				Vertex end = { .pos = get_pos({ 0.0f, -1.0f }, grid_pos), .color = get_color({ 0, 0, 255, m_alpha }, color_mode) };
+				renderer->draw_line(start, end);
+			}
 		}
 
-		// slope -0.5
-		{
-			grid_pos = next_grid_pos(grid_pos);
-			Vec2 start = { -1.0f, 0.5f };
-			Vec2 end = { 1.0f, -0.5f };
-			renderer->draw_line_OLD(get_pos(start, grid_pos), get_pos(end, grid_pos), color);
-		}
-		// slope -1
-		{
-			grid_pos = next_grid_pos(grid_pos);
-			Vec2 start = { -1.0f, 1.0f };
-			Vec2 end = { 1.0f, -1.0f };
-			renderer->draw_line_OLD(get_pos(start, grid_pos), get_pos(end, grid_pos), color);
-		}
-		// slope -2
-		{
-			grid_pos = next_grid_pos(grid_pos);
-			Vec2 start = { -0.5f, 1.0f };
-			Vec2 end = { 0.5f, -1.0f };
-			renderer->draw_line_OLD(get_pos(start, grid_pos), get_pos(end, grid_pos), color);
-		}
-		// slope inf
-		{
-			grid_pos = next_grid_pos(grid_pos);
-			Vec2 start = { 0.0f, -1.0f };
-			Vec2 end = { 0.0f, 1.0f };
-			renderer->draw_line_OLD(get_pos(start, grid_pos), get_pos(end, grid_pos), color);
-		}
 		// slope 2
 		{
 			grid_pos = next_grid_pos(grid_pos);

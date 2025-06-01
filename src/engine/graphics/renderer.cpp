@@ -157,7 +157,9 @@ namespace engine {
 			int32_t y0 = min(start.pos.y, end.pos.y);
 			int32_t y1 = max(start.pos.y, end.pos.y);
 			for (int32_t y = y0; y <= y1; y++) {
-				_put_point(bitmap, IVec2 { start.pos.x, y }, start.color);
+				IVec2 pos = IVec2 { start.pos.x, y };
+				float t = (float)(pos.y - start.pos.y) / (float)(end.pos.y - start.pos.y);
+				_put_point(bitmap, pos, RGBA::lerp(start.color, end.color, t));
 			}
 		}
 		// sloped line
@@ -167,13 +169,16 @@ namespace engine {
 			// if dy is greater, we flip it along the diagonal
 			int32_t dx = end.pos.x - start.pos.x;
 			int32_t dy = end.pos.y - start.pos.y;
-			int32_t delta = max(std::abs(dx), std::abs(dy));
+			int32_t abs_dx = std::abs(dx);
+			int32_t abs_dy = std::abs(dy);
+			int32_t delta = max(abs_dx, abs_dy);
 			float x_step = (float)dx / (float)delta;
 			float y_step = (float)dy / (float)delta;
 			for (int32_t i = 0; i <= delta; i++) {
-				// FIXME: `t` should be computed with the _longer_ side. We can't always use x
 				IVec2 pos = IVec2 { .x = (int32_t)(start.pos.x + i * x_step), .y = (int32_t)(start.pos.y + i * y_step) };
-				float t = (float)(pos.x - start.pos.x) / (float)(end.pos.x - start.pos.x);
+				float t = abs_dx > abs_dy
+					? (float)(pos.x - start.pos.x) / (float)(end.pos.x - start.pos.x)
+					: (float)(pos.y - start.pos.y) / (float)(end.pos.y - start.pos.y);
 				_put_point(bitmap, pos, RGBA::lerp(start.color, end.color, t));
 			}
 		}
