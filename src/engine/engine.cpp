@@ -15,7 +15,8 @@ namespace engine {
 		else {
 			return std::unexpected(window_result.error());
 		}
-		engine.bitmap = initialize_bitmap(engine.window.size().x, engine.window.size().y);
+		engine.screen_resolution = engine.window.size();
+		engine.bitmap = initialize_bitmap(engine.screen_resolution.x, engine.screen_resolution.y);
 		engine.audio = initialize_audio_player();
 		return engine;
 	}

@@ -7,9 +7,11 @@ Maybe ideas:
 - Text mode engine debugging UI (for selecting various test screens and tools)
 
 # Todo
-- Window: Render at lower resolution and upscale it to fit screen
+- Draw API: Per vertex colors, interpolate color between vertices
 - Sprite support
+- [!] Write Blackjack game
 - Font support
+- Text Mode UI prototype
 - CPU Profiling
 - Measure render API, see if things can be optimized (e.g. less loops, SIMD, less memory allocations etc.)
 - DLL based hot reloading
@@ -22,6 +24,7 @@ Maybe ideas:
 - [!] Write Zelda Dungeon game
 
 # Doing
+- Window: Render at lower resolution and upscale it to fit screen
 
 # Done
 - Window: Borderless full screen
