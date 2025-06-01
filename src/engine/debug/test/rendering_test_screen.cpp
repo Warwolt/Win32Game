@@ -10,12 +10,11 @@
 
 namespace engine {
 
-	void RenderingTestScreen::update(const InputDevices& input, const Window& window) {
-		m_window_size = window.size();
+	void RenderingTestScreen::update(const InputDevices& input) {
 		m_alpha = (uint8_t)std::clamp((int16_t)m_alpha + 16 * input.mouse.mouse_wheel_delta, 0, 255);
 	}
 
-	void RenderingTestScreen::draw(Renderer* renderer) const {
+	void RenderingTestScreen::draw(Renderer* renderer, IVec2 screen_resolution) const {
 		enum class DrawMode {
 			Outline,
 			Filled,
@@ -39,8 +38,8 @@ namespace engine {
 				});
 		};
 
-		auto next_grid_pos = [this, grid_size, grid_spacing](IVec2 pos) {
-			int32_t window_grid_width = m_window_size.x / (grid_size + grid_spacing);
+		auto next_grid_pos = [screen_resolution, grid_size, grid_spacing](IVec2 pos) {
+			int32_t window_grid_width = screen_resolution.x / (grid_size + grid_spacing);
 			if (pos.x > window_grid_width - 2) {
 				return IVec2 { 0, pos.y + 1 };
 			}

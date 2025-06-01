@@ -10,11 +10,10 @@ namespace engine {
 
 	class RenderingTestScreen {
 	public:
-		void update(const InputDevices& input, const Window& window);
-        void draw(Renderer* renderer) const;
+		void update(const InputDevices& input);
+        void draw(Renderer* renderer, IVec2 screen_resolution) const;
 
 	private:
-		IVec2 m_window_size;
 		uint8_t m_alpha = 255;
 	};
 

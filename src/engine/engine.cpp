@@ -39,11 +39,11 @@ namespace engine {
 		engine->commands.clear();
 
 		/* Update engine */
-		update_debug(&engine->debug, input, engine->window);
+		update_debug(&engine->debug, input);
 	}
 
 	void draw(Renderer* renderer, const EngineState& engine) {
-		draw_debug(renderer, engine.debug);
+		draw_debug(renderer, engine.debug, engine.screen_resolution);
 	}
 
 } // namespace engine
