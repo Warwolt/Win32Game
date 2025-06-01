@@ -1,7 +1,6 @@
 #include <engine/audio/audio_player.h>
 #include <engine/debug/logging.h>
 #include <engine/engine.h>
-#include <engine/graphics/color.h>
 #include <engine/graphics/renderer.h>
 #include <engine/graphics/window.h>
 #include <engine/input/gamepad.h>
@@ -12,31 +11,17 @@
 #include <game/game.h>
 
 #include <format>
-#include <variant>
-#include <vector>
 #include <windows.h>
 #include <windowsx.h>
-
-namespace engine {
-
-	struct Assets {
-		struct Audio {
-			engine::AudioID cowbell;
-		} audio;
-	};
-
-} // namespace engine
 
 struct ProgramContext {
 	// input output
 	engine::MouseEvents mouse_events;
 	engine::InputDevices input;
-	engine::AudioPlayer audio;
 	// graphics
 	engine::Renderer renderer;
 	engine::Window window;
 	// game
-	engine::Assets assets;
 	game::GameState game;
 	// engine
 	// TODO: move more stuff into EngineState ?
@@ -148,7 +133,7 @@ static engine::AudioID load_audio_from_file(const char* path) {
 		0,
 		NULL
 	);
-	std::expected<engine::AudioID, std::string> result = g_context.audio.add_audio_from_file(cowbell_file);
+	std::expected<engine::AudioID, std::string> result = g_context.engine.audio.add_audio_from_file(cowbell_file);
 	CloseHandle(cowbell_file);
 
 	if (!result.has_value()) {
@@ -166,10 +151,11 @@ int WINAPI WinMain(
 	int /*command_show*/
 ) {
 	engine::initialize_logging(engine::LogLevel::Debug);
+	// TODO: add `EngineState initialize()``function
 	engine::initialize_gamepad_support();
 	g_context.window = initialize_window_or_abort(instance, on_window_event, "Game");
-	g_context.audio = engine::initialize_audio_player();
-	g_context.assets.audio.cowbell = load_audio_from_file("assets/audio/808_cowbell.wav");
+	g_context.engine.audio = engine::initialize_audio_player();
+	g_context.game.assets.audio.cowbell = load_audio_from_file("assets/audio/808_cowbell.wav");
 
 	/* Main loop */
 	while (!g_context.engine.should_quit) {
@@ -180,14 +166,6 @@ int WINAPI WinMain(
 		/* Update */
 		game::update(&g_context.game, &g_context.engine.commands, g_context.input);
 		engine::update(&g_context.engine, g_context.input);
-
-		// TODO: move these into game.cpp or engine.cpp
-		{
-			// trigger sound with keyboard
-			if (g_context.input.keyboard.key_was_pressed_now('1')) {
-				g_context.audio.play(g_context.assets.audio.cowbell);
-			}
-		}
 
 		/* Render */
 		g_context.renderer.clear_screen();

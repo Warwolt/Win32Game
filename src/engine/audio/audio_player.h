@@ -1,19 +1,16 @@
 #pragma once
 
+#include <engine/audio/audio_id.h>
+
 #include <expected>
 #include <memory>
 #include <stdint.h>
-
 #include <string>
 #include <unordered_map>
 #include <windows.h>
 #include <xaudio2.h>
 
 namespace engine {
-
-	struct AudioID {
-		uint32_t value;
-	};
 
 	class AudioPlayer {
 	public:

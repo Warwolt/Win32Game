@@ -7,9 +7,14 @@ namespace engine {
 
 	void update(EngineState* engine, const InputDevices& input) {
 		/* Process commands */
-		for (const engine::Command& command : engine->commands.commands()) {
-			if (auto* quit_command = std::get_if<engine::QuitCommand>(&command)) {
+		for (const engine::AppCommand& command : engine->commands.app_commands()) {
+			if (auto* quit = std::get_if<engine::QuitCommand>(&command)) {
 				engine->should_quit = true;
+			}
+		}
+		for (const engine::AudioCommand& command : engine->commands.audio_commands()) {
+			if (auto* play_sound = std::get_if<engine::PlaySoundCommand>(&command)) {
+				engine->audio.play(play_sound->id);
 			}
 		}
 		engine->commands.clear();
