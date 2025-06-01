@@ -4,6 +4,7 @@
 
 namespace engine {
 
+	// TODO: Rename to RGBA
 	struct Color {
 		uint8_t r;
 		uint8_t g;

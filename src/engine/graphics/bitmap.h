@@ -1,5 +1,7 @@
 #pragma once
 
+#include <engine/graphics/color.h>
+
 #include <stdint.h>
 
 namespace engine {
@@ -9,6 +11,14 @@ namespace engine {
 		uint8_t g;
 		uint8_t r;
 		uint8_t padding;
+
+		inline static BGRPixel from_rgba(Color color) {
+			return {
+				.b = color.b,
+				.g = color.g,
+				.r = color.r,
+			};
+		}
 	};
 
 	struct Bitmap {

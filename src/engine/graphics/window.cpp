@@ -116,8 +116,8 @@ namespace engine {
 		BITMAPINFO bitmap_info = BITMAPINFO {
 			.bmiHeader = BITMAPINFOHEADER {
 				.biSize = sizeof(BITMAPINFOHEADER),
-				.biWidth = window_width,
-				.biHeight = -window_height,
+				.biWidth = bitmap.width,
+				.biHeight = -bitmap.height,
 				.biPlanes = 1,
 				.biBitCount = 32,
 				.biCompression = BI_RGB,
@@ -129,8 +129,8 @@ namespace engine {
 			// destination rect (window)
 			0,
 			0,
-			window_width,
-			window_height,
+			bitmap.width,
+			bitmap.height,
 			// source rect (bitmap)
 			0,
 			0,
