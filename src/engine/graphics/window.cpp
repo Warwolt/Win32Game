@@ -29,7 +29,7 @@ namespace engine {
 		}
 
 		/* Create window */
-		window.handle = CreateWindowExA(
+		window.m_handle = CreateWindowExA(
 			0,                                // DWORD dwExStyle
 			window_class.lpszClassName,       // LPCWSTR lpClassName
 			window_title,                     // LPCWSTR lpWindowName
@@ -44,7 +44,7 @@ namespace engine {
 			0                                 // LPVOID lpParam
 		);
 
-		if (!window.handle) {
+		if (!window.m_handle) {
 			return std::unexpected(WindowError::FailedToCreateWindow);
 		}
 
@@ -54,36 +54,46 @@ namespace engine {
 
 	IVec2 Window::on_resized() {
 		RECT client_rect;
-		GetClientRect(this->handle, &client_rect);
-		this->size.x = client_rect.right - client_rect.left;
-		this->size.y = client_rect.bottom - client_rect.top;
-		return this->size;
+		GetClientRect(m_handle, &client_rect);
+		m_size.x = client_rect.right - client_rect.left;
+		m_size.y = client_rect.bottom - client_rect.top;
+		return m_size;
+	}
+
+	void Window::on_focus_changed(bool is_focused) {
+		m_is_focused = is_focused;
+	}
+
+	IVec2 Window::size() const {
+		return m_size;
+	}
+
+	bool Window::is_focused() const {
+		return m_is_focused;
 	}
 
 	// Based on Raymond Chen's "How do I switch a window between normal and fullscreen?"
 	// https://devblogs.microsoft.com/oldnewthing/20100412-00/?p=14353
 	void Window::toggle_fullscreen() {
-		HWND hwnd = this->handle;
-		WINDOWPLACEMENT& g_wpPrev = this->placement;
-		DWORD dwStyle = GetWindowLong(hwnd, GWL_STYLE);
+		DWORD dwStyle = GetWindowLong(m_handle, GWL_STYLE);
 		if (dwStyle & WS_OVERLAPPEDWINDOW) {
 			MONITORINFO mi = { sizeof(mi) };
-			if (GetWindowPlacement(hwnd, &g_wpPrev) &&
-				GetMonitorInfo(MonitorFromWindow(hwnd, MONITOR_DEFAULTTOPRIMARY), &mi)) {
-				SetWindowLong(hwnd, GWL_STYLE, dwStyle & ~WS_OVERLAPPEDWINDOW);
-				SetWindowPos(hwnd, HWND_TOP, mi.rcMonitor.left, mi.rcMonitor.top, mi.rcMonitor.right - mi.rcMonitor.left, mi.rcMonitor.bottom - mi.rcMonitor.top, SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
+			if (GetWindowPlacement(m_handle, &m_placement) &&
+				GetMonitorInfo(MonitorFromWindow(m_handle, MONITOR_DEFAULTTOPRIMARY), &mi)) {
+				SetWindowLong(m_handle, GWL_STYLE, dwStyle & ~WS_OVERLAPPEDWINDOW);
+				SetWindowPos(m_handle, HWND_TOP, mi.rcMonitor.left, mi.rcMonitor.top, mi.rcMonitor.right - mi.rcMonitor.left, mi.rcMonitor.bottom - mi.rcMonitor.top, SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
 			}
 		}
 		else {
-			SetWindowLong(hwnd, GWL_STYLE, dwStyle | WS_OVERLAPPEDWINDOW);
-			SetWindowPlacement(hwnd, &g_wpPrev);
-			SetWindowPos(hwnd, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
+			SetWindowLong(m_handle, GWL_STYLE, dwStyle | WS_OVERLAPPEDWINDOW);
+			SetWindowPlacement(m_handle, &m_placement);
+			SetWindowPos(m_handle, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
 		}
 	}
 
 	void Window::render(const Bitmap& bitmap, HDC device_context) {
 		RECT client_rect;
-		GetClientRect(this->handle, &client_rect);
+		GetClientRect(m_handle, &client_rect);
 		int window_width = client_rect.right - client_rect.left;
 		int window_height = client_rect.bottom - client_rect.top;
 

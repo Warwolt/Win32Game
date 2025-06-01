@@ -11,7 +11,7 @@
 namespace engine {
 
 	void RenderingTestScreen::update(const InputDevices& input, const Window& window) {
-		m_window_size = window.size;
+		m_window_size = window.size();
 		m_alpha = (uint8_t)std::clamp((int16_t)m_alpha + 16 * input.mouse.mouse_wheel_delta, 0, 255);
 	}
 

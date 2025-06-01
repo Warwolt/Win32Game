@@ -52,10 +52,8 @@ static LRESULT CALLBACK on_window_event(
 ) {
 	switch (message) {
 		case WM_SIZE: {
-			if (window == g_context.engine.window.handle) {
-				engine::IVec2 window_size = g_context.engine.window.on_resized();
-				reallocate_bitmap(&g_context.engine.bitmap, window_size.x, window_size.y);
-			}
+			engine::IVec2 window_size = g_context.engine.window.on_resized();
+			reallocate_bitmap(&g_context.engine.bitmap, window_size.x, window_size.y);
 		} break;
 
 		case WM_SYSKEYDOWN:
@@ -90,7 +88,7 @@ static LRESULT CALLBACK on_window_event(
 		} break;
 
 		case WM_ACTIVATE: {
-			g_context.engine.window.is_focused = LOWORD(w_param) != WA_INACTIVE;
+			g_context.engine.window.on_focus_changed(LOWORD(w_param) != WA_INACTIVE);
 		} break;
 
 		case WM_PAINT: {
@@ -138,10 +136,10 @@ int WINAPI WinMain(
 		/* Render */
 		game::draw(&g_context.engine.renderer, g_context.game);
 		engine::draw(&g_context.engine.renderer, g_context.engine);
-		HDC device_context = GetDC(g_context.engine.window.handle);
+		HDC device_context = GetDC(g_context.engine.window.m_handle);
 		g_context.engine.renderer.render(&g_context.engine.bitmap);
 		g_context.engine.window.render(g_context.engine.bitmap, device_context);
-		ReleaseDC(g_context.engine.window.handle, device_context);
+		ReleaseDC(g_context.engine.window.m_handle, device_context);
 	}
 
 	return 0;
