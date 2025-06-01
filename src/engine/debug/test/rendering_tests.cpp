@@ -1,6 +1,7 @@
 #include <engine/debug/test/rendering_tests.h>
 
 #include <engine/graphics/renderer.h>
+#include <engine/graphics/window.h>
 #include <engine/input/input.h>
 
 #include <algorithm>
@@ -9,8 +10,8 @@
 
 namespace engine {
 
-	void RenderingTestScreen::update(const InputDevices& input) {
-		m_window_size = input.window_size;
+	void RenderingTestScreen::update(const InputDevices& input, const Window& window) {
+		m_window_size = window.size;
 		m_alpha = (uint8_t)std::clamp((int16_t)m_alpha + 16 * input.mouse.mouse_wheel_delta, 0, 255);
 	}
 

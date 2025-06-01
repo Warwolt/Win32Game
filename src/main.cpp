@@ -41,10 +41,6 @@ static void pump_window_messages() {
 
 static void update_input() {
 	engine::update_input_devices(&g_context.engine.input, g_context.engine.events);
-	g_context.engine.input.window_size = {
-		.x = g_context.engine.window.bitmap.width,
-		.y = g_context.engine.window.bitmap.height
-	};
 	g_context.engine.events = {};
 }
 
@@ -90,6 +86,10 @@ static LRESULT CALLBACK on_window_event(
 		case WM_MOUSEMOVE: {
 			g_context.engine.events.mouse.mouse_x = (int16_t)GET_X_LPARAM(l_param);
 			g_context.engine.events.mouse.mouse_y = (int16_t)GET_Y_LPARAM(l_param);
+		} break;
+
+		case WM_ACTIVATE: {
+			g_context.engine.window.is_focused = LOWORD(w_param) == WA_INACTIVE;
 		} break;
 
 		case WM_PAINT: {

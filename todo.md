@@ -7,7 +7,6 @@ Maybe ideas:
 - Text mode engine debugging UI (for selecting various test screens and tools)
 
 # Todo
-- Bug: ignore keyboard key/mouse buttons if window not focused
 - Window: Borderless full screen
 - Window: Render at lower resolution and upscale it to fit screen
 - Sprite support
@@ -24,6 +23,7 @@ Maybe ideas:
 - [!] Write Zelda Dungeon game
 
 # Doing
+- Bug: ignore keyboard key/mouse buttons if window not focused
 
 # Done
 - Add engine and game init functions

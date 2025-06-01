@@ -5,11 +5,12 @@
 namespace engine {
 
     struct InputDevices;
+	struct Window;
 	class Renderer;
 
 	class RenderingTestScreen {
 	public:
-        void update(const InputDevices& input);
+		void update(const InputDevices& input, const Window& window);
         void draw(Renderer* renderer) const;
 
 	private:
