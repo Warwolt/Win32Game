@@ -10,8 +10,8 @@ namespace engine {
 		initialize_logging(LogLevel::Debug);
 		initialize_gamepad_support();
 		constexpr int scale = 4;
-		IVec2 screen_resolution = IVec2 { 1920 / scale, 1200 / scale };;
-		if (std::expected<Window, EngineError> window_result = Window::initialize(instance, wnd_proc, screen_resolution, window_title)) {
+		IVec2 screen_resolution = IVec2 { 1920 / scale, 1200 / scale };
+		if (std::expected<Window, EngineError> window_result = Window::initialize(instance, wnd_proc, 2 * screen_resolution, window_title)) {
 			engine.window = window_result.value();
 		}
 		else {
