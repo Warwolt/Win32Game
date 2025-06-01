@@ -12,12 +12,10 @@ namespace engine {
 	struct InputDevices;
 	class Renderer;
 
-	// TODO: struct InputEvents
-
 	struct EngineState {
 		bool should_quit = false;
 		// input output
-		MouseEvents mouse_events;
+		InputEvents events;
 		InputDevices input;
 		CommandAPI commands;
 		AudioPlayer audio;

@@ -38,12 +38,12 @@ static void pump_window_messages() {
 }
 
 static void update_input() {
-	engine::update_input_devices(&g_context.engine.input, g_context.engine.mouse_events);
+	engine::update_input_devices(&g_context.engine.input, g_context.engine.events);
 	g_context.engine.input.window_size = {
 		.x = g_context.engine.window.bitmap.width,
 		.y = g_context.engine.window.bitmap.height
 	};
-	g_context.engine.mouse_events = {};
+	g_context.engine.events = {};
 }
 
 static LRESULT CALLBACK on_window_event(
@@ -82,12 +82,12 @@ static LRESULT CALLBACK on_window_event(
 		} break;
 
 		case WM_MOUSEWHEEL: {
-			g_context.engine.mouse_events.mouse_wheel_delta += GET_WHEEL_DELTA_WPARAM(w_param) / WHEEL_DELTA;
+			g_context.engine.events.mouse.mouse_wheel_delta += GET_WHEEL_DELTA_WPARAM(w_param) / WHEEL_DELTA;
 		} break;
 
 		case WM_MOUSEMOVE: {
-			g_context.engine.mouse_events.mouse_x = (int16_t)GET_X_LPARAM(l_param);
-			g_context.engine.mouse_events.mouse_y = (int16_t)GET_Y_LPARAM(l_param);
+			g_context.engine.events.mouse.mouse_x = (int16_t)GET_X_LPARAM(l_param);
+			g_context.engine.events.mouse.mouse_y = (int16_t)GET_Y_LPARAM(l_param);
 		} break;
 
 		case WM_PAINT: {
