@@ -35,6 +35,15 @@ namespace engine {
 			return std::unexpected(WindowError::FailedToRegisterClass);
 		}
 
+		/* Compute window size */
+		// CreateWindowExA width and height will include the menu bar and
+		// border, so we need to compute what the window size should be from
+		// the given client size (what we call window_size).
+		RECT adjusted_window_size = { 0, 0, window_size.x, window_size.y };
+		AdjustWindowRect(&adjusted_window_size, WS_OVERLAPPEDWINDOW, FALSE);
+		int adjusted_window_width = adjusted_window_size.right - adjusted_window_size.left;
+		int adjusted_window_height = adjusted_window_size.bottom - adjusted_window_size.top;
+
 		/* Create window */
 		// TODO: set position to center of screen
 		// TODO: disable window resizing
@@ -45,8 +54,8 @@ namespace engine {
 			WS_OVERLAPPEDWINDOW | WS_VISIBLE, // DWORD dwStyle
 			CW_USEDEFAULT,                    // int X
 			CW_USEDEFAULT,                    // int Y
-			window_size.x,                    // int nWidth
-			window_size.y,                    // int nHeight
+			adjusted_window_width,            // int nWidth
+			adjusted_window_height,           // int nHeight
 			0,                                // HWND hWndParent
 			0,                                // HMENU hMenu
 			instance,                         // HINSTANCE hInstance
