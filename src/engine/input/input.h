@@ -3,6 +3,7 @@
 #include <engine/input/gamepad.h>
 #include <engine/input/keyboard.h>
 #include <engine/input/mouse.h>
+#include <engine/math/ivec2.h>
 
 namespace engine {
 
@@ -10,8 +11,7 @@ namespace engine {
 		Gamepad gamepad;
 		Keyboard keyboard;
 		Mouse mouse;
-		int32_t window_width;
-		int32_t window_height;
+		IVec2 window_size;
 	};
 
 	void update_input_devices(InputDevices* input, const MouseEvents& mouse_events);

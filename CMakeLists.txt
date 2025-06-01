@@ -7,8 +7,10 @@ add_subdirectory(libs/googletest)
 option(WARNINGS_AS_ERRORS "Compile with warnings as errors" OFF)
 
 set(SRC
+    src/engine/debug/renderer_test_screen.cpp
     src/engine/audio/audio_player.cpp
     src/engine/debug/logging.cpp
+    src/engine/engine.cpp
     src/engine/graphics/renderer.cpp
     src/engine/graphics/window.cpp
     src/engine/input/button.cpp
@@ -17,6 +19,7 @@ set(SRC
     src/engine/input/keyboard.cpp
     src/engine/input/mouse.cpp
     src/engine/math/ivec2.cpp
+    src/engine/math/vec2.cpp
     src/game/game.cpp
 )
 

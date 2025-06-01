@@ -4,7 +4,8 @@ Overall goal:
 - Simple Win32 level editor (create content for the games)
 
 # Todo
-- Draw API: Add test screen drawing various shapes
+- Move quit with escape into game.cpp
+- Move stuff from ProgramContext down into EngineState
 - Bug: ignore keyboard key/mouse buttons if window not focused
 - Window: Borderless full screen
 - Window: Render at lower resolution and upscale it to fit screen
@@ -22,9 +23,10 @@ Overall goal:
 - [!] Write Zelda Dungeon game
 
 # Doing
-- Draw API: circles
 
 # Done
+- Draw API: Add test screen drawing various shapes
+- Draw API: circles
 - Draw API: alpha blending
 - Draw API: rectangles, polygons
 - Draw API: lines

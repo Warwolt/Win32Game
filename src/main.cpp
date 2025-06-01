@@ -1,5 +1,6 @@
 #include <engine/audio/audio_player.h>
 #include <engine/debug/logging.h>
+#include <engine/engine.h>
 #include <engine/graphics/color.h>
 #include <engine/graphics/renderer.h>
 #include <engine/graphics/window.h>
@@ -38,6 +39,9 @@ struct ProgramContext {
 	// game
 	engine::Assets assets;
 	game::GameState game;
+	// engine
+	// TODO: move more stuff into EngineState ?
+	engine::EngineState engine;
 };
 
 static ProgramContext g_context;
@@ -61,6 +65,15 @@ static void pump_window_messages() {
 			g_context.should_quit = true;
 		}
 	}
+}
+
+static void update_input() {
+	engine::update_input_devices(&g_context.input, g_context.mouse_events);
+	g_context.input.window_size = {
+		.x = g_context.window.bitmap.width,
+		.y = g_context.window.bitmap.height
+	};
+	g_context.mouse_events = {};
 }
 
 static LRESULT CALLBACK on_window_event(
@@ -108,9 +121,16 @@ static LRESULT CALLBACK on_window_event(
 		} break;
 
 		case WM_PAINT: {
+			// input
+			update_input();
+			// update
+			game::update(&g_context.game, g_context.input);
+			engine::update(&g_context.engine, g_context.input);
+			// render
+			game::draw(&g_context.renderer, g_context.game);
+			engine::draw(&g_context.renderer, g_context.engine);
 			PAINTSTRUCT paint;
 			HDC device_context = BeginPaint(window, &paint);
-			game::draw(&g_context.renderer, g_context.game);
 			g_context.renderer.render(&g_context.window, device_context);
 			EndPaint(window, &paint);
 		} break;
@@ -156,27 +176,30 @@ int WINAPI WinMain(
 	while (!g_context.should_quit) {
 		/* Input */
 		pump_window_messages();
-		engine::update_input_devices(&g_context.input, g_context.mouse_events);
-		g_context.input.window_width = g_context.window.bitmap.width;
-		g_context.input.window_height = g_context.window.bitmap.height;
-		g_context.mouse_events = {};
+		update_input();
 
 		/* Update */
 		game::update(&g_context.game, g_context.input);
+		engine::update(&g_context.engine, g_context.input);
 
-		// quick quit while prototyping
-		if (g_context.input.keyboard.key_was_pressed_now(VK_ESCAPE)) {
-			g_context.should_quit = true;
-		}
+		// TODO: move these into game.cpp or engine.cpp
+		{
+			// quick quit while prototyping
+			if (g_context.input.keyboard.key_was_pressed_now(VK_ESCAPE)) {
+				g_context.should_quit = true;
+			}
 
-		// trigger sound with keyboard
-		if (g_context.input.keyboard.key_was_pressed_now('1')) {
-			g_context.audio.play(g_context.assets.audio.cowbell);
+			// trigger sound with keyboard
+			if (g_context.input.keyboard.key_was_pressed_now('1')) {
+				g_context.audio.play(g_context.assets.audio.cowbell);
+			}
 		}
 
 		/* Render */
-		HDC device_context = GetDC(g_context.window.handle);
+		g_context.renderer.clear_screen();
 		game::draw(&g_context.renderer, g_context.game);
+		engine::draw(&g_context.renderer, g_context.engine);
+		HDC device_context = GetDC(g_context.window.handle);
 		g_context.renderer.render(&g_context.window, device_context);
 		ReleaseDC(g_context.window.handle, device_context);
 	}

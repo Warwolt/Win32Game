@@ -9,9 +9,7 @@ namespace engine {
 
 namespace game {
 
-	struct GameState {
-		engine::IVec2 figure_pos;
-	};
+	struct GameState { };
 
 	void update(GameState* game, const engine::InputDevices& input);
     void draw(engine::Renderer* renderer, const GameState& game);

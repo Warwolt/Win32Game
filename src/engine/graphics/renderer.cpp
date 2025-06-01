@@ -1,6 +1,8 @@
 #include <engine/graphics/renderer.h>
 
 #include <engine/debug/logging.h>
+#include <engine/math/ivec2.h>
+#include <engine/math/vec2.h>
 
 #include <algorithm>
 #include <cmath>
@@ -45,8 +47,8 @@ namespace engine {
 		m_draw_commands.push_back(ClearScreen {});
 	}
 
-	void Renderer::draw_pixel(int32_t x, int32_t y, Color color) {
-		m_draw_commands.push_back(DrawPixel { x, y, color });
+	void Renderer::draw_point(IVec2 point, Color color) {
+		m_draw_commands.push_back(DrawPoint { point, color });
 	}
 
 	void Renderer::draw_line(IVec2 start, IVec2 end, Color color) {
@@ -61,20 +63,20 @@ namespace engine {
 		m_draw_commands.push_back(DrawRect { rect, color, true });
 	}
 
-	void Renderer::draw_polygon(const std::vector<IVec2> vertices, Color color) {
+	void Renderer::draw_polygon(std::vector<IVec2> vertices, Color color) {
 		if (vertices.size() < 3) {
 			LOG_WARNING("draw_polygon called with less than 3 vertices, ignoring");
 			return;
 		}
-		m_draw_commands.push_back(DrawPolygon { vertices, color, false });
+		m_draw_commands.push_back(DrawPolygon { std::move(vertices), color, false });
 	}
 
-	void Renderer::draw_polygon_fill(const std::vector<IVec2> vertices, Color color) {
+	void Renderer::draw_polygon_fill(std::vector<IVec2> vertices, Color color) {
 		if (vertices.size() < 3) {
 			LOG_WARNING("draw_polygon called with less than 3 vertices, ignoring");
 			return;
 		}
-		m_draw_commands.push_back(DrawPolygon { vertices, color, true });
+		m_draw_commands.push_back(DrawPolygon { std::move(vertices), color, true });
 	}
 
 	void Renderer::draw_circle(IVec2 center, int32_t radius, Color color) {
@@ -91,8 +93,8 @@ namespace engine {
 			if (auto* clear_screen = std::get_if<ClearScreen>(&command)) {
 				_clear_screen(&window->bitmap);
 			}
-			if (auto* draw_pixel = std::get_if<DrawPixel>(&command)) {
-				_put_pixel(&window->bitmap, draw_pixel->x, draw_pixel->y, draw_pixel->color);
+			if (auto* draw_point = std::get_if<DrawPoint>(&command)) {
+				_put_point(&window->bitmap, draw_point->point, draw_point->color);
 			}
 			if (auto* draw_line = std::get_if<DrawLine>(&command)) {
 				_put_line(&window->bitmap, draw_line->start, draw_line->end, draw_line->color);
@@ -156,14 +158,14 @@ namespace engine {
 		ZeroMemory(bitmap->data, bitmap->width * bitmap->height * sizeof(int32_t));
 	}
 
-	void Renderer::_put_pixel(Bitmap* bitmap, int32_t x, int32_t y, Color color) {
-		BGRPixel old_pixel = bitmap->get(x, y);
-		BGRPixel new_pixel = BGRPixel {
-			.b = (uint8_t)std::lerp(old_pixel.b, color.b, color.a / 255.0f),
-			.g = (uint8_t)std::lerp(old_pixel.g, color.g, color.a / 255.0f),
-			.r = (uint8_t)std::lerp(old_pixel.r, color.r, color.a / 255.0f),
+	void Renderer::_put_point(Bitmap* bitmap, IVec2 point, Color color) {
+		BGRPixel old_color = bitmap->get(point.x, point.y);
+		BGRPixel new_color = BGRPixel {
+			.b = (uint8_t)std::lerp(old_color.b, color.b, color.a / 255.0f),
+			.g = (uint8_t)std::lerp(old_color.g, color.g, color.a / 255.0f),
+			.r = (uint8_t)std::lerp(old_color.r, color.r, color.a / 255.0f),
 		};
-		bitmap->put(x, y, new_pixel);
+		bitmap->put(point.x, point.y, new_color);
 	}
 
 	void Renderer::_put_line(Bitmap* bitmap, IVec2 start, IVec2 end, Color color) {
@@ -172,7 +174,7 @@ namespace engine {
 			int32_t y0 = min(start.y, end.y);
 			int32_t y1 = max(start.y, end.y);
 			for (int32_t y = y0; y <= y1; y++) {
-				_put_pixel(bitmap, start.x, y, color);
+				_put_point(bitmap, IVec2 { start.x, y }, color);
 			}
 		}
 		// sloped line
@@ -186,7 +188,7 @@ namespace engine {
 			float x_step = (float)dx / (float)delta;
 			float y_step = (float)dy / (float)delta;
 			for (int32_t i = 0; i <= delta; i++) {
-				_put_pixel(bitmap, (int32_t)(start.x + i * x_step), (int32_t)(start.y + i * y_step), color);
+				_put_point(bitmap, IVec2 { (int32_t)(start.x + i * x_step), (int32_t)(start.y + i * y_step) }, color);
 			}
 		}
 	}
@@ -335,7 +337,7 @@ namespace engine {
 			// since this will mess with alpha blending.
 			if (points_to_connect.empty()) {
 				for (int32_t x : corner_and_cross_points) {
-					_put_pixel(bitmap, x, y, color);
+					_put_point(bitmap, IVec2 { x, y }, color);
 				}
 			}
 		}
@@ -344,14 +346,14 @@ namespace engine {
 	void Renderer::_put_circle(Bitmap* bitmap, IVec2 center, int32_t radius, Color color) {
 		std::vector<IVec2> octant_points = circle_octant_points(radius);
 		for (IVec2 point : octant_points) {
-			_put_pixel(bitmap, center.x + point.x, center.y + point.y, color);
-			_put_pixel(bitmap, center.x + point.y, center.y + point.x, color);
-			_put_pixel(bitmap, center.x + point.y, center.y - point.x, color);
-			_put_pixel(bitmap, center.x + point.x, center.y - point.y, color);
-			_put_pixel(bitmap, center.x - point.x, center.y + point.y, color);
-			_put_pixel(bitmap, center.x - point.y, center.y + point.x, color);
-			_put_pixel(bitmap, center.x - point.y, center.y - point.x, color);
-			_put_pixel(bitmap, center.x - point.x, center.y - point.y, color);
+			_put_point(bitmap, center + IVec2 { point.x, point.y }, color);
+			_put_point(bitmap, center + IVec2 { point.y, point.x }, color);
+			_put_point(bitmap, center + IVec2 { point.y, -point.x }, color);
+			_put_point(bitmap, center + IVec2 { point.x, -point.y }, color);
+			_put_point(bitmap, center + IVec2 { -point.x, point.y }, color);
+			_put_point(bitmap, center + IVec2 { -point.y, point.x }, color);
+			_put_point(bitmap, center + IVec2 { -point.y, -point.x }, color);
+			_put_point(bitmap, center + IVec2 { -point.x, -point.y }, color);
 		}
 	}
 
