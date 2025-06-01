@@ -22,9 +22,9 @@ Maybe ideas:
 - [!] Write Zelda Dungeon game
 
 # Doing
-- Window: Borderless full screen
 
 # Done
+- Window: Borderless full screen
 - Bug: ignore keyboard key/mouse buttons if window not focused
 - Add engine and game init functions
 - Move quit with escape into game.cpp
