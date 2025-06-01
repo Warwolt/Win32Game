@@ -29,7 +29,7 @@ namespace engine {
 		const engine::RGBA color = { 0, 255, 0, m_alpha };
 		const int32_t grid_size = 64;
 		const int32_t grid_spacing = 16;
-		IVec2 grid_pos = { 0, 0 };
+		IVec2 grid_pos = { -1, 0 };
 
 		auto next_grid_pos = [screen_resolution, grid_size, grid_spacing](IVec2 pos) {
 			int32_t window_grid_width = screen_resolution.x / (grid_size + grid_spacing);
@@ -54,11 +54,6 @@ namespace engine {
 		auto get_color = [this](RGBA color, ColorMode mode) {
 			return mode == ColorMode::Mono ? RGBA { 0, 255, 0, m_alpha } : color;
 		};
-
-		/* Draw pixel */
-		{
-			renderer->draw_point(get_pos(Vec2 { 0, 0 }, grid_pos), color);
-		}
 
 		/* Draw line */
 #pragma region draw line
@@ -95,35 +90,35 @@ namespace engine {
 				renderer->draw_line(start, end);
 			}
 
+			// slope inf
 			{
-				// slope inf
 				grid_pos = next_grid_pos(grid_pos);
 				Vertex start = { .pos = get_pos({ 0.0f, 1.0f }, grid_pos), .color = get_color({ 255, 0, 0, m_alpha }, color_mode) };
 				Vertex end = { .pos = get_pos({ 0.0f, -1.0f }, grid_pos), .color = get_color({ 0, 0, 255, m_alpha }, color_mode) };
 				renderer->draw_line(start, end);
 			}
-		}
 
-		// slope 2
-		{
-			grid_pos = next_grid_pos(grid_pos);
-			Vec2 start = { -0.5f, -1.0f };
-			Vec2 end = { 0.5f, 1.0f };
-			renderer->draw_line_OLD(get_pos(start, grid_pos), get_pos(end, grid_pos), color);
-		}
-		// slope +1
-		{
-			grid_pos = next_grid_pos(grid_pos);
-			Vec2 start = { -1.0f, -1.0f };
-			Vec2 end = { 1.0f, 1.0f };
-			renderer->draw_line_OLD(get_pos(start, grid_pos), get_pos(end, grid_pos), color);
-		}
-		// slope +0.5
-		{
-			grid_pos = next_grid_pos(grid_pos);
-			Vec2 start = { -1.0f, -0.5f };
-			Vec2 end = { 1.0f, 0.5f };
-			renderer->draw_line_OLD(get_pos(start, grid_pos), get_pos(end, grid_pos), color);
+			// slope +2
+			{
+				grid_pos = next_grid_pos(grid_pos);
+				Vertex start = { .pos = get_pos({ 0.5f, 1.0f }, grid_pos), .color = get_color({ 255, 0, 0, m_alpha }, color_mode) };
+				Vertex end = { .pos = get_pos({ -0.5f, -1.0f }, grid_pos), .color = get_color({ 0, 0, 255, m_alpha }, color_mode) };
+				renderer->draw_line(start, end);
+			}
+			// slope +1
+			{
+				grid_pos = next_grid_pos(grid_pos);
+				Vertex start = { .pos = get_pos({ 1.0f, 1.0f }, grid_pos), .color = get_color({ 255, 0, 0, m_alpha }, color_mode) };
+				Vertex end = { .pos = get_pos({ -1.0f, -1.0f }, grid_pos), .color = get_color({ 0, 0, 255, m_alpha }, color_mode) };
+				renderer->draw_line(start, end);
+			}
+			// slope +0.5
+			{
+				grid_pos = next_grid_pos(grid_pos);
+				Vertex start = { .pos = get_pos({ 1.0f, 0.5f }, grid_pos), .color = get_color({ 255, 0, 0, m_alpha }, color_mode) };
+				Vertex end = { .pos = get_pos({ -1.0f, -0.5f }, grid_pos), .color = get_color({ 0, 0, 255, m_alpha }, color_mode) };
+				renderer->draw_line(start, end);
+			}
 		}
 
 		/* Draw rect */
