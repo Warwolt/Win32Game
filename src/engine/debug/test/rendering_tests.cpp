@@ -1,4 +1,4 @@
-#include <engine/debug/renderer_test_screen.h>
+#include <engine/debug/test/rendering_tests.h>
 
 #include <engine/graphics/renderer.h>
 #include <engine/input/input.h>
@@ -9,12 +9,12 @@
 
 namespace engine {
 
-	void RendererTestScreen::update(const InputDevices& input) {
+	void RenderingTestScreen::update(const InputDevices& input) {
 		m_window_size = input.window_size;
 		m_alpha = (uint8_t)std::clamp((int16_t)m_alpha + 16 * input.mouse.mouse_wheel_delta, 0, 255);
 	}
 
-	void RendererTestScreen::draw(Renderer* renderer) const {
+	void RenderingTestScreen::draw(Renderer* renderer) const {
 		enum class DrawMode {
 			Outline,
 			Filled,

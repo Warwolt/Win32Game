@@ -7,7 +7,7 @@ namespace engine {
     struct InputDevices;
 	class Renderer;
 
-	class RendererTestScreen {
+	class RenderingTestScreen {
 	public:
         void update(const InputDevices& input);
         void draw(Renderer* renderer) const;

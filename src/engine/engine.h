@@ -1,7 +1,7 @@
 #pragma once
 
 // TODO: move this and DebugState into debug.h
-#include <engine/debug/renderer_test_screen.h>
+#include <engine/debug/test/rendering_tests.h>
 
 #include <engine/audio/audio_player.h>
 #include <engine/commands.h>
@@ -12,7 +12,7 @@ namespace engine {
 	class Renderer;
 
 	struct DebugState {
-		RendererTestScreen renderer_test_screen;
+		RenderingTestScreen renderer_test_screen;
 	};
 
 	struct EngineState {

@@ -1,6 +1,6 @@
 #include <engine/engine.h>
 
-#include <engine/debug/renderer_test_screen.h>
+#include <engine/debug/test/rendering_tests.h>
 #include <engine/input/input.h>
 
 namespace engine {
