@@ -3,6 +3,9 @@
 #include <engine/graphics/renderer.h>
 #include <engine/input/input.h>
 
+#include <array>
+#include <vector>
+
 namespace engine {
 
 	void RendererTestScreen::update(const InputDevices& input) {
@@ -10,6 +13,12 @@ namespace engine {
 	}
 
 	void RendererTestScreen::draw(Renderer* renderer) const {
+		enum class DrawMode {
+			Outline,
+			Filled,
+		};
+		std::array<DrawMode, 2> modes = { DrawMode::Outline, DrawMode::Filled };
+
 		const engine::Color color = { 0, 255, 0 };
 		const int32_t grid_size = 64;
 		const int32_t grid_spacing = 16;
@@ -101,7 +110,7 @@ namespace engine {
 		/* Draw rect */
 #pragma region draw rect
 		// rect
-		{
+		for (DrawMode mode : modes) {
 			grid_pos = next_grid_pos(grid_pos);
 			IVec2 pos = transform(Vec2 { -1.0f, 1.0f }, grid_pos);
 			Rect rect = {
@@ -110,45 +119,25 @@ namespace engine {
 				.width = grid_size,
 				.height = grid_size,
 			};
-			renderer->draw_rect(rect, color);
-		}
-		// rect fill
-		{
-			grid_pos = next_grid_pos(grid_pos);
-			IVec2 pos = transform(Vec2 { -1.0f, 1.0f }, grid_pos);
-			Rect rect = {
-				.x = pos.x,
-				.y = pos.y,
-				.width = grid_size,
-				.height = grid_size,
-			};
-			renderer->draw_rect_fill(rect, color);
+			if (mode == DrawMode::Outline) renderer->draw_rect(rect, color);
+			if (mode == DrawMode::Filled) renderer->draw_rect_fill(rect, color);
 		}
 
 		/* Draw polygon */
 #pragma region draw polygon
 		// triangle (convex)
-		{
+		for (DrawMode mode : modes) {
 			grid_pos = next_grid_pos(grid_pos);
 			std::vector<IVec2> vertices {
 				transform(Vec2 { -1.0f, -1.0f }, grid_pos),
 				transform(Vec2 { 0.0f, 1.0f }, grid_pos),
 				transform(Vec2 { 1.0f, -1.0f }, grid_pos),
 			};
-			renderer->draw_polygon(vertices, color);
-		}
-		// triangle fill (convex)
-		{
-			grid_pos = next_grid_pos(grid_pos);
-			std::vector<IVec2> vertices {
-				transform(Vec2 { -1.0f, -1.0f }, grid_pos),
-				transform(Vec2 { 0.0f, 1.0f }, grid_pos),
-				transform(Vec2 { 1.0f, -1.0f }, grid_pos),
-			};
-			renderer->draw_polygon_fill(vertices, color);
+			if (mode == DrawMode::Outline) renderer->draw_polygon(vertices, color);
+			if (mode == DrawMode::Filled) renderer->draw_polygon_fill(vertices, color);
 		}
 		// heart (concave)
-		{
+		for (DrawMode mode : modes) {
 			grid_pos = next_grid_pos(grid_pos);
 			std::vector<IVec2> vertices {
 				transform(Vec2 { -1.0f, 0.5f }, grid_pos),
@@ -158,24 +147,11 @@ namespace engine {
 				transform(Vec2 { 1.0f, 0.5f }, grid_pos),
 				transform(Vec2 { 0.0f, -1.0f }, grid_pos),
 			};
-			renderer->draw_polygon(vertices, color);
-		}
-		// heart fill (concave)
-		{
-			grid_pos = next_grid_pos(grid_pos);
-			std::vector<IVec2> vertices {
-				transform(Vec2 { -1.0f, 0.5f }, grid_pos),
-				transform(Vec2 { -0.5f, 1.0f }, grid_pos),
-				transform(Vec2 { 0.0f, 0.5f }, grid_pos),
-				transform(Vec2 { 0.5f, 1.0f }, grid_pos),
-				transform(Vec2 { 1.0f, 0.5f }, grid_pos),
-				transform(Vec2 { 0.0f, -1.0f }, grid_pos),
-			};
-			renderer->draw_polygon_fill(vertices, color);
+			if (mode == DrawMode::Outline) renderer->draw_polygon(vertices, color);
+			if (mode == DrawMode::Filled) renderer->draw_polygon_fill(vertices, color);
 		}
 		// mountains (complex)
-		// TODO: rewrite as loop over enum { OUTLINE, FILLED }
-		{
+		for (DrawMode mode : modes) {
 			grid_pos = next_grid_pos(grid_pos);
 			std::vector<IVec2> vertices {
 				transform(Vec2 { -1.0f, -1.0f }, grid_pos),
@@ -184,33 +160,17 @@ namespace engine {
 				transform(Vec2 { 0.5f, 1.0f }, grid_pos),
 				transform(Vec2 { 1.0f, -1.0f }, grid_pos),
 			};
-			renderer->draw_polygon(vertices, color);
-		}
-		// mountains fill (complex)
-		{
-			grid_pos = next_grid_pos(grid_pos);
-			std::vector<IVec2> vertices {
-				transform(Vec2 { -1.0f, -1.0f }, grid_pos),
-				transform(Vec2 { -0.5f, 0.5f }, grid_pos),
-				transform(Vec2 { 0.0f, -1.0f }, grid_pos),
-				transform(Vec2 { 0.5f, 1.0f }, grid_pos),
-				transform(Vec2 { 1.0f, -1.0f }, grid_pos),
-			};
-			renderer->draw_polygon_fill(vertices, color);
+			if (mode == DrawMode::Outline) renderer->draw_polygon(vertices, color);
+			if (mode == DrawMode::Filled) renderer->draw_polygon_fill(vertices, color);
 		}
 
 #pragma region draw circle
 		// circle
-		{
+		for (DrawMode mode : modes) {
 			grid_pos = next_grid_pos(grid_pos);
 			IVec2 center = transform(Vec2 { 0.0f, 0.0f }, grid_pos);
-			renderer->draw_circle(center, grid_size / 2, color);
-		}
-		// circle fill
-		{
-			grid_pos = next_grid_pos(grid_pos);
-			IVec2 center = transform(Vec2 { 0.0f, 0.0f }, grid_pos);
-			renderer->draw_circle_fill(center, grid_size / 2, color);
+			if (mode == DrawMode::Outline) renderer->draw_circle(center, grid_size / 2, color);
+			if (mode == DrawMode::Filled) renderer->draw_circle_fill(center, grid_size / 2, color);
 		}
 	}
 
