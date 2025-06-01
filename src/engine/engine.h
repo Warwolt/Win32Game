@@ -3,6 +3,12 @@
 #include <engine/audio/audio_player.h>
 #include <engine/commands.h>
 #include <engine/debug/debug.h>
+#include <engine/graphics/renderer.h>
+#include <engine/graphics/window.h>
+#include <engine/input/input.h>
+
+#include <expected>
+#include <variant>
 
 namespace engine {
 
@@ -11,11 +17,21 @@ namespace engine {
 
 	struct EngineState {
 		bool should_quit = false;
-		AudioPlayer audio;
+		// input output
+		InputEvents events;
+		InputDevices input;
 		CommandAPI commands;
+		AudioPlayer audio;
+		// graphics
+		Renderer renderer;
+		Window window;
+		// debug
 		DebugState debug;
 	};
 
+	using EngineError = std::variant<WindowError>;
+
+	std::expected<EngineState, EngineError> initialize(HINSTANCE instance, WNDPROC wnd_proc, const char* window_title);
 	void update(EngineState* engine, const InputDevices& input);
 	void draw(Renderer* renderer, const EngineState& engine);
 

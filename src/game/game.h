@@ -1,10 +1,9 @@
 #pragma once
 
 #include <engine/audio/audio_id.h>
-#include <engine/math/ivec2.h>
-
 
 namespace engine {
+	struct EngineState;
 	struct InputDevices;
 	class Renderer;
 	class CommandAPI;
@@ -20,6 +19,7 @@ namespace game {
 		} assets;
 	};
 
+	GameState initialize(engine::EngineState* engine);
 	void update(GameState* game, engine::CommandAPI* commands, const engine::InputDevices& input);
 	void draw(engine::Renderer* renderer, const GameState& game);
 

@@ -7,6 +7,10 @@
 
 namespace engine {
 
+	struct InputEvents {
+		MouseEvents mouse;
+	};
+
 	struct InputDevices {
 		Gamepad gamepad;
 		Keyboard keyboard;
@@ -14,6 +18,6 @@ namespace engine {
 		IVec2 window_size;
 	};
 
-	void update_input_devices(InputDevices* input, const MouseEvents& mouse_events);
+	void update_input_devices(InputDevices* input, const InputEvents& events);
 
 } // namespace engine
