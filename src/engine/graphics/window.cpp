@@ -31,7 +31,8 @@ namespace engine {
 
 	// Tries to initialize window, returns nullptr if fails
 	std::expected<Window, WindowError> Window::initialize(HINSTANCE instance, WNDPROC wnd_proc, IVec2 window_size, const char* window_title) {
-		Window window;
+		Window window = {};
+		window.m_window_size = window_size;
 
 		/* Register window class */
 		WNDCLASSA window_class = {
@@ -57,24 +58,28 @@ namespace engine {
 		int adjusted_window_width = adjusted_window_size.right - adjusted_window_size.left;
 		int adjusted_window_height = adjusted_window_size.bottom - adjusted_window_size.top;
 
-		// get monitor size
+		// position window
+		RECT desktop_rect;
+		GetWindowRect(GetDesktopWindow(), &desktop_rect);
+		int32_t monitor_center_x = desktop_rect.right / 2;
+		int32_t monitor_center_y = desktop_rect.bottom / 2;
 
 		/* Create window */
 		// TODO: set position to center of screen
 		// TODO: disable window resizing
 		window.m_handle = CreateWindowExA(
-			0,                                // DWORD dwExStyle
-			window_class.lpszClassName,       // LPCWSTR lpClassName
-			window_title,                     // LPCWSTR lpWindowName
-			WS_OVERLAPPEDWINDOW | WS_VISIBLE, // DWORD dwStyle
-			0,                                // int X
-			0,                                // int Y
-			adjusted_window_width,            // int nWidth
-			adjusted_window_height,           // int nHeight
-			0,                                // HWND hWndParent
-			0,                                // HMENU hMenu
-			instance,                         // HINSTANCE hInstance
-			0                                 // LPVOID lpParam
+			0,                                             // DWORD dwExStyle
+			window_class.lpszClassName,                    // LPCWSTR lpClassName
+			window_title,                                  // LPCWSTR lpWindowName
+			WS_OVERLAPPEDWINDOW | WS_VISIBLE,              // DWORD dwStyle
+			monitor_center_x - window.m_window_size.x / 2, // int X
+			monitor_center_y - window.m_window_size.y / 2, // int Y
+			adjusted_window_width,                         // int nWidth
+			adjusted_window_height,                        // int nHeight
+			0,                                             // HWND hWndParent
+			0,                                             // HMENU hMenu
+			instance,                                      // HINSTANCE hInstance
+			0                                              // LPVOID lpParam
 		);
 
 		if (!window.m_handle) {
