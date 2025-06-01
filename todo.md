@@ -24,9 +24,9 @@ Maybe ideas:
 - [!] Write Zelda Dungeon game
 
 # Doing
-- Add engine init function
 
 # Done
+- Add engine and game init functions
 - Move quit with escape into game.cpp
 - Move stuff from ProgramContext down into EngineState
 - Draw API: Add test screen drawing various shapes
