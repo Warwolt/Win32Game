@@ -111,27 +111,6 @@ static LRESULT CALLBACK on_window_event(
 	return DefWindowProc(window, message, w_param, l_param);
 }
 
-static engine::AudioID load_audio_from_file(const char* path) {
-	HANDLE cowbell_file = CreateFileA(
-		path,
-		GENERIC_READ,
-		FILE_SHARE_READ,
-		NULL,
-		OPEN_EXISTING,
-		0,
-		NULL
-	);
-	std::expected<engine::AudioID, std::string> result = g_context.engine.audio.add_audio_from_file(cowbell_file);
-	CloseHandle(cowbell_file);
-
-	if (!result.has_value()) {
-		fprintf(stderr, "Failed to load audio file \"%s\": %s\n", path, result.error().c_str());
-		exit(1);
-	}
-
-	return result.value();
-}
-
 int WINAPI WinMain(
 	HINSTANCE instance,
 	HINSTANCE /*prev_instance*/,
@@ -139,8 +118,7 @@ int WINAPI WinMain(
 	int /*command_show*/
 ) {
 	g_context.engine = initialize_engine_or_abort(instance, on_window_event, "Game");
-	g_context.game.assets.audio.cowbell = load_audio_from_file("assets/audio/808_cowbell.wav");
-
+	g_context.game = game::initialize(&g_context.engine);
 	/* Main loop */
 	while (!g_context.engine.should_quit) {
 		/* Input */
