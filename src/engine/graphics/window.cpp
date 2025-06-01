@@ -53,29 +53,21 @@ namespace engine {
 	}
 
 	void on_window_resized(Window* window) {
+		/* Update size */
 		RECT client_rect;
 		GetClientRect(window->handle, &client_rect);
 		int window_width = client_rect.right - client_rect.left;
 		int window_height = client_rect.bottom - client_rect.top;
+		window->size = {window_width, window_height};
 
+		/* Re-allocate bitmap */
 		if (window->bitmap.data) {
 			VirtualFree(window->bitmap.data, 0, MEM_RELEASE);
 		}
-
 		int bitmap_size = window_width * window_height * sizeof(BGRPixel);
 		window->bitmap.data = (BGRPixel*)VirtualAlloc(0, bitmap_size, MEM_COMMIT, PAGE_READWRITE);
 		window->bitmap.width = window_width;
 		window->bitmap.height = window_height;
-		window->bitmap_info = BITMAPINFO {
-			.bmiHeader = BITMAPINFOHEADER {
-				.biSize = sizeof(BITMAPINFOHEADER),
-				.biWidth = window_width,
-				.biHeight = -window_height,
-				.biPlanes = 1,
-				.biBitCount = 32,
-				.biCompression = BI_RGB,
-			}
-		};
 	}
 
 } // namespace engine

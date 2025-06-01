@@ -7,7 +7,10 @@
 
 namespace engine {
 
+	struct Window;
+
 	struct InputEvents {
+		bool window_is_focused;
 		MouseEvents mouse;
 	};
 
@@ -15,9 +18,8 @@ namespace engine {
 		Gamepad gamepad;
 		Keyboard keyboard;
 		Mouse mouse;
-		IVec2 window_size;
 	};
 
-	void update_input_devices(InputDevices* input, const InputEvents& events);
+	void update_input_devices(InputDevices* input, const InputEvents& events, const Window& window);
 
 } // namespace engine

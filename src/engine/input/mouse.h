@@ -7,6 +7,8 @@
 
 namespace engine {
 
+	struct Window;
+
 	struct MouseEvents {
 		int16_t mouse_wheel_delta;
 		std::optional<int16_t> mouse_x;
@@ -24,6 +26,6 @@ namespace engine {
 		Button x2_button;
 	};
 
-	void update_mouse(Mouse* mouse, const MouseEvents& events);
+	void update_mouse(Mouse* mouse, const MouseEvents& events, const Window& window);
 
 } // namespace engine

@@ -3,8 +3,6 @@
 #include <engine/debug/logging.h>
 #include <engine/input/input.h>
 
-#include <format>
-
 namespace engine {
 
 	std::expected<EngineState, EngineError> initialize(HINSTANCE instance, WNDPROC wnd_proc, const char* window_title) {
@@ -36,7 +34,7 @@ namespace engine {
 		engine->commands.clear();
 
 		/* Update engine */
-		update_debug(&engine->debug, input);
+		update_debug(&engine->debug, input, engine->window);
 	}
 
 	void draw(Renderer* renderer, const EngineState& engine) {

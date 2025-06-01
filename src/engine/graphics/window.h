@@ -1,6 +1,7 @@
 #pragma once
 
 #include <engine/graphics/bitmap.h>
+#include <engine/math/ivec2.h>
 
 #include <expected>
 #include <windows.h>
@@ -10,7 +11,8 @@ namespace engine {
 	struct Window {
 		HWND handle;
 		Bitmap bitmap;
-		BITMAPINFO bitmap_info;
+		IVec2 size;
+		bool is_focused = true;
 	};
 
 	enum class WindowError {
