@@ -11,13 +11,13 @@ namespace engine {
 		EngineState engine = {};
 		initialize_logging(LogLevel::Debug);
 		initialize_gamepad_support();
-		engine.audio = initialize_audio_player();
 		if (std::expected<Window, EngineError> window_result = initialize_window(instance, wnd_proc, window_title)) {
 			engine.window = window_result.value();
 		}
 		else {
 			return std::unexpected(window_result.error());
 		}
+		engine.audio = initialize_audio_player();
 		return engine;
 	}
 
