@@ -54,7 +54,7 @@ namespace game {
 	}
 
 	void draw(engine::Renderer* renderer, const GameState& /*game*/) {
-		renderer->clear_screen(engine::Color { 0, 127, 127 });
+		renderer->clear_screen(engine::RGBA { 0, 127, 127 });
 	}
 
 } // namespace game

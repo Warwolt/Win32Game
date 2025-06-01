@@ -1,6 +1,6 @@
 #pragma once
 
-#include <engine/graphics/color.h>
+#include <engine/graphics/rgba.h>
 
 #include <stdint.h>
 
@@ -12,7 +12,7 @@ namespace engine {
 		uint8_t r;
 		uint8_t padding;
 
-		inline static BGRPixel from_rgba(Color color) {
+		inline static BGRPixel from_rgba(RGBA color) {
 			return {
 				.b = color.b,
 				.g = color.g,
