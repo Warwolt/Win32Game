@@ -10,8 +10,8 @@
 #include <windowsx.h>
 
 struct ProgramContext {
-	game::GameState game;
 	engine::EngineState engine;
+	game::GameState game;
 };
 
 static ProgramContext g_context;
