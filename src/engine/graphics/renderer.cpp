@@ -171,7 +171,10 @@ namespace engine {
 			float x_step = (float)dx / (float)delta;
 			float y_step = (float)dy / (float)delta;
 			for (int32_t i = 0; i <= delta; i++) {
-				_put_point(bitmap, IVec2 { (int32_t)(start.pos.x + i * x_step), (int32_t)(start.pos.y + i * y_step) }, start.color);
+				// interpolate color
+				IVec2 point_pos = IVec2 { .x = (int32_t)(start.pos.x + i * x_step), .y = (int32_t)(start.pos.y + i * y_step) };
+				RGBA color = start.color;
+				_put_point(bitmap, point_pos, color);
 			}
 		}
 	}

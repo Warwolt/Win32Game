@@ -61,8 +61,8 @@ namespace engine {
 		// horizontal
 		{
 			grid_pos = next_grid_pos(grid_pos);
-			Vertex start = { .pos = transform(Vec2 { -1.0f, 0.0f }, grid_pos), .color = { 255, 0, 0 } };
-			Vertex end = { .pos = transform(Vec2 { 1.0f, 0.0f }, grid_pos), .color = { 0, 0, 255 } };
+			Vertex start = { .pos = transform(Vec2 { -1.0f, 0.0f }, grid_pos), .color = { 255, 0, 0, m_alpha } };
+			Vertex end = { .pos = transform(Vec2 { 1.0f, 0.0f }, grid_pos), .color = { 0, 0, 255, m_alpha } };
 			renderer->draw_line(start, end);
 		}
 		// horizontal
