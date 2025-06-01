@@ -51,8 +51,12 @@ namespace engine {
 		m_draw_commands.push_back(DrawPoint { point, color });
 	}
 
-	void Renderer::draw_line(IVec2 start, IVec2 end, RGBA color) {
-		m_draw_commands.push_back(DrawLine { start, end, color });
+	void Renderer::draw_line_OLD(IVec2 start, IVec2 end, RGBA color) {
+		m_draw_commands.push_back(DrawLine { .start = Vertex { start, color }, .end = Vertex { end, color } });
+	}
+
+	void Renderer::draw_line(Vertex start, Vertex end) {
+		m_draw_commands.push_back(DrawLine { start, end });
 	}
 
 	void Renderer::draw_rect(Rect rect, RGBA color) {
@@ -97,7 +101,7 @@ namespace engine {
 				_put_point(bitmap, draw_point->point, draw_point->color);
 			}
 			if (auto* draw_line = std::get_if<DrawLine>(&command)) {
-				_put_line(bitmap, draw_line->start, draw_line->end, draw_line->color);
+				_put_line(bitmap, draw_line->start, draw_line->end);
 			}
 			if (auto* draw_rect = std::get_if<DrawRect>(&command)) {
 				if (draw_rect->filled) {
@@ -143,13 +147,17 @@ namespace engine {
 		bitmap->put(point.x, point.y, new_color);
 	}
 
-	void Renderer::_put_line(Bitmap* bitmap, IVec2 start, IVec2 end, RGBA color) {
+	void Renderer::_put_line_OLD(Bitmap* bitmap, IVec2 start, IVec2 end, RGBA color) {
+		_put_line(bitmap, Vertex { start, color }, Vertex { end, color });
+	}
+
+	void Renderer::_put_line(Bitmap* bitmap, Vertex start, Vertex end) {
 		// vertical line
-		if (start.x == end.x) {
-			int32_t y0 = min(start.y, end.y);
-			int32_t y1 = max(start.y, end.y);
+		if (start.pos.x == end.pos.x) {
+			int32_t y0 = min(start.pos.y, end.pos.y);
+			int32_t y1 = max(start.pos.y, end.pos.y);
 			for (int32_t y = y0; y <= y1; y++) {
-				_put_point(bitmap, IVec2 { start.x, y }, color);
+				_put_point(bitmap, IVec2 { start.pos.x, y }, start.color);
 			}
 		}
 		// sloped line
@@ -157,13 +165,13 @@ namespace engine {
 			// delta is the longer side of the triangle formed by the line
 			// if dx is greater, x_step will be +1 or -1 and y_step will be the slope
 			// if dy is greater, we flip it along the diagonal
-			int32_t dx = end.x - start.x;
-			int32_t dy = end.y - start.y;
+			int32_t dx = end.pos.x - start.pos.x;
+			int32_t dy = end.pos.y - start.pos.y;
 			int32_t delta = max(std::abs(dx), std::abs(dy));
 			float x_step = (float)dx / (float)delta;
 			float y_step = (float)dy / (float)delta;
 			for (int32_t i = 0; i <= delta; i++) {
-				_put_point(bitmap, IVec2 { (int32_t)(start.x + i * x_step), (int32_t)(start.y + i * y_step) }, color);
+				_put_point(bitmap, IVec2 { (int32_t)(start.pos.x + i * x_step), (int32_t)(start.pos.y + i * y_step) }, start.color);
 			}
 		}
 	}
@@ -173,25 +181,25 @@ namespace engine {
 		IVec2 top_right = { rect.x + rect.width - 1, rect.y };
 		IVec2 bottom_left = { rect.x, rect.y + rect.height - 1 };
 		IVec2 bottom_right = { rect.x + rect.width - 1, rect.y + rect.height - 1 };
-		_put_line(bitmap, top_left, bottom_left, color);
-		_put_line(bitmap, top_right, bottom_right, color);
-		_put_line(bitmap, top_left, top_right, color);
-		_put_line(bitmap, bottom_left, bottom_right, color);
+		_put_line_OLD(bitmap, top_left, bottom_left, color);
+		_put_line_OLD(bitmap, top_right, bottom_right, color);
+		_put_line_OLD(bitmap, top_left, top_right, color);
+		_put_line_OLD(bitmap, bottom_left, bottom_right, color);
 	}
 
 	void Renderer::_put_rect_fill(Bitmap* bitmap, Rect rect, RGBA color) {
 		int32_t left = rect.x;
 		int32_t right = rect.x + rect.width - 1;
 		for (int32_t y = rect.y; y < rect.y + rect.height; y++) {
-			_put_line(bitmap, IVec2 { left, y }, IVec2 { right, y }, color);
+			_put_line_OLD(bitmap, IVec2 { left, y }, IVec2 { right, y }, color);
 		}
 	}
 
 	void Renderer::_put_polygon(Bitmap* bitmap, const std::vector<IVec2>& vertices, RGBA color) {
 		for (size_t i = 0; i < vertices.size() - 1; i++) {
-			_put_line(bitmap, vertices[i], vertices[i + 1], color);
+			_put_line_OLD(bitmap, vertices[i], vertices[i + 1], color);
 		}
-		_put_line(bitmap, vertices[vertices.size() - 1], vertices[0], color);
+		_put_line_OLD(bitmap, vertices[vertices.size() - 1], vertices[0], color);
 	}
 
 	void Renderer::_put_polygon_fill(Bitmap* bitmap, const std::vector<IVec2>& vertices, RGBA color) {
@@ -306,7 +314,7 @@ namespace engine {
 			for (size_t i = 0; i + 1 < points_to_connect.size(); i += 2) {
 				IVec2 start = { points_to_connect[i], y };
 				IVec2 end = { points_to_connect[i + 1], y };
-				_put_line(bitmap, start, end, color);
+				_put_line_OLD(bitmap, start, end, color);
 			}
 			// HACK: Skip drawing points if drawing lines so we don't overdraw,
 			// since this will mess with alpha blending.
@@ -351,7 +359,7 @@ namespace engine {
 
 		/* Draw vertical lines */
 		for (IVec2 point : half_circle_points) {
-			_put_line(bitmap, center + IVec2 { point.x, point.y }, center + IVec2 { point.x, -point.y }, color);
+			_put_line_OLD(bitmap, center + IVec2 { point.x, point.y }, center + IVec2 { point.x, -point.y }, color);
 		}
 	}
 

@@ -9,9 +9,9 @@ namespace engine {
 		EngineState engine = {};
 		initialize_logging(LogLevel::Debug);
 		initialize_gamepad_support();
-		constexpr int scale = 4;
-		IVec2 screen_resolution = IVec2 { 1920 / scale, 1200 / scale };
-		if (std::expected<Window, EngineError> window_result = Window::initialize(instance, wnd_proc, 2 * screen_resolution, window_title)) {
+		constexpr int zoom = 2;
+		IVec2 screen_resolution = IVec2 { 640, 480 };
+		if (std::expected<Window, EngineError> window_result = Window::initialize(instance, wnd_proc, zoom * screen_resolution, window_title)) {
 			engine.window = window_result.value();
 		}
 		else {
