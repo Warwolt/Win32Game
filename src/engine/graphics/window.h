@@ -17,8 +17,6 @@ namespace engine {
 	public:
 		static std::expected<Window, WindowError> initialize(HINSTANCE instance, WNDPROC wnd_proc, const char* window_title);
 
-		HWND m_handle;
-
 		IVec2 size() const;
 		bool is_focused() const;
 
@@ -26,9 +24,13 @@ namespace engine {
 		void on_focus_changed(bool is_focused);
 
 		void toggle_fullscreen();
-		void render(const Bitmap& bitmap, HDC device_context);
+		void render(const Bitmap& bitmap);
+		void render_wm_paint(const Bitmap& bitmap);
 
 	private:
+		void _render(const Bitmap& bitmap, HDC device_context);
+
+		HWND m_handle;
 		WINDOWPLACEMENT m_placement = { sizeof(WINDOWPLACEMENT) };
 		IVec2 m_size;
 		bool m_is_focused = true;

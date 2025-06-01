@@ -91,7 +91,20 @@ namespace engine {
 		}
 	}
 
-	void Window::render(const Bitmap& bitmap, HDC device_context) {
+	void Window::render(const Bitmap& bitmap) {
+		HDC device_context = GetDC(m_handle);
+		_render(bitmap, device_context);
+		ReleaseDC(m_handle, device_context);
+	}
+
+	void Window::render_wm_paint(const Bitmap& bitmap) {
+		PAINTSTRUCT paint;
+		HDC device_context = BeginPaint(m_handle, &paint);
+		_render(bitmap, device_context);
+		EndPaint(m_handle, &paint);
+	}
+
+	void Window::_render(const Bitmap& bitmap, HDC device_context) {
 		RECT client_rect;
 		GetClientRect(m_handle, &client_rect);
 		int window_width = client_rect.right - client_rect.left;
