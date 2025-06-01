@@ -75,17 +75,20 @@ namespace engine {
 	// Based on Raymond Chen's "How do I switch a window between normal and fullscreen?"
 	// https://devblogs.microsoft.com/oldnewthing/20100412-00/?p=14353
 	void Window::toggle_fullscreen() {
-		DWORD dwStyle = GetWindowLong(m_handle, GWL_STYLE);
-		if (dwStyle & WS_OVERLAPPEDWINDOW) {
-			MONITORINFO mi = { sizeof(mi) };
-			if (GetWindowPlacement(m_handle, &m_placement) &&
-				GetMonitorInfo(MonitorFromWindow(m_handle, MONITOR_DEFAULTTOPRIMARY), &mi)) {
-				SetWindowLong(m_handle, GWL_STYLE, dwStyle & ~WS_OVERLAPPEDWINDOW);
-				SetWindowPos(m_handle, HWND_TOP, mi.rcMonitor.left, mi.rcMonitor.top, mi.rcMonitor.right - mi.rcMonitor.left, mi.rcMonitor.bottom - mi.rcMonitor.top, SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
+		DWORD style = GetWindowLong(m_handle, GWL_STYLE);
+		if (style & WS_OVERLAPPEDWINDOW) {
+			MONITORINFO monitor_info = { sizeof(monitor_info) };
+			bool got_placement = GetWindowPlacement(m_handle, &m_placement);
+			bool got_monitor_info = GetMonitorInfo(MonitorFromWindow(m_handle, MONITOR_DEFAULTTOPRIMARY), &monitor_info);
+			if (got_placement && got_monitor_info) {
+				SetWindowLong(m_handle, GWL_STYLE, style & ~WS_OVERLAPPEDWINDOW);
+				int monitor_width = monitor_info.rcMonitor.right - monitor_info.rcMonitor.left;
+				int monitor_height = monitor_info.rcMonitor.bottom - monitor_info.rcMonitor.top;
+				SetWindowPos(m_handle, HWND_TOP, monitor_info.rcMonitor.left, monitor_info.rcMonitor.top, monitor_width, monitor_height, SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
 			}
 		}
 		else {
-			SetWindowLong(m_handle, GWL_STYLE, dwStyle | WS_OVERLAPPEDWINDOW);
+			SetWindowLong(m_handle, GWL_STYLE, style | WS_OVERLAPPEDWINDOW);
 			SetWindowPlacement(m_handle, &m_placement);
 			SetWindowPos(m_handle, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
 		}
