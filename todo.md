@@ -23,9 +23,9 @@ Overall goal:
 - [!] Write Zelda Dungeon game
 
 # Doing
-- Draw API: Add test screen drawing various shapes
 
 # Done
+- Draw API: Add test screen drawing various shapes
 - Draw API: circles
 - Draw API: alpha blending
 - Draw API: rectangles, polygons
