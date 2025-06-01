@@ -3,16 +3,28 @@
 #include <engine/audio/audio_player.h>
 #include <engine/commands.h>
 #include <engine/debug/debug.h>
+#include <engine/graphics/renderer.h>
+#include <engine/graphics/window.h>
+#include <engine/input/input.h>
 
 namespace engine {
 
 	struct InputDevices;
 	class Renderer;
 
+	// TODO: struct InputEvents
+
 	struct EngineState {
 		bool should_quit = false;
-		AudioPlayer audio;
+		// input output
+		MouseEvents mouse_events;
+		InputDevices input;
 		CommandAPI commands;
+		AudioPlayer audio;
+		// graphics
+		Renderer renderer;
+		Window window;
+		// debug
 		DebugState debug;
 	};
 

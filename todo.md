@@ -7,7 +7,6 @@ Maybe ideas:
 - Text mode engine debugging UI (for selecting various test screens and tools)
 
 # Todo
-- Add engine init function
 - Bug: ignore keyboard key/mouse buttons if window not focused
 - Window: Borderless full screen
 - Window: Render at lower resolution and upscale it to fit screen
@@ -25,6 +24,7 @@ Maybe ideas:
 - [!] Write Zelda Dungeon game
 
 # Doing
+- Add engine init function
 
 # Done
 - Move quit with escape into game.cpp

@@ -1,12 +1,7 @@
-#include <engine/audio/audio_player.h>
 #include <engine/debug/logging.h>
 #include <engine/engine.h>
-#include <engine/graphics/renderer.h>
-#include <engine/graphics/window.h>
 #include <engine/input/gamepad.h>
 #include <engine/input/input.h>
-#include <engine/input/keyboard.h>
-#include <engine/input/mouse.h>
 #include <engine/math/ivec2.h>
 #include <game/game.h>
 
@@ -15,16 +10,7 @@
 #include <windowsx.h>
 
 struct ProgramContext {
-	// input output
-	engine::MouseEvents mouse_events;
-	engine::InputDevices input;
-	// graphics
-	engine::Renderer renderer;
-	engine::Window window;
-	// game
 	game::GameState game;
-	// engine
-	// TODO: move more stuff into EngineState ?
 	engine::EngineState engine;
 };
 
@@ -52,12 +38,12 @@ static void pump_window_messages() {
 }
 
 static void update_input() {
-	engine::update_input_devices(&g_context.input, g_context.mouse_events);
-	g_context.input.window_size = {
-		.x = g_context.window.bitmap.width,
-		.y = g_context.window.bitmap.height
+	engine::update_input_devices(&g_context.engine.input, g_context.engine.mouse_events);
+	g_context.engine.input.window_size = {
+		.x = g_context.engine.window.bitmap.width,
+		.y = g_context.engine.window.bitmap.height
 	};
-	g_context.mouse_events = {};
+	g_context.engine.mouse_events = {};
 }
 
 static LRESULT CALLBACK on_window_event(
@@ -68,21 +54,21 @@ static LRESULT CALLBACK on_window_event(
 ) {
 	switch (message) {
 		case WM_SIZE: {
-			if (window == g_context.window.handle) {
-				engine::on_window_resized(&g_context.window);
+			if (window == g_context.engine.window.handle) {
+				engine::on_window_resized(&g_context.engine.window);
 			}
 		} break;
 
 		case WM_SYSKEYDOWN:
 		case WM_KEYDOWN: {
 			uint32_t key_id = (uint32_t)w_param;
-			g_context.input.keyboard.on_key_event(key_id, true);
+			g_context.engine.input.keyboard.on_key_event(key_id, true);
 		} break;
 
 		case WM_SYSKEYUP:
 		case WM_KEYUP: {
 			uint32_t key_id = (uint32_t)w_param;
-			g_context.input.keyboard.on_key_event(key_id, false);
+			g_context.engine.input.keyboard.on_key_event(key_id, false);
 		} break;
 
 		case WM_DESTROY: {
@@ -96,26 +82,26 @@ static LRESULT CALLBACK on_window_event(
 		} break;
 
 		case WM_MOUSEWHEEL: {
-			g_context.mouse_events.mouse_wheel_delta += GET_WHEEL_DELTA_WPARAM(w_param) / WHEEL_DELTA;
+			g_context.engine.mouse_events.mouse_wheel_delta += GET_WHEEL_DELTA_WPARAM(w_param) / WHEEL_DELTA;
 		} break;
 
 		case WM_MOUSEMOVE: {
-			g_context.mouse_events.mouse_x = (int16_t)GET_X_LPARAM(l_param);
-			g_context.mouse_events.mouse_y = (int16_t)GET_Y_LPARAM(l_param);
+			g_context.engine.mouse_events.mouse_x = (int16_t)GET_X_LPARAM(l_param);
+			g_context.engine.mouse_events.mouse_y = (int16_t)GET_Y_LPARAM(l_param);
 		} break;
 
 		case WM_PAINT: {
 			// input
 			update_input();
 			// update
-			game::update(&g_context.game, &g_context.engine.commands, g_context.input);
-			engine::update(&g_context.engine, g_context.input);
+			game::update(&g_context.game, &g_context.engine.commands, g_context.engine.input);
+			engine::update(&g_context.engine, g_context.engine.input);
 			// render
-			game::draw(&g_context.renderer, g_context.game);
-			engine::draw(&g_context.renderer, g_context.engine);
+			game::draw(&g_context.engine.renderer, g_context.game);
+			engine::draw(&g_context.engine.renderer, g_context.engine);
 			PAINTSTRUCT paint;
 			HDC device_context = BeginPaint(window, &paint);
-			g_context.renderer.render(&g_context.window, device_context);
+			g_context.engine.renderer.render(&g_context.engine.window, device_context);
 			EndPaint(window, &paint);
 		} break;
 	}
@@ -151,9 +137,9 @@ int WINAPI WinMain(
 	int /*command_show*/
 ) {
 	engine::initialize_logging(engine::LogLevel::Debug);
-	// TODO: add `EngineState initialize()``function
+	// TODO: add `EngineState initialize()` function
 	engine::initialize_gamepad_support();
-	g_context.window = initialize_window_or_abort(instance, on_window_event, "Game");
+	g_context.engine.window = initialize_window_or_abort(instance, on_window_event, "Game");
 	g_context.engine.audio = engine::initialize_audio_player();
 	g_context.game.assets.audio.cowbell = load_audio_from_file("assets/audio/808_cowbell.wav");
 
@@ -164,16 +150,16 @@ int WINAPI WinMain(
 		update_input();
 
 		/* Update */
-		game::update(&g_context.game, &g_context.engine.commands, g_context.input);
-		engine::update(&g_context.engine, g_context.input);
+		game::update(&g_context.game, &g_context.engine.commands, g_context.engine.input);
+		engine::update(&g_context.engine, g_context.engine.input);
 
 		/* Render */
-		g_context.renderer.clear_screen();
-		game::draw(&g_context.renderer, g_context.game);
-		engine::draw(&g_context.renderer, g_context.engine);
-		HDC device_context = GetDC(g_context.window.handle);
-		g_context.renderer.render(&g_context.window, device_context);
-		ReleaseDC(g_context.window.handle, device_context);
+		g_context.engine.renderer.clear_screen();
+		game::draw(&g_context.engine.renderer, g_context.game);
+		engine::draw(&g_context.engine.renderer, g_context.engine);
+		HDC device_context = GetDC(g_context.engine.window.handle);
+		g_context.engine.renderer.render(&g_context.engine.window, device_context);
+		ReleaseDC(g_context.engine.window.handle, device_context);
 	}
 
 	return 0;
