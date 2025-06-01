@@ -53,7 +53,6 @@ static LRESULT CALLBACK on_window_event(
 	switch (message) {
 		case WM_SIZE: {
 			engine::IVec2 window_size = g_context.engine.window.on_resized();
-			reallocate_bitmap(&g_context.engine.bitmap, window_size.x, window_size.y);
 		} break;
 
 		case WM_SYSKEYDOWN:

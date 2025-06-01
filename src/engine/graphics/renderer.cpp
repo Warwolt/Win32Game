@@ -43,8 +43,8 @@ namespace engine {
 		return octant_points;
 	}
 
-	void Renderer::clear_screen() {
-		m_draw_commands.push_back(ClearScreen {});
+	void Renderer::clear_screen(Color color) {
+		m_draw_commands.push_back(ClearScreen { color });
 	}
 
 	void Renderer::draw_point(IVec2 point, Color color) {
@@ -91,7 +91,7 @@ namespace engine {
 		/* Draw to bitmap */
 		for (DrawCommand& command : m_draw_commands) {
 			if (auto* clear_screen = std::get_if<ClearScreen>(&command)) {
-				_clear_screen(bitmap);
+				_clear_screen(bitmap, clear_screen->color);
 			}
 			if (auto* draw_point = std::get_if<DrawPoint>(&command)) {
 				_put_point(bitmap, draw_point->point, draw_point->color);
@@ -127,8 +127,10 @@ namespace engine {
 		m_draw_commands.clear();
 	}
 
-	void Renderer::_clear_screen(Bitmap* bitmap) {
-		ZeroMemory(bitmap->data, bitmap->width * bitmap->height * sizeof(int32_t));
+	void Renderer::_clear_screen(Bitmap* bitmap, Color color) {
+		for (size_t i = 0; i < bitmap->width * bitmap->height; i++) {
+			bitmap->data[i] = BGRPixel::from_rgba(color);
+		}
 	}
 
 	void Renderer::_put_point(Bitmap* bitmap, IVec2 point, Color color) {

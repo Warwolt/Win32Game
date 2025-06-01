@@ -1,6 +1,7 @@
 #pragma once
 
 #include <engine/graphics/color.h>
+#include <engine/graphics/rect.h>
 #include <engine/graphics/window.h>
 #include <engine/math/ivec2.h>
 
@@ -11,16 +12,9 @@
 
 namespace engine {
 
-	struct Rect {
-		int32_t x;
-		int32_t y;
-		int32_t width;
-		int32_t height;
-	};
-
 	class Renderer {
 	public:
-		void clear_screen();
+		void clear_screen(Color color = { 0, 0, 0, 255 });
 		void draw_point(IVec2 point, Color color);
 		void draw_line(IVec2 start, IVec2 end, Color color);
 		void draw_rect(Rect rect, Color color);
@@ -32,7 +26,9 @@ namespace engine {
 		void render(Bitmap* bitmap);
 
 	private:
-		struct ClearScreen {};
+		struct ClearScreen {
+			Color color;
+		};
 		struct DrawPoint {
 			IVec2 point;
 			Color color;
@@ -69,7 +65,7 @@ namespace engine {
 
 		std::vector<DrawCommand> m_draw_commands;
 
-		void _clear_screen(Bitmap* bitmap);
+		void _clear_screen(Bitmap* bitmap, Color color);
 		void _put_point(Bitmap* bitmap, IVec2 point, Color color);
 		void _put_line(Bitmap* bitmap, IVec2 start, IVec2 end, Color color);
 		void _put_rect(Bitmap* bitmap, Rect rect, Color color);

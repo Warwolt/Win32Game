@@ -16,7 +16,9 @@ namespace engine {
 	class Renderer;
 
 	struct EngineState {
+		// application
 		bool should_quit = false;
+		IVec2 screen_resolution;
 		// input output
 		InputEvents events;
 		InputDevices input;
