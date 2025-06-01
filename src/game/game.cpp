@@ -48,10 +48,6 @@ namespace game {
 		if (input.keyboard.key_was_pressed_now('1')) {
 			commands->play_sound(game->assets.audio.cowbell);
 		}
-
-		if (input.mouse.left_button.was_pressed_now()) {
-			commands->play_sound(game->assets.audio.cowbell);
-		}
 	}
 
 	void draw(engine::Renderer* /*renderer*/, const GameState& /*game*/) {

@@ -68,16 +68,6 @@ namespace engine {
 		window->bitmap.data = (BGRPixel*)VirtualAlloc(0, bitmap_size, MEM_COMMIT, PAGE_READWRITE);
 		window->bitmap.width = window_width;
 		window->bitmap.height = window_height;
-		window->bitmap_info = BITMAPINFO {
-			.bmiHeader = BITMAPINFOHEADER {
-				.biSize = sizeof(BITMAPINFOHEADER),
-				.biWidth = window_width,
-				.biHeight = -window_height,
-				.biPlanes = 1,
-				.biBitCount = 32,
-				.biCompression = BI_RGB,
-			}
-		};
 	}
 
 } // namespace engine

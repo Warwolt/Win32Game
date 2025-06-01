@@ -11,7 +11,6 @@ namespace engine {
 	struct Window {
 		HWND handle;
 		Bitmap bitmap;
-		BITMAPINFO bitmap_info; // FIXME: inline this into Renderer::render, only place that uses it
 		IVec2 size;
 		bool is_focused = true;
 	};

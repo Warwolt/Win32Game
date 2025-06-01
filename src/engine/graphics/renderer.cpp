@@ -133,6 +133,17 @@ namespace engine {
 			int window_width = client_rect.right - client_rect.left;
 			int window_height = client_rect.bottom - client_rect.top;
 
+			BITMAPINFO bitmap_info = BITMAPINFO {
+				.bmiHeader = BITMAPINFOHEADER {
+					.biSize = sizeof(BITMAPINFOHEADER),
+					.biWidth = window_width,
+					.biHeight = -window_height,
+					.biPlanes = 1,
+					.biBitCount = 32,
+					.biCompression = BI_RGB,
+				}
+			};
+
 			StretchDIBits(
 				device_context,
 				// destination rect (window)
@@ -147,7 +158,7 @@ namespace engine {
 				window->bitmap.height,
 				// bitmap data
 				window->bitmap.data,
-				&window->bitmap_info,
+				&bitmap_info,
 				DIB_RGB_COLORS,
 				SRCCOPY
 			);
