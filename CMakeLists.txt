@@ -10,8 +10,9 @@ set(SRC
     src/engine/commands.cpp
     src/engine/engine.cpp
     src/engine/audio/audio_player.cpp
+    src/engine/debug/debug.cpp
     src/engine/debug/logging.cpp
-    src/engine/debug/renderer_test_screen.cpp
+    src/engine/debug/test/rendering_tests.cpp
     src/engine/graphics/renderer.cpp
     src/engine/graphics/window.cpp
     src/engine/input/button.cpp

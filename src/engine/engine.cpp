@@ -1,6 +1,6 @@
 #include <engine/engine.h>
 
-#include <engine/debug/renderer_test_screen.h>
+#include <engine/debug/test/rendering_tests.h>
 #include <engine/input/input.h>
 
 namespace engine {
@@ -20,11 +20,11 @@ namespace engine {
 		engine->commands.clear();
 
 		/* Update engine */
-		engine->debug.renderer_test_screen.update(input);
+		update_debug(&engine->debug, input);
 	}
 
 	void draw(Renderer* renderer, const EngineState& engine) {
-		engine.debug.renderer_test_screen.draw(renderer);
+		draw_debug(renderer, engine.debug);
 	}
 
 } // namespace engine
