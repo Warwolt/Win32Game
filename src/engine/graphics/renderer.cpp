@@ -70,23 +70,23 @@ namespace engine {
 		}
 		// sloped line
 		else {
-			// // delta is the longer side of the triangle formed by the line
-			// // if dx is greater, x_step will be +1 or -1 and y_step will be the slope
-			// // if dy is greater, we flip it along the diagonal
-			// int32_t dx = v2.pos.x - v1.pos.x;
-			// int32_t dy = v2.pos.y - v1.pos.y;
-			// int32_t abs_dx = std::abs(dx);
-			// int32_t abs_dy = std::abs(dy);
-			// int32_t delta = std::max(abs_dx, abs_dy);
-			// float x_step = (float)dx / (float)delta;
-			// float y_step = (float)dy / (float)delta;
-			// for (int32_t i = 0; i <= delta; i++) {
-			// 	IVec2 pos = IVec2 { .x = (int32_t)(v1.pos.x + i * x_step), .y = (int32_t)(v1.pos.y + i * y_step) };
-			// 	float t = abs_dx > abs_dy
-			// 		? (float)(pos.x - v1.pos.x) / (float)(v2.pos.x - v1.pos.x)
-			// 		: (float)(pos.y - v1.pos.y) / (float)(v2.pos.y - v1.pos.y);
-			// 	_put_point(bitmap, pos, RGBA::lerp(v1.color, v2.color, t));
-			// }
+			// big_delta is the longer side of the triangle formed by the line
+			// if dx is greater, x_step will be +1 or -1 and y_step will be the slope
+			// if dy is greater, we flip it along the diagonal
+			int32_t dx = v2.pos.x - v1.pos.x;
+			int32_t dy = v2.pos.y - v1.pos.y;
+			int32_t abs_dx = std::abs(dx);
+			int32_t abs_dy = std::abs(dy);
+			int32_t big_delta = std::max(abs_dx, abs_dy);
+			float x_step = (float)dx / (float)big_delta;
+			float y_step = (float)dy / (float)big_delta;
+			for (int32_t i = 0; i <= big_delta; i++) {
+				IVec2 pos = IVec2 { .x = (int32_t)(v1.pos.x + i * x_step), .y = (int32_t)(v1.pos.y + i * y_step) };
+				float t = abs_dx > abs_dy
+					? (float)(pos.x - v1.pos.x) / (float)(v2.pos.x - v1.pos.x)
+					: (float)(pos.y - v1.pos.y) / (float)(v2.pos.y - v1.pos.y);
+				_put_point(bitmap, Vertex { .pos = pos, .color = RGBA::lerp(v1.color, v2.color, t) });
+			}
 		}
 	}
 
