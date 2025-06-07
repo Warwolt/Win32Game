@@ -18,8 +18,9 @@ namespace engine {
 	class Renderer {
 	public:
 		void clear_screen(RGBA color = { 0, 0, 0, 255 });
-		void draw_point(IVec2 point, RGBA color);
-		void draw_line(Vertex start, Vertex end);
+		void draw_point(Vertex v1);
+		void draw_line(Vertex v1, Vertex v2);
+
 		void draw_rect(Rect rect, RGBA color);
 		void draw_rect_fill(Rect rect, RGBA color);
 		void draw_circle(IVec2 center, int32_t radius, RGBA color);

@@ -129,13 +129,13 @@ namespace engine {
 
 	void Renderer_OLD::_clear_screen(Bitmap* bitmap, RGBA color) {
 		for (size_t i = 0; i < bitmap->width * bitmap->height; i++) {
-			bitmap->data[i] = BGRPixel::from_rgba(color);
+			bitmap->data[i] = Pixel::from_rgba(color);
 		}
 	}
 
 	void Renderer_OLD::_put_point(Bitmap* bitmap, IVec2 point, RGBA color) {
-		BGRPixel old_color = bitmap->get(point.x, point.y);
-		BGRPixel new_color = BGRPixel {
+		Pixel old_color = bitmap->get(point.x, point.y);
+		Pixel new_color = Pixel {
 			.b = (uint8_t)std::lerp(old_color.b, color.b, color.a / 255.0f),
 			.g = (uint8_t)std::lerp(old_color.g, color.g, color.a / 255.0f),
 			.r = (uint8_t)std::lerp(old_color.r, color.r, color.a / 255.0f),

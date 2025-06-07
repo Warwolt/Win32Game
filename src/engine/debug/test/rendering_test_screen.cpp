@@ -55,6 +55,13 @@ namespace engine {
 			return mode == ColorMode::Mono ? RGBA { 0, 255, 0, m_alpha } : color;
 		};
 
+		/* Draw point*/
+#pragma region draw point
+		{
+			grid_pos = next_grid_pos(grid_pos);
+			renderer->draw_point(Vertex { .pos = get_pos({ 0.0f, 0.0f }, grid_pos), .color = { 0, 255, 0, m_alpha } });
+		}
+
 		/* Draw line */
 #pragma region draw line
 		for (ColorMode color_mode : color_modes) {
