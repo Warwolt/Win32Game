@@ -17,6 +17,14 @@ namespace engine {
 	}
 
 	void Renderer::draw_rect(Rect rect, RGBA color) {
+		Vertex top_left = Vertex { .pos = { rect.x, rect.y }, .color = color };
+		Vertex top_right = Vertex { .pos = { rect.x + rect.width - 1, rect.y }, .color = color };
+		Vertex bottom_left = Vertex { .pos = { rect.x, rect.y + rect.height - 1 }, .color = color };
+		Vertex bottom_right = Vertex { .pos = { rect.x + rect.width - 1, rect.y + rect.height - 1 }, .color = color };
+		draw_line(top_left, bottom_left);
+		draw_line(top_right, bottom_right);
+		draw_line(top_left, top_right);
+		draw_line(bottom_left, bottom_right);
 	}
 
 	void Renderer::draw_rect_fill(Rect rect, RGBA color) {
