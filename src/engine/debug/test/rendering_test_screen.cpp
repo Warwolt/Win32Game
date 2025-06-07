@@ -137,47 +137,7 @@ namespace engine {
 			if (mode == FillMode::Filled) renderer->draw_rect_fill(rect, color);
 		}
 
-		/* Draw polygon */
-#pragma region draw polygon
-		// triangle (convex)
-		for (FillMode mode : fill_modes) {
-			grid_pos = next_grid_pos(grid_pos);
-			std::vector<IVec2> vertices {
-				get_pos(Vec2 { -1.0f, -1.0f }, grid_pos),
-				get_pos(Vec2 { 0.0f, 1.0f }, grid_pos),
-				get_pos(Vec2 { 1.0f, -1.0f }, grid_pos),
-			};
-			if (mode == FillMode::Outline) renderer->draw_polygon(vertices, color);
-			if (mode == FillMode::Filled) renderer->draw_polygon_fill(vertices, color);
-		}
-		// heart (concave)
-		for (FillMode mode : fill_modes) {
-			grid_pos = next_grid_pos(grid_pos);
-			std::vector<IVec2> vertices {
-				get_pos(Vec2 { -1.0f, 0.5f }, grid_pos),
-				get_pos(Vec2 { -0.5f, 1.0f }, grid_pos),
-				get_pos(Vec2 { 0.0f, 0.5f }, grid_pos),
-				get_pos(Vec2 { 0.5f, 1.0f }, grid_pos),
-				get_pos(Vec2 { 1.0f, 0.5f }, grid_pos),
-				get_pos(Vec2 { 0.0f, -1.0f }, grid_pos),
-			};
-			if (mode == FillMode::Outline) renderer->draw_polygon(vertices, color);
-			if (mode == FillMode::Filled) renderer->draw_polygon_fill(vertices, color);
-		}
-		// mountains (complex)
-		for (FillMode mode : fill_modes) {
-			grid_pos = next_grid_pos(grid_pos);
-			std::vector<IVec2> vertices {
-				get_pos(Vec2 { -1.0f, -1.0f }, grid_pos),
-				get_pos(Vec2 { -0.5f, 0.5f }, grid_pos),
-				get_pos(Vec2 { 0.0f, -1.0f }, grid_pos),
-				get_pos(Vec2 { 0.5f, 1.0f }, grid_pos),
-				get_pos(Vec2 { 1.0f, -1.0f }, grid_pos),
-			};
-			if (mode == FillMode::Outline) renderer->draw_polygon(vertices, color);
-			if (mode == FillMode::Filled) renderer->draw_polygon_fill(vertices, color);
-		}
-
+		/* Draw circle */
 #pragma region draw circle
 		// circle
 		for (FillMode mode : fill_modes) {
@@ -187,5 +147,9 @@ namespace engine {
 			if (mode == FillMode::Filled) renderer->draw_circle_fill(center, grid_size / 2, color);
 		}
 	}
+
+	/* Draw polygon */
+#pragma region draw polygon
+	// TODO: draw some polygons
 
 } // namespace engine
