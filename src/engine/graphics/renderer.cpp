@@ -1,5 +1,7 @@
 #include <engine/graphics/renderer.h>
 
+#include <cmath>
+
 namespace engine {
 
 	void Renderer::clear_screen(RGBA color) {
@@ -34,6 +36,9 @@ namespace engine {
 			if (auto* draw_point = std::get_if<DrawPoint>(&command)) {
 				_put_point(bitmap, draw_point->v1);
 			}
+			if (auto* draw_line = std::get_if<DrawLine>(&command)) {
+				_put_line(bitmap, draw_line->v1, draw_line->v2);
+			}
 		}
 		m_commands.clear();
 	}
@@ -53,6 +58,36 @@ namespace engine {
 	}
 
 	void Renderer::_put_line(Bitmap* bitmap, Vertex v1, Vertex v2) {
+		// vertical line
+		if (v1.pos.x == v2.pos.x) {
+			int32_t y0 = std::min(v1.pos.y, v2.pos.y);
+			int32_t y1 = std::max(v1.pos.y, v2.pos.y);
+			for (int32_t y = y0; y <= y1; y++) {
+				IVec2 pos = IVec2 { v1.pos.x, y };
+				float t = (float)(pos.y - v1.pos.y) / (float)(v2.pos.y - v1.pos.y);
+				_put_point(bitmap, Vertex { .pos = pos, .color = RGBA::lerp(v1.color, v2.color, t) });
+			}
+		}
+		// sloped line
+		else {
+			// // delta is the longer side of the triangle formed by the line
+			// // if dx is greater, x_step will be +1 or -1 and y_step will be the slope
+			// // if dy is greater, we flip it along the diagonal
+			// int32_t dx = v2.pos.x - v1.pos.x;
+			// int32_t dy = v2.pos.y - v1.pos.y;
+			// int32_t abs_dx = std::abs(dx);
+			// int32_t abs_dy = std::abs(dy);
+			// int32_t delta = std::max(abs_dx, abs_dy);
+			// float x_step = (float)dx / (float)delta;
+			// float y_step = (float)dy / (float)delta;
+			// for (int32_t i = 0; i <= delta; i++) {
+			// 	IVec2 pos = IVec2 { .x = (int32_t)(v1.pos.x + i * x_step), .y = (int32_t)(v1.pos.y + i * y_step) };
+			// 	float t = abs_dx > abs_dy
+			// 		? (float)(pos.x - v1.pos.x) / (float)(v2.pos.x - v1.pos.x)
+			// 		: (float)(pos.y - v1.pos.y) / (float)(v2.pos.y - v1.pos.y);
+			// 	_put_point(bitmap, pos, RGBA::lerp(v1.color, v2.color, t));
+			// }
+		}
 	}
 
 } // namespace engine
