@@ -15,6 +15,7 @@ namespace engine {
 		uint8_t padding;
 
 		static Pixel from_rgba(RGBA color);
+		bool operator==(const Pixel& rhs) const = default;
 		Pixel lerp(Pixel rhs, float t) const;
 	};
 

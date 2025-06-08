@@ -4,6 +4,37 @@
 
 namespace engine {
 
+	static std::vector<IVec2> circle_octant_points(int32_t radius) {
+		/* Compute points in 2nd octant */
+		// We utilize that y value increases monotonously in the first octant,
+		// and check which pixel is closest to the radius at a given x-value.
+		//               90°
+		//         , - ~ ~ ~ - ,
+		//     , '       |       ' , 45°
+		//   ,           |       ⟋   ,
+		//  ,            |    ⟋       ,
+		// ,             | ⟋           ,
+		// ,             o             ,
+		// ,                           ,
+		//  ,                         ,
+		//   ,                       ,
+		//     ,                  , '
+		//       ' - , _ _ _ ,  '
+		std::vector<IVec2> octant_points;
+		IVec2 point = { 0, radius };
+		while (point.x <= point.y) {
+			octant_points.push_back(point);
+
+			int32_t midpoint_x = point.x + 1;
+			float midpoint_y = point.y - 0.5f;
+			if (pow(midpoint_x, 2) + pow(midpoint_y, 2) > pow(radius, 2)) {
+				point.y -= 1;
+			}
+			point.x += 1;
+		}
+		return octant_points;
+	}
+
 	void Renderer::clear_screen(RGBA color) {
 		m_commands.push_back(ClearScreen { color });
 	}
@@ -17,14 +48,14 @@ namespace engine {
 	}
 
 	void Renderer::draw_rect(Rect rect, RGBA color) {
-		Vertex top_left = Vertex { .pos = { rect.x, rect.y }, .color = color };
-		Vertex top_right = Vertex { .pos = { rect.x + rect.width - 1, rect.y }, .color = color };
-		Vertex bottom_left = Vertex { .pos = { rect.x, rect.y + rect.height - 1 }, .color = color };
-		Vertex bottom_right = Vertex { .pos = { rect.x + rect.width - 1, rect.y + rect.height - 1 }, .color = color };
-		draw_line(top_left, bottom_left);
-		draw_line(top_right, bottom_right);
-		draw_line(top_left, top_right);
-		draw_line(bottom_left, bottom_right);
+		IVec2 top_left = { rect.x, rect.y };
+		IVec2 top_right = { rect.x + rect.width - 1, rect.y };
+		IVec2 bottom_left = { rect.x, rect.y + rect.height - 1 };
+		IVec2 bottom_right = { rect.x + rect.width - 1, rect.y + rect.height - 1 };
+		draw_line(Vertex { .pos = top_left, .color = color }, Vertex { .pos = bottom_left, .color = color });
+		draw_line(Vertex { .pos = top_right, .color = color }, Vertex { .pos = bottom_right, .color = color });
+		draw_line(Vertex { .pos = top_left + IVec2 { 1, 0 }, .color = color }, Vertex { .pos = top_right - IVec2 { 1, 0 }, .color = color });
+		draw_line(Vertex { .pos = bottom_left + IVec2 { 1, 0 }, .color = color }, Vertex { .pos = bottom_right - IVec2 { 1, 0 }, .color = color });
 	}
 
 	void Renderer::draw_rect_fill(Rect rect, RGBA color) {
@@ -36,6 +67,16 @@ namespace engine {
 	}
 
 	void Renderer::draw_circle(IVec2 center, int32_t radius, RGBA color) {
+		for (IVec2 point : circle_octant_points(radius)) {
+			draw_point(Vertex { .pos = center + IVec2 { point.x, point.y }, .color = color });
+			draw_point(Vertex { .pos = center + IVec2 { point.y, point.x }, .color = color });
+			draw_point(Vertex { .pos = center + IVec2 { point.y, -point.x }, .color = color });
+			draw_point(Vertex { .pos = center + IVec2 { point.x, -point.y }, .color = color });
+			draw_point(Vertex { .pos = center + IVec2 { -point.x, point.y }, .color = color });
+			draw_point(Vertex { .pos = center + IVec2 { -point.y, point.x }, .color = color });
+			draw_point(Vertex { .pos = center + IVec2 { -point.y, -point.x }, .color = color });
+			draw_point(Vertex { .pos = center + IVec2 { -point.x, -point.y }, .color = color });
+		}
 	}
 
 	void Renderer::draw_circle_fill(IVec2 center, int32_t radius, RGBA color) {
@@ -65,9 +106,18 @@ namespace engine {
 	}
 
 	void Renderer::_put_point(Bitmap* bitmap, Vertex v1) {
-		Pixel current_pixel = bitmap->get(v1.pos.x, v1.pos.y);
-		Pixel new_pixel = current_pixel.lerp(Pixel::from_rgba(v1.color), v1.color.a / 255.0f);
-		bitmap->put(v1.pos.x, v1.pos.y, new_pixel);
+		constexpr bool debug_overdraw = true;
+		if (debug_overdraw) {
+			Pixel current_pixel = bitmap->get(v1.pos.x, v1.pos.y);
+			Pixel our_pixel = Pixel::from_rgba(v1.color);
+			Pixel new_pixel = current_pixel == our_pixel ? Pixel { 255, 0, 255 } : our_pixel;
+			bitmap->put(v1.pos.x, v1.pos.y, new_pixel);
+		}
+		else {
+			Pixel current_pixel = bitmap->get(v1.pos.x, v1.pos.y);
+			Pixel new_pixel = current_pixel.lerp(Pixel::from_rgba(v1.color), v1.color.a / 255.0f);
+			bitmap->put(v1.pos.x, v1.pos.y, new_pixel);
+		}
 	}
 
 	void Renderer::_put_line(Bitmap* bitmap, Vertex v1, Vertex v2) {
