@@ -68,7 +68,7 @@ namespace engine {
 	}
 
 	void Renderer::draw_circle(IVec2 center, int32_t radius, RGBA color) {
-        // use a set to avoid overdraw
+		// use a set to avoid overdraw
 		std::unordered_set<IVec2> circle_points;
 
 		// project octant points to all 8 octants
@@ -83,13 +83,32 @@ namespace engine {
 			circle_points.insert(IVec2 { -point.x, -point.y });
 		}
 
-        // draw circle points
-        for (IVec2 point : circle_points) {
-            draw_point(Vertex { .pos = center + IVec2 { point.x, point.y }, .color = color });
-        }
+		// draw circle points
+		for (IVec2 point : circle_points) {
+			draw_point(Vertex { .pos = center + IVec2 { point.x, point.y }, .color = color });
+		}
 	}
 
 	void Renderer::draw_circle_fill(IVec2 center, int32_t radius, RGBA color) {
+		// use a set to avoid overdraw
+		std::unordered_set<IVec2> circle_points;
+
+		// project out horizontal circle lines
+		for (IVec2 point : circle_octant_points(radius)) {
+			for (int32_t x = -point.x; x <= point.x; x++) {
+				circle_points.insert(IVec2 { x, point.y });
+				circle_points.insert(IVec2 { x, -point.y });
+			}
+			for (int32_t y = -point.y; y <= point.y; y++) {
+				circle_points.insert(IVec2 { y, point.x });
+				circle_points.insert(IVec2 { y, -point.x });
+			}
+		}
+
+		// draw circle points
+		for (IVec2 point : circle_points) {
+			draw_point(Vertex { .pos = center + IVec2 { point.x, point.y }, .color = color });
+		}
 	}
 
 	void Renderer::render(Bitmap* bitmap) {
