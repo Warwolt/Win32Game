@@ -2,6 +2,7 @@
 
 #include <engine/math/vec2.h>
 
+#include <functional>
 #include <stdint.h>
 
 namespace engine {
@@ -27,3 +28,12 @@ namespace engine {
 	};
 
 } // namespace engine
+
+template <>
+struct std::hash<engine::IVec2> {
+	size_t operator()(const engine::IVec2& vec) const noexcept {
+		size_t h1 = std::hash<int32_t>()(vec.x);
+		size_t h2 = std::hash<int32_t>()(vec.y);
+		return h1 ^ (h2 + 0x9e3779b9 + (h1 << 6) + (h1 >> 2)); // boost::hash_combine
+	}
+};
