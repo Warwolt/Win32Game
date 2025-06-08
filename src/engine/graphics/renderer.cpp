@@ -28,6 +28,11 @@ namespace engine {
 	}
 
 	void Renderer::draw_rect_fill(Rect rect, RGBA color) {
+		for (int32_t y = rect.y; y < rect.y + rect.height; y++) {
+			Vertex left = Vertex { .pos = { rect.x, y }, .color = color };
+			Vertex right = Vertex { .pos = { rect.x + rect.width - 1, y }, .color = color };
+			draw_line(left, right);
+		}
 	}
 
 	void Renderer::draw_circle(IVec2 center, int32_t radius, RGBA color) {
