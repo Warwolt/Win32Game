@@ -12,6 +12,7 @@ namespace engine {
 
 		static IVec2 from_vec2(Vec2 vec2);
 
+		bool operator==(const IVec2& rhs) const = default;
 		IVec2& operator+=(const IVec2& rhs);
 		IVec2& operator-=(const IVec2& rhs);
 		IVec2& operator*=(const IVec2& rhs);
