@@ -1,7 +1,7 @@
 #include <engine/graphics/renderer.h>
 
-#include <algorithm>
 #include <cmath>
+#include <unordered_set>
 
 namespace engine {
 
@@ -68,30 +68,25 @@ namespace engine {
 	}
 
 	void Renderer::draw_circle(IVec2 center, int32_t radius, RGBA color) {
-		int32_t diameter = 2 * radius;
-		std::vector<bool> circle_points(diameter * diameter);
+        // use a set to avoid overdraw
+		std::unordered_set<IVec2> circle_points;
 
 		// project octant points to all 8 octants
 		for (IVec2 point : circle_octant_points(radius)) {
-			circle_points[point.x + point.y * diameter] = true;
-
-			// circle_points.push_back(center + IVec2 { point.x, point.y });
-			// circle_points.push_back(center + IVec2 { point.y, point.x });
-			// circle_points.push_back(center + IVec2 { point.y, -point.x });
-			// circle_points.push_back(center + IVec2 { point.x, -point.y });
-			// circle_points.push_back(center + IVec2 { -point.x, point.y });
-			// circle_points.push_back(center + IVec2 { -point.y, point.x });
-			// circle_points.push_back(center + IVec2 { -point.y, -point.x });
-			// circle_points.push_back(center + IVec2 { -point.x, -point.y });
+			circle_points.insert(IVec2 { point.x, point.y });
+			circle_points.insert(IVec2 { point.y, point.x });
+			circle_points.insert(IVec2 { point.y, -point.x });
+			circle_points.insert(IVec2 { point.x, -point.y });
+			circle_points.insert(IVec2 { -point.x, point.y });
+			circle_points.insert(IVec2 { -point.y, point.x });
+			circle_points.insert(IVec2 { -point.y, -point.x });
+			circle_points.insert(IVec2 { -point.x, -point.y });
 		}
 
-		for (int32_t y = 0; y < diameter; y++) {
-			for (int32_t x = 0; x < diameter; x++) {
-				if (circle_points[x + y * diameter]) {
-					draw_point(Vertex { .pos = center + IVec2 { x, y }, .color = color });
-				}
-			}
-		}
+        // draw circle points
+        for (IVec2 point : circle_points) {
+            draw_point(Vertex { .pos = center + IVec2 { point.x, point.y }, .color = color });
+        }
 	}
 
 	void Renderer::draw_circle_fill(IVec2 center, int32_t radius, RGBA color) {
