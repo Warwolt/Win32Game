@@ -11,6 +11,7 @@ namespace engine {
 		uint8_t a = 255;
 
 		static RGBA lerp(RGBA start, RGBA end, float t);
+		bool operator==(const RGBA& rhs) const = default;
 	};
 
 

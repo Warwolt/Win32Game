@@ -111,6 +111,19 @@ namespace engine {
 		}
 	}
 
+	void Renderer::draw_triangle(Vertex v1, Vertex v2, Vertex v3) {
+		m_commands.push_back(DrawLine { .v1 = v1, .v2 = v2, .exclude_vertices = true });
+		m_commands.push_back(DrawLine { .v1 = v2, .v2 = v3, .exclude_vertices = true });
+		m_commands.push_back(DrawLine { .v1 = v3, .v2 = v1, .exclude_vertices = true });
+		m_commands.push_back(DrawPoint { v1 });
+		m_commands.push_back(DrawPoint { v2 });
+		m_commands.push_back(DrawPoint { v3 });
+	}
+
+	void Renderer::draw_triangle_fill(Vertex v1, Vertex v2, Vertex v3) {
+		m_commands.push_back(DrawTriangle { v1, v2, v3 });
+	}
+
 	void Renderer::render(Bitmap* bitmap) {
 		for (const DrawCommand& command : m_commands) {
 			if (auto* clear_screen = std::get_if<ClearScreen>(&command)) {
@@ -120,7 +133,10 @@ namespace engine {
 				_put_point(bitmap, draw_point->v1);
 			}
 			if (auto* draw_line = std::get_if<DrawLine>(&command)) {
-				_put_line(bitmap, draw_line->v1, draw_line->v2);
+				_put_line(bitmap, draw_line->v1, draw_line->v2, draw_line->exclude_vertices);
+			}
+			if (auto* draw_triangle = std::get_if<DrawTriangle>(&command)) {
+				_put_triangle(bitmap, draw_triangle->v1, draw_triangle->v2, draw_triangle->v3);
 			}
 		}
 		m_commands.clear();
@@ -149,7 +165,7 @@ namespace engine {
 		}
 	}
 
-	void Renderer::_put_line(Bitmap* bitmap, Vertex v1, Vertex v2) {
+	void Renderer::_put_line(Bitmap* bitmap, Vertex v1, Vertex v2, bool exclude_vertices) {
 		// vertical line
 		if (v1.pos.x == v2.pos.x) {
 			int32_t y0 = std::min(v1.pos.y, v2.pos.y);
@@ -157,7 +173,11 @@ namespace engine {
 			for (int32_t y = y0; y <= y1; y++) {
 				IVec2 pos = IVec2 { v1.pos.x, y };
 				float t = (float)(pos.y - v1.pos.y) / (float)(v2.pos.y - v1.pos.y);
-				_put_point(bitmap, Vertex { .pos = pos, .color = RGBA::lerp(v1.color, v2.color, t) });
+				Vertex vertex = { .pos = pos, .color = RGBA::lerp(v1.color, v2.color, t) };
+				if (exclude_vertices && (vertex == v1 || vertex == v2)) {
+					continue;
+				}
+				_put_point(bitmap, vertex);
 			}
 		}
 		// sloped line
@@ -177,9 +197,17 @@ namespace engine {
 				float t = abs_dx > abs_dy
 					? (float)(pos.x - v1.pos.x) / (float)(v2.pos.x - v1.pos.x)
 					: (float)(pos.y - v1.pos.y) / (float)(v2.pos.y - v1.pos.y);
-				_put_point(bitmap, Vertex { .pos = pos, .color = RGBA::lerp(v1.color, v2.color, t) });
+				Vertex vertex = { .pos = pos, .color = RGBA::lerp(v1.color, v2.color, t) };
+				if (exclude_vertices && (vertex == v1 || vertex == v2)) {
+					continue;
+				}
+				_put_point(bitmap, vertex);
 			}
 		}
+	}
+
+	void Renderer::_put_triangle(Bitmap* /*bitmap*/, Vertex /*v1*/, Vertex /*v2*/, Vertex /*v3*/) {
+		// TODO
 	}
 
 } // namespace engine

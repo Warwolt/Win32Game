@@ -13,6 +13,7 @@ namespace engine {
 	struct Vertex {
 		IVec2 pos;
 		RGBA color;
+		bool operator==(const Vertex& rhs) const = default;
 	};
 
 	class Renderer {
@@ -20,11 +21,13 @@ namespace engine {
 		void clear_screen(RGBA color = { 0, 0, 0, 255 });
 		void draw_point(Vertex v1);
 		void draw_line(Vertex v1, Vertex v2);
-
 		void draw_rect(Rect rect, RGBA color);
 		void draw_rect_fill(Rect rect, RGBA color);
 		void draw_circle(IVec2 center, int32_t radius, RGBA color);
 		void draw_circle_fill(IVec2 center, int32_t radius, RGBA color);
+		void draw_triangle(Vertex v1, Vertex v2, Vertex v3);
+		void draw_triangle_fill(Vertex v1, Vertex v2, Vertex v3);
+
 		void render(Bitmap* bitmap);
 
 	private:
@@ -37,6 +40,7 @@ namespace engine {
 		struct DrawLine {
 			Vertex v1;
 			Vertex v2;
+			bool exclude_vertices = false; // used for drawing triangles
 		};
 		struct DrawTriangle {
 			Vertex v1;
@@ -48,7 +52,7 @@ namespace engine {
 
 		void _clear_screen(Bitmap* bitmap, RGBA color);
 		void _put_point(Bitmap* bitmap, Vertex v1);
-		void _put_line(Bitmap* bitmap, Vertex v1, Vertex v2);
+		void _put_line(Bitmap* bitmap, Vertex v1, Vertex v2, bool exclude_vertices);
 		void _put_triangle(Bitmap* bitmap, Vertex v1, Vertex v2, Vertex v3);
 	};
 
