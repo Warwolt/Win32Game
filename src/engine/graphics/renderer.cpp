@@ -121,6 +121,29 @@ namespace engine {
 	}
 
 	void Renderer::draw_circle_fill(IVec2 center, int32_t radius, RGBA color) {
+		CommandBatch batch = {
+			.rect = Rect {
+				.x = center.x - radius,
+				.y = center.y - radius,
+				.width = 2 * radius + 1,
+				.height = 2 * radius + 1,
+			},
+		};
+		for (IVec2 point : circle_octant_points(radius)) {
+			for (int32_t x = -point.x; x <= point.x; x++) {
+				batch.commands.push_back(DrawLine {
+					.v1 = { .pos = center + IVec2 { x, point.y }, .color = color },
+					.v2 = { .pos = center + IVec2 { x, -point.y }, .color = color },
+				});
+			}
+			for (int32_t y = -point.y; y <= point.y; y++) {
+				batch.commands.push_back(DrawLine {
+					.v1 = { .pos = center + IVec2 { y, point.x }, .color = color },
+					.v2 = { .pos = center + IVec2 { y, -point.x }, .color = color },
+				});
+			}
+		}
+		m_batches.push_back(batch);
 	}
 
 	void Renderer::draw_triangle(Vertex v1, Vertex v2, Vertex v3) {
