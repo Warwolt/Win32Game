@@ -72,9 +72,29 @@ namespace engine {
 	}
 
 	void Renderer::draw_rect(Rect rect, RGBA color) {
+		Vertex top_left = { .pos = { rect.x, rect.y }, .color = color };
+		Vertex top_right = { .pos = { rect.x + rect.width - 1, rect.y }, .color = color };
+		Vertex bottom_left = { .pos = { rect.x, rect.y + rect.height - 1 }, .color = color };
+		Vertex bottom_right = { .pos = { rect.x + rect.width - 1, rect.y + rect.height - 1 }, .color = color };
+		m_batches.push_back(CommandBatch {
+			.rect = rect,
+			.commands = {
+				DrawLine { top_left, top_right },
+				DrawLine { top_left, bottom_left },
+				DrawLine { top_right, bottom_right },
+				DrawLine { bottom_left, bottom_right },
+			},
+		});
 	}
 
 	void Renderer::draw_rect_fill(Rect rect, RGBA color) {
+		CommandBatch batch = { .rect = rect };
+		for (int32_t y = rect.y; y < rect.y + rect.height; y++) {
+			Vertex left = { .pos = { rect.x, y }, .color = color };
+			Vertex right = { .pos = { rect.x + rect.width - 1, y }, .color = color };
+			batch.commands.push_back(DrawLine { left, right });
+		}
+		m_batches.push_back(batch);
 	}
 
 	void Renderer::draw_circle(IVec2 center, int32_t radius, RGBA color) {
@@ -90,8 +110,10 @@ namespace engine {
 	}
 
 	void Renderer::render(Bitmap* bitmap) {
+		/* Keep scratchpad size in sync with bitmap */
 		m_scratchpad.resize(bitmap->width(), bitmap->height());
 
+		/* Run commands */
 		for (const CommandBatch& batch : m_batches) {
 			/* Clear scratch pad area */
 			for (int32_t y = batch.rect.y; y < batch.rect.y + batch.rect.height; y++) {
@@ -126,6 +148,8 @@ namespace engine {
 				}
 			}
 		}
+
+		/* Clear commands */
 		m_batches.clear();
 	}
 
