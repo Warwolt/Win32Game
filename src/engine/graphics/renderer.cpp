@@ -37,7 +37,7 @@ namespace engine {
 	}
 
 	void Renderer::clear_screen(RGBA color) {
-		m_batches.push_back(CommandBatch { .commands = { ClearScreen {} } });
+		m_batches.push_back(CommandBatch { .commands = { ClearScreen { color } } });
 	}
 
 	void Renderer::draw_point(Vertex v1) {
@@ -147,6 +147,23 @@ namespace engine {
 	}
 
 	void Renderer::draw_triangle(Vertex v1, Vertex v2, Vertex v3) {
+		int32_t min_x = std::min({ v1.pos.x, v2.pos.x, v3.pos.x });
+		int32_t min_y = std::min({ v1.pos.y, v2.pos.y, v3.pos.y });
+		int32_t max_x = std::max({ v1.pos.x, v2.pos.x, v3.pos.x });
+		int32_t max_y = std::max({ v1.pos.y, v2.pos.y, v3.pos.y });
+		m_batches.push_back(CommandBatch {
+			.rect = Rect {
+				min_x,
+				min_y,
+				max_x - min_x + 1,
+				max_y - min_y + 1,
+			},
+			.commands = {
+				DrawLine { v1, v2 },
+				DrawLine { v1, v3 },
+				DrawLine { v2, v3 },
+			},
+		});
 	}
 
 	void Renderer::draw_triangle_fill(Vertex v1, Vertex v2, Vertex v3) {
