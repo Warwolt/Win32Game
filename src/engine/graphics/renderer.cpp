@@ -37,6 +37,7 @@ namespace engine {
 	}
 
 	void Renderer::clear_screen(RGBA color) {
+		m_batches.push_back(CommandBatch { .commands = { ClearScreen {} } });
 	}
 
 	void Renderer::draw_point(Vertex v1) {
@@ -98,6 +99,25 @@ namespace engine {
 	}
 
 	void Renderer::draw_circle(IVec2 center, int32_t radius, RGBA color) {
+		CommandBatch batch = {
+			.rect = Rect {
+				.x = center.x - radius,
+				.y = center.y - radius,
+				.width = 2 * radius + 1,
+				.height = 2 * radius + 1,
+			},
+		};
+		for (IVec2 point : circle_octant_points(radius)) {
+			batch.commands.push_back(DrawPoint { Vertex { .pos = center + IVec2 { point.x, point.y }, .color = color } });
+			batch.commands.push_back(DrawPoint { Vertex { .pos = center + IVec2 { point.y, point.x }, .color = color } });
+			batch.commands.push_back(DrawPoint { Vertex { .pos = center + IVec2 { point.y, -point.x }, .color = color } });
+			batch.commands.push_back(DrawPoint { Vertex { .pos = center + IVec2 { point.x, -point.y }, .color = color } });
+			batch.commands.push_back(DrawPoint { Vertex { .pos = center + IVec2 { -point.x, point.y }, .color = color } });
+			batch.commands.push_back(DrawPoint { Vertex { .pos = center + IVec2 { -point.y, point.x }, .color = color } });
+			batch.commands.push_back(DrawPoint { Vertex { .pos = center + IVec2 { -point.y, -point.x }, .color = color } });
+			batch.commands.push_back(DrawPoint { Vertex { .pos = center + IVec2 { -point.x, -point.y }, .color = color } });
+		}
+		m_batches.push_back(batch);
 	}
 
 	void Renderer::draw_circle_fill(IVec2 center, int32_t radius, RGBA color) {
