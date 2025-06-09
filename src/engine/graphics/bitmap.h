@@ -8,13 +8,15 @@
 
 namespace engine {
 
+	// Win32 endian stuff means RGB is stored as BGR.
+	// For alignment reasons we also add `padding`.
 	struct Pixel {
 		uint8_t b;
 		uint8_t g;
 		uint8_t r;
 		uint8_t padding;
 
-		static Pixel from_rgba(RGBA color);
+		static Pixel from_rgb(RGBA color);
 		bool operator==(const Pixel& rhs) const = default;
 		Pixel lerp(Pixel rhs, float t) const;
 	};

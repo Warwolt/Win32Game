@@ -145,7 +145,7 @@ namespace engine {
 	void Renderer::_clear_screen(Bitmap* bitmap, RGBA color) {
 		for (int32_t y = 0; y < bitmap->width; y++) {
 			for (int32_t x = 0; x < bitmap->width; x++) {
-				bitmap->put(x, y, Pixel::from_rgba(color));
+				bitmap->put(x, y, Pixel::from_rgb(color));
 			}
 		}
 	}
@@ -154,13 +154,13 @@ namespace engine {
 		constexpr bool debug_overdraw = true;
 		if (debug_overdraw) {
 			Pixel current_pixel = bitmap->get(v1.pos.x, v1.pos.y);
-			Pixel our_pixel = Pixel::from_rgba(v1.color);
+			Pixel our_pixel = Pixel::from_rgb(v1.color);
 			Pixel new_pixel = current_pixel == our_pixel ? Pixel { 255, 0, 255 } : our_pixel;
 			bitmap->put(v1.pos.x, v1.pos.y, new_pixel);
 		}
 		else {
 			Pixel current_pixel = bitmap->get(v1.pos.x, v1.pos.y);
-			Pixel new_pixel = current_pixel.lerp(Pixel::from_rgba(v1.color), v1.color.a / 255.0f);
+			Pixel new_pixel = current_pixel.lerp(Pixel::from_rgb(v1.color), v1.color.a / 255.0f);
 			bitmap->put(v1.pos.x, v1.pos.y, new_pixel);
 		}
 	}

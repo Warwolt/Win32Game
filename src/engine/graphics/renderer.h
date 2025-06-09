@@ -49,10 +49,14 @@ namespace engine {
 		};
 		using DrawCommand = std::variant<ClearScreen, DrawPoint, DrawLine, DrawTriangle>;
 		struct CommandBatch {
-			int32_t width;
-			int32_t height;
+			Rect rect;
 			std::vector<DrawCommand> commands;
 		};
+
+		// The scratchpad is used to separate drawing the pixels from the alpha
+		// blending, so that we don't have to care about overdraw. We borrow
+		// `padding` in Pixel to store the alpha value.
+		Bitmap m_scratchpad;
 		std::vector<CommandBatch> m_batches;
 
 		void _clear_screen(Bitmap* bitmap, RGBA color);

@@ -129,7 +129,7 @@ namespace engine {
 
 	void Renderer_OLD::_clear_screen(Bitmap* bitmap, RGBA color) {
 		for (size_t i = 0; i < bitmap->width * bitmap->height; i++) {
-			bitmap->data[i] = Pixel::from_rgba(color);
+			bitmap->data[i] = Pixel::from_rgb(color);
 		}
 	}
 
