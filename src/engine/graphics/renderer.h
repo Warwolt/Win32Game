@@ -19,6 +19,7 @@ namespace engine {
 	class Renderer {
 	public:
 		void clear_screen(RGBA color = { 0, 0, 0, 255 });
+
 		void draw_point(Vertex v1);
 		void draw_line(Vertex v1, Vertex v2);
 		void draw_rect(Rect rect, RGBA color);
@@ -40,7 +41,6 @@ namespace engine {
 		struct DrawLine {
 			Vertex v1;
 			Vertex v2;
-			bool exclude_vertices = false; // used for drawing triangles
 		};
 		struct DrawTriangle {
 			Vertex v1;
@@ -48,11 +48,16 @@ namespace engine {
 			Vertex v3;
 		};
 		using DrawCommand = std::variant<ClearScreen, DrawPoint, DrawLine, DrawTriangle>;
-		std::vector<DrawCommand> m_commands;
+		struct CommandBatch {
+			int32_t width;
+			int32_t height;
+			std::vector<DrawCommand> commands;
+		};
+		std::vector<CommandBatch> m_batches;
 
 		void _clear_screen(Bitmap* bitmap, RGBA color);
 		void _put_point(Bitmap* bitmap, Vertex v1);
-		void _put_line(Bitmap* bitmap, Vertex v1, Vertex v2, bool exclude_vertices);
+		void _put_line(Bitmap* bitmap, Vertex v1, Vertex v2);
 		void _put_triangle(Bitmap* bitmap, Vertex v1, Vertex v2, Vertex v3);
 	};
 
