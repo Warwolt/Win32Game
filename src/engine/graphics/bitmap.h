@@ -4,7 +4,7 @@
 
 #include <cmath>
 #include <stdint.h>
-
+#include <vector>
 
 namespace engine {
 
@@ -19,26 +19,23 @@ namespace engine {
 		Pixel lerp(Pixel rhs, float t) const;
 	};
 
-	struct Bitmap {
-		Pixel* data;
-		int32_t width;
-		int32_t height;
+	class Bitmap {
+	public:
+		Bitmap() = default;
+		static Bitmap with_size(int32_t width, int32_t height);
 
-		inline void put(int32_t x, int32_t y, Pixel pixel) {
-			if (0 <= x && x < this->width && 0 <= y && y < this->height) {
-				this->data[x + this->width * y] = pixel;
-			}
-		}
+		void resize(int32_t width, int32_t height);
+		void put(int32_t x, int32_t y, Pixel pixel);
+		Pixel get(int32_t x, int32_t y);
+		bool empty() const;
+		int32_t width() const;
+		int32_t height() const;
+		const Pixel* data() const;
 
-		inline Pixel get(int32_t x, int32_t y) {
-			if (0 <= x && x < this->width && 0 <= y && y < this->height) {
-				return this->data[x + this->width * y];
-			}
-			return {};
-		}
+	private:
+		int32_t m_width = 0;
+		int32_t m_height = 0;
+		std::vector<Pixel> m_data;
 	};
-
-	Bitmap initialize_bitmap(int width, int height);
-	void reallocate_bitmap(Bitmap* bitmap, int width, int height);
 
 } // namespace engine

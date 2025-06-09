@@ -1,6 +1,6 @@
 #include <engine/graphics/bitmap.h>
 
-#include <windows.h>
+#include <algorithm>
 
 namespace engine {
 
@@ -20,20 +20,47 @@ namespace engine {
 		};
 	}
 
-	Bitmap initialize_bitmap(int width, int height) {
+	Bitmap Bitmap::with_size(int32_t width, int32_t height) {
 		Bitmap bitmap;
-		reallocate_bitmap(&bitmap, width, height);
+		bitmap.m_width = std::max(width, 0);
+		bitmap.m_height = std::max(height, 0);
+		bitmap.m_data.resize(bitmap.m_width * bitmap.m_height);
 		return bitmap;
 	}
 
-	void reallocate_bitmap(Bitmap* bitmap, int width, int height) {
-		if (bitmap->data) {
-			VirtualFree(bitmap->data, 0, MEM_RELEASE);
+	void Bitmap::resize(int32_t width, int32_t height) {
+		m_width = std::max(width, 0);
+		m_height = std::max(height, 0);
+		m_data.resize(m_width * m_height);
+	}
+
+	void Bitmap::put(int32_t x, int32_t y, Pixel pixel) {
+		if (0 <= x && x < m_width && 0 <= y && y < m_height) {
+			m_data[x + m_width * y] = pixel;
 		}
-		int bitmap_size = width * height * sizeof(Pixel);
-		bitmap->data = (Pixel*)VirtualAlloc(0, bitmap_size, MEM_COMMIT, PAGE_READWRITE);
-		bitmap->width = width;
-		bitmap->height = height;
+	}
+
+	Pixel Bitmap::get(int32_t x, int32_t y) {
+		if (0 <= x && x < m_width && 0 <= y && y < m_height) {
+			return m_data[x + m_width * y];
+		}
+		return {};
+	}
+
+	bool Bitmap::empty() const {
+		return m_data.empty();
+	}
+
+	int32_t Bitmap::width() const {
+		return m_width;
+	}
+
+	int32_t Bitmap::height() const {
+		return m_height;
+	}
+
+	const Pixel* Bitmap::data() const {
+		return m_data.data();
 	}
 
 } // namespace engine

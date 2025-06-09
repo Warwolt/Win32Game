@@ -88,8 +88,8 @@ namespace engine {
 	}
 
 	void Renderer::_clear_screen(Bitmap* bitmap, RGBA color) {
-		for (int32_t y = 0; y < bitmap->width; y++) {
-			for (int32_t x = 0; x < bitmap->width; x++) {
+		for (int32_t y = 0; y < bitmap->height(); y++) {
+			for (int32_t x = 0; x < bitmap->width(); x++) {
 				bitmap->put(x, y, Pixel::from_rgba(color));
 			}
 		}
