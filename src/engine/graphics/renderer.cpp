@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include <unordered_set>
+#include <algorithm>
 
 namespace engine {
 
@@ -167,6 +168,62 @@ namespace engine {
 	}
 
 	void Renderer::draw_triangle_fill(Vertex v1, Vertex v2, Vertex v3) {
+		struct TriangleEdge {
+			int32_t x0;
+			int32_t y0;
+			int32_t y1;
+			float inv_slope;
+		};
+
+		auto make_triangle_edge = [](Vertex a, Vertex b) -> TriangleEdge {
+			return TriangleEdge {
+				.x0 = a.pos.x,
+				.y0 = a.pos.y,
+				.y1 = b.pos.y,
+				.inv_slope = (float)(b.pos.x - a.pos.x) / (float)(b.pos.y - a.pos.y),
+			};
+		};
+
+		std::vector<TriangleEdge> edges = {
+			make_triangle_edge(v1, v2),
+			make_triangle_edge(v1, v3),
+			make_triangle_edge(v2, v3),
+		};
+
+		int32_t min_x = std::min({ v1.pos.x, v2.pos.x, v3.pos.x });
+		int32_t min_y = std::min({ v1.pos.y, v2.pos.y, v3.pos.y });
+		int32_t max_x = std::max({ v1.pos.x, v2.pos.x, v3.pos.x });
+		int32_t max_y = std::max({ v1.pos.y, v2.pos.y, v3.pos.y });
+
+		CommandBatch batch = {
+			.rect = Rect {
+				min_x,
+				min_y,
+				max_x - min_x + 1,
+				max_y - min_y + 1,
+			},
+		};
+
+		for (int32_t y = min_y; y <= max_y; y++) {
+			/* Get intersections */
+			std::vector<int32_t> xs;
+			for (const TriangleEdge& edge : edges) {
+				xs.push_back((int32_t)std::round(edge.inv_slope * (y - edge.y0) + edge.x0));
+			}
+
+			auto is_out_of_bounds = [min_x, max_x](int32_t x) { return x < min_x || x > max_x; };
+			auto last = std::remove_if(xs.begin(), xs.end(), is_out_of_bounds);
+			std::sort(xs.begin(), xs.end());
+
+			// TODO: properly interpolate color value
+			RGBA color = v1.color;
+			batch.commands.push_back(DrawLine{
+				.v1 = Vertex { .pos = {xs[0], y}, .color = color },
+				.v2 = Vertex { .pos = {xs[1], y}, .color = color },
+			});
+		}
+
+		m_batches.push_back(batch);
 	}
 
 	void Renderer::render(Bitmap* bitmap) {
