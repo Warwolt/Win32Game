@@ -1,8 +1,8 @@
 #include <engine/graphics/renderer.h>
 
+#include <algorithm>
 #include <cmath>
 #include <unordered_set>
-#include <algorithm>
 
 namespace engine {
 
@@ -204,6 +204,12 @@ namespace engine {
 			},
 		};
 
+		auto triangle_area = [](IVec2 a, IVec2 b) -> float {
+			return (float)(a.x * b.y - a.y * b.x) / 2.0f;
+		};
+
+		float area_v1v2v3 = triangle_area(v2.pos - v1.pos, v3.pos - v1.pos);
+
 		for (int32_t y = min_y; y <= max_y; y++) {
 			/* Get intersections */
 			std::vector<int32_t> xs;
@@ -211,15 +217,40 @@ namespace engine {
 				xs.push_back((int32_t)std::round(edge.inv_slope * (y - edge.y0) + edge.x0));
 			}
 
+			/* Get left and right triangle positions */
 			auto is_out_of_bounds = [min_x, max_x](int32_t x) { return x < min_x || x > max_x; };
 			auto last = std::remove_if(xs.begin(), xs.end(), is_out_of_bounds);
 			std::sort(xs.begin(), xs.end());
+			IVec2 p1 = { xs[0], y };
+			IVec2 p2 = { xs[1], y };
 
-			// TODO: properly interpolate color value
-			RGBA color = v1.color;
-			batch.commands.push_back(DrawLine{
-				.v1 = Vertex { .pos = {xs[0], y}, .color = color },
-				.v2 = Vertex { .pos = {xs[1], y}, .color = color },
+			/* Interpolate colors */
+			// FIXME: this color interpolation is buggy as hell
+			// Dunno need to figure out the math more maybe?
+
+			// left color
+			// float area_v1v2p1 = triangle_area(v2.pos - v1.pos, p1 - v1.pos);
+			// float area_v1v3p1 = triangle_area(v3.pos - v1.pos, p1 - v1.pos);
+			// float area_v2v3p1 = triangle_area(v3.pos - v2.pos, p1 - v2.pos);
+			// float v1_t1 = area_v2v3p1 / area_v1v2v3;
+			// float v2_t1 = area_v1v3p1 / area_v1v2v3;
+			// float v3_t1 = area_v1v2p1 / area_v1v2v3;
+			// RGBA color1 = v1_t1 * v1.color + v2_t1 * v2.color + v3_t1 * v3.color;
+			RGBA color1 = v1.color;
+
+			// right color
+			// float area_v1v2p2 = triangle_area(v2.pos - v1.pos, p2 - v1.pos);
+			// float area_v1v3p2 = triangle_area(v3.pos - v1.pos, p2 - v1.pos);
+			// float area_v2v3p2 = triangle_area(v3.pos - v2.pos, p2 - v2.pos);
+			// float v1_t2 = area_v2v3p2 / area_v1v2v3;
+			// float v2_t2 = area_v1v3p2 / area_v1v2v3;
+			// float v3_t2 = area_v1v2p2 / area_v1v2v3;
+			// RGBA color2 = v1_t2 * v1.color + v2_t2 * v2.color + v3_t2 * v3.color;
+
+			/* Draw line */
+			batch.commands.push_back(DrawLine {
+				.v1 = Vertex { .pos = { xs[0], y }, .color = color1 },
+				.v2 = Vertex { .pos = { xs[1], y }, .color = color1 },
 			});
 		}
 

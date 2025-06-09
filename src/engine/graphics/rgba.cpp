@@ -1,6 +1,7 @@
 #include <engine/graphics/rgba.h>
 
 #include <cmath>
+#include <algorithm>
 
 namespace engine {
 
@@ -10,6 +11,24 @@ namespace engine {
 			.g = (uint8_t)std::lerp(start.g, end.g, t),
 			.b = (uint8_t)std::lerp(start.b, end.b, t),
 			.a = (uint8_t)std::lerp(start.a, end.a, t),
+		};
+	}
+
+	RGBA operator+(const RGBA& lhs, const RGBA& rhs) {
+		return RGBA {
+			.r = (uint8_t)std::clamp(lhs.r + rhs.r, 0, 255),
+			.g = (uint8_t)std::clamp(lhs.g + rhs.g, 0, 255),
+			.b = (uint8_t)std::clamp(lhs.b + rhs.b, 0, 255),
+			.a = (uint8_t)std::clamp(lhs.a + rhs.a, 0, 255),
+		};
+	}
+
+	RGBA operator*(float t, const RGBA& rhs) {
+		return RGBA {
+			.r = (uint8_t)std::round(t * rhs.r),
+			.g = (uint8_t)std::round(t * rhs.g),
+			.b = (uint8_t)std::round(t * rhs.b),
+			.a = (uint8_t)std::round(t * rhs.a),
 		};
 	}
 
