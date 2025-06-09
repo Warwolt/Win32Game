@@ -227,6 +227,8 @@ namespace engine {
 			/* Interpolate colors */
 			// FIXME: this color interpolation is buggy as hell
 			// Dunno need to figure out the math more maybe?
+			// Steal code from this article maybe? Kinda sick of this triangle fuck ass shit
+			// https://www.scratchapixel.com/lessons/3d-basic-rendering/ray-tracing-rendering-a-triangle/barycentric-coordinates.html
 
 			// left color
 			// float area_v1v2p1 = triangle_area(v2.pos - v1.pos, p1 - v1.pos);
