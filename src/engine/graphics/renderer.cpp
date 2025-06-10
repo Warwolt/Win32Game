@@ -43,12 +43,6 @@ namespace engine {
 
 	void Renderer::draw_point(Vertex v1) {
 		m_batches.push_back(CommandBatch {
-			.rect = Rect {
-				v1.pos.x,
-				v1.pos.y,
-				1,
-				1,
-			},
 			.commands = {
 				DrawPoint { v1 },
 			},
@@ -56,17 +50,7 @@ namespace engine {
 	}
 
 	void Renderer::draw_line(Vertex v1, Vertex v2) {
-		int32_t min_x = std::min(v1.pos.x, v2.pos.x);
-		int32_t min_y = std::min(v1.pos.y, v2.pos.y);
-		int32_t max_x = std::max(v1.pos.x, v2.pos.x);
-		int32_t max_y = std::max(v1.pos.y, v2.pos.y);
 		m_batches.push_back(CommandBatch {
-			.rect = Rect {
-				min_x,
-				min_y,
-				max_x - min_x + 1,
-				max_y - min_y + 1,
-			},
 			.commands = {
 				DrawLine { v1, v2 },
 			},
@@ -259,33 +243,54 @@ namespace engine {
 
 		/* Run commands */
 		for (const CommandBatch& batch : m_batches) {
-			/* Clear scratch pad area */
-			for (int32_t y = batch.rect.y; y < batch.rect.y + batch.rect.height; y++) {
-				for (int32_t x = batch.rect.x; x < batch.rect.x + batch.rect.width; x++) {
-					m_scratchpad.put(x, y, Pixel { 0, 0, 0, 0 });
+			if (batch.rect.empty()) {
+
+				// FIXME: when drawing directly to bitmap we need the _put
+				// methods to do the lerping, so we need to pass an argument
+				// that selects if we use lerping or not.
+				//
+				// But, it would also be really nice if Bitmap::put itself
+				// could do the alpha blending.
+
+				/* Draw directly to bitmap */
+				for (const DrawCommand& command : batch.commands) {
+					if (auto* clear_screen = std::get_if<ClearScreen>(&command)) {
+						_clear_screen(bitmap, clear_screen->color);
+					}
+					if (auto* draw_point = std::get_if<DrawPoint>(&command)) {
+						_put_point(bitmap, draw_point->v1);
+					}
+					if (auto* draw_line = std::get_if<DrawLine>(&command)) {
+						_put_line(bitmap, draw_line->v1, draw_line->v2);
+					}
 				}
 			}
+			else {
+				/* Clear scratch pad area */
+				for (int32_t y = batch.rect.y; y < batch.rect.y + batch.rect.height; y++) {
+					for (int32_t x = batch.rect.x; x < batch.rect.x + batch.rect.width; x++) {
+						m_scratchpad.put(x, y, Pixel { 0, 0, 0, 0 });
+					}
+				}
 
-			/* Draw onto scratch pad */
-			for (const DrawCommand& command : batch.commands) {
-				if (auto* clear_screen = std::get_if<ClearScreen>(&command)) {
-					_clear_screen(bitmap, clear_screen->color);
+				/* Draw onto scratch pad */
+				for (const DrawCommand& command : batch.commands) {
+					if (auto* draw_point = std::get_if<DrawPoint>(&command)) {
+						_put_point(&m_scratchpad, draw_point->v1);
+					}
+					if (auto* draw_line = std::get_if<DrawLine>(&command)) {
+						_put_line(&m_scratchpad, draw_line->v1, draw_line->v2);
+					}
 				}
-				if (auto* draw_point = std::get_if<DrawPoint>(&command)) {
-					_put_point(&m_scratchpad, draw_point->v1);
-				}
-				if (auto* draw_line = std::get_if<DrawLine>(&command)) {
-					_put_line(&m_scratchpad, draw_line->v1, draw_line->v2);
-				}
-			}
 
-			/* Draw scratch pad onto bitmap */
-			for (int32_t y = batch.rect.y; y < batch.rect.y + batch.rect.height; y++) {
-				for (int32_t x = batch.rect.x; x < batch.rect.x + batch.rect.width; x++) {
-					Pixel scratchpad_pixel = m_scratchpad.get(x, y);
-					Pixel bitmap_pixel = bitmap->get(x, y);
-					uint8_t alpha = scratchpad_pixel.padding;
-					bitmap->put(x, y, bitmap_pixel.lerp(scratchpad_pixel, alpha / 255.0f));
+				/* Draw scratch pad onto bitmap */
+				for (int32_t y = batch.rect.y; y < batch.rect.y + batch.rect.height; y++) {
+					for (int32_t x = batch.rect.x; x < batch.rect.x + batch.rect.width; x++) {
+						Pixel scratchpad_pixel = m_scratchpad.get(x, y);
+						Pixel bitmap_pixel = bitmap->get(x, y);
+						uint8_t alpha = scratchpad_pixel.padding;
+						bitmap->put(x, y, bitmap_pixel.lerp(scratchpad_pixel, alpha / 255.0f));
+					}
 				}
 			}
 		}

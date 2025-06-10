@@ -13,6 +13,8 @@ namespace engine {
 		int32_t y;
 		int32_t width;
 		int32_t height;
+
+		bool empty() const;
 	};
 
 } // namespace engine

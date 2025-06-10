@@ -27,7 +27,10 @@ namespace engine {
 		static Bitmap with_size(int32_t width, int32_t height);
 
 		void resize(int32_t width, int32_t height);
+
+		// TODO: add a float `alpha` parameter
 		void put(int32_t x, int32_t y, Pixel pixel);
+
 		Pixel get(int32_t x, int32_t y);
 		bool empty() const;
 		int32_t width() const;
