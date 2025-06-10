@@ -42,12 +42,7 @@ namespace engine {
 			Vertex v1;
 			Vertex v2;
 		};
-		struct DrawTriangle {
-			Vertex v1;
-			Vertex v2;
-			Vertex v3;
-		};
-		using DrawCommand = std::variant<ClearScreen, DrawPoint, DrawLine, DrawTriangle>;
+		using DrawCommand = std::variant<ClearScreen, DrawPoint, DrawLine>;
 		struct CommandBatch {
 			Rect rect;
 			std::vector<DrawCommand> commands;
@@ -62,7 +57,6 @@ namespace engine {
 		void _clear_screen(Bitmap* bitmap, RGBA color);
 		void _put_point(Bitmap* bitmap, Vertex v1);
 		void _put_line(Bitmap* bitmap, Vertex v1, Vertex v2);
-		void _put_triangle(Bitmap* bitmap, Vertex v1, Vertex v2, Vertex v3);
 	};
 
 } // namespace engine

@@ -205,7 +205,7 @@ namespace engine {
 		};
 
 		auto triangle_area = [](IVec2 a, IVec2 b) -> float {
-			return (float)(a.x * b.y - a.y * b.x) / 2.0f;
+			return std::abs((float)(a.x * b.y - a.y * b.x) / 2.0f);
 		};
 
 		float area_v1v2v3 = triangle_area(v2.pos - v1.pos, v3.pos - v1.pos);
@@ -225,34 +225,28 @@ namespace engine {
 			IVec2 p2 = { xs[1], y };
 
 			/* Interpolate colors */
-			// FIXME: this color interpolation is buggy as hell
-			// Dunno need to figure out the math more maybe?
-			// Steal code from this article maybe? Kinda sick of this triangle fuck ass shit
-			// https://www.scratchapixel.com/lessons/3d-basic-rendering/ray-tracing-rendering-a-triangle/barycentric-coordinates.html
-
 			// left color
-			// float area_v1v2p1 = triangle_area(v2.pos - v1.pos, p1 - v1.pos);
-			// float area_v1v3p1 = triangle_area(v3.pos - v1.pos, p1 - v1.pos);
-			// float area_v2v3p1 = triangle_area(v3.pos - v2.pos, p1 - v2.pos);
-			// float v1_t1 = area_v2v3p1 / area_v1v2v3;
-			// float v2_t1 = area_v1v3p1 / area_v1v2v3;
-			// float v3_t1 = area_v1v2p1 / area_v1v2v3;
-			// RGBA color1 = v1_t1 * v1.color + v2_t1 * v2.color + v3_t1 * v3.color;
-			RGBA color1 = v1.color;
+			float area_v1v2p1 = triangle_area(v2.pos - v1.pos, p1 - v1.pos);
+			float area_v1v3p1 = triangle_area(v3.pos - v1.pos, p1 - v1.pos);
+			float area_v2v3p1 = triangle_area(v3.pos - v2.pos, p1 - v2.pos);
+			float v1_t1 = area_v2v3p1 / area_v1v2v3;
+			float v2_t1 = area_v1v3p1 / area_v1v2v3;
+			float v3_t1 = area_v1v2p1 / area_v1v2v3;
+			RGBA color1 = v1_t1 * v1.color + v2_t1 * v2.color + v3_t1 * v3.color;
 
 			// right color
-			// float area_v1v2p2 = triangle_area(v2.pos - v1.pos, p2 - v1.pos);
-			// float area_v1v3p2 = triangle_area(v3.pos - v1.pos, p2 - v1.pos);
-			// float area_v2v3p2 = triangle_area(v3.pos - v2.pos, p2 - v2.pos);
-			// float v1_t2 = area_v2v3p2 / area_v1v2v3;
-			// float v2_t2 = area_v1v3p2 / area_v1v2v3;
-			// float v3_t2 = area_v1v2p2 / area_v1v2v3;
-			// RGBA color2 = v1_t2 * v1.color + v2_t2 * v2.color + v3_t2 * v3.color;
+			float area_v1v2p2 = triangle_area(v2.pos - v1.pos, p2 - v1.pos);
+			float area_v1v3p2 = triangle_area(v3.pos - v1.pos, p2 - v1.pos);
+			float area_v2v3p2 = triangle_area(v3.pos - v2.pos, p2 - v2.pos);
+			float v1_t2 = area_v2v3p2 / area_v1v2v3;
+			float v2_t2 = area_v1v3p2 / area_v1v2v3;
+			float v3_t2 = area_v1v2p2 / area_v1v2v3;
+			RGBA color2 = v1_t2 * v1.color + v2_t2 * v2.color + v3_t2 * v3.color;
 
 			/* Draw line */
 			batch.commands.push_back(DrawLine {
 				.v1 = Vertex { .pos = { xs[0], y }, .color = color1 },
-				.v2 = Vertex { .pos = { xs[1], y }, .color = color1 },
+				.v2 = Vertex { .pos = { xs[1], y }, .color = color2 },
 			});
 		}
 
@@ -282,9 +276,6 @@ namespace engine {
 				}
 				if (auto* draw_line = std::get_if<DrawLine>(&command)) {
 					_put_line(&m_scratchpad, draw_line->v1, draw_line->v2);
-				}
-				if (auto* draw_triangle = std::get_if<DrawTriangle>(&command)) {
-					_put_triangle(&m_scratchpad, draw_triangle->v1, draw_triangle->v2, draw_triangle->v3);
 				}
 			}
 
@@ -348,9 +339,6 @@ namespace engine {
 				_put_point(bitmap, vertex);
 			}
 		}
-	}
-
-	void Renderer::_put_triangle(Bitmap* /*bitmap*/, Vertex /*v1*/, Vertex /*v2*/, Vertex /*v3*/) {
 	}
 
 } // namespace engine

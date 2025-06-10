@@ -25,10 +25,10 @@ namespace engine {
 
 	RGBA operator*(float t, const RGBA& rhs) {
 		return RGBA {
-			.r = (uint8_t)std::round(t * rhs.r),
-			.g = (uint8_t)std::round(t * rhs.g),
-			.b = (uint8_t)std::round(t * rhs.b),
-			.a = (uint8_t)std::round(t * rhs.a),
+			.r = (uint8_t)std::round(std::clamp(t * rhs.r, 0.0f, 255.0f)),
+			.g = (uint8_t)std::round(std::clamp(t * rhs.g, 0.0f, 255.0f)),
+			.b = (uint8_t)std::round(std::clamp(t * rhs.b, 0.0f, 255.0f)),
+			.a = (uint8_t)std::round(std::clamp(t * rhs.a, 0.0f, 255.0f)),
 		};
 	}
 
