@@ -32,6 +32,7 @@ namespace engine {
 		// TODO:
 		// https://www.khronos.org/opengl/wiki/primitive#Triangle_primitives
 		// - draw triangle fan (for convex polygons)
+		// - draw triangle strip (for concave polygons)
 
 		void render(Bitmap* bitmap);
 
