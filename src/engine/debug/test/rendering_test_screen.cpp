@@ -149,13 +149,37 @@ namespace engine {
 
 		/* Draw triangle */
 #pragma region draw triangle
-		// isoceles triangle
+		// isoceles triangle pointing up
 		for (ColorMode color_mode : color_modes) {
 			for (FillMode mode : fill_modes) {
 				grid_pos = next_grid_pos(grid_pos);
 				Vertex left = { .pos = get_pos(Vec2 { -1.0f, -1.0f }, grid_pos), .color = get_color({ 255, 0, 0, m_alpha }, color_mode) };
 				Vertex top = { .pos = get_pos(Vec2 { 0.0f, 1.0f }, grid_pos), .color = get_color({ 0, 255, 0, m_alpha }, color_mode) };
 				Vertex right = { .pos = get_pos(Vec2 { 1.0f, -1.0f }, grid_pos), .color = get_color({ 0, 0, 255, m_alpha }, color_mode) };
+				if (mode == FillMode::Outline) renderer->draw_triangle(left, top, right);
+				if (mode == FillMode::Filled) renderer->draw_triangle_fill(left, top, right);
+			}
+		}
+
+		// isoceles triangle pointing up
+		for (ColorMode color_mode : color_modes) {
+			for (FillMode mode : fill_modes) {
+				grid_pos = next_grid_pos(grid_pos);
+				Vertex left = { .pos = get_pos(Vec2 { -1.0f, -1.0f }, grid_pos), .color = get_color({ 255, 0, 0, m_alpha }, color_mode) };
+				Vertex top = { .pos = get_pos(Vec2 { -1.0f, 1.0f }, grid_pos), .color = get_color({ 0, 255, 0, m_alpha }, color_mode) };
+				Vertex right = { .pos = get_pos(Vec2 { 1.0f, 0.0f }, grid_pos), .color = get_color({ 0, 0, 255, m_alpha }, color_mode) };
+				if (mode == FillMode::Outline) renderer->draw_triangle(left, top, right);
+				if (mode == FillMode::Filled) renderer->draw_triangle_fill(left, top, right);
+			}
+		}
+
+		// scalene triangle
+		for (ColorMode color_mode : color_modes) {
+			for (FillMode mode : fill_modes) {
+				grid_pos = next_grid_pos(grid_pos);
+				Vertex left = { .pos = get_pos(Vec2 { -0.5f, -1.0f }, grid_pos), .color = get_color({ 255, 0, 0, m_alpha }, color_mode) };
+				Vertex top = { .pos = get_pos(Vec2 { 0.0f, 1.0f }, grid_pos), .color = get_color({ 0, 255, 0, m_alpha }, color_mode) };
+				Vertex right = { .pos = get_pos(Vec2 { 1.0f, -0.5f }, grid_pos), .color = get_color({ 0, 0, 255, m_alpha }, color_mode) };
 				if (mode == FillMode::Outline) renderer->draw_triangle(left, top, right);
 				if (mode == FillMode::Filled) renderer->draw_triangle_fill(left, top, right);
 			}
