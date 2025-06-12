@@ -1,5 +1,7 @@
 #include <engine/file/resource_manager.h>
 
+#include <engine/debug/assert.h>
+
 namespace engine {
 
 	ResourceManager::~ResourceManager() {
@@ -26,8 +28,9 @@ namespace engine {
 	}
 
 	const Image& ResourceManager::image(ImageID id) const {
-		// FIXME: debug assert that there's anything here
-		return m_images.at(id.value);
+		auto it = m_images.find(id.value);
+		DEBUG_ASSERT(it != m_images.end(), "Trying to access non-existing image with id %d", id.value);
+		return it->second;
 	}
 
 } // namespace engine
