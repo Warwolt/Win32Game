@@ -62,10 +62,10 @@ namespace engine {
 		};
 	}
 
-	Vec2 Vec2::lerp(const Vec2& rhs, float t) {
+	Vec2 Vec2::lerp(Vec2 lhs, const Vec2& rhs, float t) {
 		return Vec2 {
-			.x = std::lerp(this->x, rhs.x, t),
-			.y = std::lerp(this->y, rhs.y, t),
+			.x = std::lerp(lhs.x, rhs.x, t),
+			.y = std::lerp(lhs.y, rhs.y, t),
 		};
 	}
 

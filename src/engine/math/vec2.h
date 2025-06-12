@@ -20,7 +20,7 @@ namespace engine {
 		friend Vec2 operator*(float lhs, Vec2 rhs);
 		friend Vec2 operator/(Vec2 lhs, float rhs);
 
-		Vec2 lerp(const Vec2& rhs, float t);
+		static Vec2 lerp(Vec2 lhs, const Vec2& rhs, float t);
 	};
 
 } // namespace engine
