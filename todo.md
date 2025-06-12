@@ -7,7 +7,6 @@ Maybe ideas:
 - Text mode engine debugging UI (for selecting various test screens and tools)
 
 # Todo
-- Draw API: Polygons (triangle strips, triangle fans)
 - Draw API: Textures
 - Font support
 - Text Mode UI prototype
@@ -22,6 +21,7 @@ Maybe ideas:
 - Camera
 - Enemy AI
 - [!] Write Zelda Dungeon game
+- Draw API: Polygons (triangle strips, triangle fans)
 
 # Doing
 

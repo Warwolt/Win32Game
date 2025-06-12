@@ -29,11 +29,6 @@ namespace engine {
 		void draw_triangle(Vertex v1, Vertex v2, Vertex v3);
 		void draw_triangle_fill(Vertex v1, Vertex v2, Vertex v3);
 
-		// TODO:
-		// https://www.khronos.org/opengl/wiki/primitive#Triangle_primitives
-		// - draw triangle fan (for convex polygons)
-		// - draw triangle strip (for concave polygons)
-
 		void render(Bitmap* bitmap);
 
 	private:
