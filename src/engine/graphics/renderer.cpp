@@ -1,14 +1,8 @@
 #include <engine/graphics/renderer.h>
 
-#include <engine/debug/logging.h>
-#include <engine/math/ivec2.h>
-#include <engine/math/vec2.h>
-
 #include <algorithm>
 #include <cmath>
-#include <functional>
-#include <iterator>
-#include <windows.h>
+#include <unordered_set>
 
 namespace engine {
 
@@ -44,314 +38,303 @@ namespace engine {
 	}
 
 	void Renderer::clear_screen(RGBA color) {
-		m_draw_commands.push_back(ClearScreen { color });
+		m_batches.push_back(CommandBatch { .commands = { ClearScreen { color } } });
 	}
 
-	void Renderer::draw_point(IVec2 point, RGBA color) {
-		m_draw_commands.push_back(DrawPoint { point, color });
+	void Renderer::draw_point(Vertex v1) {
+		m_batches.push_back(CommandBatch {
+			.commands = {
+				DrawPoint { v1 },
+			},
+		});
 	}
 
-	void Renderer::draw_line(IVec2 start, IVec2 end, RGBA color) {
-		m_draw_commands.push_back(DrawLine { start, end, color });
+	void Renderer::draw_line(Vertex v1, Vertex v2) {
+		m_batches.push_back(CommandBatch {
+			.commands = {
+				DrawLine { v1, v2 },
+			},
+		});
 	}
 
 	void Renderer::draw_rect(Rect rect, RGBA color) {
-		m_draw_commands.push_back(DrawRect { rect, color, false });
+		Vertex top_left = { .pos = { rect.x, rect.y }, .color = color };
+		Vertex top_right = { .pos = { rect.x + rect.width - 1, rect.y }, .color = color };
+		Vertex bottom_left = { .pos = { rect.x, rect.y + rect.height - 1 }, .color = color };
+		Vertex bottom_right = { .pos = { rect.x + rect.width - 1, rect.y + rect.height - 1 }, .color = color };
+		m_batches.push_back(CommandBatch {
+			.rect = rect,
+			.commands = {
+				DrawLine { top_left, top_right },
+				DrawLine { top_left, bottom_left },
+				DrawLine { top_right, bottom_right },
+				DrawLine { bottom_left, bottom_right },
+			},
+		});
 	}
 
 	void Renderer::draw_rect_fill(Rect rect, RGBA color) {
-		m_draw_commands.push_back(DrawRect { rect, color, true });
-	}
-
-	void Renderer::draw_polygon(std::vector<IVec2> vertices, RGBA color) {
-		if (vertices.size() < 3) {
-			LOG_WARNING("draw_polygon called with less than 3 vertices, ignoring");
-			return;
+		CommandBatch batch = { .rect = rect };
+		for (int32_t y = rect.y; y < rect.y + rect.height; y++) {
+			Vertex left = { .pos = { rect.x, y }, .color = color };
+			Vertex right = { .pos = { rect.x + rect.width - 1, y }, .color = color };
+			batch.commands.push_back(DrawLine { left, right });
 		}
-		m_draw_commands.push_back(DrawPolygon { std::move(vertices), color, false });
-	}
-
-	void Renderer::draw_polygon_fill(std::vector<IVec2> vertices, RGBA color) {
-		if (vertices.size() < 3) {
-			LOG_WARNING("draw_polygon called with less than 3 vertices, ignoring");
-			return;
-		}
-		m_draw_commands.push_back(DrawPolygon { std::move(vertices), color, true });
+		m_batches.push_back(batch);
 	}
 
 	void Renderer::draw_circle(IVec2 center, int32_t radius, RGBA color) {
-		m_draw_commands.push_back(DrawCircle { center, radius, color, false });
+		CommandBatch batch = {
+			.rect = Rect {
+				.x = center.x - radius,
+				.y = center.y - radius,
+				.width = 2 * radius + 1,
+				.height = 2 * radius + 1,
+			},
+		};
+		for (IVec2 point : circle_octant_points(radius)) {
+			batch.commands.push_back(DrawPoint { Vertex { .pos = center + IVec2 { point.x, point.y }, .color = color } });
+			batch.commands.push_back(DrawPoint { Vertex { .pos = center + IVec2 { point.y, point.x }, .color = color } });
+			batch.commands.push_back(DrawPoint { Vertex { .pos = center + IVec2 { point.y, -point.x }, .color = color } });
+			batch.commands.push_back(DrawPoint { Vertex { .pos = center + IVec2 { point.x, -point.y }, .color = color } });
+			batch.commands.push_back(DrawPoint { Vertex { .pos = center + IVec2 { -point.x, point.y }, .color = color } });
+			batch.commands.push_back(DrawPoint { Vertex { .pos = center + IVec2 { -point.y, point.x }, .color = color } });
+			batch.commands.push_back(DrawPoint { Vertex { .pos = center + IVec2 { -point.y, -point.x }, .color = color } });
+			batch.commands.push_back(DrawPoint { Vertex { .pos = center + IVec2 { -point.x, -point.y }, .color = color } });
+		}
+		m_batches.push_back(batch);
 	}
 
 	void Renderer::draw_circle_fill(IVec2 center, int32_t radius, RGBA color) {
-		m_draw_commands.push_back(DrawCircle { center, radius, color, true });
-	}
-
-	void Renderer::render(Bitmap* bitmap) {
-		/* Draw to bitmap */
-		for (DrawCommand& command : m_draw_commands) {
-			if (auto* clear_screen = std::get_if<ClearScreen>(&command)) {
-				_clear_screen(bitmap, clear_screen->color);
-			}
-			if (auto* draw_point = std::get_if<DrawPoint>(&command)) {
-				_put_point(bitmap, draw_point->point, draw_point->color);
-			}
-			if (auto* draw_line = std::get_if<DrawLine>(&command)) {
-				_put_line(bitmap, draw_line->start, draw_line->end, draw_line->color);
-			}
-			if (auto* draw_rect = std::get_if<DrawRect>(&command)) {
-				if (draw_rect->filled) {
-					_put_rect_fill(bitmap, draw_rect->rect, draw_rect->color);
-				}
-				else {
-					_put_rect(bitmap, draw_rect->rect, draw_rect->color);
-				}
-			}
-			if (auto* draw_polygon = std::get_if<DrawPolygon>(&command)) {
-				if (draw_polygon->filled) {
-					_put_polygon_fill(bitmap, draw_polygon->vertices, draw_polygon->color);
-				}
-				else {
-					_put_polygon(bitmap, draw_polygon->vertices, draw_polygon->color);
-				}
-			}
-			if (auto* draw_circle = std::get_if<DrawCircle>(&command)) {
-				if (draw_circle->filled) {
-					_put_circle_fill(bitmap, draw_circle->center, draw_circle->radius, draw_circle->color);
-				}
-				else {
-					_put_circle(bitmap, draw_circle->center, draw_circle->radius, draw_circle->color);
-				}
-			}
-		}
-		m_draw_commands.clear();
-	}
-
-	void Renderer::_clear_screen(Bitmap* bitmap, RGBA color) {
-		for (size_t i = 0; i < bitmap->width * bitmap->height; i++) {
-			bitmap->data[i] = BGRPixel::from_rgba(color);
-		}
-	}
-
-	void Renderer::_put_point(Bitmap* bitmap, IVec2 point, RGBA color) {
-		BGRPixel old_color = bitmap->get(point.x, point.y);
-		BGRPixel new_color = BGRPixel {
-			.b = (uint8_t)std::lerp(old_color.b, color.b, color.a / 255.0f),
-			.g = (uint8_t)std::lerp(old_color.g, color.g, color.a / 255.0f),
-			.r = (uint8_t)std::lerp(old_color.r, color.r, color.a / 255.0f),
+		CommandBatch batch = {
+			.rect = Rect {
+				.x = center.x - radius,
+				.y = center.y - radius,
+				.width = 2 * radius + 1,
+				.height = 2 * radius + 1,
+			},
 		};
-		bitmap->put(point.x, point.y, new_color);
-	}
-
-	void Renderer::_put_line(Bitmap* bitmap, IVec2 start, IVec2 end, RGBA color) {
-		// vertical line
-		if (start.x == end.x) {
-			int32_t y0 = min(start.y, end.y);
-			int32_t y1 = max(start.y, end.y);
-			for (int32_t y = y0; y <= y1; y++) {
-				_put_point(bitmap, IVec2 { start.x, y }, color);
+		for (IVec2 point : circle_octant_points(radius)) {
+			for (int32_t x = -point.x; x <= point.x; x++) {
+				batch.commands.push_back(DrawLine {
+					.v1 = { .pos = center + IVec2 { x, point.y }, .color = color },
+					.v2 = { .pos = center + IVec2 { x, -point.y }, .color = color },
+				});
+			}
+			for (int32_t y = -point.y; y <= point.y; y++) {
+				batch.commands.push_back(DrawLine {
+					.v1 = { .pos = center + IVec2 { y, point.x }, .color = color },
+					.v2 = { .pos = center + IVec2 { y, -point.x }, .color = color },
+				});
 			}
 		}
-		// sloped line
-		else {
-			// delta is the longer side of the triangle formed by the line
-			// if dx is greater, x_step will be +1 or -1 and y_step will be the slope
-			// if dy is greater, we flip it along the diagonal
-			int32_t dx = end.x - start.x;
-			int32_t dy = end.y - start.y;
-			int32_t delta = max(std::abs(dx), std::abs(dy));
-			float x_step = (float)dx / (float)delta;
-			float y_step = (float)dy / (float)delta;
-			for (int32_t i = 0; i <= delta; i++) {
-				_put_point(bitmap, IVec2 { (int32_t)(start.x + i * x_step), (int32_t)(start.y + i * y_step) }, color);
-			}
-		}
+		m_batches.push_back(batch);
 	}
 
-	void Renderer::_put_rect(Bitmap* bitmap, Rect rect, RGBA color) {
-		IVec2 top_left = { rect.x, rect.y };
-		IVec2 top_right = { rect.x + rect.width - 1, rect.y };
-		IVec2 bottom_left = { rect.x, rect.y + rect.height - 1 };
-		IVec2 bottom_right = { rect.x + rect.width - 1, rect.y + rect.height - 1 };
-		_put_line(bitmap, top_left, bottom_left, color);
-		_put_line(bitmap, top_right, bottom_right, color);
-		_put_line(bitmap, top_left, top_right, color);
-		_put_line(bitmap, bottom_left, bottom_right, color);
+	void Renderer::draw_triangle(Vertex v1, Vertex v2, Vertex v3) {
+		int32_t min_x = std::min({ v1.pos.x, v2.pos.x, v3.pos.x });
+		int32_t min_y = std::min({ v1.pos.y, v2.pos.y, v3.pos.y });
+		int32_t max_x = std::max({ v1.pos.x, v2.pos.x, v3.pos.x });
+		int32_t max_y = std::max({ v1.pos.y, v2.pos.y, v3.pos.y });
+		m_batches.push_back(CommandBatch {
+			.rect = Rect {
+				min_x,
+				min_y,
+				max_x - min_x + 1,
+				max_y - min_y + 1,
+			},
+			.commands = {
+				DrawLine { v1, v2 },
+				DrawLine { v1, v3 },
+				DrawLine { v2, v3 },
+			},
+		});
 	}
 
-	void Renderer::_put_rect_fill(Bitmap* bitmap, Rect rect, RGBA color) {
-		int32_t left = rect.x;
-		int32_t right = rect.x + rect.width - 1;
-		for (int32_t y = rect.y; y < rect.y + rect.height; y++) {
-			_put_line(bitmap, IVec2 { left, y }, IVec2 { right, y }, color);
-		}
-	}
-
-	void Renderer::_put_polygon(Bitmap* bitmap, const std::vector<IVec2>& vertices, RGBA color) {
-		for (size_t i = 0; i < vertices.size() - 1; i++) {
-			_put_line(bitmap, vertices[i], vertices[i + 1], color);
-		}
-		_put_line(bitmap, vertices[vertices.size() - 1], vertices[0], color);
-	}
-
-	void Renderer::_put_polygon_fill(Bitmap* bitmap, const std::vector<IVec2>& vertices, RGBA color) {
-		struct PolygonEdge {
+	void Renderer::draw_triangle_fill(Vertex v1, Vertex v2, Vertex v3) {
+		struct TriangleEdge {
 			int32_t x0;
 			int32_t y0;
 			int32_t y1;
 			float inv_slope;
 		};
 
-		struct PolygonIntersection {
-			int32_t x;
-			bool is_maximum;
-			bool is_minimum;
+		auto make_triangle_edge = [](Vertex a, Vertex b) -> TriangleEdge {
+			return TriangleEdge {
+				.x0 = a.pos.x,
+				.y0 = a.pos.y,
+				.y1 = b.pos.y,
+				.inv_slope = (float)(b.pos.x - a.pos.x) / (float)(b.pos.y - a.pos.y),
+			};
 		};
 
-		/* Check vertices make a polygon */
-		if (vertices.size() < 3) {
-			return;
-		}
+		std::vector<TriangleEdge> edges = {
+			make_triangle_edge(v1, v2),
+			make_triangle_edge(v1, v3),
+			make_triangle_edge(v2, v3),
+		};
 
-		/* Compute edges and bounding box */
-		std::vector<PolygonEdge> edges;
-		int32_t min_y = min(vertices[0].y, vertices[1].y);
-		int32_t max_y = max(vertices[0].y, vertices[1].y);
-		for (size_t i = 0; i < vertices.size(); i++) {
-			IVec2 first = vertices[i];
-			IVec2 second = vertices[(i + 1) % vertices.size()];
-			min_y = min(min_y, min(first.y, second.y));
-			max_y = max(max_y, max(first.y, second.y));
+		int32_t min_x = std::min({ v1.pos.x, v2.pos.x, v3.pos.x });
+		int32_t min_y = std::min({ v1.pos.y, v2.pos.y, v3.pos.y });
+		int32_t max_x = std::max({ v1.pos.x, v2.pos.x, v3.pos.x });
+		int32_t max_y = std::max({ v1.pos.y, v2.pos.y, v3.pos.y });
 
-			// Skip horizontal edges since we're filling in the polygon row by
-			// row, and want to avoid edges that overlap with the scanline.
-			bool is_horizontal = first.y == second.y;
-			if (!is_horizontal) {
-				float inv_slope = (float)(second.x - first.x) / (float)(second.y - first.y);
-				edges.push_back(PolygonEdge {
-					.x0 = first.x,
-					.y0 = first.y,
-					.y1 = second.y,
-					.inv_slope = inv_slope,
-				});
-			}
-		}
+		CommandBatch batch = {
+			.rect = Rect {
+				min_x,
+				min_y,
+				max_x - min_x + 1,
+				max_y - min_y + 1,
+			},
+		};
 
-		/* Scan y from top to bottom, filling in polygon row by row */
+		auto triangle_area = [](IVec2 a, IVec2 b) -> float {
+			return std::abs((float)(a.x * b.y - a.y * b.x) / 2.0f);
+		};
+
+		float area_v1v2v3 = triangle_area(v2.pos - v1.pos, v3.pos - v1.pos);
+
 		for (int32_t y = min_y; y <= max_y; y++) {
-			/* Find points of intersection */
-			std::vector<PolygonIntersection> intersections;
-			for (const PolygonEdge& edge : edges) {
-				int32_t y_min = min(edge.y0, edge.y1);
-				int32_t y_max = max(edge.y0, edge.y1);
-				if (y_min <= y && y <= y_max) {
-					int32_t x = (int32_t)std::round(edge.inv_slope * (y - edge.y0) + edge.x0);
-					intersections.push_back(PolygonIntersection {
-						.x = x,
-						.is_maximum = y == y_max,
-						.is_minimum = y == y_min,
-					});
-				}
+			/* Get intersections */
+			std::vector<int32_t> xs;
+			for (const TriangleEdge& edge : edges) {
+				xs.push_back((int32_t)std::round(edge.inv_slope * (y - edge.y0) + edge.x0));
 			}
 
-			/* Sort by x-values to collect equal points */
-			auto intersection_less_than = [](PolygonIntersection lhs, PolygonIntersection rhs) { return lhs.x < rhs.x; };
-			std::sort(intersections.begin(), intersections.end(), intersection_less_than);
+			/* Get left and right triangle positions */
+			auto is_out_of_bounds = [min_x, max_x](int32_t x) { return x < min_x || x > max_x; };
+			auto last = std::remove_if(xs.begin(), xs.end(), is_out_of_bounds);
+			std::sort(xs.begin(), xs.end());
+			IVec2 p1 = { xs[0], y };
+			IVec2 p2 = { xs[1], y };
 
-			/* Determine which points to draw */
-			std::vector<int32_t> points_to_connect;
-			std::vector<int32_t> corner_and_cross_points;
-			int32_t current_x = intersections.front().x;
-			while (true) {
-				/* Scan through all points with same x-value */
-				auto equals_current_x = [current_x](const PolygonIntersection& intersection) { return intersection.x == current_x; };
-				auto not_equals_current_x = [current_x](const PolygonIntersection& intersection) { return intersection.x != current_x; };
-				auto begin = std::find_if(intersections.begin(), intersections.end(), equals_current_x);
-				auto end = std::find_if(begin, intersections.end(), not_equals_current_x);
+			/* Interpolate colors */
+			// left color
+			float area_v1v2p1 = triangle_area(v2.pos - v1.pos, p1 - v1.pos);
+			float area_v1v3p1 = triangle_area(v3.pos - v1.pos, p1 - v1.pos);
+			float area_v2v3p1 = triangle_area(v3.pos - v2.pos, p1 - v2.pos);
+			float v1_t1 = area_v2v3p1 / area_v1v2v3;
+			float v2_t1 = area_v1v3p1 / area_v1v2v3;
+			float v3_t1 = area_v1v2p1 / area_v1v2v3;
+			RGBA color1 = v1_t1 * v1.color + v2_t1 * v2.color + v3_t1 * v3.color;
 
-				/* Determine what kind of point (should we draw it as a point or a line?) */
-				int num_maximum = 0;
-				int num_minimum = 0;
-				int num_intersections = 0;
-				for (auto it = begin; it != end; it++) {
-					num_maximum += it->is_maximum ? 1 : 0;
-					num_minimum += it->is_minimum ? 1 : 0;
-					num_intersections += 1;
-				}
-				// KNOWN BUG: If intersection contains both a corner and middle
-				// of edge, then we'll end up not drawing the correct fill.
-				// Reproduce with: [(-2,0), (0,-1), (2,-2), (2,1), (0,-1), (0, 2)]
-				// (Will draw a set of "teeth", with missing pixels right of (0,-1))
-				bool no_overlapping_vertices = num_maximum == 0 && num_minimum == 0;
-				bool odd_number_of_intersections = num_intersections % 2 == 1;
-				bool is_corner = num_maximum >= 2 || num_minimum >= 2;
-				bool is_cross = (no_overlapping_vertices || odd_number_of_intersections) && num_intersections > 1;
+			// right color
+			float area_v1v2p2 = triangle_area(v2.pos - v1.pos, p2 - v1.pos);
+			float area_v1v3p2 = triangle_area(v3.pos - v1.pos, p2 - v1.pos);
+			float area_v2v3p2 = triangle_area(v3.pos - v2.pos, p2 - v2.pos);
+			float v1_t2 = area_v2v3p2 / area_v1v2v3;
+			float v2_t2 = area_v1v3p2 / area_v1v2v3;
+			float v3_t2 = area_v1v2p2 / area_v1v2v3;
+			RGBA color2 = v1_t2 * v1.color + v2_t2 * v2.color + v3_t2 * v3.color;
 
-				/* Save point to draw later */
-				if (is_corner || is_cross) {
-					corner_and_cross_points.push_back(current_x);
-				}
-				else {
-					points_to_connect.push_back(current_x);
-				}
+			/* Draw line */
+			batch.commands.push_back(DrawLine {
+				.v1 = Vertex { .pos = { xs[0], y }, .color = color1 },
+				.v2 = Vertex { .pos = { xs[1], y }, .color = color2 },
+			});
+		}
 
-				/* Iterate */
-				if (end == intersections.end()) {
-					break;
+		m_batches.push_back(batch);
+	}
+
+	void Renderer::render(Bitmap* bitmap) {
+		/* Keep scratchpad size in sync with bitmap */
+		m_scratchpad.resize(bitmap->width(), bitmap->height());
+
+		/* Run commands */
+		for (const CommandBatch& batch : m_batches) {
+			if (batch.rect.empty()) {
+				/* Draw directly to bitmap */
+				for (const DrawCommand& command : batch.commands) {
+					if (auto* clear_screen = std::get_if<ClearScreen>(&command)) {
+						_clear_screen(bitmap, clear_screen->color);
+					}
+					if (auto* draw_point = std::get_if<DrawPoint>(&command)) {
+						_put_point(bitmap, draw_point->v1, true);
+					}
+					if (auto* draw_line = std::get_if<DrawLine>(&command)) {
+						_put_line(bitmap, draw_line->v1, draw_line->v2, true);
+					}
 				}
-				current_x = end->x;
 			}
-
-			/* Draw all points */
-			for (size_t i = 0; i + 1 < points_to_connect.size(); i += 2) {
-				IVec2 start = { points_to_connect[i], y };
-				IVec2 end = { points_to_connect[i + 1], y };
-				_put_line(bitmap, start, end, color);
-			}
-			// HACK: Skip drawing points if drawing lines so we don't overdraw,
-			// since this will mess with alpha blending.
-			if (points_to_connect.empty()) {
-				for (int32_t x : corner_and_cross_points) {
-					_put_point(bitmap, IVec2 { x, y }, color);
+			else {
+				/* Clear scratch pad area */
+				for (int32_t y = batch.rect.y; y < batch.rect.y + batch.rect.height; y++) {
+					for (int32_t x = batch.rect.x; x < batch.rect.x + batch.rect.width; x++) {
+						m_scratchpad.put(x, y, Pixel { 0, 0, 0, 0 });
+					}
 				}
+
+				/* Draw onto scratch pad */
+				for (const DrawCommand& command : batch.commands) {
+					if (auto* draw_point = std::get_if<DrawPoint>(&command)) {
+						_put_point(&m_scratchpad, draw_point->v1, false);
+					}
+					if (auto* draw_line = std::get_if<DrawLine>(&command)) {
+						_put_line(&m_scratchpad, draw_line->v1, draw_line->v2, false);
+					}
+				}
+
+				/* Draw scratch pad onto bitmap */
+				for (int32_t y = batch.rect.y; y < batch.rect.y + batch.rect.height; y++) {
+					for (int32_t x = batch.rect.x; x < batch.rect.x + batch.rect.width; x++) {
+						Pixel scratchpad_pixel = m_scratchpad.get(x, y);
+						float alpha = scratchpad_pixel.padding / 255.0f;
+						bitmap->put(x, y, scratchpad_pixel, alpha);
+					}
+				}
+			}
+		}
+
+		/* Clear commands */
+		m_batches.clear();
+	}
+
+	void Renderer::_clear_screen(Bitmap* bitmap, RGBA color) {
+		for (int32_t y = 0; y < bitmap->height(); y++) {
+			for (int32_t x = 0; x < bitmap->width(); x++) {
+				bitmap->put(x, y, Pixel::from_rgb(color));
 			}
 		}
 	}
 
-	void Renderer::_put_circle(Bitmap* bitmap, IVec2 center, int32_t radius, RGBA color) {
-		std::vector<IVec2> octant_points = circle_octant_points(radius);
-		for (IVec2 point : octant_points) {
-			_put_point(bitmap, center + IVec2 { point.x, point.y }, color);
-			_put_point(bitmap, center + IVec2 { point.y, point.x }, color);
-			_put_point(bitmap, center + IVec2 { point.y, -point.x }, color);
-			_put_point(bitmap, center + IVec2 { point.x, -point.y }, color);
-			_put_point(bitmap, center + IVec2 { -point.x, point.y }, color);
-			_put_point(bitmap, center + IVec2 { -point.y, point.x }, color);
-			_put_point(bitmap, center + IVec2 { -point.y, -point.x }, color);
-			_put_point(bitmap, center + IVec2 { -point.x, -point.y }, color);
-		}
+	void Renderer::_put_point(Bitmap* bitmap, Vertex v1, bool use_alpha) {
+		Pixel pixel = { .b = v1.color.b, .g = v1.color.g, .r = v1.color.r, .padding = v1.color.a };
+		bitmap->put(v1.pos.x, v1.pos.y, pixel, use_alpha ? v1.color.a / 255.0f : 1.0f);
 	}
 
-	void Renderer::_put_circle_fill(Bitmap* bitmap, IVec2 center, int32_t radius, RGBA color) {
-		/* Compute points for upper half circle */
-		std::vector<IVec2> octant_points = circle_octant_points(radius);
-		std::vector<IVec2> half_circle_points;
-		for (IVec2 point : octant_points) {
-			half_circle_points.push_back({ point.x, point.y });
-			half_circle_points.push_back({ point.y, point.x });
-			half_circle_points.push_back({ -point.x, point.y });
-			half_circle_points.push_back({ -point.y, point.x });
+	void Renderer::_put_line(Bitmap* bitmap, Vertex v1, Vertex v2, bool use_alpha) {
+		// vertical line
+		if (v1.pos.x == v2.pos.x) {
+			int32_t y0 = std::min(v1.pos.y, v2.pos.y);
+			int32_t y1 = std::max(v1.pos.y, v2.pos.y);
+			for (int32_t y = y0; y <= y1; y++) {
+				IVec2 pos = IVec2 { v1.pos.x, y };
+				float t = (float)(pos.y - v1.pos.y) / (float)(v2.pos.y - v1.pos.y);
+				Vertex vertex = { .pos = pos, .color = RGBA::lerp(v1.color, v2.color, t) };
+				_put_point(bitmap, vertex, use_alpha);
+			}
 		}
-
-		/* Remove overlapping x-coordinates to avoid overdraw */
-		auto x_less_than = [](IVec2 lhs, IVec2 rhs) { return lhs.x < rhs.x; };
-		auto xs_equal = [](IVec2 lhs, IVec2 rhs) { return lhs.x == rhs.x; };
-		std::sort(half_circle_points.begin(), half_circle_points.end(), x_less_than);
-		half_circle_points.erase(std::unique(half_circle_points.begin(), half_circle_points.end(), xs_equal), half_circle_points.end());
-
-		/* Draw vertical lines */
-		for (IVec2 point : half_circle_points) {
-			_put_line(bitmap, center + IVec2 { point.x, point.y }, center + IVec2 { point.x, -point.y }, color);
+		// sloped line
+		else {
+			// big_delta is the longer side of the triangle formed by the line
+			// if dx is greater, x_step will be +1 or -1 and y_step will be the slope
+			// if dy is greater, we flip it along the diagonal
+			int32_t dx = v2.pos.x - v1.pos.x;
+			int32_t dy = v2.pos.y - v1.pos.y;
+			int32_t abs_dx = std::abs(dx);
+			int32_t abs_dy = std::abs(dy);
+			int32_t big_delta = std::max(abs_dx, abs_dy);
+			float x_step = (float)dx / (float)big_delta;
+			float y_step = (float)dy / (float)big_delta;
+			for (int32_t i = 0; i <= big_delta; i++) {
+				IVec2 pos = IVec2 { .x = (int32_t)(v1.pos.x + i * x_step), .y = (int32_t)(v1.pos.y + i * y_step) };
+				float t = abs_dx > abs_dy
+					? (float)(pos.x - v1.pos.x) / (float)(v2.pos.x - v1.pos.x)
+					: (float)(pos.y - v1.pos.y) / (float)(v2.pos.y - v1.pos.y);
+				Vertex vertex = { .pos = pos, .color = RGBA::lerp(v1.color, v2.color, t) };
+				_put_point(bitmap, vertex, use_alpha);
+			}
 		}
 	}
 

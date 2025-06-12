@@ -5,6 +5,7 @@
 #include <engine/math/ivec2.h>
 #include <game/game.h>
 
+#include <expected>
 #include <format>
 #include <windows.h>
 #include <windowsx.h>

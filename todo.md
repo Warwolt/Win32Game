@@ -7,11 +7,10 @@ Maybe ideas:
 - Text mode engine debugging UI (for selecting various test screens and tools)
 
 # Todo
-- Draw API: Per vertex colors, interpolate color between vertices
-- Sprite support
-- [!] Write Blackjack game
+- Draw API: Textures
 - Font support
 - Text Mode UI prototype
+- [!] Write Blackjack game
 - CPU Profiling
 - Measure render API, see if things can be optimized (e.g. less loops, SIMD, less memory allocations etc.)
 - DLL based hot reloading
@@ -22,10 +21,12 @@ Maybe ideas:
 - Camera
 - Enemy AI
 - [!] Write Zelda Dungeon game
+- Draw API: Polygons (triangle strips, triangle fans)
 
 # Doing
 
 # Done
+- Draw API: Per vertex colors, interpolate color between vertices
 - Window: Render at lower resolution and upscale it to fit screen
 - Window: Borderless full screen
 - Bug: ignore keyboard key/mouse buttons if window not focused

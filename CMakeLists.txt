@@ -14,7 +14,9 @@ set(SRC
     src/engine/debug/logging.cpp
     src/engine/debug/test/rendering_test_screen.cpp
     src/engine/graphics/bitmap.cpp
+    src/engine/graphics/rect.cpp
     src/engine/graphics/renderer.cpp
+    src/engine/graphics/rgba.cpp
     src/engine/graphics/window.cpp
     src/engine/input/button.cpp
     src/engine/input/gamepad.cpp

@@ -2,45 +2,42 @@
 
 #include <engine/graphics/rgba.h>
 
+#include <cmath>
 #include <stdint.h>
+#include <vector>
 
 namespace engine {
 
-	struct BGRPixel {
+	// Win32 endian stuff means RGB is stored as BGR.
+	// For alignment reasons we also add `padding`.
+	struct Pixel {
 		uint8_t b;
 		uint8_t g;
 		uint8_t r;
 		uint8_t padding;
 
-		inline static BGRPixel from_rgba(RGBA color) {
-			return {
-				.b = color.b,
-				.g = color.g,
-				.r = color.r,
-			};
-		}
+		static Pixel from_rgb(RGBA color);
+		bool operator==(const Pixel& rhs) const = default;
+		Pixel lerp(Pixel rhs, float t) const;
 	};
 
-	struct Bitmap {
-		BGRPixel* data;
-		int32_t width;
-		int32_t height;
+	class Bitmap {
+	public:
+		Bitmap() = default;
+		static Bitmap with_size(int32_t width, int32_t height);
 
-		inline void put(int32_t x, int32_t y, BGRPixel pixel) {
-			if (0 <= x && x < this->width && 0 <= y && y < this->height) {
-				this->data[x + this->width * y] = pixel;
-			}
-		}
+		void resize(int32_t width, int32_t height);
+		void put(int32_t x, int32_t y, Pixel pixel, float alpha = 1.0f);
+		Pixel get(int32_t x, int32_t y);
+		bool empty() const;
+		int32_t width() const;
+		int32_t height() const;
+		const Pixel* data() const;
 
-		inline BGRPixel get(int32_t x, int32_t y) {
-			if (0 <= x && x < this->width && 0 <= y && y < this->height) {
-				return this->data[x + this->width * y];
-			}
-			return {};
-		}
+	private:
+		int32_t m_width = 0;
+		int32_t m_height = 0;
+		std::vector<Pixel> m_data;
 	};
-
-	Bitmap initialize_bitmap(int width, int height);
-	void reallocate_bitmap(Bitmap* bitmap, int width, int height);
 
 } // namespace engine

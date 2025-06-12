@@ -1,28 +1,34 @@
 #pragma once
 
-#include <engine/graphics/rgba.h>
+#include <engine/graphics/bitmap.h>
 #include <engine/graphics/rect.h>
-#include <engine/graphics/window.h>
+#include <engine/graphics/rgba.h>
 #include <engine/math/ivec2.h>
 
-#include <stdint.h>
 #include <variant>
 #include <vector>
-#include <windows.h>
 
 namespace engine {
+
+	struct Vertex {
+		IVec2 pos;
+		RGBA color;
+		bool operator==(const Vertex& rhs) const = default;
+	};
 
 	class Renderer {
 	public:
 		void clear_screen(RGBA color = { 0, 0, 0, 255 });
-		void draw_point(IVec2 point, RGBA color);
-		void draw_line(IVec2 start, IVec2 end, RGBA color);
+
+		void draw_point(Vertex v1);
+		void draw_line(Vertex v1, Vertex v2);
 		void draw_rect(Rect rect, RGBA color);
 		void draw_rect_fill(Rect rect, RGBA color);
-		void draw_polygon(std::vector<IVec2> vertices, RGBA color);
-		void draw_polygon_fill(std::vector<IVec2> vertices, RGBA color);
 		void draw_circle(IVec2 center, int32_t radius, RGBA color);
 		void draw_circle_fill(IVec2 center, int32_t radius, RGBA color);
+		void draw_triangle(Vertex v1, Vertex v2, Vertex v3);
+		void draw_triangle_fill(Vertex v1, Vertex v2, Vertex v3);
+
 		void render(Bitmap* bitmap);
 
 	private:
@@ -30,50 +36,27 @@ namespace engine {
 			RGBA color;
 		};
 		struct DrawPoint {
-			IVec2 point;
-			RGBA color;
+			Vertex v1;
 		};
 		struct DrawLine {
-			IVec2 start;
-			IVec2 end;
-			RGBA color;
+			Vertex v1;
+			Vertex v2;
 		};
-		struct DrawRect {
+		using DrawCommand = std::variant<ClearScreen, DrawPoint, DrawLine>;
+		struct CommandBatch {
 			Rect rect;
-			RGBA color;
-			bool filled;
-		};
-		struct DrawPolygon {
-			std::vector<IVec2> vertices;
-			RGBA color;
-			bool filled;
-		};
-		struct DrawCircle {
-			IVec2 center;
-			int32_t radius;
-			RGBA color;
-			bool filled;
+			std::vector<DrawCommand> commands;
 		};
 
-		using DrawCommand = std::variant<
-			ClearScreen,
-			DrawPoint,
-			DrawLine,
-			DrawRect,
-			DrawPolygon,
-			DrawCircle>;
-
-		std::vector<DrawCommand> m_draw_commands;
+		// The scratchpad is used to separate drawing the pixels from the alpha
+		// blending, so that we don't have to care about overdraw. We borrow
+		// `padding` in Pixel to store the alpha value.
+		Bitmap m_scratchpad;
+		std::vector<CommandBatch> m_batches;
 
 		void _clear_screen(Bitmap* bitmap, RGBA color);
-		void _put_point(Bitmap* bitmap, IVec2 point, RGBA color);
-		void _put_line(Bitmap* bitmap, IVec2 start, IVec2 end, RGBA color);
-		void _put_rect(Bitmap* bitmap, Rect rect, RGBA color);
-		void _put_rect_fill(Bitmap* bitmap, Rect rect, RGBA color);
-		void _put_polygon(Bitmap* bitmap, const std::vector<IVec2>& vertices, RGBA color);
-		void _put_polygon_fill(Bitmap* bitmap, const std::vector<IVec2>& vertices, RGBA color);
-		void _put_circle(Bitmap* bitmap, IVec2 center, int32_t radius, RGBA color);
-		void _put_circle_fill(Bitmap* bitmap, IVec2 center, int32_t radius, RGBA color);
+		void _put_point(Bitmap* bitmap, Vertex v1, bool use_alpha);
+		void _put_line(Bitmap* bitmap, Vertex v1, Vertex v2, bool use_alpha);
 	};
 
 } // namespace engine

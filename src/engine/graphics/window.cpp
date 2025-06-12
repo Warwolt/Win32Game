@@ -133,15 +133,15 @@ namespace engine {
 
 	void Window::_render(const Bitmap& bitmap, HDC device_context) {
 		// Can't render empty bitmap
-		if (!bitmap.data) {
+		if (bitmap.empty()) {
 			return;
 		}
 
 		BITMAPINFO bitmap_info = BITMAPINFO {
 			.bmiHeader = BITMAPINFOHEADER {
 				.biSize = sizeof(BITMAPINFOHEADER),
-				.biWidth = bitmap.width,
-				.biHeight = -bitmap.height,
+				.biWidth = bitmap.width(),
+				.biHeight = -bitmap.height(),
 				.biPlanes = 1,
 				.biBitCount = 32,
 				.biCompression = BI_RGB,
@@ -149,10 +149,10 @@ namespace engine {
 		};
 
 		int scale = std::min(
-			std::max(m_window_size.x / bitmap.width, 1),
-			std::max(m_window_size.y / bitmap.height, 1)
+			std::max(m_window_size.x / bitmap.width(), 1),
+			std::max(m_window_size.y / bitmap.height(), 1)
 		);
-		IVec2 upscaled_bitmap_size = scale * IVec2 { bitmap.width, bitmap.height };
+		IVec2 upscaled_bitmap_size = scale * IVec2 { bitmap.width(), bitmap.height() };
 
 		StretchDIBits(
 			device_context,
@@ -166,11 +166,11 @@ namespace engine {
 			// source rect (bitmap)
 			0,
 			0,
-			bitmap.width,
-			bitmap.height,
+			bitmap.width(),
+			bitmap.height(),
 
 			// bitmap data
-			bitmap.data,
+			bitmap.data(),
 			&bitmap_info,
 			DIB_RGB_COLORS,
 			SRCCOPY
