@@ -5,7 +5,7 @@
 #include <engine/math/ivec2.h>
 #include <game/game.h>
 
-#include <stb_image/stb_image.h>
+#include <engine/graphics/image.h>
 
 #include <expected>
 #include <format>
@@ -123,16 +123,13 @@ int WINAPI WinMain(
 	g_context.game = game::initialize(&g_context.engine);
 
 	// LOAD IMAGE
-	int width = 0;
-	int height = 0;
-	int num_channels = 0;
 	const char* image_path = "assets/image/cats.png";
-	constexpr int num_requested_channels = 4; // RGBA
-	engine::RGBA* image_data = (engine::RGBA*)stbi_load(image_path, &width, &height, &num_channels, num_requested_channels);
-	if (!image_data) {
+	std::optional<engine::Image> load_result = engine::load_image(image_path);
+	if (!load_result.has_value()) {
 		LOG_ERROR("Couldn't load image \"%s\", aborting.", image_path);
 		exit(1);
 	}
+	engine::Image image = load_result.value();
 
 	/* Main loop */
 	while (!g_context.engine.should_quit) {
@@ -151,17 +148,17 @@ int WINAPI WinMain(
 		g_context.engine.renderer.render(&g_context.engine.bitmap);
 
 		// DRAW IMAGE ONTO BITMAP
-		for (int32_t y = 0; y < height; y++) {
-			for (int32_t x = 0; x < height; x++) {
-				engine::RGBA pixel = image_data[x + y * width];
-				g_context.engine.bitmap.put(x/2, y/2, engine::Pixel::from_rgb(pixel), pixel.a / 255.0f);
+		for (int32_t y = 0; y < image.height; y++) {
+			for (int32_t x = 0; x < image.height; x++) {
+				engine::RGBA pixel = image.data[x + y * image.width];
+				g_context.engine.bitmap.put(x / 2, y / 2, engine::Pixel::from_rgb(pixel), pixel.a / 255.0f);
 			}
 		}
 
 		g_context.engine.window.render(g_context.engine.bitmap);
 	}
 
-	stbi_image_free(image_data);
+	engine::free_image(image);
 
 	return 0;
 }
