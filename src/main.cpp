@@ -122,15 +122,6 @@ int WINAPI WinMain(
 	g_context.engine = initialize_engine_or_abort(instance, on_window_event, "Game");
 	g_context.game = game::initialize(&g_context.engine);
 
-	// LOAD IMAGE
-	const char* image_path = "assets/image/cats.png";
-	std::optional<engine::ImageID> load_result = g_context.engine.resources.load_image(image_path);
-	if (!load_result.has_value()) {
-		LOG_ERROR("Couldn't load image \"%s\", aborting.", image_path);
-		exit(1);
-	}
-	engine::ImageID image_id = load_result.value();
-
 	/* Main loop */
 	while (!g_context.engine.should_quit) {
 		/* Input */
@@ -140,6 +131,15 @@ int WINAPI WinMain(
 		/* Update */
 		game::update(&g_context.game, &g_context.engine.commands, g_context.engine.input);
 		engine::update(&g_context.engine, g_context.engine.input);
+
+		// DRAW IMAGE ONTO BITMAP
+		const engine::Image& image = g_context.engine.resources.image(engine::ImageID(0));
+		for (int32_t y = 0; y < image.height; y++) {
+			for (int32_t x = 0; x < image.height; x++) {
+				engine::RGBA pixel = image.data[x + y * image.width];
+				g_context.engine.bitmap.put(x / 2, y / 2, engine::Pixel::from_rgb(pixel), pixel.a / 255.0f);
+			}
+		}
 
 		/* Render */
 		game::draw(&g_context.engine.renderer, g_context.game);

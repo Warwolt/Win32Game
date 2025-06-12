@@ -4,9 +4,28 @@
 
 namespace engine {
 
+	ResourceManager::ResourceManager() {
+		m_images.insert(
+			{
+				0,
+				Image {
+					.width = 2,
+					.height = 2,
+					.data = new RGBA[4],
+				},
+			}
+		);
+		m_images[0].data[0] = RGBA::black();
+		m_images[0].data[1] = RGBA::purple();
+		m_images[0].data[2] = RGBA::purple();
+		m_images[0].data[3] = RGBA::black();
+	}
+
 	ResourceManager::~ResourceManager() {
 		for (auto& [id, image] : m_images) {
-            engine::free_image(image);
+			if (id > 0) {
+				engine::free_image(image);
+			}
 		}
 	}
 

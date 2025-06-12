@@ -10,7 +10,7 @@ namespace engine {
 
 	class ResourceManager {
 	public:
-		ResourceManager() = default;
+		ResourceManager();
 		~ResourceManager();
 
 		std::optional<ImageID> load_image(const char* filepath);
