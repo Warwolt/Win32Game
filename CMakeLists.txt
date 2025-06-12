@@ -26,6 +26,11 @@ set(SRC
     src/engine/math/ivec2.cpp
     src/engine/math/vec2.cpp
     src/game/game.cpp
+    libs/stb/stb_image/stb_image.c
+)
+
+set(INC
+    libs/stb
 )
 
 set(TEST_SRC
@@ -35,11 +40,11 @@ set(TEST_SRC
 
 # Src Library
 add_library(source STATIC ${SRC})
-target_include_directories(source PUBLIC src)
+target_include_directories(source PUBLIC src ${INC})
 
 # Executable
 add_executable(win32game WIN32 src/main.cpp)
-target_include_directories(win32game PUBLIC src)
+target_include_directories(win32game PUBLIC src ${INC})
 target_link_libraries(win32game PUBLIC source)
 set_property(TARGET win32game PROPERTY WIN32_EXECUTABLE TRUE)
 

@@ -7,7 +7,6 @@ Maybe ideas:
 - Text mode engine debugging UI (for selecting various test screens and tools)
 
 # Todo
-- Draw API: Textures
 - Font support
 - Text Mode UI prototype
 - [!] Write Blackjack game
@@ -24,6 +23,9 @@ Maybe ideas:
 - Draw API: Polygons (triangle strips, triangle fans)
 
 # Doing
+- Draw API: Textures
+    - load image
+    - draw image
 
 # Done
 - Draw API: Per vertex colors, interpolate color between vertices
