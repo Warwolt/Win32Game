@@ -337,7 +337,12 @@ namespace engine {
 
 				RGBA color = {};
 				if (image) {
-					// TODO
+					Vec2 uv = v1.uv.lerp(v2.uv, t);
+					IVec2 sample_point = IVec2::from_vec2({
+						.x = uv.x * image->width,
+						.y = (1.0f - uv.y) * image->height,
+					});
+					color = image->data[sample_point.x + sample_point.y * image->width];
 				}
 				else {
 					color = RGBA::lerp(v1.color, v2.color, t);
@@ -367,10 +372,11 @@ namespace engine {
 
 				RGBA color = {};
 				if (image) {
+					// FIXME: make this a method of Image?
 					Vec2 uv = v1.uv.lerp(v2.uv, t);
 					IVec2 sample_point = IVec2::from_vec2({
-						.x = uv.x * image->width,
-						.y = uv.y * image->height,
+						.x = uv.x * (image->width - 1),
+						.y = (1.0f - uv.y) * (image->height - 1),
 					});
 					color = image->data[sample_point.x + sample_point.y * image->width];
 				}

@@ -144,7 +144,7 @@ int WINAPI WinMain(
 		/* Render */
 		game::draw(&g_context.engine.renderer, g_context.game);
 		engine::draw(&g_context.engine.renderer, g_context.engine);
-		engine::Rect image_rect = { .x = 0, .y = 0, .width = 100, .height = 100 };
+		engine::Rect image_rect = { .x = 100, .y = 100, .width = 200, .height = 200 };
 		g_context.engine.renderer.draw_image(image_id, image_rect);
 
 		g_context.engine.renderer.render(&g_context.engine.bitmap, g_context.engine.resources);
