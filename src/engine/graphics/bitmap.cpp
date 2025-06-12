@@ -34,9 +34,15 @@ namespace engine {
 		m_data.resize(m_width * m_height);
 	}
 
-	void Bitmap::put(int32_t x, int32_t y, Pixel pixel) {
+	void Bitmap::put(int32_t x, int32_t y, Pixel pixel, float alpha) {
 		if (0 <= x && x < m_width && 0 <= y && y < m_height) {
-			m_data[x + m_width * y] = pixel;
+			if (alpha == 1.0f) {
+				m_data[x + m_width * y] = pixel;
+			}
+			else {
+				const Pixel& current_pixel = m_data[x + m_width * y];
+				m_data[x + m_width * y] = current_pixel.lerp(pixel, alpha);
+			}
 		}
 	}
 

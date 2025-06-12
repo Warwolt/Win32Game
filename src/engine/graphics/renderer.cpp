@@ -244,7 +244,6 @@ namespace engine {
 		/* Run commands */
 		for (const CommandBatch& batch : m_batches) {
 			if (batch.rect.empty()) {
-
 				// FIXME: when drawing directly to bitmap we need the _put
 				// methods to do the lerping, so we need to pass an argument
 				// that selects if we use lerping or not.
@@ -258,10 +257,10 @@ namespace engine {
 						_clear_screen(bitmap, clear_screen->color);
 					}
 					if (auto* draw_point = std::get_if<DrawPoint>(&command)) {
-						_put_point(bitmap, draw_point->v1);
+						_put_point(bitmap, draw_point->v1, true);
 					}
 					if (auto* draw_line = std::get_if<DrawLine>(&command)) {
-						_put_line(bitmap, draw_line->v1, draw_line->v2);
+						_put_line(bitmap, draw_line->v1, draw_line->v2, true);
 					}
 				}
 			}
@@ -276,10 +275,10 @@ namespace engine {
 				/* Draw onto scratch pad */
 				for (const DrawCommand& command : batch.commands) {
 					if (auto* draw_point = std::get_if<DrawPoint>(&command)) {
-						_put_point(&m_scratchpad, draw_point->v1);
+						_put_point(&m_scratchpad, draw_point->v1, false);
 					}
 					if (auto* draw_line = std::get_if<DrawLine>(&command)) {
-						_put_line(&m_scratchpad, draw_line->v1, draw_line->v2);
+						_put_line(&m_scratchpad, draw_line->v1, draw_line->v2, false);
 					}
 				}
 
@@ -287,9 +286,8 @@ namespace engine {
 				for (int32_t y = batch.rect.y; y < batch.rect.y + batch.rect.height; y++) {
 					for (int32_t x = batch.rect.x; x < batch.rect.x + batch.rect.width; x++) {
 						Pixel scratchpad_pixel = m_scratchpad.get(x, y);
-						Pixel bitmap_pixel = bitmap->get(x, y);
-						uint8_t alpha = scratchpad_pixel.padding;
-						bitmap->put(x, y, bitmap_pixel.lerp(scratchpad_pixel, alpha / 255.0f));
+						float alpha = scratchpad_pixel.padding / 255.0f;
+						bitmap->put(x, y, scratchpad_pixel, alpha);
 					}
 				}
 			}
@@ -307,11 +305,12 @@ namespace engine {
 		}
 	}
 
-	void Renderer::_put_point(Bitmap* bitmap, Vertex v1) {
-		bitmap->put(v1.pos.x, v1.pos.y, Pixel { .b = v1.color.b, .g = v1.color.g, .r = v1.color.r, .padding = v1.color.a });
+	void Renderer::_put_point(Bitmap* bitmap, Vertex v1, bool use_alpha) {
+		Pixel pixel = { .b = v1.color.b, .g = v1.color.g, .r = v1.color.r, .padding = v1.color.a };
+		bitmap->put(v1.pos.x, v1.pos.y, pixel, use_alpha ? v1.color.a / 255.0f : 1.0f);
 	}
 
-	void Renderer::_put_line(Bitmap* bitmap, Vertex v1, Vertex v2) {
+	void Renderer::_put_line(Bitmap* bitmap, Vertex v1, Vertex v2, bool use_alpha) {
 		// vertical line
 		if (v1.pos.x == v2.pos.x) {
 			int32_t y0 = std::min(v1.pos.y, v2.pos.y);
@@ -320,7 +319,7 @@ namespace engine {
 				IVec2 pos = IVec2 { v1.pos.x, y };
 				float t = (float)(pos.y - v1.pos.y) / (float)(v2.pos.y - v1.pos.y);
 				Vertex vertex = { .pos = pos, .color = RGBA::lerp(v1.color, v2.color, t) };
-				_put_point(bitmap, vertex);
+				_put_point(bitmap, vertex, use_alpha);
 			}
 		}
 		// sloped line
@@ -341,7 +340,7 @@ namespace engine {
 					? (float)(pos.x - v1.pos.x) / (float)(v2.pos.x - v1.pos.x)
 					: (float)(pos.y - v1.pos.y) / (float)(v2.pos.y - v1.pos.y);
 				Vertex vertex = { .pos = pos, .color = RGBA::lerp(v1.color, v2.color, t) };
-				_put_point(bitmap, vertex);
+				_put_point(bitmap, vertex, use_alpha);
 			}
 		}
 	}

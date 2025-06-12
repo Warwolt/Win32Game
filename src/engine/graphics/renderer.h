@@ -60,8 +60,8 @@ namespace engine {
 		std::vector<CommandBatch> m_batches;
 
 		void _clear_screen(Bitmap* bitmap, RGBA color);
-		void _put_point(Bitmap* bitmap, Vertex v1);
-		void _put_line(Bitmap* bitmap, Vertex v1, Vertex v2);
+		void _put_point(Bitmap* bitmap, Vertex v1, bool use_alpha);
+		void _put_line(Bitmap* bitmap, Vertex v1, Vertex v2, bool use_alpha);
 	};
 
 } // namespace engine
