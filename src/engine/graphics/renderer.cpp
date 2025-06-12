@@ -334,20 +334,9 @@ namespace engine {
 			for (int32_t y = y0; y <= y1; y++) {
 				IVec2 pos = IVec2 { v1.pos.x, y };
 				float t = (float)(pos.y - v1.pos.y) / (float)(v2.pos.y - v1.pos.y);
-
-				RGBA color = {};
-				if (image) {
-					Vec2 uv = v1.uv.lerp(v2.uv, t);
-					IVec2 sample_point = IVec2::from_vec2({
-						.x = uv.x * image->width,
-						.y = (1.0f - uv.y) * image->height,
-					});
-					color = image->data[sample_point.x + sample_point.y * image->width];
-				}
-				else {
-					color = RGBA::lerp(v1.color, v2.color, t);
-				}
-
+				RGBA color = image
+					? color = image->sample(v1.uv.lerp(v2.uv, t))
+					: color = RGBA::lerp(v1.color, v2.color, t);
 				Vertex vertex = { .pos = pos, .color = color };
 				_put_point(bitmap, vertex, use_alpha);
 			}
@@ -369,21 +358,9 @@ namespace engine {
 				float t = abs_dx > abs_dy
 					? (float)(pos.x - v1.pos.x) / (float)(v2.pos.x - v1.pos.x)
 					: (float)(pos.y - v1.pos.y) / (float)(v2.pos.y - v1.pos.y);
-
-				RGBA color = {};
-				if (image) {
-					// FIXME: make this a method of Image?
-					Vec2 uv = v1.uv.lerp(v2.uv, t);
-					IVec2 sample_point = IVec2::from_vec2({
-						.x = uv.x * (image->width - 1),
-						.y = (1.0f - uv.y) * (image->height - 1),
-					});
-					color = image->data[sample_point.x + sample_point.y * image->width];
-				}
-				else {
-					color = RGBA::lerp(v1.color, v2.color, t);
-				}
-
+				RGBA color = image
+					? color = image->sample(v1.uv.lerp(v2.uv, t))
+					: color = RGBA::lerp(v1.color, v2.color, t);
 				Vertex vertex = { .pos = pos, .color = color };
 				_put_point(bitmap, vertex, use_alpha);
 			}
