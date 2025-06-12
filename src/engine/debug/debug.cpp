@@ -2,6 +2,10 @@
 
 namespace engine {
 
+	void initialize_debug(DebugState* debug, ResourceManager* resources) {
+		debug->test_screens.rendering.initialize(resources);
+	}
+
 	void update_debug(DebugState* debug, const InputDevices& input) {
 		debug->test_screens.rendering.update(input);
 	}

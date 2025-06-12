@@ -26,6 +26,7 @@ namespace engine {
 	}
 
 	const Image& ResourceManager::image(ImageID id) const {
+		// FIXME: debug assert that there's anything here
 		return m_images.at(id.value);
 	}
 

@@ -7,8 +7,11 @@ namespace engine {
 
 	std::expected<EngineState, EngineError> initialize(HINSTANCE instance, WNDPROC wnd_proc, const char* window_title) {
 		EngineState engine = {};
+
 		initialize_logging(LogLevel::Debug);
 		initialize_gamepad_support();
+		initialize_debug(&engine.debug, &engine.resources);
+
 		constexpr int zoom = 2;
 		IVec2 screen_resolution = IVec2 { 640, 480 };
 		if (std::expected<Window, EngineError> window_result = Window::initialize(instance, wnd_proc, zoom * screen_resolution, window_title)) {
@@ -20,6 +23,7 @@ namespace engine {
 		engine.screen_resolution = screen_resolution;
 		engine.bitmap = Bitmap::with_size(engine.screen_resolution.x, engine.screen_resolution.y);
 		engine.audio = initialize_audio_player();
+
 		return engine;
 	}
 

@@ -10,6 +10,11 @@
 
 namespace engine {
 
+	void RenderingTestScreen::initialize(ResourceManager* resources) {
+		// let's try that zero returns purple black checker board
+		m_image_id = ImageID(0);
+	}
+
 	void RenderingTestScreen::update(const InputDevices& input) {
 		m_alpha = (uint8_t)std::clamp((int16_t)m_alpha + 16 * input.mouse.mouse_wheel_delta, 0, 255);
 	}
@@ -183,6 +188,20 @@ namespace engine {
 				if (mode == FillMode::Outline) renderer->draw_triangle(left, top, right);
 				if (mode == FillMode::Filled) renderer->draw_triangle_fill(left, top, right);
 			}
+		}
+
+		/* Draw image */
+#pragma region draw image
+		// draw image
+		{
+			grid_pos = next_grid_pos(grid_pos);
+			Rect rect = {
+				.x = grid_pos.x * grid_size,
+				.y = grid_pos.y * grid_size,
+				.width = grid_size,
+				.height = grid_size,
+			};
+			renderer->draw_image(m_image_id, rect);
 		}
 	}
 
