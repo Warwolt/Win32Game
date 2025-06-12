@@ -244,13 +244,6 @@ namespace engine {
 		/* Run commands */
 		for (const CommandBatch& batch : m_batches) {
 			if (batch.rect.empty()) {
-				// FIXME: when drawing directly to bitmap we need the _put
-				// methods to do the lerping, so we need to pass an argument
-				// that selects if we use lerping or not.
-				//
-				// But, it would also be really nice if Bitmap::put itself
-				// could do the alpha blending.
-
 				/* Draw directly to bitmap */
 				for (const DrawCommand& command : batch.commands) {
 					if (auto* clear_screen = std::get_if<ClearScreen>(&command)) {
