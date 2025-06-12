@@ -132,15 +132,6 @@ int WINAPI WinMain(
 		game::update(&g_context.game, &g_context.engine.commands, g_context.engine.input);
 		engine::update(&g_context.engine, g_context.engine.input);
 
-		// DRAW IMAGE ONTO BITMAP
-		const engine::Image& image = g_context.engine.resources.image(engine::ImageID(0));
-		for (int32_t y = 0; y < image.height; y++) {
-			for (int32_t x = 0; x < image.height; x++) {
-				engine::RGBA pixel = image.data[x + y * image.width];
-				g_context.engine.bitmap.put(x / 2, y / 2, engine::Pixel::from_rgb(pixel), pixel.a / 255.0f);
-			}
-		}
-
 		/* Render */
 		game::draw(&g_context.engine.renderer, g_context.game);
 		engine::draw(&g_context.engine.renderer, g_context.engine);
@@ -148,5 +139,6 @@ int WINAPI WinMain(
 		g_context.engine.window.render(g_context.engine.bitmap);
 	}
 
+	g_context.engine.resources.free_resources();
 	return 0;
 }

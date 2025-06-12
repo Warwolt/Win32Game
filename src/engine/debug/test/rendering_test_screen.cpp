@@ -1,5 +1,6 @@
 #include <engine/debug/test/rendering_test_screen.h>
 
+#include <engine/file/resource_manager.h>
 #include <engine/graphics/renderer.h>
 #include <engine/graphics/window.h>
 #include <engine/input/input.h>
@@ -11,8 +12,7 @@
 namespace engine {
 
 	void RenderingTestScreen::initialize(ResourceManager* resources) {
-		// let's try that zero returns purple black checker board
-		m_image_id = ImageID(0);
+		m_image_id = resources->load_image("assets/image/cats.png").value_or(INVALID_IMAGE_ID);
 	}
 
 	void RenderingTestScreen::update(const InputDevices& input) {
@@ -192,12 +192,26 @@ namespace engine {
 
 		/* Draw image */
 #pragma region draw image
-		// draw image
+		// draw missing texture
 		{
 			grid_pos = next_grid_pos(grid_pos);
+			IVec2 pos = get_pos(Vec2 { -1.0, 1.0 }, grid_pos);
 			Rect rect = {
-				.x = grid_pos.x * grid_size,
-				.y = grid_pos.y * grid_size,
+				.x = pos.x,
+				.y = pos.y,
+				.width = grid_size,
+				.height = grid_size,
+			};
+			renderer->draw_image(ImageID(0), rect);
+		}
+
+		// draw texture
+		{
+			grid_pos = next_grid_pos(grid_pos);
+			IVec2 pos = get_pos(Vec2 { -1.0, 1.0 }, grid_pos);
+			Rect rect = {
+				.x = pos.x,
+				.y = pos.y,
 				.width = grid_size,
 				.height = grid_size,
 			};

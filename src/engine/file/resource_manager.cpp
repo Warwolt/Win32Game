@@ -21,7 +21,7 @@ namespace engine {
 		m_images[0].data[3] = RGBA::black();
 	}
 
-	ResourceManager::~ResourceManager() {
+	void ResourceManager::free_resources() {
 		for (auto& [id, image] : m_images) {
 			if (id > 0) {
 				engine::free_image(image);
