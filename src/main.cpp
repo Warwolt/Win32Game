@@ -104,7 +104,7 @@ static LRESULT CALLBACK on_window_event(
 			/* Render*/
 			game::draw(&g_context.engine.renderer, g_context.game);
 			engine::draw(&g_context.engine.renderer, g_context.engine);
-			g_context.engine.renderer.render(&g_context.engine.bitmap);
+			g_context.engine.renderer.render(&g_context.engine.bitmap, g_context.engine.resources);
 			g_context.engine.window.render_wm_paint(g_context.engine.bitmap);
 		} break;
 	}
@@ -144,17 +144,19 @@ int WINAPI WinMain(
 		/* Render */
 		game::draw(&g_context.engine.renderer, g_context.game);
 		engine::draw(&g_context.engine.renderer, g_context.engine);
+		engine::Rect image_rect = { .x = 0, .y = 0, .width = 100, .height = 100 };
+		g_context.engine.renderer.draw_image(image_id, image_rect);
 
-		g_context.engine.renderer.render(&g_context.engine.bitmap);
+		g_context.engine.renderer.render(&g_context.engine.bitmap, g_context.engine.resources);
 
 		// DRAW IMAGE ONTO BITMAP
-		const engine::Image& image = g_context.engine.resources.image(image_id);
-		for (int32_t y = 0; y < image.height; y++) {
-			for (int32_t x = 0; x < image.height; x++) {
-				engine::RGBA pixel = image.data[x + y * image.width];
-				g_context.engine.bitmap.put(x / 2, y / 2, engine::Pixel::from_rgb(pixel), pixel.a / 255.0f);
-			}
-		}
+		// const engine::Image& image = g_context.engine.resources.image(image_id);
+		// for (int32_t y = 0; y < image.height; y++) {
+		// 	for (int32_t x = 0; x < image.height; x++) {
+		// 		engine::RGBA pixel = image.data[x + y * image.width];
+		// 		g_context.engine.bitmap.put(x / 2, y / 2, engine::Pixel::from_rgb(pixel), pixel.a / 255.0f);
+		// 	}
+		// }
 
 		g_context.engine.window.render(g_context.engine.bitmap);
 	}

@@ -1,15 +1,12 @@
 #pragma once
 
 #include <engine/graphics/image.h>
+#include <engine/graphics/image_id.h>
 
 #include <optional>
 #include <unordered_map>
 
 namespace engine {
-
-	struct ImageID {
-		int value;
-	};
 
 	class ResourceManager {
 	public:

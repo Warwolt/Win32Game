@@ -10,6 +10,8 @@ namespace engine {
 		uint8_t b;
 		uint8_t a = 255;
 
+		static constexpr RGBA white() { return { 255, 255, 255, 255 }; }
+
 		static RGBA lerp(RGBA start, RGBA end, float t);
 		bool operator==(const RGBA& rhs) const = default;
 		friend RGBA operator+(const RGBA& lhs, const RGBA& rhs);
