@@ -7,12 +7,14 @@ add_subdirectory(libs/googletest)
 option(WARNINGS_AS_ERRORS "Compile with warnings as errors" OFF)
 
 set(SRC
-    src/engine/commands.cpp
-    src/engine/engine.cpp
+    libs/stb/stb_image/stb_image.c
     src/engine/audio/audio_player.cpp
+    src/engine/commands.cpp
     src/engine/debug/debug.cpp
     src/engine/debug/logging.cpp
     src/engine/debug/test/rendering_test_screen.cpp
+    src/engine/engine.cpp
+    src/engine/file/resource_manager.cpp
     src/engine/graphics/bitmap.cpp
     src/engine/graphics/image.cpp
     src/engine/graphics/rect.cpp
@@ -27,7 +29,6 @@ set(SRC
     src/engine/math/ivec2.cpp
     src/engine/math/vec2.cpp
     src/game/game.cpp
-    libs/stb/stb_image/stb_image.c
 )
 
 set(INC

@@ -3,6 +3,7 @@
 #include <engine/audio/audio_player.h>
 #include <engine/commands.h>
 #include <engine/debug/debug.h>
+#include <engine/file/resource_manager.h>
 #include <engine/graphics/renderer.h>
 #include <engine/graphics/window.h>
 #include <engine/input/input.h>
@@ -19,11 +20,13 @@ namespace engine {
 		// application
 		bool should_quit = false;
 		IVec2 screen_resolution;
-		// input output
+		CommandAPI commands;
+		// input/output
 		InputEvents events;
 		InputDevices input;
-		CommandAPI commands;
 		AudioPlayer audio;
+		// file
+		ResourceManager resources;
 		// graphics
 		Renderer renderer;
 		Window window;

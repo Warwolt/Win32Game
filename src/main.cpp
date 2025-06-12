@@ -124,12 +124,12 @@ int WINAPI WinMain(
 
 	// LOAD IMAGE
 	const char* image_path = "assets/image/cats.png";
-	std::optional<engine::Image> load_result = engine::load_image(image_path);
+	std::optional<engine::ImageID> load_result = g_context.engine.resources.load_image(image_path);
 	if (!load_result.has_value()) {
 		LOG_ERROR("Couldn't load image \"%s\", aborting.", image_path);
 		exit(1);
 	}
-	engine::Image image = load_result.value();
+	engine::ImageID image_id = load_result.value();
 
 	/* Main loop */
 	while (!g_context.engine.should_quit) {
@@ -148,6 +148,7 @@ int WINAPI WinMain(
 		g_context.engine.renderer.render(&g_context.engine.bitmap);
 
 		// DRAW IMAGE ONTO BITMAP
+		const engine::Image& image = g_context.engine.resources.image(image_id);
 		for (int32_t y = 0; y < image.height; y++) {
 			for (int32_t x = 0; x < image.height; x++) {
 				engine::RGBA pixel = image.data[x + y * image.width];
@@ -157,8 +158,6 @@ int WINAPI WinMain(
 
 		g_context.engine.window.render(g_context.engine.bitmap);
 	}
-
-	engine::free_image(image);
 
 	return 0;
 }
