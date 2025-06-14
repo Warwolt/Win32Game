@@ -240,19 +240,41 @@ namespace engine {
 		m_batches.push_back(batch);
 	}
 
-	// FIXME: actually use clip
-	void Renderer::draw_image(ImageID image_id, Rect rect, Rect /* clip */) {
+	void Renderer::draw_image(ImageID image_id, Rect rect, Rect clip) {
 		CommandBatch batch = { .rect = rect, .image_id = image_id };
+		if (clip.empty()) {
+			clip.width = rect.width;
+			clip.height = rect.height;
+		}
+
+		// FIXME: there's an off by one issue here somewhere
+
+		// bottom left
+		Vec2 uv0 = {
+			std::clamp((float)clip.x / (float)rect.width, 0.0f, 1.0f),
+			std::clamp((float)clip.y / (float)rect.height, 0.0f, 1.0f),
+		};
+		// top right
+		Vec2 uv1 = {
+			std::clamp((float)(clip.x + clip.width) / (float)rect.width, 0.0f, 1.0f),
+			std::clamp((float)(clip.y + clip.height) / (float)rect.height, 0.0f, 1.0f),
+		};
 		for (int32_t y = 0; y < rect.height; y++) {
 			Vertex left = {
 				.pos = { rect.x, rect.y + y },
 				.color = RGBA::white(),
-				.uv = { 0.0f, 1.0f - ((float)y / (float)rect.height) }
+				.uv = {
+					uv0.x,
+					std::lerp(uv0.y, uv1.y, 1.0f - ((float)y / (float)rect.height)),
+				}
 			};
 			Vertex right = {
 				.pos = { rect.x + rect.width - 1, rect.y + y },
 				.color = RGBA::white(),
-				.uv = { 1.0f, 1.0f - ((float)y / (float)rect.height) }
+				.uv = {
+					uv1.x,
+					std::lerp(uv0.y, uv1.y, 1.0f - ((float)y / (float)rect.height)),
+				}
 			};
 			batch.commands.push_back(DrawLine { left, right });
 		}

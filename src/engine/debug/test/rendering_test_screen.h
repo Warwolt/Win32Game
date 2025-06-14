@@ -17,7 +17,7 @@ namespace engine {
 		void draw(Renderer* renderer, IVec2 screen_resolution) const;
 
 	private:
-		ImageID m_image_id;
+		ImageID m_render_test_image_id;
 		uint8_t m_alpha = 255;
 	};
 

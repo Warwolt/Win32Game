@@ -12,7 +12,7 @@
 namespace engine {
 
 	void RenderingTestScreen::initialize(ResourceManager* resources) {
-		m_image_id = resources->load_image("assets/image/cats.png").value_or(INVALID_IMAGE_ID);
+		m_render_test_image_id = resources->load_image("assets/image/render_test.png").value_or(INVALID_IMAGE_ID);
 	}
 
 	void RenderingTestScreen::update(const InputDevices& input) {
@@ -205,7 +205,7 @@ namespace engine {
 			renderer->draw_image(ImageID(0), rect);
 		}
 
-		// draw texture
+		// draw test image
 		{
 			grid_pos = next_grid_pos(grid_pos);
 			IVec2 pos = get_pos(Vec2 { -1.0, 1.0 }, grid_pos);
@@ -215,7 +215,27 @@ namespace engine {
 				.width = grid_size,
 				.height = grid_size,
 			};
-			renderer->draw_image(m_image_id, rect);
+			renderer->draw_image(m_render_test_image_id, rect);
+		}
+
+		// draw clipped top left
+		{
+			grid_pos = next_grid_pos(grid_pos);
+			IVec2 pos = get_pos(Vec2 { -1.0, 1.0 }, grid_pos);
+			Rect rect = {
+				.x = pos.x,
+				.y = pos.y,
+				.width = grid_size,
+				.height = grid_size,
+			};
+			Rect clip = {
+				.x = 0,
+				.y = grid_size / 2,
+				.width = grid_size / 2,
+				.height = grid_size / 2,
+
+			};
+			renderer->draw_image(m_render_test_image_id, rect, clip);
 		}
 	}
 
