@@ -23,11 +23,9 @@ Maybe ideas:
 - Draw API: Polygons (triangle strips, triangle fans)
 
 # Doing
-- Draw API: Textures
-    - load image
-    - draw image
 
 # Done
+- Draw API: Textures
 - Draw API: Per vertex colors, interpolate color between vertices
 - Window: Render at lower resolution and upscale it to fit screen
 - Window: Borderless full screen
