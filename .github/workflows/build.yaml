@@ -2,7 +2,7 @@ name: build
 on:
   push:
 jobs:
-  build-debug:
+  debug:
     runs-on: windows-latest
     steps:
       - name: Checkout
@@ -21,7 +21,7 @@ jobs:
       - name: Test
         run: ./build/Debug/unit_tests.exe
 
-  build-release:
+  release:
     runs-on: windows-latest
     steps:
       - name: Checkout
