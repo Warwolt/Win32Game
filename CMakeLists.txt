@@ -7,7 +7,7 @@ option(UNIT_TESTS "Build unit tests" ON)
 
 # Google Test
 if(UNIT_TESTS)
-add_subdirectory(libs/googletest)
+    add_subdirectory(libs/googletest)
 endif()
 
 # Windows workaround for Google Test
