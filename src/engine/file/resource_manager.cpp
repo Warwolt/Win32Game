@@ -7,7 +7,7 @@ namespace engine {
 	ResourceManager::ResourceManager() {
 		m_images.insert(
 			{
-				0,
+				INVALID_IMAGE_ID.value,
 				Image {
 					.width = 2,
 					.height = 2,
@@ -48,7 +48,10 @@ namespace engine {
 
 	const Image& ResourceManager::image(ImageID id) const {
 		auto it = m_images.find(id.value);
-		DEBUG_ASSERT(it != m_images.end(), "Trying to access non-existing image with id %d", id.value);
+		if (it == m_images.end()) {
+			DEBUG_FAIL("Trying to access non-existing image with id %d", id.value);
+			return m_images.at(INVALID_IMAGE_ID.value);
+		}
 		return it->second;
 	}
 

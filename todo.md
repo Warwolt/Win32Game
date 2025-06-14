@@ -7,6 +7,7 @@ Maybe ideas:
 - Text mode engine debugging UI (for selecting various test screens and tools)
 
 # Todo
+- Debugging: print file name from LOG macros
 - Font support
 - Text Mode UI prototype
 - [!] Write Blackjack game

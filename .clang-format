@@ -60,7 +60,7 @@ DerivePointerBinding: false
 DisableFormat: false
 EmptyLineBeforeAccessModifier: Leave
 ExperimentalAutoDetectBinPacking: false
-FixNamespaceComments: false
+FixNamespaceComments: true
 ForEachMacros: []
 IncludeBlocks: Preserve
 IndentCaseBlocks: false
