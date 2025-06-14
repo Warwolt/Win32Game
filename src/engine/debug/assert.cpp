@@ -5,7 +5,7 @@
 namespace engine {
 
 	void debug_exit() {
-		if constexpr (DEBUG_BUILD) {
+		if constexpr (IS_DEBUG_BUILD) {
 			std::exit(1);
 		}
 	}

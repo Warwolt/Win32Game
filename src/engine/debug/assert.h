@@ -9,9 +9,9 @@
 
 namespace engine {
 #ifdef _DEBUG
-	constexpr bool DEBUG_BUILD = true;
+	constexpr bool IS_DEBUG_BUILD = true;
 #else
-	constexpr bool DEBUG_BUILD = false;
+	constexpr bool IS_DEBUG_BUILD = false;
 #endif
 } // namespace engine
 
@@ -22,11 +22,11 @@ namespace engine {
 		int offset = sprintf_s(msg, SIZE, "DEBUG_ASSERT(%s) failed: ", #condition); \
 		sprintf_s(msg + offset, SIZE - offset, __VA_ARGS__);                        \
 		LOG_FATAL("%s", msg);                                                       \
-		if constexpr (engine::DEBUG_BUILD) {                                        \
+		if constexpr (engine::IS_DEBUG_BUILD) {                                     \
 			MessageBoxA(nullptr, msg, "Fatal Error", MB_OK | MB_ICONERROR);         \
 			DebugBreak();                                                           \
+			engine::debug_exit();                                                   \
 		}                                                                           \
-		engine::debug_exit();                                                       \
 	}
 
 #define DEBUG_FAIL(...)                                                     \
@@ -36,11 +36,11 @@ namespace engine {
 		int offset = sprintf_s(msg, SIZE, "DEBUG_FAIL: ");                  \
 		sprintf_s(msg + offset, SIZE - offset, __VA_ARGS__);                \
 		LOG_FATAL("%s", msg);                                               \
-		if constexpr (engine::DEBUG_BUILD) {                                \
+		if constexpr (engine::IS_DEBUG_BUILD) {                             \
 			MessageBoxA(nullptr, msg, "Fatal Error", MB_OK | MB_ICONERROR); \
 			DebugBreak();                                                   \
+			engine::debug_exit();                                           \
 		}                                                                   \
-		engine::debug_exit();                                               \
 	}
 
 namespace engine {
