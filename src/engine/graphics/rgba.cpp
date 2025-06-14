@@ -1,7 +1,7 @@
 #include <engine/graphics/rgba.h>
 
-#include <cmath>
 #include <algorithm>
+#include <cmath>
 
 namespace engine {
 
@@ -29,6 +29,18 @@ namespace engine {
 			.g = (uint8_t)std::round(std::clamp(t * rhs.g, 0.0f, 255.0f)),
 			.b = (uint8_t)std::round(std::clamp(t * rhs.b, 0.0f, 255.0f)),
 			.a = (uint8_t)std::round(std::clamp(t * rhs.a, 0.0f, 255.0f)),
+		};
+	}
+
+	RGBA operator*(RGBA lhs, const RGBA& rhs) {
+		// Note:
+		// White should be the identity element for multiplication,
+		// i.e. color * white = color, so we normalize before multipying, and then scale back to 0-255 range
+		return RGBA {
+			.r = (uint8_t)std::round(255.0f * std::clamp<float>(((float)lhs.r / 255.0f) * ((float)rhs.r / 255.0f), 0.0f, 1.0f)),
+			.g = (uint8_t)std::round(255.0f * std::clamp<float>(((float)lhs.g / 255.0f) * ((float)rhs.g / 255.0f), 0.0f, 1.0f)),
+			.b = (uint8_t)std::round(255.0f * std::clamp<float>(((float)lhs.b / 255.0f) * ((float)rhs.b / 255.0f), 0.0f, 1.0f)),
+			.a = (uint8_t)std::round(255.0f * std::clamp<float>(((float)lhs.a / 255.0f) * ((float)rhs.a / 255.0f), 0.0f, 1.0f)),
 		};
 	}
 

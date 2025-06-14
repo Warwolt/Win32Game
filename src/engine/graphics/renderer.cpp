@@ -240,7 +240,7 @@ namespace engine {
 		m_batches.push_back(batch);
 	}
 
-	void Renderer::draw_image(ImageID image_id, Rect rect, Rect clip) {
+	void Renderer::draw_image(ImageID image_id, Rect rect, Rect clip, RGBA tint) {
 		CommandBatch batch = { .rect = rect, .image_id = image_id };
 
 		/* UV coordinates */
@@ -251,7 +251,7 @@ namespace engine {
 		// bottom left
 		Vec2 uv0 = {
 			.x = std::clamp((float)clip.x / (float)(rect.width - 1), 0.0f, 1.0f),
-			.y = std::clamp((float)clip.y / (float)(rect.height ), 0.0f, 1.0f),
+			.y = std::clamp((float)clip.y / (float)(rect.height), 0.0f, 1.0f),
 		};
 		// top right
 		Vec2 uv1 = {
@@ -263,7 +263,7 @@ namespace engine {
 		for (int32_t y = 0; y < rect.height; y++) {
 			Vertex left = {
 				.pos = { rect.x, rect.y + y },
-				.color = RGBA::white(),
+				.color = tint,
 				.uv = {
 					uv0.x,
 					std::lerp(uv0.y, uv1.y, 1.0f - ((float)y / (float)rect.height)),
@@ -271,7 +271,7 @@ namespace engine {
 			};
 			Vertex right = {
 				.pos = { rect.x + rect.width - 1, rect.y + y },
-				.color = RGBA::white(),
+				.color = tint,
 				.uv = {
 					uv1.x,
 					std::lerp(uv0.y, uv1.y, 1.0f - ((float)y / (float)rect.height)),
@@ -383,7 +383,7 @@ namespace engine {
 					? (float)(pos.x - v1.pos.x) / (float)(v2.pos.x - v1.pos.x)
 					: (float)(pos.y - v1.pos.y) / (float)(v2.pos.y - v1.pos.y);
 				RGBA color = image
-					? color = image->sample(Vec2::lerp(v1.uv, v2.uv, t))
+					? color = image->sample(Vec2::lerp(v1.uv, v2.uv, t)) * RGBA::lerp(v1.color, v2.color, t)
 					: color = RGBA::lerp(v1.color, v2.color, t);
 				Vertex vertex = { .pos = pos, .color = color };
 				_put_point(bitmap, vertex, use_alpha);

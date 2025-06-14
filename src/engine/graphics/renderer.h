@@ -34,7 +34,7 @@ namespace engine {
 		void draw_circle_fill(IVec2 center, int32_t radius, RGBA color);
 		void draw_triangle(Vertex v1, Vertex v2, Vertex v3);
 		void draw_triangle_fill(Vertex v1, Vertex v2, Vertex v3);
-		void draw_image(ImageID image_id, Rect rect, Rect clip = {});
+		void draw_image(ImageID image_id, Rect rect, Rect clip = {}, RGBA tint = RGBA::white());
 
 		void render(Bitmap* bitmap, const ResourceManager& resources);
 
