@@ -2,16 +2,22 @@
 
 #include <engine/debug/logging.h>
 
-#include <stdexcept>
+#include <windows.h>
+
 #include <stdio.h>
+#include <utility>
 
 #ifdef _DEBUG
-#define DEBUG_ASSERT(condition, ...)              \
-	if (!(condition)) {                           \
-		char msg[256];                            \
-		sprintf_s(msg, 256, __VA_ARGS__);        \
-		LOG_FATAL("%s", msg);                     \
-		throw std::logic_error::logic_error(msg); \
+#define DEBUG_ASSERT(condition, ...)                                                \
+	if (!(condition)) {                                                             \
+		constexpr size_t SIZE = 512;                                                \
+		char msg[SIZE];                                                             \
+		int offset = sprintf_s(msg, SIZE, "DEBUG_ASSERT(%s) failed: ", #condition); \
+		sprintf_s(msg + offset, SIZE - offset, __VA_ARGS__);                        \
+		LOG_FATAL("%s", msg);                                                       \
+		MessageBoxA(nullptr, msg, "Fatal Error", MB_OK | MB_ICONERROR);             \
+		DebugBreak();                                                               \
+		std::exit(1);                                                               \
 	}
 #else
 #define DEBUG_ASSERT(condition, ...) (void)(condition)

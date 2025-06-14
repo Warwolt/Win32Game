@@ -1,11 +1,7 @@
-#include <engine/debug/logging.h>
 #include <engine/engine.h>
-#include <engine/input/gamepad.h>
 #include <engine/input/input.h>
 #include <engine/math/ivec2.h>
 #include <game/game.h>
-
-#include <engine/graphics/image.h>
 
 #include <expected>
 #include <format>
