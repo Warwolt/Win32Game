@@ -237,6 +237,26 @@ namespace engine {
 			};
 			renderer->draw_image(m_render_test_image_id, rect, clip);
 		}
+
+		// draw clipped centered
+		{
+			grid_pos = next_grid_pos(grid_pos);
+			IVec2 pos = get_pos(Vec2 { -1.0, 1.0 }, grid_pos);
+			Rect rect = {
+				.x = pos.x,
+				.y = pos.y,
+				.width = grid_size,
+				.height = grid_size,
+			};
+			Rect clip = {
+				.x = grid_size / 4,
+				.y = grid_size / 4,
+				.width = grid_size / 2,
+				.height = grid_size / 2,
+
+			};
+			renderer->draw_image(m_render_test_image_id, rect, clip);
+		}
 	}
 
 } // namespace engine
