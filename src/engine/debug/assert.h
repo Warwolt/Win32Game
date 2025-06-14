@@ -7,7 +7,14 @@
 #include <stdio.h>
 #include <utility>
 
+namespace engine {
 #ifdef _DEBUG
+	constexpr bool DEBUG_BUILD = true;
+#else
+	constexpr bool DEBUG_BUILD = false;
+#endif
+} // namespace engine
+
 #define DEBUG_ASSERT(condition, ...)                                                \
 	if (!(condition)) {                                                             \
 		constexpr size_t SIZE = 512;                                                \
@@ -15,26 +22,27 @@
 		int offset = sprintf_s(msg, SIZE, "DEBUG_ASSERT(%s) failed: ", #condition); \
 		sprintf_s(msg + offset, SIZE - offset, __VA_ARGS__);                        \
 		LOG_FATAL("%s", msg);                                                       \
-		::engine::debug_exit(msg);                                                  \
+		if constexpr (engine::DEBUG_BUILD) {                                        \
+			MessageBoxA(nullptr, msg, "Fatal Error", MB_OK | MB_ICONERROR);         \
+			DebugBreak();                                                           \
+		}                                                                           \
+		engine::debug_exit();                                                       \
 	}
-#else
-#define DEBUG_ASSERT(condition, ...) (void)(condition)
-#endif
 
-#ifdef _DEBUG
-#define DEBUG_FAIL(...)                                      \
-	{                                                        \
-		constexpr size_t SIZE = 512;                         \
-		char msg[SIZE];                                      \
-		int offset = sprintf_s(msg, SIZE, "DEBUG_FAIL: ");   \
-		sprintf_s(msg + offset, SIZE - offset, __VA_ARGS__); \
-		LOG_FATAL("%s", msg);                                \
-		::engine::debug_exit(msg);                           \
+#define DEBUG_FAIL(...)                                                     \
+	{                                                                       \
+		constexpr size_t SIZE = 512;                                        \
+		char msg[SIZE];                                                     \
+		int offset = sprintf_s(msg, SIZE, "DEBUG_FAIL: ");                  \
+		sprintf_s(msg + offset, SIZE - offset, __VA_ARGS__);                \
+		LOG_FATAL("%s", msg);                                               \
+		if constexpr (engine::DEBUG_BUILD) {                                \
+			MessageBoxA(nullptr, msg, "Fatal Error", MB_OK | MB_ICONERROR); \
+			DebugBreak();                                                   \
+		}                                                                   \
+		engine::debug_exit();                                               \
 	}
-#else
-#define DEBUG_ASSERT(condition, ...) (void)(condition)
-#endif
 
 namespace engine {
-	void debug_exit(const char* msg);
-}
+	void debug_exit();
+} // namespace engine

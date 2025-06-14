@@ -50,6 +50,7 @@ add_executable(win32game WIN32 src/main.cpp)
 target_include_directories(win32game PUBLIC src ${INC})
 target_link_libraries(win32game PUBLIC source)
 set_property(TARGET win32game PROPERTY WIN32_EXECUTABLE TRUE)
+set_property(TARGET win32game PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
 
 # Unit tests
 add_executable(unit_tests test/main.cpp ${TEST_SRC})
