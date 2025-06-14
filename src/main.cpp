@@ -1,9 +1,9 @@
-#include <engine/debug/logging.h>
 #include <engine/engine.h>
-#include <engine/input/gamepad.h>
 #include <engine/input/input.h>
 #include <engine/math/ivec2.h>
 #include <game/game.h>
+
+#include <engine/debug/assert.h>
 
 #include <expected>
 #include <format>
@@ -102,7 +102,7 @@ static LRESULT CALLBACK on_window_event(
 			/* Render*/
 			game::draw(&g_context.engine.renderer, g_context.game);
 			engine::draw(&g_context.engine.renderer, g_context.engine);
-			g_context.engine.renderer.render(&g_context.engine.bitmap);
+			g_context.engine.renderer.render(&g_context.engine.bitmap, g_context.engine.resources);
 			g_context.engine.window.render_wm_paint(g_context.engine.bitmap);
 		} break;
 	}
@@ -120,6 +120,8 @@ int WINAPI WinMain(
 	g_context.engine = initialize_engine_or_abort(instance, on_window_event, "Game");
 	g_context.game = game::initialize(&g_context.engine);
 
+	g_context.engine.resources.image(engine::ImageID(123));
+
 	/* Main loop */
 	while (!g_context.engine.should_quit) {
 		/* Input */
@@ -133,9 +135,10 @@ int WINAPI WinMain(
 		/* Render */
 		game::draw(&g_context.engine.renderer, g_context.game);
 		engine::draw(&g_context.engine.renderer, g_context.engine);
-		g_context.engine.renderer.render(&g_context.engine.bitmap);
+		g_context.engine.renderer.render(&g_context.engine.bitmap, g_context.engine.resources);
 		g_context.engine.window.render(g_context.engine.bitmap);
 	}
 
+	g_context.engine.resources.free_resources();
 	return 0;
 }

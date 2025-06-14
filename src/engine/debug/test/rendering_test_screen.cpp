@@ -1,5 +1,6 @@
 #include <engine/debug/test/rendering_test_screen.h>
 
+#include <engine/file/resource_manager.h>
 #include <engine/graphics/renderer.h>
 #include <engine/graphics/window.h>
 #include <engine/input/input.h>
@@ -9,6 +10,10 @@
 #include <vector>
 
 namespace engine {
+
+	void RenderingTestScreen::initialize(ResourceManager* resources) {
+		m_render_test_image_id = resources->load_image("assets/image/render_test.png").value_or(INVALID_IMAGE_ID);
+	}
 
 	void RenderingTestScreen::update(const InputDevices& input) {
 		m_alpha = (uint8_t)std::clamp((int16_t)m_alpha + 16 * input.mouse.mouse_wheel_delta, 0, 255);
@@ -183,6 +188,80 @@ namespace engine {
 				if (mode == FillMode::Outline) renderer->draw_triangle(left, top, right);
 				if (mode == FillMode::Filled) renderer->draw_triangle_fill(left, top, right);
 			}
+		}
+
+		/* Draw image */
+#pragma region draw image
+		// draw missing texture
+		{
+			grid_pos = next_grid_pos(grid_pos);
+			IVec2 pos = get_pos(Vec2 { -1.0, 1.0 }, grid_pos);
+			Rect rect = {
+				.x = pos.x,
+				.y = pos.y,
+				.width = grid_size,
+				.height = grid_size,
+			};
+			Rect clip = {};
+			RGBA tint = { 255, 255, 255, m_alpha };
+			renderer->draw_image(ImageID(0), rect, clip, tint);
+		}
+
+		// draw test image
+		{
+			grid_pos = next_grid_pos(grid_pos);
+			IVec2 pos = get_pos(Vec2 { -1.0, 1.0 }, grid_pos);
+			Rect rect = {
+				.x = pos.x,
+				.y = pos.y,
+				.width = grid_size,
+				.height = grid_size,
+			};
+			Rect clip = {};
+			RGBA tint = { 255, 255, 255, m_alpha };
+			renderer->draw_image(m_render_test_image_id, rect, clip, tint);
+		}
+
+		// draw clipped top left
+		{
+			grid_pos = next_grid_pos(grid_pos);
+			IVec2 pos = get_pos(Vec2 { -1.0, 1.0 }, grid_pos);
+			Rect rect = {
+				.x = pos.x,
+				.y = pos.y,
+				.width = grid_size,
+				.height = grid_size,
+			};
+			Rect clip = {
+				.x = 0,
+				.y = grid_size / 2,
+				.width = grid_size / 2,
+				.height = grid_size / 2,
+
+			};
+			RGBA tint = { 255, 255, 255, m_alpha };
+			renderer->draw_image(m_render_test_image_id, rect, clip, tint);
+		}
+
+		// draw clipped centered
+		{
+			grid_pos = next_grid_pos(grid_pos);
+			IVec2 pos = get_pos(Vec2 { -1.0, 1.0 }, grid_pos);
+			Rect rect = {
+				.x = pos.x,
+				.y = pos.y,
+				.width = grid_size,
+				.height = grid_size,
+			};
+			Rect clip = {
+				.x = grid_size / 4,
+				.y = grid_size / 4,
+				.width = grid_size / 2,
+				.height = grid_size / 2,
+
+			};
+			RGBA tint = { 255, 255, 255, m_alpha };
+			renderer->draw_image(m_render_test_image_id, rect, clip, tint);
 		}
 	}
 

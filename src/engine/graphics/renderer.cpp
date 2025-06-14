@@ -1,5 +1,8 @@
 #include <engine/graphics/renderer.h>
 
+#include <engine/file/resource_manager.h>
+#include <engine/graphics/image.h>
+
 #include <algorithm>
 #include <cmath>
 #include <unordered_set>
@@ -237,12 +240,56 @@ namespace engine {
 		m_batches.push_back(batch);
 	}
 
-	void Renderer::render(Bitmap* bitmap) {
+	void Renderer::draw_image(ImageID image_id, Rect rect, Rect clip, RGBA tint) {
+		CommandBatch batch = { .rect = rect, .image_id = image_id };
+
+		/* UV coordinates */
+		if (clip.empty()) {
+			clip.width = rect.width;
+			clip.height = rect.height;
+		}
+		// bottom left
+		Vec2 uv0 = {
+			.x = std::clamp((float)clip.x / (float)(rect.width - 1), 0.0f, 1.0f),
+			.y = std::clamp((float)clip.y / (float)(rect.height), 0.0f, 1.0f),
+		};
+		// top right
+		Vec2 uv1 = {
+			.x = std::clamp((float)(clip.x + clip.width - 1) / (float)(rect.width - 1), 0.0f, 1.0f),
+			.y = std::clamp((float)(clip.y + clip.height) / (float)(rect.height), 0.0f, 1.0f),
+		};
+
+		/* Draw image line by line */
+		for (int32_t y = 0; y < rect.height; y++) {
+			Vertex left = {
+				.pos = { rect.x, rect.y + y },
+				.color = tint,
+				.uv = {
+					uv0.x,
+					std::lerp(uv0.y, uv1.y, 1.0f - ((float)y / (float)rect.height)),
+				}
+			};
+			Vertex right = {
+				.pos = { rect.x + rect.width - 1, rect.y + y },
+				.color = tint,
+				.uv = {
+					uv1.x,
+					std::lerp(uv0.y, uv1.y, 1.0f - ((float)y / (float)rect.height)),
+				}
+			};
+			batch.commands.push_back(DrawLine { left, right });
+		}
+
+		m_batches.push_back(batch);
+	}
+
+	void Renderer::render(Bitmap* bitmap, const ResourceManager& resources) {
 		/* Keep scratchpad size in sync with bitmap */
 		m_scratchpad.resize(bitmap->width(), bitmap->height());
 
 		/* Run commands */
 		for (const CommandBatch& batch : m_batches) {
+			const Image* image = batch.image_id ? &resources.image(*batch.image_id) : nullptr;
 			if (batch.rect.empty()) {
 				/* Draw directly to bitmap */
 				for (const DrawCommand& command : batch.commands) {
@@ -253,7 +300,7 @@ namespace engine {
 						_put_point(bitmap, draw_point->v1, true);
 					}
 					if (auto* draw_line = std::get_if<DrawLine>(&command)) {
-						_put_line(bitmap, draw_line->v1, draw_line->v2, true);
+						_put_line(bitmap, draw_line->v1, draw_line->v2, image, true);
 					}
 				}
 			}
@@ -271,7 +318,7 @@ namespace engine {
 						_put_point(&m_scratchpad, draw_point->v1, false);
 					}
 					if (auto* draw_line = std::get_if<DrawLine>(&command)) {
-						_put_line(&m_scratchpad, draw_line->v1, draw_line->v2, false);
+						_put_line(&m_scratchpad, draw_line->v1, draw_line->v2, image, false);
 					}
 				}
 
@@ -303,7 +350,7 @@ namespace engine {
 		bitmap->put(v1.pos.x, v1.pos.y, pixel, use_alpha ? v1.color.a / 255.0f : 1.0f);
 	}
 
-	void Renderer::_put_line(Bitmap* bitmap, Vertex v1, Vertex v2, bool use_alpha) {
+	void Renderer::_put_line(Bitmap* bitmap, Vertex v1, Vertex v2, const Image* image, bool use_alpha) {
 		// vertical line
 		if (v1.pos.x == v2.pos.x) {
 			int32_t y0 = std::min(v1.pos.y, v2.pos.y);
@@ -311,7 +358,10 @@ namespace engine {
 			for (int32_t y = y0; y <= y1; y++) {
 				IVec2 pos = IVec2 { v1.pos.x, y };
 				float t = (float)(pos.y - v1.pos.y) / (float)(v2.pos.y - v1.pos.y);
-				Vertex vertex = { .pos = pos, .color = RGBA::lerp(v1.color, v2.color, t) };
+				RGBA color = image
+					? color = image->sample(Vec2::lerp(v1.uv, v2.uv, t)) * RGBA::lerp(v1.color, v2.color, t)
+					: color = RGBA::lerp(v1.color, v2.color, t);
+				Vertex vertex = { .pos = pos, .color = color };
 				_put_point(bitmap, vertex, use_alpha);
 			}
 		}
@@ -332,7 +382,10 @@ namespace engine {
 				float t = abs_dx > abs_dy
 					? (float)(pos.x - v1.pos.x) / (float)(v2.pos.x - v1.pos.x)
 					: (float)(pos.y - v1.pos.y) / (float)(v2.pos.y - v1.pos.y);
-				Vertex vertex = { .pos = pos, .color = RGBA::lerp(v1.color, v2.color, t) };
+				RGBA color = image
+					? color = image->sample(Vec2::lerp(v1.uv, v2.uv, t)) * RGBA::lerp(v1.color, v2.color, t)
+					: color = RGBA::lerp(v1.color, v2.color, t);
+				Vertex vertex = { .pos = pos, .color = color };
 				_put_point(bitmap, vertex, use_alpha);
 			}
 		}

@@ -69,4 +69,11 @@ namespace engine {
 		};
 	}
 
+	IVec2 IVec2::lerp(IVec2 lhs, const IVec2& rhs, float t) {
+		return IVec2 {
+			.x = (int32_t)std::round(std::lerp(lhs.x, rhs.x, t)),
+			.y = (int32_t)std::round(std::lerp(lhs.y, rhs.y, t)),
+		};
+	}
+
 } // namespace engine

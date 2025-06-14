@@ -136,6 +136,7 @@ namespace engine {
 		else {
 			// log to console
 			printf("%s%s", buffer, COLOR_RESET);
+			fflush(stdout);
 		}
 	}
 
