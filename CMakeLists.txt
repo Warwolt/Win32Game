@@ -1,10 +1,21 @@
 cmake_minimum_required(VERSION 3.16.0)
 project(win32game)
 
-add_subdirectory(libs/googletest)
-
 # This option is enabled in CI builds
 option(WARNINGS_AS_ERRORS "Compile with warnings as errors" OFF)
+option(UNIT_TESTS "Build unit tests" ON)
+
+# Google Test
+if(UNIT_TESTS)
+add_subdirectory(libs/googletest)
+endif()
+
+# Windows workaround for Google Test
+if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
+    set(gtest_force_shared_crt OFF CACHE BOOL "" FORCE)
+endif()
+
 
 set(SRC
     libs/stb/stb_image/stb_image.c
@@ -53,12 +64,20 @@ set_property(TARGET win32game PROPERTY WIN32_EXECUTABLE TRUE)
 set_property(TARGET win32game PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
 
 # Unit tests
-add_executable(unit_tests test/main.cpp ${TEST_SRC})
-target_include_directories(unit_tests PUBLIC src test)
-target_link_libraries(unit_tests PUBLIC gtest gmock source)
+if(UNIT_TESTS)
+    add_executable(unit_tests test/main.cpp ${TEST_SRC})
+    target_include_directories(unit_tests PUBLIC src test)
+    target_link_libraries(unit_tests PUBLIC gtest gmock source)
+endif()
+
 
 # Set compile options for targets
-foreach(TARGET IN ITEMS source win32game unit_tests)
+SET(TARGETS source win32game)
+if(UNIT_TESTS)
+    list(APPEND TARGETS unit_tests)
+endif()
+
+foreach(TARGET IN ITEMS ${TARGETS})
     set_property(TARGET ${TARGET} PROPERTY CXX_STANDARD 23)
     add_compile_definitions(${TARGET} PUBLIC _CRT_SECURE_NO_WARNINGS)
     target_compile_options(${TARGET} PUBLIC
@@ -70,9 +89,3 @@ foreach(TARGET IN ITEMS source win32game unit_tests)
         $<$<NOT:$<CXX_COMPILER_ID:MSVC>>: -Werror>)
     endif()
 endforeach()
-
-# Windows workaround for gtest
-if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
-    set(gtest_force_shared_crt OFF CACHE BOOL "" FORCE)
-endif()
