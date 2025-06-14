@@ -242,23 +242,24 @@ namespace engine {
 
 	void Renderer::draw_image(ImageID image_id, Rect rect, Rect clip) {
 		CommandBatch batch = { .rect = rect, .image_id = image_id };
+
+		/* UV coordinates */
 		if (clip.empty()) {
 			clip.width = rect.width;
 			clip.height = rect.height;
 		}
-
-		// FIXME: there's an off by one issue here somewhere
-
 		// bottom left
 		Vec2 uv0 = {
-			std::clamp((float)clip.x / (float)rect.width, 0.0f, 1.0f),
-			std::clamp((float)clip.y / (float)rect.height, 0.0f, 1.0f),
+			.x = std::clamp((float)clip.x / (float)(rect.width - 1), 0.0f, 1.0f),
+			.y = std::clamp((float)clip.y / (float)(rect.height ), 0.0f, 1.0f),
 		};
 		// top right
 		Vec2 uv1 = {
-			std::clamp((float)(clip.x + clip.width) / (float)rect.width, 0.0f, 1.0f),
-			std::clamp((float)(clip.y + clip.height) / (float)rect.height, 0.0f, 1.0f),
+			.x = std::clamp((float)(clip.x + clip.width - 1) / (float)(rect.width - 1), 0.0f, 1.0f),
+			.y = std::clamp((float)(clip.y + clip.height) / (float)(rect.height), 0.0f, 1.0f),
 		};
+
+		/* Draw image line by line */
 		for (int32_t y = 0; y < rect.height; y++) {
 			Vertex left = {
 				.pos = { rect.x, rect.y + y },
@@ -278,6 +279,7 @@ namespace engine {
 			};
 			batch.commands.push_back(DrawLine { left, right });
 		}
+
 		m_batches.push_back(batch);
 	}
 
