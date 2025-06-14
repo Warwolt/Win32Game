@@ -10,7 +10,7 @@ namespace engine {
 	struct Image {
 		int width = 0;
 		int height = 0;
-		RGBA* data;
+		RGBA* data = nullptr;
 
 		RGBA sample(Vec2 uv) const;
 	};

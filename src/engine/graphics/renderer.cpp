@@ -359,7 +359,7 @@ namespace engine {
 				IVec2 pos = IVec2 { v1.pos.x, y };
 				float t = (float)(pos.y - v1.pos.y) / (float)(v2.pos.y - v1.pos.y);
 				RGBA color = image
-					? color = image->sample(Vec2::lerp(v1.uv, v2.uv, t))
+					? color = image->sample(Vec2::lerp(v1.uv, v2.uv, t)) * RGBA::lerp(v1.color, v2.color, t)
 					: color = RGBA::lerp(v1.color, v2.color, t);
 				Vertex vertex = { .pos = pos, .color = color };
 				_put_point(bitmap, vertex, use_alpha);
