@@ -11,6 +11,8 @@
 
 // prototyping only
 #include <engine/graphics/font.h>
+#include <engine/graphics/font_id.h>
+#include <utility>
 
 struct ProgramContext {
 	engine::EngineState engine;
@@ -123,7 +125,8 @@ int WINAPI WinMain(
 	g_context.game = game::initialize(&g_context.engine);
 	LOG_INFO("Initialized");
 
-	engine::Typeface typeface = engine::Typeface::from_path("assets/font/dos437.ttf").value();
+	std::vector<std::pair<engine::FontID, engine::Typeface>> typefaces;
+	typefaces.push_back({ engine::FontID(1), engine::Typeface::from_path("assets/font/dos437.ttf").value() });
 
 	/* Main loop */
 	while (!g_context.engine.should_quit) {
@@ -145,7 +148,7 @@ int WINAPI WinMain(
 		int text_pos_x = 0;
 		int text_pos_y = font_size;
 		for (char character : "the quick brown fox jumps over the lazy dog") {
-			const engine::Glyph& glyph = typeface.glyph(16, character);
+			const engine::Glyph& glyph = typefaces[0].second.glyph(16, character);
 
 			/* Render character */
 			for (int32_t y = 0; y < glyph.height; y++) {

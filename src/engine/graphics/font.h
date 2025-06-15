@@ -4,7 +4,6 @@
 
 #include <filesystem>
 #include <unordered_map>
-#include <vector>
 
 struct stbtt_fontinfo;
 
