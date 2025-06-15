@@ -11,22 +11,15 @@ namespace engine {
 				Image {
 					.width = 2,
 					.height = 2,
-					.data = new RGBA[4],
+					.data = {
+						RGBA::black(),
+						RGBA::purple(),
+						RGBA::black(),
+						RGBA::purple(),
+					},
 				},
 			}
 		);
-		m_images[0].data[0] = RGBA::black();
-		m_images[0].data[1] = RGBA::purple();
-		m_images[0].data[2] = RGBA::purple();
-		m_images[0].data[3] = RGBA::black();
-	}
-
-	void ResourceManager::free_resources() {
-		for (auto& [id, image] : m_images) {
-			if (id > 0) {
-				engine::free_image(image);
-			}
-		}
 	}
 
 	std::optional<ImageID> ResourceManager::load_image(const char* filepath) {

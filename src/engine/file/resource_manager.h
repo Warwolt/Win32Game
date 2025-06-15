@@ -11,7 +11,6 @@ namespace engine {
 	class ResourceManager {
 	public:
 		ResourceManager();
-		void free_resources();
 
 		std::optional<ImageID> load_image(const char* filepath);
 		const Image& image(ImageID id) const;

@@ -163,8 +163,6 @@ int WINAPI WinMain(
 		g_context.engine.window.render(g_context.engine.bitmap);
 	}
 
-	g_context.engine.resources.free_resources();
-
 	LOG_INFO("Shutting down");
 	return 0;
 }
