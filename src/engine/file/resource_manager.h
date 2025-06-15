@@ -1,9 +1,10 @@
 #pragma once
 
-#include <engine/graphics/image.h>
-#include <engine/graphics/image_id.h>
 #include <engine/graphics/font.h>
 #include <engine/graphics/font_id.h>
+#include <engine/graphics/image.h>
+#include <engine/graphics/image_id.h>
+
 
 #include <filesystem>
 #include <optional>
@@ -37,6 +38,14 @@ namespace engine {
 			return &it->second;
 		}
 
+		Resource* try_get(int id) {
+			auto it = m_resources.find(id);
+			if (it == m_resources.end()) {
+				return nullptr;
+			}
+			return &it->second;
+		}
+
 	private:
 		int m_next_id = 1;
 		std::unordered_map<std::filesystem::path, int> m_ids;
@@ -51,7 +60,7 @@ namespace engine {
 		std::optional<FontID> load_font(std::filesystem::path filepath);
 
 		const Image& image(ImageID id) const;
-		const Typeface* font(FontID id) const;
+		Typeface* font(FontID id);
 
 	private:
 		Image m_missing_texture;

@@ -58,7 +58,7 @@ namespace engine {
 		return m_missing_texture;
 	}
 
-	const Typeface* ResourceManager::font(FontID id) const {
+	Typeface* ResourceManager::font(FontID id) {
 		return m_fonts.try_get(id.value);
 	}
 

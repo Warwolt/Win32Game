@@ -43,7 +43,7 @@ namespace engine {
 		Font& _get_or_make_font(int32_t size);
 		Glyph _make_glyph(const Font& font, char codepoint) const;
 
-		std::vector<uint8_t> m_font_data;
+		std::vector<uint8_t> m_file_data;
 		stbtt_fontinfo m_font_info;
 		std::unordered_map<int32_t, Font> m_fonts;
 	};

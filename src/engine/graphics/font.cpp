@@ -14,14 +14,15 @@ namespace engine {
 		/* Read ttf file */
 		{
 			size_t file_size = std::filesystem::file_size(path);
-			typeface.m_font_data.reserve(file_size);
 			std::ifstream font_file(path, std::ios_base::binary);
-			font_file.read((char*)typeface.m_font_data.data(), file_size);
-			font_file.close();
+			typeface.m_file_data.resize(file_size);
+			if (!font_file.read(reinterpret_cast<char*>(typeface.m_file_data.data()), file_size)) {
+				return {};
+			}
 		}
 
 		/* Prepare typeface */
-		bool init_result = stbtt_InitFont(&typeface.m_font_info, typeface.m_font_data.data(), 0);
+		bool init_result = stbtt_InitFont(&typeface.m_font_info, typeface.m_file_data.data(), 0);
 		if (!init_result) {
 			return {};
 		}
