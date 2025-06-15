@@ -11,6 +11,8 @@
 
 // for prototyping only
 #include <stb_truetype/stb_truetype.h>
+#include <unordered_map>
+#include <utility>
 
 struct ProgramContext {
 	engine::EngineState engine;
@@ -133,23 +135,34 @@ int WINAPI WinMain(
 	size_t font_filesize = ftell(font_file);
 	fseek(font_file, 0, SEEK_SET);
 	// read file contents
-	uint8_t* font_buffer = (uint8_t*)malloc(font_filesize);
-	fread(font_buffer, font_filesize, 1, font_file);
+	uint8_t* font_data = (uint8_t*)malloc(font_filesize);
+	fread(font_data, font_filesize, 1, font_file);
 	// close file
 	fclose(font_file);
 
 	/* Prepare font */
 	stbtt_fontinfo font_info;
-	bool font_init_result = stbtt_InitFont(&font_info, font_buffer, 0);
+	bool font_init_result = stbtt_InitFont(&font_info, font_data, 0);
 	DEBUG_ASSERT(font_init_result, "Couldn't initialize font");
 
 	/* Calculate font scaling */
-	float font_height = 16.0f;
-	float font_scale = stbtt_ScaleForPixelHeight(&font_info, font_height);
+	int font_size = 16;
+	float font_scale = stbtt_ScaleForPixelHeight(&font_info, (float)font_size);
 	int font_ascent, font_descent, font_line_gap;
 	stbtt_GetFontVMetrics(&font_info, &font_ascent, &font_descent, &font_line_gap);
 	font_ascent = (int)std::round(font_ascent * font_scale);
 	font_descent = (int)std::round(font_descent * font_scale);
+
+	/* Bitmap cache */
+	struct FontGlyph {
+		int32_t width;
+		int32_t height;
+		int32_t x_offset; // distance from glyph origin to left
+		int32_t y_offset; // distance from glyph origin to top
+		uint8_t* data;
+	};
+	// TODO: would be better to have some kind of (font size, character) struct that hashes
+	std::unordered_map<int, std::unordered_map<char, FontGlyph>> font_glyphs;
 
 	/* Main loop */
 	while (!g_context.engine.should_quit) {
@@ -168,25 +181,35 @@ int WINAPI WinMain(
 
 		// draw text
 		int text_pos_x = 0;
-		int text_pos_y = (int)font_height;
+		int text_pos_y = (int)font_size;
 		for (char character : "the quick brown fox jumps over the lazy dog") {
 			/* Character bounding box */
 			int advance_width;
 			int left_side_bearing;
 			stbtt_GetCodepointHMetrics(&font_info, character, &advance_width, &left_side_bearing);
 
+			/* Get character bitmap */
+			if (!font_glyphs[font_size].contains(character)) {
+				int width, height, x_offset, y_offset;
+				uint8_t* data = stbtt_GetCodepointBitmap(&font_info, font_scale, font_scale, character, &width, &height, &x_offset, &y_offset);
+				font_glyphs[font_size][character] = FontGlyph {
+					.width = width,
+					.height = height,
+					.x_offset = x_offset,
+					.y_offset = y_offset,
+					.data = data,
+				};
+			}
+			const FontGlyph& glyph = font_glyphs[font_size][character];
+
 			/* Render character */
-			// TODO: we should cache the bitmaps for the given character and size
-			int width, height, xoff, yoff;
-			uint8_t* character_bitmap = stbtt_GetCodepointBitmap(&font_info, font_scale, font_scale, character, &width, &height, &xoff, &yoff);
-			for (int32_t y = 0; y < height; y++) {
-				for (int32_t x = 0; x < width; x++) {
+			for (int32_t y = 0; y < glyph.height; y++) {
+				for (int32_t x = 0; x < glyph.width; x++) {
 					engine::Pixel pixel = engine::Pixel::from_rgb(engine::RGBA::white());
-					float alpha = character_bitmap[x + y * width] / 255.0f;
-					g_context.engine.bitmap.put(text_pos_x + x + xoff, text_pos_y + y + yoff, pixel, alpha);
+					float alpha = glyph.data[x + y * glyph.width] / 255.0f;
+					g_context.engine.bitmap.put(text_pos_x + x + glyph.x_offset, text_pos_y + y + glyph.y_offset, pixel, alpha);
 				}
 			}
-			stbtt_FreeBitmap(character_bitmap, nullptr);
 
 			/* Advance x */
 			text_pos_x += (int)std::round(advance_width * font_scale);
@@ -195,7 +218,12 @@ int WINAPI WinMain(
 		g_context.engine.window.render(g_context.engine.bitmap);
 	}
 
-	free(font_buffer);
+	for (auto& [size, glyphs] : font_glyphs) {
+		for (auto& [codepoint, glyph] : glyphs) {
+			stbtt_FreeBitmap(glyph.data, nullptr);
+		}
+	}
+	free(font_data);
 	g_context.engine.resources.free_resources();
 
 	LOG_INFO("Shutting down");
