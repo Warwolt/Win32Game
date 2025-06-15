@@ -126,7 +126,9 @@ int WINAPI WinMain(
 	LOG_INFO("Initialized");
 
 	std::vector<std::pair<engine::FontID, engine::Typeface>> typefaces;
-	typefaces.push_back({ engine::FontID(1), engine::Typeface::from_path("assets/font/dos437.ttf").value() });
+	if (auto typeface = engine::Typeface::from_path("assets/font/dos437.ttf")) {
+		typefaces.push_back({ engine::FontID(1), std::move(typeface.value()) });
+	}
 
 	/* Main loop */
 	while (!g_context.engine.should_quit) {
