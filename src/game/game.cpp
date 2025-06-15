@@ -36,6 +36,7 @@ namespace game {
 	GameState initialize(engine::EngineState* engine) {
 		GameState game = {};
 		game.assets.audio.cowbell = load_audio_from_file_or_abort(&engine->audio, "assets/audio/808_cowbell.wav");
+
 		return game;
 	}
 
