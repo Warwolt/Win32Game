@@ -29,6 +29,7 @@ set(SRC
     src/engine/engine.cpp
     src/engine/file/resource_manager.cpp
     src/engine/graphics/bitmap.cpp
+    src/engine/graphics/font.cpp
     src/engine/graphics/image.cpp
     src/engine/graphics/rect.cpp
     src/engine/graphics/renderer.cpp

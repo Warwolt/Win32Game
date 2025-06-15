@@ -9,11 +9,8 @@
 #include <windows.h>
 #include <windowsx.h>
 
-// for prototyping only
-#include <stb_truetype/stb_truetype.h>
-#include <unordered_map>
-#include <filesystem>
-#include <fstream>
+// prototyping only
+#include <engine/graphics/font.h>
 
 struct ProgramContext {
 	engine::EngineState engine;
@@ -115,115 +112,6 @@ static LRESULT CALLBACK on_window_event(
 	return DefWindowProc(window, message, w_param, l_param);
 }
 
-struct Glyph {
-	int32_t width;               // bitmap width
-	int32_t height;              // bitmap height
-	int32_t y_offset;            // distance from glyph origin to bitmap top
-	int advance_width;           // space to insert between this glyph and next
-	std::vector<uint8_t> pixels; // bitmap data
-
-	inline uint8_t get(int32_t x, int32_t y) {
-		if (0 <= x && x <= this->width) {
-			if (0 <= y && y <= this->height) {
-				return this->pixels[x + y * this->width];
-			}
-		}
-		return 0;
-	}
-};
-
-struct Font {
-	int32_t size;
-	int32_t ascent;
-	float scale;
-	std::unordered_map<char, Glyph> glyphs;
-};
-
-class Typeface {
-public:
-	static std::optional<Typeface> from_path(std::filesystem::path path);
-	Glyph& glyph(int32_t size, char codepoint);
-
-private:
-	Font& _get_or_make_font(int32_t size);
-	Glyph _make_glyph(const Font& font, char codepoint) const;
-
-	std::vector<uint8_t> m_font_data;
-	stbtt_fontinfo m_font_info;
-	std::unordered_map<int32_t, Font> m_fonts;
-};
-
-std::optional<Typeface> Typeface::from_path(std::filesystem::path path) {
-	Typeface typeface;
-
-	/* Read ttf file */
-	{
-		size_t file_size = std::filesystem::file_size(path);
-		typeface.m_font_data.reserve(file_size);
-		std::ifstream font_file(path, std::ios_base::binary);
-		font_file.read((char*)typeface.m_font_data.data(), file_size);
-		font_file.close();
-	}
-
-	/* Prepare typeface */
-	bool init_result = stbtt_InitFont(&typeface.m_font_info, typeface.m_font_data.data(), 0);
-	if (!init_result) {
-		return {};
-	}
-
-	return typeface;
-}
-
-Glyph& Typeface::glyph(int32_t size, char codepoint) {
-	Font& font = _get_or_make_font(size);
-	if (auto it = font.glyphs.find(codepoint); it != font.glyphs.end()) {
-		return it->second;
-	}
-
-	font.glyphs[codepoint] = _make_glyph(font, codepoint);
-	return font.glyphs[codepoint];
-}
-
-Font& Typeface::_get_or_make_font(int32_t size) {
-	if (auto it = m_fonts.find(size); it != m_fonts.end()) {
-		return it->second;
-	}
-
-	float scale = stbtt_ScaleForPixelHeight(&m_font_info, (float)size);
-	int ascent;
-	stbtt_GetFontVMetrics(&m_font_info, &ascent, nullptr, nullptr);
-	ascent = (int)std::round(ascent * scale);
-	m_fonts[size] = Font {
-		.size = size,
-		.ascent = ascent,
-		.scale = scale,
-		.glyphs = {},
-	};
-	return m_fonts[size];
-}
-
-Glyph Typeface::_make_glyph(const Font& font, char codepoint) const {
-	int advance_width;
-	stbtt_GetCodepointHMetrics(&m_font_info, codepoint, &advance_width, nullptr);
-	advance_width = (int)std::round(advance_width * font.scale);
-
-	int x0, y0, x1, y1;
-	stbtt_GetCodepointBitmapBox(&m_font_info, codepoint, font.scale, font.scale, &x0, &y0, &x1, &y1);
-	int width = x1 - x0;
-	int height = y1 - y0;
-
-	std::vector<uint8_t> pixels(width * height);
-	stbtt_MakeCodepointBitmap(&m_font_info, pixels.data(), width, height, width, font.scale, font.scale, codepoint);
-
-	return Glyph {
-		.width = width,
-		.height = height,
-		.y_offset = y0,
-		.advance_width = advance_width,
-		.pixels = pixels,
-	};
-}
-
 int WINAPI WinMain(
 	HINSTANCE instance,
 	HINSTANCE /*prev_instance*/,
@@ -235,7 +123,7 @@ int WINAPI WinMain(
 	g_context.game = game::initialize(&g_context.engine);
 	LOG_INFO("Initialized");
 
-	Typeface typeface = Typeface::from_path("assets/font/dos437.ttf").value();
+	engine::Typeface typeface = engine::Typeface::from_path("assets/font/dos437.ttf").value();
 
 	/* Main loop */
 	while (!g_context.engine.should_quit) {
@@ -257,7 +145,7 @@ int WINAPI WinMain(
 		int text_pos_x = 0;
 		int text_pos_y = font_size;
 		for (char character : "the quick brown fox jumps over the lazy dog") {
-			const Glyph& glyph = typeface.glyph(16, character);
+			const engine::Glyph& glyph = typeface.glyph(16, character);
 
 			/* Render character */
 			for (int32_t y = 0; y < glyph.height; y++) {
