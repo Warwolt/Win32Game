@@ -168,7 +168,7 @@ int WINAPI WinMain(
 
 		// draw text
 		int text_pos_x = 0;
-		int text_pos_y = 0;
+		int text_pos_y = (int)font_height;
 		for (char character : "the quick brown fox jumps over the lazy dog") {
 			/* Character bounding box */
 			int advance_width;
@@ -183,7 +183,7 @@ int WINAPI WinMain(
 				for (int32_t x = 0; x < width; x++) {
 					engine::Pixel pixel = engine::Pixel::from_rgb(engine::RGBA::white());
 					float alpha = character_bitmap[x + y * width] / 255.0f;
-					g_context.engine.bitmap.put(text_pos_x + x, text_pos_y + y + ((int32_t)font_height - height), pixel, alpha);
+					g_context.engine.bitmap.put(text_pos_x + x + xoff, text_pos_y + y + yoff, pixel, alpha);
 				}
 			}
 			stbtt_FreeBitmap(character_bitmap, nullptr);
