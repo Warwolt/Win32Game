@@ -97,7 +97,7 @@ namespace engine {
 			return m_values.end();
 		}
 
-		std::pair<const_iterator, bool> insert(const value_type& key_val) {
+		std::pair<const_iterator, bool> insert(value_type&& key_val) {
 			const auto& [key, value] = key_val;
 
 			if (m_indexes.contains(key)) {

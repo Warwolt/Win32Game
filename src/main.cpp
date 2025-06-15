@@ -125,10 +125,7 @@ int WINAPI WinMain(
 	g_context.game = game::initialize(&g_context.engine);
 	LOG_INFO("Initialized");
 
-	std::vector<std::pair<engine::FontID, engine::Typeface>> typefaces;
-	if (auto typeface = engine::Typeface::from_path("assets/font/dos437.ttf")) {
-		typefaces.push_back({ engine::FontID(1), std::move(typeface.value()) });
-	}
+	engine::FontID font_id = g_context.engine.resources.load_font("assets/font/dos437.ttf").value();
 
 	/* Main loop */
 	while (!g_context.engine.should_quit) {
@@ -149,8 +146,9 @@ int WINAPI WinMain(
 		int font_size = 16;
 		int text_pos_x = 0;
 		int text_pos_y = font_size;
+		engine::Typeface& typeface = g_context.engine.resources.font(font_id);
 		for (char character : "the quick brown fox jumps over the lazy dog") {
-			const engine::Glyph& glyph = typefaces[0].second.glyph(16, character);
+			const engine::Glyph& glyph = typeface.glyph(16, character);
 
 			/* Render character */
 			for (int32_t y = 0; y < glyph.height; y++) {

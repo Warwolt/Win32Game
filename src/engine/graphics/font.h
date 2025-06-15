@@ -1,9 +1,12 @@
 #pragma once
 
+#include <engine/graphics/font.h>
+
 #include <stb_truetype/stb_truetype.h>
 
 #include <filesystem>
 #include <unordered_map>
+#include <vector>
 
 struct stbtt_fontinfo;
 
