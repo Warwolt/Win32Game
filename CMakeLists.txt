@@ -63,6 +63,7 @@ target_include_directories(win32game PUBLIC src ${INC})
 target_link_libraries(win32game PUBLIC source)
 set_property(TARGET win32game PROPERTY WIN32_EXECUTABLE TRUE)
 set_property(TARGET win32game PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
+set_property(TARGET win32game PROPERTY VS_STARTUP_PROJECT win32game)
 
 # Unit tests
 if(UNIT_TESTS)

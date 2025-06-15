@@ -123,7 +123,33 @@ int WINAPI WinMain(
 	g_context.game = game::initialize(&g_context.engine);
 	LOG_INFO("Initialized");
 
-	// TODO: follow along https://github.com/justinmeiners/stb-truetype-example/blob/master/main.c
+	/* Load font */
+	// open file
+	const char* font_path = "assets/font/dos437.ttf";
+	FILE* font_file = fopen(font_path, "rb");
+	DEBUG_ASSERT(font_file, "Couldn't open file %s", font_path);
+	// get file size
+	fseek(font_file, 0, SEEK_END);
+	size_t font_filesize = ftell(font_file);
+	fseek(font_file, 0, SEEK_SET);
+	// read file contents
+	uint8_t* font_buffer = (uint8_t*)malloc(font_filesize);
+	fread(font_buffer, font_filesize, 1, font_file);
+	// close file
+	fclose(font_file);
+
+	/* Prepare font */
+	stbtt_fontinfo font_info;
+	bool font_init_result = stbtt_InitFont(&font_info, font_buffer, 0);
+	DEBUG_ASSERT(font_init_result, "Couldn't initialize font");
+
+	/* Calculate font scaling */
+	float font_height = 16.0f;
+	float font_scale = stbtt_ScaleForPixelHeight(&font_info, font_height);
+	int font_ascent, font_descent, font_line_gap;
+	stbtt_GetFontVMetrics(&font_info, &font_ascent, &font_descent, &font_line_gap);
+	font_ascent = (int)std::round(font_ascent * font_scale);
+	font_descent = (int)std::round(font_descent * font_scale);
 
 	/* Main loop */
 	while (!g_context.engine.should_quit) {
@@ -139,9 +165,37 @@ int WINAPI WinMain(
 		game::draw(&g_context.engine.renderer, g_context.game);
 		engine::draw(&g_context.engine.renderer, g_context.engine);
 		g_context.engine.renderer.render(&g_context.engine.bitmap, g_context.engine.resources);
+
+		// draw text
+		int text_pos_x = 0;
+		int text_pos_y = 0;
+		for (char character : "the quick brown fox jumps over the lazy dog") {
+			/* Character bounding box */
+			int advance_width;
+			int left_side_bearing;
+			stbtt_GetCodepointHMetrics(&font_info, character, &advance_width, &left_side_bearing);
+
+			/* Render character */
+			// TODO: we should cache the bitmaps for the given character and size
+			int width, height, xoff, yoff;
+			uint8_t* character_bitmap = stbtt_GetCodepointBitmap(&font_info, font_scale, font_scale, character, &width, &height, &xoff, &yoff);
+			for (int32_t y = 0; y < height; y++) {
+				for (int32_t x = 0; x < width; x++) {
+					engine::Pixel pixel = engine::Pixel::from_rgb(engine::RGBA::white());
+					float alpha = character_bitmap[x + y * width] / 255.0f;
+					g_context.engine.bitmap.put(text_pos_x + x, text_pos_y + y + ((int32_t)font_height - height), pixel, alpha);
+				}
+			}
+			stbtt_FreeBitmap(character_bitmap, nullptr);
+
+			/* Advance x */
+			text_pos_x += (int)std::round(advance_width * font_scale);
+		}
+
 		g_context.engine.window.render(g_context.engine.bitmap);
 	}
 
+	free(font_buffer);
 	g_context.engine.resources.free_resources();
 
 	LOG_INFO("Shutting down");
