@@ -114,10 +114,124 @@ static LRESULT CALLBACK on_window_event(
 	return DefWindowProc(window, message, w_param, l_param);
 }
 
+struct Glyph {
+	int32_t width;    // bitmap width
+	int32_t height;   // bitmap height
+	int32_t x_offset; // distance from glyph origin to bitmap left
+	int32_t y_offset; // distance from glyph origin to bitmap top
+	uint8_t* data;    // bitmap data
+};
+
+struct Font {
+	int32_t size;
+	int32_t ascent;
+	float scale;
+	std::unordered_map<char, Glyph> glyphs;
+};
+
+class Typeface {
+public:
+	Typeface() = default;
+	~Typeface();
+
+	static std::optional<Typeface> from_path(const char* path);
+	Glyph& glyph(int32_t size, char codepoint);
+
+private:
+	Font& _get_or_make_font(int32_t size);
+	Glyph _make_glyph(const Font& font, char codepoint) const;
+
+	uint8_t* m_file_data;
+	stbtt_fontinfo m_font_info;
+	std::unordered_map<int32_t, Font> m_fonts;
+};
+
+Typeface::~Typeface() {
+	for (auto& [size, font] : m_fonts) {
+		for (auto& [codepoint, glyph] : font.glyphs) {
+			stbtt_FreeBitmap(glyph.data, nullptr);
+		}
+	}
+	free(m_file_data);
+}
+
+std::optional<Typeface> Typeface::from_path(const char* path) {
+	Typeface typeface;
+
+	/* Read ttf file */
+	{
+		// open file
+		FILE* file = fopen(path, "rb");
+		if (!file) {
+			return {};
+		}
+
+		// get file size
+		fseek(file, 0, SEEK_END);
+		size_t filesize = ftell(file);
+		fseek(file, 0, SEEK_SET);
+
+		// read file contents
+		typeface.m_file_data = (uint8_t*)malloc(filesize);
+		fread(typeface.m_file_data, filesize, 1, file);
+
+		// close file
+		fclose(file);
+	}
+
+	/* Prepare typeface */
+	bool init_result = stbtt_InitFont(&typeface.m_font_info, typeface.m_file_data, 0);
+	if (!init_result) {
+		return {};
+	}
+
+	return typeface;
+}
+
+Glyph& Typeface::glyph(int32_t size, char codepoint) {
+	Font& font = _get_or_make_font(size);
+	if (auto it = font.glyphs.find(codepoint); it != font.glyphs.end()) {
+		return it->second;
+	}
+
+	font.glyphs[codepoint] = _make_glyph(font, codepoint);
+	return font.glyphs[codepoint];
+}
+
+Font& Typeface::_get_or_make_font(int32_t size) {
+	if (auto it = m_fonts.find(size); it != m_fonts.end()) {
+		return it->second;
+	}
+
+	float scale = stbtt_ScaleForPixelHeight(&m_font_info, (float)size);
+	int ascent;
+	stbtt_GetFontVMetrics(&m_font_info, &ascent, nullptr, nullptr);
+	ascent = (int)std::round(ascent * scale);
+	m_fonts[size] = Font {
+		.size = size,
+		.ascent = ascent,
+		.scale = scale,
+		.glyphs = {},
+	};
+	return m_fonts[size];
+}
+
+Glyph Typeface::_make_glyph(const Font& font, char codepoint) const {
+	int width, height, x_offset, y_offset;
+	uint8_t* data = stbtt_GetCodepointBitmap(&m_font_info, font.scale, font.scale, codepoint, &width, &height, &x_offset, &y_offset);
+	return Glyph {
+		.width = width,
+		.height = height,
+		.x_offset = x_offset,
+		.y_offset = y_offset,
+		.data = data,
+	};
+}
+
 int WINAPI WinMain(
 	HINSTANCE instance,
 	HINSTANCE /*prev_instance*/,
-	LPSTR /*command_line*/,
+	LPSTR /*command_linse*/,
 	int /*command_show*/
 ) {
 	/* Initialize */
@@ -148,21 +262,12 @@ int WINAPI WinMain(
 	/* Calculate font scaling */
 	int font_size = 16;
 	float font_scale = stbtt_ScaleForPixelHeight(&font_info, (float)font_size);
-	int font_ascent, font_descent, font_line_gap;
-	stbtt_GetFontVMetrics(&font_info, &font_ascent, &font_descent, &font_line_gap);
+	int font_ascent;
+	stbtt_GetFontVMetrics(&font_info, &font_ascent, nullptr, nullptr);
 	font_ascent = (int)std::round(font_ascent * font_scale);
-	font_descent = (int)std::round(font_descent * font_scale);
 
 	/* Bitmap cache */
-	struct FontGlyph {
-		int32_t width;
-		int32_t height;
-		int32_t x_offset; // distance from glyph origin to left
-		int32_t y_offset; // distance from glyph origin to top
-		uint8_t* data;
-	};
-	// TODO: would be better to have some kind of (font size, character) struct that hashes
-	std::unordered_map<int, std::unordered_map<char, FontGlyph>> font_glyphs;
+	std::unordered_map<int, std::unordered_map<char, Glyph>> font_glyphs;
 
 	/* Main loop */
 	while (!g_context.engine.should_quit) {
@@ -192,7 +297,7 @@ int WINAPI WinMain(
 			if (!font_glyphs[font_size].contains(character)) {
 				int width, height, x_offset, y_offset;
 				uint8_t* data = stbtt_GetCodepointBitmap(&font_info, font_scale, font_scale, character, &width, &height, &x_offset, &y_offset);
-				font_glyphs[font_size][character] = FontGlyph {
+				font_glyphs[font_size][character] = Glyph {
 					.width = width,
 					.height = height,
 					.x_offset = x_offset,
@@ -200,7 +305,7 @@ int WINAPI WinMain(
 					.data = data,
 				};
 			}
-			const FontGlyph& glyph = font_glyphs[font_size][character];
+			const Glyph& glyph = font_glyphs[font_size][character];
 
 			/* Render character */
 			for (int32_t y = 0; y < glyph.height; y++) {
