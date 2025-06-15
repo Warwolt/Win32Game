@@ -146,7 +146,7 @@ int WINAPI WinMain(
 		int font_size = 16;
 		int text_pos_x = 0;
 		int text_pos_y = font_size;
-		engine::Typeface& typeface = g_context.engine.resources.font(font_id);
+		engine::Typeface& typeface = *g_context.engine.resources.font(font_id);
 		for (char character : "the quick brown fox jumps over the lazy dog") {
 			const engine::Glyph& glyph = typeface.glyph(16, character);
 

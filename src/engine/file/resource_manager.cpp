@@ -42,14 +42,15 @@ namespace engine {
 
 	std::optional<FontID> ResourceManager::load_font(std::filesystem::path filepath) {
 		/* Check if already loaded */
-		if (auto it = m_font_ids.find(filepath); it != m_font_ids.end()) {
+		auto same_filepath = [filepath](const std::pair<std::filesystem::path, int>& path_id) { return filepath == path_id.first; };
+		if (auto it = std::find_if(m_font_ids.begin(), m_font_ids.end(), same_filepath); it != m_font_ids.end()) {
 			return FontID(it->second);
 		}
 
 		/* Load and store font */
 		if (std::optional<Typeface> font = Typeface::from_path(filepath)) {
 			FontID id = FontID(m_next_image_id++);
-			m_fonts.push_back({ id.value, std::move(font.value()) });
+			m_fonts.push_back(std::move(font.value()));
 			return id;
 		}
 
@@ -66,12 +67,14 @@ namespace engine {
 		return it->second;
 	}
 
-	Typeface& ResourceManager::font(FontID id) {
-		auto it = std::find_if(m_fonts.begin(), m_fonts.end(), [id](std::pair<int, Typeface> id_font) { return id.value == id_font.first; });
-		if (it == m_fonts.end()) {
-			DEBUG_FAIL("Trying to access non-existing font with id %d", id.value);
+	Typeface* ResourceManager::font(FontID id) {
+		for (size_t i = 0; i < m_fonts.size(); i++) {
+			auto& [path, current_id] = m_font_ids[i];
+			if (id.value == current_id) {
+				return &m_fonts[i];
+			}
 		}
-		return it->second;
+		return nullptr;
 	}
 
 } // namespace engine
