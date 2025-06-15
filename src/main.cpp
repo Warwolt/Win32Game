@@ -12,6 +12,8 @@
 // for prototyping only
 #include <stb_truetype/stb_truetype.h>
 #include <unordered_map>
+#include <filesystem>
+#include <fstream>
 
 struct ProgramContext {
 	engine::EngineState engine;
@@ -139,73 +141,32 @@ struct Font {
 
 class Typeface {
 public:
-	Typeface() = default;
-	Typeface(const Typeface& rhs) = delete;
-	Typeface& operator=(const Typeface& rhs) = delete;
-	Typeface(Typeface&& rhs);
-	Typeface& operator=(Typeface&& rhs);
-	~Typeface();
-
-	static std::optional<Typeface> from_path(const char* path);
+	static std::optional<Typeface> from_path(std::filesystem::path path);
 	Glyph& glyph(int32_t size, char codepoint);
 
 private:
 	Font& _get_or_make_font(int32_t size);
 	Glyph _make_glyph(const Font& font, char codepoint) const;
 
-	uint8_t* m_file_data;
+	std::vector<uint8_t> m_font_data;
 	stbtt_fontinfo m_font_info;
 	std::unordered_map<int32_t, Font> m_fonts;
 };
 
-Typeface::Typeface(Typeface&& rhs) {
-	this->m_file_data = rhs.m_file_data;
-	rhs.m_file_data = nullptr;
-
-	this->m_font_info = rhs.m_font_info;
-	this->m_fonts = std::move(rhs.m_fonts);
-}
-
-Typeface& Typeface::operator=(Typeface&& rhs) {
-	this->m_file_data = rhs.m_file_data;
-	rhs.m_file_data = nullptr;
-
-	this->m_font_info = rhs.m_font_info;
-	this->m_fonts = std::move(rhs.m_fonts);
-
-	return *this;
-}
-
-Typeface::~Typeface() {
-	free(m_file_data);
-}
-
-std::optional<Typeface> Typeface::from_path(const char* path) {
+std::optional<Typeface> Typeface::from_path(std::filesystem::path path) {
 	Typeface typeface;
 
 	/* Read ttf file */
 	{
-		// open file
-		FILE* file = fopen(path, "rb");
-		if (!file) {
-			return {};
-		}
-
-		// get file size
-		fseek(file, 0, SEEK_END);
-		size_t filesize = ftell(file);
-		fseek(file, 0, SEEK_SET);
-
-		// read file contents
-		typeface.m_file_data = (uint8_t*)malloc(filesize);
-		fread(typeface.m_file_data, filesize, 1, file);
-
-		// close file
-		fclose(file);
+		size_t file_size = std::filesystem::file_size(path);
+		typeface.m_font_data.reserve(file_size);
+		std::ifstream font_file(path, std::ios_base::binary);
+		font_file.read((char*)typeface.m_font_data.data(), file_size);
+		font_file.close();
 	}
 
 	/* Prepare typeface */
-	bool init_result = stbtt_InitFont(&typeface.m_font_info, typeface.m_file_data, 0);
+	bool init_result = stbtt_InitFont(&typeface.m_font_info, typeface.m_font_data.data(), 0);
 	if (!init_result) {
 		return {};
 	}
