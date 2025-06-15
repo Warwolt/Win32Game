@@ -3,6 +3,7 @@
 #include <engine/graphics/rgba.h>
 #include <engine/math/vec2.h>
 
+#include <filesystem>
 #include <optional>
 #include <vector>
 
@@ -13,7 +14,7 @@ namespace engine {
 		int height = 0;
 		std::vector<RGBA> data;
 
-		static std::optional<Image> from_path(const char* path);
+		static std::optional<Image> from_path(std::filesystem::path path);
 		RGBA sample(Vec2 uv) const;
 	};
 

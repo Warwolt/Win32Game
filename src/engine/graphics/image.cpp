@@ -16,13 +16,13 @@ namespace engine {
 		return this->data[sample_point.x + sample_point.y * this->width];
 	}
 
-	std::optional<Image> Image::from_path(const char* path) {
+	std::optional<Image> Image::from_path(std::filesystem::path path) {
 		Image image;
 
 		/* Load image using STBI */
 		int num_channels = 0;
 		constexpr int num_requested_channels = 4; // RGBA
-		RGBA* image_data = (RGBA*)stbi_load(path, &image.width, &image.height, &num_channels, num_requested_channels);
+		RGBA* image_data = (RGBA*)stbi_load((const char*)path.string().c_str(), &image.width, &image.height, &num_channels, num_requested_channels);
 		if (!image_data) {
 			return {};
 		}
