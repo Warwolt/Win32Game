@@ -115,11 +115,21 @@ static LRESULT CALLBACK on_window_event(
 }
 
 struct Glyph {
-	int32_t width;    // bitmap width
-	int32_t height;   // bitmap height
-	int32_t x_offset; // distance from glyph origin to bitmap left
-	int32_t y_offset; // distance from glyph origin to bitmap top
-	uint8_t* data;    // bitmap data
+	int32_t width;     // bitmap width
+	int32_t height;    // bitmap height
+	int32_t x_offset;  // distance from glyph origin to bitmap left
+	int32_t y_offset;  // distance from glyph origin to bitmap top
+	int advance_width; // space to insert between this glyph and next
+	uint8_t* data;     // bitmap data
+
+	inline uint8_t get(int32_t x, int32_t y) {
+		if (0 <= x && x <= this->width) {
+			if (0 <= y && y <= this->height) {
+				return this->data[x + y * this->width];
+			}
+		}
+		return 0;
+	}
 };
 
 struct Font {
@@ -132,6 +142,10 @@ struct Font {
 class Typeface {
 public:
 	Typeface() = default;
+	Typeface(const Typeface& rhs) = delete;
+	Typeface& operator=(const Typeface& rhs) = delete;
+	Typeface(Typeface&& rhs);
+	Typeface& operator=(Typeface&& rhs);
 	~Typeface();
 
 	static std::optional<Typeface> from_path(const char* path);
@@ -145,6 +159,24 @@ private:
 	stbtt_fontinfo m_font_info;
 	std::unordered_map<int32_t, Font> m_fonts;
 };
+
+Typeface::Typeface(Typeface&& rhs) {
+	this->m_file_data = rhs.m_file_data;
+	rhs.m_file_data = nullptr;
+
+	this->m_font_info = rhs.m_font_info;
+	this->m_fonts = std::move(rhs.m_fonts);
+}
+
+Typeface& Typeface::operator=(Typeface&& rhs) {
+	this->m_file_data = rhs.m_file_data;
+	rhs.m_file_data = nullptr;
+
+	this->m_font_info = rhs.m_font_info;
+	this->m_fonts = std::move(rhs.m_fonts);
+
+	return *this;
+}
 
 Typeface::~Typeface() {
 	for (auto& [size, font] : m_fonts) {
@@ -217,13 +249,19 @@ Font& Typeface::_get_or_make_font(int32_t size) {
 }
 
 Glyph Typeface::_make_glyph(const Font& font, char codepoint) const {
+	int advance_width;
+	stbtt_GetCodepointHMetrics(&m_font_info, codepoint, &advance_width, nullptr);
+	advance_width = (int)std::round(advance_width * font.scale);
+
 	int width, height, x_offset, y_offset;
 	uint8_t* data = stbtt_GetCodepointBitmap(&m_font_info, font.scale, font.scale, codepoint, &width, &height, &x_offset, &y_offset);
+
 	return Glyph {
 		.width = width,
 		.height = height,
 		.x_offset = x_offset,
 		.y_offset = y_offset,
+		.advance_width = advance_width,
 		.data = data,
 	};
 }
@@ -239,35 +277,7 @@ int WINAPI WinMain(
 	g_context.game = game::initialize(&g_context.engine);
 	LOG_INFO("Initialized");
 
-	/* Load font */
-	// open file
-	const char* font_path = "assets/font/dos437.ttf";
-	FILE* font_file = fopen(font_path, "rb");
-	DEBUG_ASSERT(font_file, "Couldn't open file %s", font_path);
-	// get file size
-	fseek(font_file, 0, SEEK_END);
-	size_t font_filesize = ftell(font_file);
-	fseek(font_file, 0, SEEK_SET);
-	// read file contents
-	uint8_t* font_data = (uint8_t*)malloc(font_filesize);
-	fread(font_data, font_filesize, 1, font_file);
-	// close file
-	fclose(font_file);
-
-	/* Prepare font */
-	stbtt_fontinfo font_info;
-	bool font_init_result = stbtt_InitFont(&font_info, font_data, 0);
-	DEBUG_ASSERT(font_init_result, "Couldn't initialize font");
-
-	/* Calculate font scaling */
-	int font_size = 16;
-	float font_scale = stbtt_ScaleForPixelHeight(&font_info, (float)font_size);
-	int font_ascent;
-	stbtt_GetFontVMetrics(&font_info, &font_ascent, nullptr, nullptr);
-	font_ascent = (int)std::round(font_ascent * font_scale);
-
-	/* Bitmap cache */
-	std::unordered_map<int, std::unordered_map<char, Glyph>> font_glyphs;
+	Typeface typeface = Typeface::from_path("assets/font/dos437.ttf").value();
 
 	/* Main loop */
 	while (!g_context.engine.should_quit) {
@@ -285,27 +295,11 @@ int WINAPI WinMain(
 		g_context.engine.renderer.render(&g_context.engine.bitmap, g_context.engine.resources);
 
 		// draw text
+		int font_size = 16;
 		int text_pos_x = 0;
-		int text_pos_y = (int)font_size;
+		int text_pos_y = font_size;
 		for (char character : "the quick brown fox jumps over the lazy dog") {
-			/* Character bounding box */
-			int advance_width;
-			int left_side_bearing;
-			stbtt_GetCodepointHMetrics(&font_info, character, &advance_width, &left_side_bearing);
-
-			/* Get character bitmap */
-			if (!font_glyphs[font_size].contains(character)) {
-				int width, height, x_offset, y_offset;
-				uint8_t* data = stbtt_GetCodepointBitmap(&font_info, font_scale, font_scale, character, &width, &height, &x_offset, &y_offset);
-				font_glyphs[font_size][character] = Glyph {
-					.width = width,
-					.height = height,
-					.x_offset = x_offset,
-					.y_offset = y_offset,
-					.data = data,
-				};
-			}
-			const Glyph& glyph = font_glyphs[font_size][character];
+			const Glyph& glyph = typeface.glyph(16, character);
 
 			/* Render character */
 			for (int32_t y = 0; y < glyph.height; y++) {
@@ -317,18 +311,12 @@ int WINAPI WinMain(
 			}
 
 			/* Advance x */
-			text_pos_x += (int)std::round(advance_width * font_scale);
+			text_pos_x += glyph.advance_width;
 		}
 
 		g_context.engine.window.render(g_context.engine.bitmap);
 	}
 
-	for (auto& [size, glyphs] : font_glyphs) {
-		for (auto& [codepoint, glyph] : glyphs) {
-			stbtt_FreeBitmap(glyph.data, nullptr);
-		}
-	}
-	free(font_data);
 	g_context.engine.resources.free_resources();
 
 	LOG_INFO("Shutting down");
