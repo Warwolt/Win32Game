@@ -12,7 +12,6 @@
 // for prototyping only
 #include <stb_truetype/stb_truetype.h>
 #include <unordered_map>
-#include <utility>
 
 struct ProgramContext {
 	engine::EngineState engine;
@@ -115,17 +114,16 @@ static LRESULT CALLBACK on_window_event(
 }
 
 struct Glyph {
-	int32_t width;     // bitmap width
-	int32_t height;    // bitmap height
-	int32_t x_offset;  // distance from glyph origin to bitmap left
-	int32_t y_offset;  // distance from glyph origin to bitmap top
-	int advance_width; // space to insert between this glyph and next
-	uint8_t* data;     // bitmap data
+	int32_t width;               // bitmap width
+	int32_t height;              // bitmap height
+	int32_t y_offset;            // distance from glyph origin to bitmap top
+	int advance_width;           // space to insert between this glyph and next
+	std::vector<uint8_t> pixels; // bitmap data
 
 	inline uint8_t get(int32_t x, int32_t y) {
 		if (0 <= x && x <= this->width) {
 			if (0 <= y && y <= this->height) {
-				return this->data[x + y * this->width];
+				return this->pixels[x + y * this->width];
 			}
 		}
 		return 0;
@@ -179,11 +177,6 @@ Typeface& Typeface::operator=(Typeface&& rhs) {
 }
 
 Typeface::~Typeface() {
-	for (auto& [size, font] : m_fonts) {
-		for (auto& [codepoint, glyph] : font.glyphs) {
-			stbtt_FreeBitmap(glyph.data, nullptr);
-		}
-	}
 	free(m_file_data);
 }
 
@@ -253,16 +246,20 @@ Glyph Typeface::_make_glyph(const Font& font, char codepoint) const {
 	stbtt_GetCodepointHMetrics(&m_font_info, codepoint, &advance_width, nullptr);
 	advance_width = (int)std::round(advance_width * font.scale);
 
-	int width, height, x_offset, y_offset;
-	uint8_t* data = stbtt_GetCodepointBitmap(&m_font_info, font.scale, font.scale, codepoint, &width, &height, &x_offset, &y_offset);
+	int x0, y0, x1, y1;
+	stbtt_GetCodepointBitmapBox(&m_font_info, codepoint, font.scale, font.scale, &x0, &y0, &x1, &y1);
+	int width = x1 - x0;
+	int height = y1 - y0;
+
+	std::vector<uint8_t> pixels(width * height);
+	stbtt_MakeCodepointBitmap(&m_font_info, pixels.data(), width, height, width, font.scale, font.scale, codepoint);
 
 	return Glyph {
 		.width = width,
 		.height = height,
-		.x_offset = x_offset,
-		.y_offset = y_offset,
+		.y_offset = y0,
 		.advance_width = advance_width,
-		.data = data,
+		.pixels = pixels,
 	};
 }
 
@@ -305,8 +302,8 @@ int WINAPI WinMain(
 			for (int32_t y = 0; y < glyph.height; y++) {
 				for (int32_t x = 0; x < glyph.width; x++) {
 					engine::Pixel pixel = engine::Pixel::from_rgb(engine::RGBA::white());
-					float alpha = glyph.data[x + y * glyph.width] / 255.0f;
-					g_context.engine.bitmap.put(text_pos_x + x + glyph.x_offset, text_pos_y + y + glyph.y_offset, pixel, alpha);
+					float alpha = glyph.pixels[x + y * glyph.width] / 255.0f;
+					g_context.engine.bitmap.put(text_pos_x + x, text_pos_y + y + glyph.y_offset, pixel, alpha);
 				}
 			}
 
