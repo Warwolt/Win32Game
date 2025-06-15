@@ -19,6 +19,7 @@ endif()
 
 set(SRC
     libs/stb/stb_image/stb_image.c
+    libs/stb/stb_truetype/stb_truetype.c
     src/engine/audio/audio_player.cpp
     src/engine/commands.cpp
     src/engine/debug/assert.cpp

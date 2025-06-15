@@ -9,6 +9,9 @@
 #include <windows.h>
 #include <windowsx.h>
 
+// for prototyping only
+#include <stb_truetype/stb_truetype.h>
+
 struct ProgramContext {
 	engine::EngineState engine;
 	game::GameState game;
@@ -119,6 +122,8 @@ int WINAPI WinMain(
 	g_context.engine = initialize_engine_or_abort(instance, on_window_event, "Game");
 	g_context.game = game::initialize(&g_context.engine);
 	LOG_INFO("Initialized");
+
+	// TODO: follow along https://github.com/justinmeiners/stb-truetype-example/blob/master/main.c
 
 	/* Main loop */
 	while (!g_context.engine.should_quit) {
