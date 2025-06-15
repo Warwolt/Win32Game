@@ -7,6 +7,10 @@ namespace engine {
 	std::optional<Typeface> Typeface::from_path(std::filesystem::path path) {
 		Typeface typeface;
 
+		if (!std::filesystem::exists(path)) {
+			return {};
+		}
+
 		/* Read ttf file */
 		{
 			size_t file_size = std::filesystem::file_size(path);

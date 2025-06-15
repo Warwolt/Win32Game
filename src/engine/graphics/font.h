@@ -40,7 +40,6 @@ namespace engine {
 		Glyph& glyph(int32_t size, char codepoint);
 
 	private:
-        Typeface() = default;
 		Font& _get_or_make_font(int32_t size);
 		Glyph _make_glyph(const Font& font, char codepoint) const;
 

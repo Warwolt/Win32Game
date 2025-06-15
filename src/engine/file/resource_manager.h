@@ -2,6 +2,8 @@
 
 #include <engine/graphics/image.h>
 #include <engine/graphics/image_id.h>
+#include <engine/graphics/font.h>
+#include <engine/graphics/font_id.h>
 
 #include <filesystem>
 #include <optional>
@@ -46,11 +48,15 @@ namespace engine {
 		ResourceManager();
 
 		std::optional<ImageID> load_image(std::filesystem::path filepath);
+		std::optional<FontID> load_font(std::filesystem::path filepath);
+
 		const Image& image(ImageID id) const;
+		const Typeface* font(FontID id) const;
 
 	private:
 		Image m_missing_texture;
 		ResourceStore<Image> m_images;
+		ResourceStore<Typeface> m_fonts;
 	};
 
 } // namespace engine
