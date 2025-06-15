@@ -29,7 +29,7 @@ namespace engine {
 		}
 
 		/* Load and store image */
-		if (std::optional<Image> image = engine::load_image(filepath)) {
+		if (std::optional<Image> image = Image::from_path(filepath)) {
 			ImageID id = ImageID(m_next_image_id++);
 			m_images[id.value] = image.value();
 			return id;

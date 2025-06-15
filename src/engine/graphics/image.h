@@ -13,9 +13,8 @@ namespace engine {
 		int height = 0;
 		std::vector<RGBA> data;
 
+		static std::optional<Image> from_path(const char* path);
 		RGBA sample(Vec2 uv) const;
 	};
-
-	std::optional<Image> load_image(const char* image_path);
 
 } // namespace engine
