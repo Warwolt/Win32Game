@@ -1,9 +1,8 @@
+#include <engine/debug/assert.h>
 #include <engine/engine.h>
 #include <engine/input/input.h>
 #include <engine/math/ivec2.h>
 #include <game/game.h>
-
-#include <engine/debug/assert.h>
 
 #include <expected>
 #include <format>
@@ -119,8 +118,7 @@ int WINAPI WinMain(
 	/* Initialize */
 	g_context.engine = initialize_engine_or_abort(instance, on_window_event, "Game");
 	g_context.game = game::initialize(&g_context.engine);
-
-	g_context.engine.resources.image(engine::ImageID(123));
+	LOG_INFO("Initialized");
 
 	/* Main loop */
 	while (!g_context.engine.should_quit) {
@@ -140,5 +138,7 @@ int WINAPI WinMain(
 	}
 
 	g_context.engine.resources.free_resources();
+
+	LOG_INFO("Shutting down");
 	return 0;
 }

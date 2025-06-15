@@ -38,15 +38,15 @@ namespace engine {
 	static const char* log_level_to_str(LogLevel level) {
 		switch (level) {
 			case LogLevel::Debug:
-				return "[ DEBUG ]";
+				return "[DEBUG]";
 			case LogLevel::Info:
-				return "[ INFO  ]";
+				return "[INFO]";
 			case LogLevel::Warning:
 				return "[WARNING]";
 			case LogLevel::Error:
-				return "[ ERROR ]";
+				return "[ERROR]";
 			case LogLevel::Fatal:
-				return "[ FATAL ]";
+				return "[FATAL]";
 		}
 		return "";
 	}
@@ -97,7 +97,7 @@ namespace engine {
 		g_colors_enabled = SetConsoleMode(hOut, dwMode);
 	}
 
-	void debug_log(LogLevel log_level, const char* fmt, ...) {
+	void debug_log(LogLevel log_level, const char* file, int line, const char* fmt, ...) {
 		const bool debugger_present = IsDebuggerPresent();
 		char buffer[1024] = {};
 		int offset = 0;
@@ -116,7 +116,10 @@ namespace engine {
 		std::time_t t = std::time(0); // get time now
 		std::tm* now = std::localtime(&t);
 		offset += snprintf(buffer + offset, 1024 - offset, "%02d-%02d-%02d ", now->tm_year + 1900, now->tm_mon + 1, now->tm_mday); // year
-		offset += snprintf(buffer + offset, 1024 - offset, "%02d:%02d ", now->tm_hour, now->tm_min);                                   // hour
+		offset += snprintf(buffer + offset, 1024 - offset, "%02d:%02d ", now->tm_hour, now->tm_min);                               // hour
+
+		/* File and line */
+		offset += snprintf(buffer + offset, 1024 - offset, "%s:%d ", file, line);
 
 		/* Log level */
 		offset += snprintf(buffer + offset, 1024 - offset, "%s ", log_level_to_str(log_level)); // log level
