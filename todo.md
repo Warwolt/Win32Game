@@ -23,9 +23,9 @@ Maybe ideas:
 - Draw API: Polygons (triangle strips, triangle fans)
 
 # Doing
-- Debugging: print file name from LOG macros
 
 # Done
+- Debugging: print file name from LOG macros
 - Draw API: Textures
 - Draw API: Per vertex colors, interpolate color between vertices
 - Window: Render at lower resolution and upscale it to fit screen

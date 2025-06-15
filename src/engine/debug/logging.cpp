@@ -38,15 +38,15 @@ namespace engine {
 	static const char* log_level_to_str(LogLevel level) {
 		switch (level) {
 			case LogLevel::Debug:
-				return "[ DEBUG ]";
+				return "[DEBUG]";
 			case LogLevel::Info:
-				return "[ INFO  ]";
+				return "[INFO]";
 			case LogLevel::Warning:
 				return "[WARNING]";
 			case LogLevel::Error:
-				return "[ ERROR ]";
+				return "[ERROR]";
 			case LogLevel::Fatal:
-				return "[ FATAL ]";
+				return "[FATAL]";
 		}
 		return "";
 	}
