@@ -130,8 +130,8 @@ int WINAPI WinMain(
 	g_context.initialized = true;
 	LOG_INFO("Initialized");
 
-	engine::DeltaTimer frame_timer;
-	engine::DeltaTimer render_timer;
+	engine::DeltaTimer& frame_timer = g_context.engine.debug.performance.frame_timer;
+	engine::DeltaTimer& render_timer = g_context.engine.debug.performance.render_timer;
 
 	/* Main loop */
 	while (!g_context.engine.should_quit) {
@@ -145,6 +145,7 @@ int WINAPI WinMain(
 		/* Update */
 		game::update(&g_context.game, &g_context.engine.commands, g_context.engine.input);
 		engine::update(&g_context.engine, g_context.engine.input);
+		g_context.engine.window.set_title(std::format("{} ({:.1f} fps)", window_title, 1.0f / frame_timer.average_delta()));
 
 		/* Render */
 		game::draw(&g_context.engine.renderer, g_context.game);
@@ -162,7 +163,6 @@ int WINAPI WinMain(
 
 		/* End frame */
 		frame_timer.end();
-		g_context.engine.window.set_title(std::format("{} ({:.1f} fps)", window_title, 1.0f / frame_timer.average_delta()));
 	}
 
 	LOG_INFO("Shutting down");
