@@ -20,7 +20,7 @@ namespace engine {
 		int32_t left_side_bearing;   // distance from horisontal position to glyph
 		std::vector<uint8_t> pixels; // bitmap data
 
-		inline uint8_t get(int32_t x, int32_t y) {
+		inline uint8_t get(int32_t x, int32_t y) const {
 			if (0 <= x && x <= this->width) {
 				if (0 <= y && y <= this->height) {
 					return this->pixels[x + y * this->width];
