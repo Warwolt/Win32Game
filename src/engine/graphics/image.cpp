@@ -16,19 +16,23 @@ namespace engine {
 		return this->data[sample_point.x + sample_point.y * this->width];
 	}
 
-	std::optional<Image> load_image(const char* image_path) {
+	std::optional<Image> Image::from_path(std::filesystem::path path) {
 		Image image;
+
+		/* Load image using STBI */
 		int num_channels = 0;
 		constexpr int num_requested_channels = 4; // RGBA
-		image.data = (RGBA*)stbi_load(image_path, &image.width, &image.height, &num_channels, num_requested_channels);
-		if (!image.data) {
+		RGBA* image_data = (RGBA*)stbi_load((const char*)path.string().c_str(), &image.width, &image.height, &num_channels, num_requested_channels);
+		if (!image_data) {
 			return {};
 		}
-		return image;
-	}
+		size_t length = image.width * image.height;
 
-	void free_image(const Image& image) {
-		stbi_image_free(image.data);
+		/* Copy STBI data to our own vector */
+		image.data = std::vector<RGBA>(image_data, image_data + length);
+		free(image_data);
+
+		return image;
 	}
 
 } // namespace engine

@@ -9,7 +9,13 @@
 #include <windows.h>
 #include <windowsx.h>
 
+// prototyping only
+#include <engine/graphics/font.h>
+#include <engine/graphics/font_id.h>
+#include <utility>
+
 struct ProgramContext {
+	bool initialized = false;
 	engine::EngineState engine;
 	game::GameState game;
 };
@@ -91,18 +97,20 @@ static LRESULT CALLBACK on_window_event(
 		} break;
 
 		case WM_PAINT: {
-			/* Input */
-			update_input();
+			if (g_context.initialized) {
+				/* Input */
+				update_input();
 
-			/* Update */
-			game::update(&g_context.game, &g_context.engine.commands, g_context.engine.input);
-			engine::update(&g_context.engine, g_context.engine.input);
+				/* Update */
+				game::update(&g_context.game, &g_context.engine.commands, g_context.engine.input);
+				engine::update(&g_context.engine, g_context.engine.input);
 
-			/* Render*/
-			game::draw(&g_context.engine.renderer, g_context.game);
-			engine::draw(&g_context.engine.renderer, g_context.engine);
-			g_context.engine.renderer.render(&g_context.engine.bitmap, g_context.engine.resources);
-			g_context.engine.window.render_wm_paint(g_context.engine.bitmap);
+				/* Render*/
+				game::draw(&g_context.engine.renderer, g_context.game);
+				engine::draw(&g_context.engine.renderer, g_context.engine);
+				g_context.engine.renderer.render(&g_context.engine.bitmap, &g_context.engine.resources);
+				g_context.engine.window.render_wm_paint(g_context.engine.bitmap);
+			}
 		} break;
 	}
 
@@ -118,6 +126,7 @@ int WINAPI WinMain(
 	/* Initialize */
 	g_context.engine = initialize_engine_or_abort(instance, on_window_event, "Game");
 	g_context.game = game::initialize(&g_context.engine);
+	g_context.initialized = true;
 	LOG_INFO("Initialized");
 
 	/* Main loop */
@@ -133,11 +142,9 @@ int WINAPI WinMain(
 		/* Render */
 		game::draw(&g_context.engine.renderer, g_context.game);
 		engine::draw(&g_context.engine.renderer, g_context.engine);
-		g_context.engine.renderer.render(&g_context.engine.bitmap, g_context.engine.resources);
+		g_context.engine.renderer.render(&g_context.engine.bitmap, &g_context.engine.resources);
 		g_context.engine.window.render(g_context.engine.bitmap);
 	}
-
-	g_context.engine.resources.free_resources();
 
 	LOG_INFO("Shutting down");
 	return 0;

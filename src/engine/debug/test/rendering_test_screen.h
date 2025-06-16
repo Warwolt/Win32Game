@@ -1,7 +1,8 @@
 #pragma once
 
-#include <engine/math/ivec2.h>
+#include <engine/graphics/font_id.h>
 #include <engine/graphics/image_id.h>
+#include <engine/math/ivec2.h>
 
 namespace engine {
 
@@ -13,12 +14,15 @@ namespace engine {
 	class RenderingTestScreen {
 	public:
 		void initialize(ResourceManager* resources);
-		void update(const InputDevices& input);
+		void update(const InputDevices& input, ResourceManager* resources);
 		void draw(Renderer* renderer, IVec2 screen_resolution) const;
 
 	private:
 		ImageID m_render_test_image_id;
 		uint8_t m_alpha = 255;
+		FontID m_font_id = FontID(0);
+		int32_t m_font_size = 16;
+		int32_t m_text_width = 0;
 	};
 
 } // namespace engine

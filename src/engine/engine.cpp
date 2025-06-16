@@ -45,7 +45,7 @@ namespace engine {
 		engine->commands.clear();
 
 		/* Update engine */
-		update_debug(&engine->debug, input);
+		update_debug(&engine->debug, input, &engine->resources);
 	}
 
 	void draw(Renderer* renderer, const EngineState& engine) {

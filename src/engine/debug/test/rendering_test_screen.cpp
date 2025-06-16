@@ -2,21 +2,27 @@
 
 #include <engine/file/resource_manager.h>
 #include <engine/graphics/renderer.h>
-#include <engine/graphics/window.h>
 #include <engine/input/input.h>
 
 #include <algorithm>
 #include <array>
-#include <vector>
 
 namespace engine {
 
 	void RenderingTestScreen::initialize(ResourceManager* resources) {
 		m_render_test_image_id = resources->load_image("assets/image/render_test.png").value_or(INVALID_IMAGE_ID);
+		m_font_id = resources->load_font("assets/font/ModernDOS8x16.ttf").value();
+		m_font_size = 16;
 	}
 
-	void RenderingTestScreen::update(const InputDevices& input) {
+	void RenderingTestScreen::update(const InputDevices& input, ResourceManager* resources) {
 		m_alpha = (uint8_t)std::clamp((int16_t)m_alpha + 16 * input.mouse.mouse_wheel_delta, 0, 255);
+
+		m_text_width = 0;
+		for (char character : "the quick brown fox jumps") {
+			const engine::Glyph& glyph = resources->font(m_font_id).glyph(m_font_size, character);
+			m_text_width += glyph.advance_width;
+		}
 	}
 
 	void RenderingTestScreen::draw(Renderer* renderer, IVec2 screen_resolution) const {
@@ -49,16 +55,32 @@ namespace engine {
 		auto get_pos = [grid_size, grid_spacing](Vec2 ndc_vec, IVec2 grid_pos) -> IVec2 {
 			IVec2 spacing_offset = grid_spacing * IVec2 { grid_pos.x, grid_pos.y + 1 };
 			IVec2 grid_offset = grid_size * grid_pos;
+			int y_offset = 24;
 			return spacing_offset + grid_offset +
 				IVec2::from_vec2(Vec2 {
 					.x = grid_size * (ndc_vec.x + 1.0f) / 2.0f,
-					.y = grid_size * (1.0f - ndc_vec.y) / 2.0f,
+					.y = y_offset + grid_size * (1.0f - ndc_vec.y) / 2.0f,
 				});
 		};
 
 		auto get_color = [this](RGBA color, ColorMode mode) {
 			return mode == ColorMode::Mono ? RGBA { 0, 255, 0, m_alpha } : color;
 		};
+
+		/* Draw text */
+#pragma region draw text
+		// note: for simplicity we put this at the top of the file, since we
+		// draw the text at the top of the screen
+		{
+			Rect rect {
+				.x = 0,
+				.y = m_font_size,
+				.width = m_text_width,
+			};
+			RGBA text_color = RGBA::white();
+			text_color.a = m_alpha;
+			renderer->draw_text(m_font_id, m_font_size, rect, text_color, "the quick brown fox jumps over the lazy dog");
+		}
 
 		/* Draw line */
 #pragma region draw line

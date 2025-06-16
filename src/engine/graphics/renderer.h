@@ -1,19 +1,22 @@
 #pragma once
 
 #include <engine/graphics/bitmap.h>
+#include <engine/graphics/font_id.h>
+#include <engine/graphics/image_id.h>
 #include <engine/graphics/rect.h>
 #include <engine/graphics/rgba.h>
 #include <engine/math/ivec2.h>
-#include <engine/graphics/image_id.h>
 
+#include <optional>
+#include <string>
 #include <variant>
 #include <vector>
-#include <optional>
 
 namespace engine {
 
 	class ResourceManager;
 	struct Image;
+	class Typeface;
 
 	struct Vertex {
 		IVec2 pos;
@@ -35,8 +38,9 @@ namespace engine {
 		void draw_triangle(Vertex v1, Vertex v2, Vertex v3);
 		void draw_triangle_fill(Vertex v1, Vertex v2, Vertex v3);
 		void draw_image(ImageID image_id, Rect rect, Rect clip = {}, RGBA tint = RGBA::white());
+		void draw_text(FontID font_id, int32_t font_size, Rect rect, RGBA color, std::string text);
 
-		void render(Bitmap* bitmap, const ResourceManager& resources);
+		void render(Bitmap* bitmap, ResourceManager* resources);
 
 	private:
 		struct ClearScreen {
@@ -49,7 +53,18 @@ namespace engine {
 			Vertex v1;
 			Vertex v2;
 		};
-		using DrawCommand = std::variant<ClearScreen, DrawPoint, DrawLine>;
+		struct DrawText {
+			FontID font_id;
+			int32_t font_size;
+			Rect rect;
+			RGBA color;
+			std::string text;
+		};
+		using DrawCommand = std::variant<
+			ClearScreen,
+			DrawPoint,
+			DrawLine,
+			DrawText>;
 		struct CommandBatch {
 			Rect rect;
 			std::optional<ImageID> image_id;
@@ -65,6 +80,7 @@ namespace engine {
 		void _clear_screen(Bitmap* bitmap, RGBA color);
 		void _put_point(Bitmap* bitmap, Vertex v1, bool use_alpha);
 		void _put_line(Bitmap* bitmap, Vertex v1, Vertex v2, const Image* image, bool use_alpha);
+		void _put_text(Bitmap* bitmap, Typeface* typeface, int32_t font_size, const Rect& rect, RGBA color, const std::string& text);
 	};
 
 } // namespace engine

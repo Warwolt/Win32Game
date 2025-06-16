@@ -19,6 +19,7 @@ endif()
 
 set(SRC
     libs/stb/stb_image/stb_image.c
+    libs/stb/stb_truetype/stb_truetype.c
     src/engine/audio/audio_player.cpp
     src/engine/commands.cpp
     src/engine/debug/assert.cpp
@@ -28,6 +29,7 @@ set(SRC
     src/engine/engine.cpp
     src/engine/file/resource_manager.cpp
     src/engine/graphics/bitmap.cpp
+    src/engine/graphics/font.cpp
     src/engine/graphics/image.cpp
     src/engine/graphics/rect.cpp
     src/engine/graphics/renderer.cpp
@@ -62,6 +64,7 @@ target_include_directories(win32game PUBLIC src ${INC})
 target_link_libraries(win32game PUBLIC source)
 set_property(TARGET win32game PROPERTY WIN32_EXECUTABLE TRUE)
 set_property(TARGET win32game PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT win32game)
 
 # Unit tests
 if(UNIT_TESTS)

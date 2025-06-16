@@ -1,6 +1,7 @@
 #include <engine/graphics/renderer.h>
 
 #include <engine/file/resource_manager.h>
+#include <engine/graphics/font.h>
 #include <engine/graphics/image.h>
 
 #include <algorithm>
@@ -283,24 +284,40 @@ namespace engine {
 		m_batches.push_back(batch);
 	}
 
-	void Renderer::render(Bitmap* bitmap, const ResourceManager& resources) {
+	void Renderer::draw_text(FontID font_id, int32_t font_size, Rect rect, RGBA color, std::string text) {
+		m_batches.push_back(CommandBatch {
+			.commands = {
+				DrawText { font_id, font_size, rect, color, text },
+			},
+		});
+	}
+
+	void Renderer::render(Bitmap* bitmap, ResourceManager* resources) {
 		/* Keep scratchpad size in sync with bitmap */
 		m_scratchpad.resize(bitmap->width(), bitmap->height());
 
 		/* Run commands */
 		for (const CommandBatch& batch : m_batches) {
-			const Image* image = batch.image_id ? &resources.image(*batch.image_id) : nullptr;
+			const Image* image = batch.image_id ? &resources->image(*batch.image_id) : nullptr;
 			if (batch.rect.empty()) {
 				/* Draw directly to bitmap */
 				for (const DrawCommand& command : batch.commands) {
 					if (auto* clear_screen = std::get_if<ClearScreen>(&command)) {
-						_clear_screen(bitmap, clear_screen->color);
+						auto& [color] = *clear_screen;
+						_clear_screen(bitmap, color);
 					}
 					if (auto* draw_point = std::get_if<DrawPoint>(&command)) {
-						_put_point(bitmap, draw_point->v1, true);
+						auto& [v1] = *draw_point;
+						_put_point(bitmap, v1, true);
 					}
 					if (auto* draw_line = std::get_if<DrawLine>(&command)) {
-						_put_line(bitmap, draw_line->v1, draw_line->v2, image, true);
+						auto& [v1, v2] = *draw_line;
+						_put_line(bitmap, v1, v2, image, true);
+					}
+					if (auto* draw_text = std::get_if<DrawText>(&command)) {
+						auto& [font_id, font_size, rect, color, text] = *draw_text;
+						Typeface& typeface = resources->font(font_id);
+						_put_text(bitmap, &typeface, font_size, rect, color, text);
 					}
 				}
 			}
@@ -387,6 +404,29 @@ namespace engine {
 					: color = RGBA::lerp(v1.color, v2.color, t);
 				Vertex vertex = { .pos = pos, .color = color };
 				_put_point(bitmap, vertex, use_alpha);
+			}
+		}
+	}
+
+	void Renderer::_put_text(Bitmap* bitmap, Typeface* typeface, int32_t font_size, const Rect& rect, RGBA color, const std::string& text) {
+		int cursor_x = rect.x;
+		int cursor_y = rect.y;
+		for (char character : text) {
+			/* Render character */
+			const engine::Glyph& glyph = typeface->glyph(16, character);
+			for (int32_t y = 0; y < glyph.height; y++) {
+				for (int32_t x = 0; x < glyph.width; x++) {
+					engine::Pixel pixel = engine::Pixel::from_rgb(color);
+					float alpha = (glyph.get(x, y) / 255.0f) * (color.a / 255.0f);
+					bitmap->put(cursor_x + glyph.left_side_bearing + x, cursor_y + y + glyph.y_offset, pixel, alpha);
+				}
+			}
+
+			/* Advance position */
+			cursor_x += glyph.advance_width;
+			if (cursor_x - rect.x >= rect.width) {
+				cursor_x = rect.x;
+				cursor_y += font_size;
 			}
 		}
 	}

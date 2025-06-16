@@ -7,7 +7,7 @@ Maybe ideas:
 - Text mode engine debugging UI (for selecting various test screens and tools)
 
 # Todo
-- Font support
+- Measure frame delta
 - Text Mode UI prototype
 - [!] Write Blackjack game
 - CPU Profiling
@@ -25,6 +25,7 @@ Maybe ideas:
 # Doing
 
 # Done
+- Font support
 - Debugging: print file name from LOG macros
 - Draw API: Textures
 - Draw API: Per vertex colors, interpolate color between vertices
