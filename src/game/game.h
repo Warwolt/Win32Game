@@ -1,12 +1,14 @@
 #pragma once
 
 #include <engine/audio/audio_id.h>
+#include <engine/commands.h>
+
+#include <vector>
 
 namespace engine {
 	struct EngineState;
 	struct InputDevices;
 	class Renderer;
-	class CommandAPI;
 } // namespace engine
 
 namespace game {
@@ -20,7 +22,7 @@ namespace game {
 	};
 
 	GameState initialize(engine::EngineState* engine);
-	void update(GameState* game, engine::CommandAPI* commands, const engine::InputDevices& input);
+	void update(GameState* game, std::vector<engine::Command>* commands, const engine::InputDevices& input);
 	void draw(engine::Renderer* renderer, const GameState& game);
 
 } // namespace game

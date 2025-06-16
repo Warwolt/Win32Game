@@ -25,6 +25,7 @@ Maybe ideas:
 # Doing
 
 # Done
+- Get rid of CommandAPI class, just work with a `std::vector<Command>` directly
 - Measure frame delta
 - Font support
 - Debugging: print file name from LOG macros

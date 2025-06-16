@@ -3,6 +3,8 @@
 #include <engine/debug/logging.h>
 #include <engine/input/input.h>
 
+#include <utility>
+
 namespace engine {
 
 	std::expected<EngineState, EngineError> initialize(HINSTANCE instance, WNDPROC wnd_proc, const char* window_title) {
@@ -29,17 +31,22 @@ namespace engine {
 
 	void update(EngineState* engine, const InputDevices& input) {
 		/* Process commands */
-		for (const AppCommand& command : engine->commands.app_commands()) {
-			if (auto* quit = std::get_if<QuitCommand>(&command)) {
-				engine->should_quit = true;
+		for (const Command& command : engine->commands) {
+			/* App commands */
+			if (auto* app_command = std::get_if<AppCommand>(&command)) {
+				if (auto* quit = std::get_if<QuitCommand>(app_command)) {
+					engine->should_quit = true;
+				}
+				if (auto* toggle_fullscreen = std::get_if<ToggleFullscreenCommand>(app_command)) {
+					engine->window.toggle_fullscreen();
+				}
 			}
-			if (auto* toggle_fullscreen = std::get_if<ToggleFullscreenCommand>(&command)) {
-				engine->window.toggle_fullscreen();
-			}
-		}
-		for (const AudioCommand& command : engine->commands.audio_commands()) {
-			if (auto* play_sound = std::get_if<PlaySoundCommand>(&command)) {
-				engine->audio.play(play_sound->id);
+
+			/* Audio commands */
+			if (auto* audio_command = std::get_if<AudioCommand>(&command)) {
+				if (auto* play_sound = std::get_if<PlaySoundCommand>(audio_command)) {
+					engine->audio.play(play_sound->id);
+				}
 			}
 		}
 		engine->commands.clear();

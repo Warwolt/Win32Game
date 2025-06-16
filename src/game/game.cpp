@@ -40,17 +40,17 @@ namespace game {
 		return game;
 	}
 
-	void update(GameState* game, engine::CommandAPI* commands, const engine::InputDevices& input) {
+	void update(GameState* game, std::vector<engine::Command>* commands, const engine::InputDevices& input) {
 		if (input.keyboard.key_was_pressed_now(VK_ESCAPE)) {
-			commands->quit();
+			commands->push_back(engine::QuitCommand());
 		}
 
 		if (input.keyboard.key_was_pressed_now(VK_F11)) {
-			commands->toggle_fullscreen();
+			commands->push_back(engine::ToggleFullscreenCommand());
 		}
 
 		if (input.keyboard.key_was_pressed_now('1')) {
-			commands->play_sound(game->assets.audio.cowbell);
+			commands->push_back(engine::PlaySoundCommand { game->assets.audio.cowbell });
 		}
 	}
 
