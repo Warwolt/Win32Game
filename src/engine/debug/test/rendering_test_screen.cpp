@@ -17,12 +17,7 @@ namespace engine {
 
 	void RenderingTestScreen::update(const InputDevices& input, ResourceManager* resources) {
 		m_alpha = (uint8_t)std::clamp((int16_t)m_alpha + 16 * input.mouse.mouse_wheel_delta, 0, 255);
-
-		m_text_width = 0;
-		for (char character : "the quick brown fox jumps") {
-			const engine::Glyph& glyph = resources->font(m_font_id).glyph(m_font_size, character);
-			m_text_width += glyph.advance_width;
-		}
+		m_text_width = resources->font(m_font_id).text_width(m_font_size, "the quick brown fox jumps");
 	}
 
 	void RenderingTestScreen::draw(Renderer* renderer, IVec2 screen_resolution) const {
@@ -284,6 +279,10 @@ namespace engine {
 			};
 			RGBA tint = { 255, 255, 255, m_alpha };
 			renderer->draw_image(m_render_test_image_id, rect, clip, tint);
+		}
+
+		/* Test screen render time */
+		{
 		}
 	}
 

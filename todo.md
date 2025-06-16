@@ -7,7 +7,6 @@ Maybe ideas:
 - Text mode engine debugging UI (for selecting various test screens and tools)
 
 # Todo
-- Diagnose what parts of render test screen is slow
 - Text Mode UI prototype
 - [!] Write Blackjack game
 - CPU Profiling
@@ -23,6 +22,7 @@ Maybe ideas:
 - Draw API: Polygons (triangle strips, triangle fans)
 
 # Doing
+- Diagnose what parts of render test screen is slow
 
 # Done
 - Get rid of CommandAPI class, just work with a `std::vector<Command>` directly
