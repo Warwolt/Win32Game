@@ -134,6 +134,7 @@ int WINAPI WinMain(
 
 	/* Main loop */
 	while (!g_context.engine.should_quit) {
+		/* Start frame */
 		frame_timer.start();
 
 		/* Input */
@@ -150,6 +151,7 @@ int WINAPI WinMain(
 		g_context.engine.renderer.render(&g_context.engine.bitmap, &g_context.engine.resources);
 		g_context.engine.window.render(g_context.engine.bitmap);
 
+		/* End frame */
 		frame_timer.end();
 		g_context.engine.window.set_title(std::format("{} ({:.1f} fps)", window_title, 1.0f / frame_timer.average_delta()));
 	}
