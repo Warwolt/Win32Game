@@ -417,8 +417,8 @@ namespace engine {
 			for (int32_t y = 0; y < glyph.height; y++) {
 				for (int32_t x = 0; x < glyph.width; x++) {
 					engine::Pixel pixel = engine::Pixel::from_rgb(color);
-					float alpha = glyph.pixels[x + y * glyph.width] / 255.0f;
-					bitmap->put(cursor_x + x, cursor_y + y + glyph.y_offset, pixel, alpha);
+					float alpha = (glyph.pixels[x + y * glyph.width] / 255.0f) * (color.a / 255.0f);
+					bitmap->put(cursor_x + glyph.left_side_bearing + x, cursor_y + y + glyph.y_offset, pixel, alpha);
 				}
 			}
 

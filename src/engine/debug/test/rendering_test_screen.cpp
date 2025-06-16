@@ -77,7 +77,9 @@ namespace engine {
 				.y = m_font_size,
 				.width = m_text_width,
 			};
-			renderer->draw_text(m_font_id, m_font_size, rect, RGBA::white(), "the quick brown fox jumps over the lazy dog");
+			RGBA text_color = RGBA::white();
+			text_color.a = m_alpha;
+			renderer->draw_text(m_font_id, m_font_size, rect, text_color, "the quick brown fox jumps over the lazy dog");
 		}
 
 		/* Draw line */

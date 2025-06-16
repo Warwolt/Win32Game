@@ -91,9 +91,10 @@ namespace engine {
 	}
 
 	Glyph Typeface::_make_glyph(const Font& font, char codepoint) const {
-		int advance_width;
-		stbtt_GetCodepointHMetrics(&m_font_info, codepoint, &advance_width, nullptr);
+		int advance_width, left_side_bearing;
+		stbtt_GetCodepointHMetrics(&m_font_info, codepoint, &advance_width, &left_side_bearing);
 		advance_width = (int)std::round(advance_width * font.scale);
+		left_side_bearing = (int)std::round(left_side_bearing * font.scale);
 
 		int x0, y0, x1, y1;
 		stbtt_GetCodepointBitmapBox(&m_font_info, codepoint, font.scale, font.scale, &x0, &y0, &x1, &y1);
@@ -108,6 +109,7 @@ namespace engine {
 			.height = height,
 			.y_offset = y0,
 			.advance_width = advance_width,
+			.left_side_bearing = left_side_bearing,
 			.pixels = pixels,
 		};
 	}
