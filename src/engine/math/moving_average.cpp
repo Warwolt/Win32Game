@@ -1,4 +1,4 @@
-#include <engine/debug/moving_average.h>
+#include <engine/math/moving_average.h>
 
 #include <numeric>
 
@@ -10,7 +10,7 @@ namespace engine {
 		return average;
 	}
 
-	void MovingAverage::add(float value) {
+	void MovingAverage::push_back(float value) {
 		if (m_index < m_sample_size) {
 			m_values.push_back(value);
 		}

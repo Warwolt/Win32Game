@@ -1,4 +1,5 @@
 #include <engine/debug/assert.h>
+#include <engine/debug/delta_timer.h>
 #include <engine/engine.h>
 #include <engine/input/input.h>
 #include <engine/math/ivec2.h>
@@ -129,13 +130,11 @@ int WINAPI WinMain(
 	g_context.initialized = true;
 	LOG_INFO("Initialized");
 
-	int index = 0;
-	int samples = 100;
-	std::vector<float> frame_deltas;
+	engine::DeltaTimer frame_timer;
 
 	/* Main loop */
 	while (!g_context.engine.should_quit) {
-		const auto start = std::chrono::high_resolution_clock::now();
+		frame_timer.start();
 
 		/* Input */
 		pump_window_messages();
@@ -151,18 +150,8 @@ int WINAPI WinMain(
 		g_context.engine.renderer.render(&g_context.engine.bitmap, &g_context.engine.resources);
 		g_context.engine.window.render(g_context.engine.bitmap);
 
-		// update FPS
-		float frame_delta = std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - start).count();
-		if (index++ < samples) {
-			frame_deltas.push_back(frame_delta);
-		}
-		else {
-			frame_deltas[index++ % samples] = frame_delta;
-		}
-		float avg_frame_delta = std::accumulate(frame_deltas.begin(), frame_deltas.end(), 0.0f) / frame_deltas.size();
-		float avg_fps = 1.0f / avg_frame_delta;
-		std::string title_with_fps = std::format("{} ({:.2f} fps)", window_title, avg_fps);
-		g_context.engine.window.set_title(title_with_fps);
+		frame_timer.end();
+		g_context.engine.window.set_title(std::format("{} ({:.1f} fps)", window_title, 1.0f / frame_timer.average_delta()));
 	}
 
 	LOG_INFO("Shutting down");

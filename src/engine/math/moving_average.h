@@ -10,7 +10,7 @@ namespace engine {
 		MovingAverage() = default;
 		static MovingAverage with_sample_size(int32_t sample_size);
 
-		void add(float value);
+		void push_back(float value);
 		float average() const;
 
 	private:

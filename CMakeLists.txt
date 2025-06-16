@@ -24,7 +24,7 @@ set(SRC
     src/engine/commands.cpp
     src/engine/debug/assert.cpp
     src/engine/debug/debug.cpp
-    src/engine/debug/moving_average.cpp
+    src/engine/debug/delta_timer.cpp
     src/engine/debug/logging.cpp
     src/engine/debug/test/rendering_test_screen.cpp
     src/engine/engine.cpp
@@ -42,6 +42,7 @@ set(SRC
     src/engine/input/keyboard.cpp
     src/engine/input/mouse.cpp
     src/engine/math/ivec2.cpp
+    src/engine/math/moving_average.cpp
     src/engine/math/vec2.cpp
     src/game/game.cpp
 )
