@@ -24,6 +24,7 @@ set(SRC
     src/engine/commands.cpp
     src/engine/debug/assert.cpp
     src/engine/debug/debug.cpp
+    src/engine/debug/moving_average.cpp
     src/engine/debug/logging.cpp
     src/engine/debug/test/rendering_test_screen.cpp
     src/engine/engine.cpp
@@ -51,6 +52,7 @@ set(INC
 
 set(TEST_SRC
     test/engine/button_tests.cpp
+    test/engine/moving_average_tests.cpp
     test/engine/keyboard_tests.cpp
 )
 

@@ -153,7 +153,7 @@ int WINAPI WinMain(
 
 		// update FPS
 		float frame_delta = std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - start).count();
-		if (index < samples) {
+		if (index++ < samples) {
 			frame_deltas.push_back(frame_delta);
 		}
 		else {
