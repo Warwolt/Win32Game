@@ -39,6 +39,6 @@ namespace engine {
 
 	std::expected<EngineState, EngineError> initialize(HINSTANCE instance, WNDPROC wnd_proc, const char* window_title);
 	void update(EngineState* engine, const InputDevices& input);
-	void draw(Renderer* renderer, const EngineState& engine);
+	void draw(Renderer* renderer, EngineState* engine);
 
 } // namespace engine

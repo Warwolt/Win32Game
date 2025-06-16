@@ -1,8 +1,8 @@
 #pragma once
 
+#include <engine/debug/delta_timer.h>
 #include <engine/debug/test/rendering_test_screen.h>
 #include <engine/math/ivec2.h>
-#include <engine/debug/delta_timer.h>
 
 namespace engine {
 
@@ -23,6 +23,6 @@ namespace engine {
 
 	void initialize_debug(DebugState* debug, ResourceManager* resources);
 	void update_debug(DebugState* debug, const InputDevices& input, Window* window, ResourceManager* resources);
-	void draw_debug(Renderer* renderer, const DebugState& debug, IVec2 screen_resolution);
+	void draw_debug(Renderer* renderer, const DebugState& debug, ResourceManager* resources, IVec2 screen_resolution);
 
 } // namespace engine

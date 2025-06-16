@@ -54,8 +54,8 @@ namespace engine {
 		engine->commands.clear();
 	}
 
-	void draw(Renderer* renderer, const EngineState& engine) {
-		draw_debug(renderer, engine.debug, engine.screen_resolution);
+	void draw(Renderer* renderer, EngineState* engine) {
+		draw_debug(renderer, engine->debug, &engine->resources, engine->screen_resolution);
 	}
 
 } // namespace engine
