@@ -11,13 +11,13 @@ namespace engine {
 	}
 
 	void MovingAverage::push_back(float value) {
-		if (m_index < m_sample_size) {
+		if (m_values.size() < m_sample_size) {
 			m_values.push_back(value);
 		}
 		else {
 			m_values[m_index % m_sample_size] = value;
 		}
-		m_index++;
+		m_index = (m_index + 1) % m_sample_size;
 	}
 
 	float MovingAverage::average() const {

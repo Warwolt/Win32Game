@@ -32,8 +32,8 @@ TEST(MovingAverageTests, TossesOutOldValues) {
 
 	average.push_back(1.0f);
 	average.push_back(2.0f);
-	average.push_back(2.0f);
-	average.push_back(2.0f);
+	average.push_back(3.0f);
+	average.push_back(4.0f);
 
-	EXPECT_EQ(average.average(), 2.0f);
+	EXPECT_EQ(average.average(), 3.0f);
 }
