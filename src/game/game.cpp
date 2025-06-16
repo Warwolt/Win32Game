@@ -42,15 +42,15 @@ namespace game {
 
 	void update(GameState* game, std::vector<engine::Command>* commands, const engine::InputDevices& input) {
 		if (input.keyboard.key_was_pressed_now(VK_ESCAPE)) {
-			commands->push_back(engine::QuitCommand());
+			commands->push_back(engine::AppCommand_Quit());
 		}
 
 		if (input.keyboard.key_was_pressed_now(VK_F11)) {
-			commands->push_back(engine::ToggleFullscreenCommand());
+			commands->push_back(engine::AppCommand_ToggleFullscreen());
 		}
 
 		if (input.keyboard.key_was_pressed_now('1')) {
-			commands->push_back(engine::PlaySoundCommand { game->assets.audio.cowbell });
+			commands->push_back(engine::AudioCommand_PlaySound { game->assets.audio.cowbell });
 		}
 	}
 

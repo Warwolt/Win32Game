@@ -34,17 +34,17 @@ namespace engine {
 		for (const Command& command : engine->commands) {
 			/* App commands */
 			if (auto* app_command = std::get_if<AppCommand>(&command)) {
-				if (auto* quit = std::get_if<QuitCommand>(app_command)) {
+				if (auto* quit = std::get_if<AppCommand_Quit>(app_command)) {
 					engine->should_quit = true;
 				}
-				if (auto* toggle_fullscreen = std::get_if<ToggleFullscreenCommand>(app_command)) {
+				if (auto* toggle_fullscreen = std::get_if<AppCommand_ToggleFullscreen>(app_command)) {
 					engine->window.toggle_fullscreen();
 				}
 			}
 
 			/* Audio commands */
 			if (auto* audio_command = std::get_if<AudioCommand>(&command)) {
-				if (auto* play_sound = std::get_if<PlaySoundCommand>(audio_command)) {
+				if (auto* play_sound = std::get_if<AudioCommand_PlaySound>(audio_command)) {
 					engine->audio.play(play_sound->id);
 				}
 			}

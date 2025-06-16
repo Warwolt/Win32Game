@@ -7,15 +7,15 @@
 namespace engine {
 
 	// app
-	struct QuitCommand {};
-	struct ToggleFullscreenCommand {};
-	using AppCommand = std::variant<QuitCommand, ToggleFullscreenCommand>;
+	struct AppCommand_Quit {};
+	struct AppCommand_ToggleFullscreen {};
+	using AppCommand = std::variant<AppCommand_Quit, AppCommand_ToggleFullscreen>;
 
 	// audio
-	struct PlaySoundCommand {
+	struct AudioCommand_PlaySound {
 		AudioID id;
 	};
-	using AudioCommand = std::variant<PlaySoundCommand>;
+	using AudioCommand = std::variant<AudioCommand_PlaySound>;
 
 	using Command = std::variant<AppCommand, AudioCommand>;
 
