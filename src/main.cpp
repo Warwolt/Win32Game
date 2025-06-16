@@ -15,6 +15,7 @@
 #include <utility>
 
 struct ProgramContext {
+	bool initialized = false;
 	engine::EngineState engine;
 	game::GameState game;
 };
@@ -96,18 +97,20 @@ static LRESULT CALLBACK on_window_event(
 		} break;
 
 		case WM_PAINT: {
-			/* Input */
-			update_input();
+			if (g_context.initialized) {
+				/* Input */
+				update_input();
 
-			/* Update */
-			game::update(&g_context.game, &g_context.engine.commands, g_context.engine.input);
-			engine::update(&g_context.engine, g_context.engine.input);
+				/* Update */
+				game::update(&g_context.game, &g_context.engine.commands, g_context.engine.input);
+				engine::update(&g_context.engine, g_context.engine.input);
 
-			/* Render*/
-			game::draw(&g_context.engine.renderer, g_context.game);
-			engine::draw(&g_context.engine.renderer, g_context.engine);
-			g_context.engine.renderer.render(&g_context.engine.bitmap, &g_context.engine.resources);
-			g_context.engine.window.render_wm_paint(g_context.engine.bitmap);
+				/* Render*/
+				game::draw(&g_context.engine.renderer, g_context.game);
+				engine::draw(&g_context.engine.renderer, g_context.engine);
+				g_context.engine.renderer.render(&g_context.engine.bitmap, &g_context.engine.resources);
+				g_context.engine.window.render_wm_paint(g_context.engine.bitmap);
+			}
 		} break;
 	}
 
@@ -123,6 +126,7 @@ int WINAPI WinMain(
 	/* Initialize */
 	g_context.engine = initialize_engine_or_abort(instance, on_window_event, "Game");
 	g_context.game = game::initialize(&g_context.engine);
+	g_context.initialized = true;
 	LOG_INFO("Initialized");
 
 	engine::FontID font_id = g_context.engine.resources.load_font("assets/font/dos437.ttf").value();
@@ -140,16 +144,6 @@ int WINAPI WinMain(
 		/* Render */
 		game::draw(&g_context.engine.renderer, g_context.game);
 		engine::draw(&g_context.engine.renderer, g_context.engine);
-		/* Protoype text rendering */
-		engine::Typeface& typeface = g_context.engine.resources.font(font_id);
-		int font_size = 16;
-		engine::Rect font_rect = { .x = 0, .y = font_size };
-		// compute text width
-		for (char character : "the quick brown fox jumps") {
-			const engine::Glyph& glyph = typeface.glyph(16, character);
-			font_rect.width += glyph.advance_width;
-		}
-		g_context.engine.renderer.draw_text(font_id, font_size, font_rect, engine::RGBA::white(), "the quick brown fox jumps over the lazy dog");
 		g_context.engine.renderer.render(&g_context.engine.bitmap, &g_context.engine.resources);
 		g_context.engine.window.render(g_context.engine.bitmap);
 	}

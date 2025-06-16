@@ -14,7 +14,7 @@ namespace engine {
 	};
 
 	void initialize_debug(DebugState* debug, ResourceManager* resources);
-	void update_debug(DebugState* debug, const InputDevices& input);
+	void update_debug(DebugState* debug, const InputDevices& input, ResourceManager* resources);
 	void draw_debug(Renderer* renderer, const DebugState& debug, IVec2 screen_resolution);
 
 } // namespace engine

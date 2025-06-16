@@ -6,8 +6,8 @@ namespace engine {
 		debug->test_screens.rendering.initialize(resources);
 	}
 
-	void update_debug(DebugState* debug, const InputDevices& input) {
-		debug->test_screens.rendering.update(input);
+	void update_debug(DebugState* debug, const InputDevices& input, ResourceManager* resources) {
+		debug->test_screens.rendering.update(input, resources);
 	}
 
 	void draw_debug(Renderer* renderer, const DebugState& debug, IVec2 screen_resolution) {
