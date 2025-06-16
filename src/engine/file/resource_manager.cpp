@@ -1,6 +1,5 @@
 #include <engine/file/resource_manager.h>
 
-#include "resource_manager.h"
 #include <engine/debug/assert.h>
 
 namespace engine {
