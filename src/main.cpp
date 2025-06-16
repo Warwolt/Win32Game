@@ -4,15 +4,14 @@
 #include <engine/math/ivec2.h>
 #include <game/game.h>
 
-#include <expected>
-#include <format>
 #include <windows.h>
 #include <windowsx.h>
 
-// prototyping only
-#include <engine/graphics/font.h>
-#include <engine/graphics/font_id.h>
-#include <utility>
+#include <array>
+#include <chrono>
+#include <expected>
+#include <format>
+#include <numeric>
 
 struct ProgramContext {
 	bool initialized = false;
@@ -130,11 +129,14 @@ int WINAPI WinMain(
 	g_context.initialized = true;
 	LOG_INFO("Initialized");
 
-	std::string title_with_fps = std::format("{} (0.0 fps)", window_title);
-	g_context.engine.window.set_title(title_with_fps);
+	int index = 0;
+	int samples = 100;
+	std::vector<float> frame_deltas;
 
 	/* Main loop */
 	while (!g_context.engine.should_quit) {
+		const auto start = std::chrono::high_resolution_clock::now();
+
 		/* Input */
 		pump_window_messages();
 		update_input();
@@ -148,6 +150,19 @@ int WINAPI WinMain(
 		engine::draw(&g_context.engine.renderer, g_context.engine);
 		g_context.engine.renderer.render(&g_context.engine.bitmap, &g_context.engine.resources);
 		g_context.engine.window.render(g_context.engine.bitmap);
+
+		// update FPS
+		float frame_delta = std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - start).count();
+		if (index < samples) {
+			frame_deltas.push_back(frame_delta);
+		}
+		else {
+			frame_deltas[index++ % samples] = frame_delta;
+		}
+		float avg_frame_delta = std::accumulate(frame_deltas.begin(), frame_deltas.end(), 0.0f) / frame_deltas.size();
+		float avg_fps = 1.0f / avg_frame_delta;
+		std::string title_with_fps = std::format("{} ({:.2f} fps)", window_title, avg_fps);
+		g_context.engine.window.set_title(title_with_fps);
 	}
 
 	LOG_INFO("Shutting down");
