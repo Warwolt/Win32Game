@@ -4,18 +4,35 @@
 
 namespace engine {
 
-	Typeface::Typeface(Typeface&& other) {
-		m_file_data = std::move(other.m_file_data);
+	Typeface::Typeface(const Typeface& other) noexcept {
+		m_file_data = other.m_file_data;
 		stbtt_InitFont(&m_font_info, m_file_data.data(), 0);
-		other.m_font_info = {};
-		m_fonts = std::move(m_fonts);
+		m_fonts = other.m_fonts;
 	}
 
-	Typeface& Typeface::operator=(Typeface&& other) {
-		m_file_data = std::move(other.m_file_data);
+	Typeface& Typeface::operator=(const Typeface& other) noexcept {
+		m_file_data = other.m_file_data;
 		stbtt_InitFont(&m_font_info, m_file_data.data(), 0);
-		other.m_font_info = {};
-		m_fonts = std::move(m_fonts);
+		m_fonts = other.m_fonts;
+		return *this;
+	}
+
+	Typeface::Typeface(Typeface&& other) noexcept {
+		if (this != &other) {
+			m_file_data = std::move(other.m_file_data);
+			stbtt_InitFont(&m_font_info, m_file_data.data(), 0);
+			other.m_font_info = {};
+			m_fonts = std::move(other.m_fonts);
+		}
+	}
+
+	Typeface& Typeface::operator=(Typeface&& other) noexcept {
+		if (this != &other) {
+			m_file_data = std::move(other.m_file_data);
+			stbtt_InitFont(&m_font_info, m_file_data.data(), 0);
+			other.m_font_info = {};
+			m_fonts = std::move(other.m_fonts);
+		}
 		return *this;
 	}
 

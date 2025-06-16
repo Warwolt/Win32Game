@@ -39,8 +39,10 @@ namespace engine {
 	class Typeface {
 	public:
 		Typeface() = default;
-		Typeface(Typeface&& other);
-		Typeface& operator=(Typeface&& other);
+		Typeface(const Typeface& other) noexcept;
+		Typeface& operator=(const Typeface& other) noexcept;
+		Typeface(Typeface&& other) noexcept;
+		Typeface& operator=(Typeface&& other) noexcept;
 
 		static std::optional<Typeface> from_path(std::filesystem::path path);
 		Glyph& glyph(int32_t size, char codepoint);
@@ -50,7 +52,7 @@ namespace engine {
 		Glyph _make_glyph(const Font& font, char codepoint) const;
 
 		std::vector<uint8_t> m_file_data;
-		stbtt_fontinfo m_font_info;
+		stbtt_fontinfo m_font_info = {};
 		std::unordered_map<int32_t, Font> m_fonts;
 	};
 
