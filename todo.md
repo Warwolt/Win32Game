@@ -23,9 +23,9 @@ Maybe ideas:
 - Draw API: Polygons (triangle strips, triangle fans)
 
 # Doing
-- Font support
 
 # Done
+- Font support
 - Debugging: print file name from LOG macros
 - Draw API: Textures
 - Draw API: Per vertex colors, interpolate color between vertices

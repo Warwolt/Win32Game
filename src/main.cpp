@@ -129,8 +129,6 @@ int WINAPI WinMain(
 	g_context.initialized = true;
 	LOG_INFO("Initialized");
 
-	engine::FontID font_id = g_context.engine.resources.load_font("assets/font/dos437.ttf").value();
-
 	/* Main loop */
 	while (!g_context.engine.should_quit) {
 		/* Input */

@@ -11,7 +11,7 @@ namespace engine {
 
 	void RenderingTestScreen::initialize(ResourceManager* resources) {
 		m_render_test_image_id = resources->load_image("assets/image/render_test.png").value_or(INVALID_IMAGE_ID);
-		m_font_id = resources->load_font("assets/font/dos437.ttf").value();
+		m_font_id = resources->load_font("assets/font/ModernDOS8x16.ttf").value();
 		m_font_size = 16;
 	}
 
