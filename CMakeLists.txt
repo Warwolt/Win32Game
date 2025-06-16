@@ -52,7 +52,6 @@ set(INC
 set(TEST_SRC
     test/engine/button_tests.cpp
     test/engine/keyboard_tests.cpp
-    test/engine/flat_map_tests.cpp
 )
 
 # Src Library

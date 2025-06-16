@@ -4,7 +4,6 @@
 #include <engine/graphics/image_id.h>
 #include <engine/graphics/font.h>
 #include <engine/graphics/font_id.h>
-#include <engine/container/flat_map.h>
 
 #include <optional>
 #include <unordered_map>
@@ -25,8 +24,8 @@ namespace engine {
 
 	private:
 		int m_next_image_id = 1;
-		engine::flat_map<std::filesystem::path, int> m_image_ids;
-		engine::flat_map<int, Image> m_images;
+		std::unordered_map<std::filesystem::path, int> m_image_ids;
+		std::unordered_map<int, Image> m_images;
 
 		// int m_next_font_id = 1;
 		// std::vector<std::pair<std::filesystem::path, int>> m_font_ids;
