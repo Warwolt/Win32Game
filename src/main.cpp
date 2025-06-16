@@ -120,7 +120,7 @@ static LRESULT CALLBACK on_window_event(
 int WINAPI WinMain(
 	HINSTANCE instance,
 	HINSTANCE /*prev_instance*/,
-	LPSTR /*command_linse*/,
+	LPSTR /*command_line*/,
 	int /*command_show*/
 ) {
 	/* Initialize */
