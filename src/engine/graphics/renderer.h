@@ -5,6 +5,7 @@
 #include <engine/graphics/rgba.h>
 #include <engine/math/ivec2.h>
 #include <engine/graphics/image_id.h>
+#include <engine/graphics/font_id.h>
 
 #include <variant>
 #include <vector>
@@ -35,6 +36,7 @@ namespace engine {
 		void draw_triangle(Vertex v1, Vertex v2, Vertex v3);
 		void draw_triangle_fill(Vertex v1, Vertex v2, Vertex v3);
 		void draw_image(ImageID image_id, Rect rect, Rect clip = {}, RGBA tint = RGBA::white());
+		// void draw_text(FontID font_id, int32_t size, Rect rect, const std::string& text)
 
 		void render(Bitmap* bitmap, const ResourceManager& resources);
 
