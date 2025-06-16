@@ -20,7 +20,7 @@ namespace engine {
 		// application
 		bool should_quit = false;
 		IVec2 screen_resolution;
-		CommandAPI commands;
+		std::vector<Command> commands;
 		// input/output
 		InputEvents events;
 		InputDevices input;
