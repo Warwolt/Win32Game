@@ -106,7 +106,7 @@ static LRESULT CALLBACK on_window_event(
 			/* Render*/
 			game::draw(&g_context.engine.renderer, g_context.game);
 			engine::draw(&g_context.engine.renderer, g_context.engine);
-			g_context.engine.renderer.render(&g_context.engine.bitmap, g_context.engine.resources);
+			g_context.engine.renderer.render(&g_context.engine.bitmap, &g_context.engine.resources);
 			g_context.engine.window.render_wm_paint(g_context.engine.bitmap);
 		} break;
 	}
@@ -140,41 +140,17 @@ int WINAPI WinMain(
 		/* Render */
 		game::draw(&g_context.engine.renderer, g_context.game);
 		engine::draw(&g_context.engine.renderer, g_context.engine);
-		g_context.engine.renderer.render(&g_context.engine.bitmap, g_context.engine.resources);
-
 		/* Protoype text rendering */
 		engine::Typeface& typeface = g_context.engine.resources.font(font_id);
 		int font_size = 16;
-		int text_pos_x0 = 0;
-		int text_pos_x = text_pos_x0;
-		int text_pos_y = font_size;
-		int text_width = 0;
+		engine::Rect font_rect = { .x = 0, .y = font_size };
 		// compute text width
 		for (char character : "the quick brown fox jumps") {
 			const engine::Glyph& glyph = typeface.glyph(16, character);
-			text_width += glyph.advance_width;
+			font_rect.width += glyph.advance_width;
 		}
-		// draw text
-		for (char character : "the quick brown fox jumps over the lazy dog") {
-			const engine::Glyph& glyph = typeface.glyph(16, character);
-
-			/* Render character */
-			for (int32_t y = 0; y < glyph.height; y++) {
-				for (int32_t x = 0; x < glyph.width; x++) {
-					engine::Pixel pixel = engine::Pixel::from_rgb(engine::RGBA::white());
-					float alpha = glyph.pixels[x + y * glyph.width] / 255.0f;
-					g_context.engine.bitmap.put(text_pos_x + x, text_pos_y + y + glyph.y_offset, pixel, alpha);
-				}
-			}
-
-			/* Advance position */
-			text_pos_x += glyph.advance_width;
-			if (text_pos_x - text_pos_x0 >= text_width) {
-				text_pos_x = text_pos_x0;
-				text_pos_y += font_size;
-			}
-		}
-
+		g_context.engine.renderer.draw_text(font_id, font_size, font_rect, engine::RGBA::white(), "the quick brown fox jumps over the lazy dog");
+		g_context.engine.renderer.render(&g_context.engine.bitmap, &g_context.engine.resources);
 		g_context.engine.window.render(g_context.engine.bitmap);
 	}
 
