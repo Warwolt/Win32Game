@@ -14,7 +14,7 @@ namespace engine {
 
 	private:
 		std::chrono::steady_clock::time_point m_start;
-		MovingAverage m_deltas = MovingAverage::with_sample_size(60);
+		MovingAverage m_deltas = MovingAverage::with_sample_size(10);
 	};
 
 } // namespace engine

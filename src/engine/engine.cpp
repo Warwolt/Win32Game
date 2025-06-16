@@ -30,6 +30,9 @@ namespace engine {
 	}
 
 	void update(EngineState* engine, const InputDevices& input) {
+		/* Update engine */
+		update_debug(&engine->debug, input, &engine->window, &engine->resources);
+
 		/* Process commands */
 		for (const Command& command : engine->commands) {
 			/* App commands */
@@ -41,7 +44,6 @@ namespace engine {
 					engine->window.toggle_fullscreen();
 				}
 			}
-
 			/* Audio commands */
 			if (auto* audio_command = std::get_if<AudioCommand>(&command)) {
 				if (auto* play_sound = std::get_if<AudioCommand_PlaySound>(audio_command)) {
@@ -50,9 +52,6 @@ namespace engine {
 			}
 		}
 		engine->commands.clear();
-
-		/* Update engine */
-		update_debug(&engine->debug, input, &engine->resources);
 	}
 
 	void draw(Renderer* renderer, const EngineState& engine) {

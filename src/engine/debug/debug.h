@@ -7,6 +7,7 @@
 namespace engine {
 
 	class ResourceManager;
+	class Window;
 
 	struct DebugState {
 		struct CPUPerformance {
@@ -21,7 +22,7 @@ namespace engine {
 	};
 
 	void initialize_debug(DebugState* debug, ResourceManager* resources);
-	void update_debug(DebugState* debug, const InputDevices& input, ResourceManager* resources);
+	void update_debug(DebugState* debug, const InputDevices& input, Window* window, ResourceManager* resources);
 	void draw_debug(Renderer* renderer, const DebugState& debug, IVec2 screen_resolution);
 
 } // namespace engine

@@ -23,6 +23,8 @@ Maybe ideas:
 
 # Doing
 - Diagnose what parts of render test screen is slow
+    - [] display render times for input, update, render steps in a debug overlay
+    - [] try to apply some stuff from https://www.agner.org/optimize/optimizing_cpp.pdf
 
 # Done
 - Get rid of CommandAPI class, just work with a `std::vector<Command>` directly

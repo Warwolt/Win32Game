@@ -124,16 +124,14 @@ int WINAPI WinMain(
 	int /*command_show*/
 ) {
 	/* Initialize */
-	const char* window_title = "Game";
-	g_context.engine = initialize_engine_or_abort(instance, on_window_event, window_title);
+	g_context.engine = initialize_engine_or_abort(instance, on_window_event, "Game");
 	g_context.game = game::initialize(&g_context.engine);
 	g_context.initialized = true;
 	LOG_INFO("Initialized");
 
+	/* Main loop */
 	engine::DeltaTimer& frame_timer = g_context.engine.debug.performance.frame_timer;
 	engine::DeltaTimer& render_timer = g_context.engine.debug.performance.render_timer;
-
-	/* Main loop */
 	while (!g_context.engine.should_quit) {
 		/* Start frame */
 		frame_timer.start();
@@ -145,7 +143,6 @@ int WINAPI WinMain(
 		/* Update */
 		game::update(&g_context.game, &g_context.engine.commands, g_context.engine.input);
 		engine::update(&g_context.engine, g_context.engine.input);
-		g_context.engine.window.set_title(std::format("{} ({:.1f} fps)", window_title, 1.0f / frame_timer.average_delta()));
 
 		/* Render */
 		game::draw(&g_context.engine.renderer, g_context.game);
