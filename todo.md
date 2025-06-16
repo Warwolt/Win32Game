@@ -7,7 +7,7 @@ Maybe ideas:
 - Text mode engine debugging UI (for selecting various test screens and tools)
 
 # Todo
-- Measure frame delta
+- Diagnos what parts of render test screen is slow
 - Text Mode UI prototype
 - [!] Write Blackjack game
 - CPU Profiling
@@ -25,6 +25,7 @@ Maybe ideas:
 # Doing
 
 # Done
+- Measure frame delta
 - Font support
 - Debugging: print file name from LOG macros
 - Draw API: Textures
