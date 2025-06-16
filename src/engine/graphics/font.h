@@ -39,6 +39,9 @@ namespace engine {
 	class Typeface {
 	public:
 		Typeface() = default;
+		Typeface(Typeface&& other);
+		Typeface& operator=(Typeface&& other);
+
 		static std::optional<Typeface> from_path(std::filesystem::path path);
 		Glyph& glyph(int32_t size, char codepoint);
 

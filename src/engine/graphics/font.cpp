@@ -4,6 +4,21 @@
 
 namespace engine {
 
+	Typeface::Typeface(Typeface&& other) {
+		m_file_data = std::move(other.m_file_data);
+		stbtt_InitFont(&m_font_info, m_file_data.data(), 0);
+		other.m_font_info = {};
+		m_fonts = std::move(m_fonts);
+	}
+
+	Typeface& Typeface::operator=(Typeface&& other) {
+		m_file_data = std::move(other.m_file_data);
+		stbtt_InitFont(&m_font_info, m_file_data.data(), 0);
+		other.m_font_info = {};
+		m_fonts = std::move(m_fonts);
+		return *this;
+	}
+
 	std::optional<Typeface> Typeface::from_path(std::filesystem::path path) {
 		Typeface typeface;
 

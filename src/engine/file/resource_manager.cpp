@@ -40,23 +40,23 @@ namespace engine {
 		return {};
 	}
 
-	std::optional<FontID> ResourceManager::load_font(std::filesystem::path filepath) {
-		/* Check if already loaded */
-		auto same_filepath = [filepath](const std::pair<std::filesystem::path, int>& path_id) { return filepath == path_id.first; };
-		if (auto it = std::find_if(m_font_ids.begin(), m_font_ids.end(), same_filepath); it != m_font_ids.end()) {
-			return FontID(it->second);
-		}
+	// std::optional<FontID> ResourceManager::load_font(std::filesystem::path filepath) {
+	// 	/* Check if already loaded */
+	// 	auto same_filepath = [filepath](const std::pair<std::filesystem::path, int>& path_id) { return filepath == path_id.first; };
+	// 	if (auto it = std::find_if(m_font_ids.begin(), m_font_ids.end(), same_filepath); it != m_font_ids.end()) {
+	// 		return FontID(it->second);
+	// 	}
 
-		/* Load and store font */
-		if (std::optional<Typeface> font = Typeface::from_path(filepath)) {
-			FontID id = FontID(m_next_image_id++);
-			m_fonts.push_back(std::move(font.value()));
-			return id;
-		}
+	// 	/* Load and store font */
+	// 	if (std::optional<Typeface> font = Typeface::from_path(filepath)) {
+	// 		FontID id = FontID(m_next_image_id++);
+	// 		m_fonts.push_back(std::move(font.value()));
+	// 		return id;
+	// 	}
 
-		/* Couldn't load font */
-		return {};
-	}
+	// 	/* Couldn't load font */
+	// 	return {};
+	// }
 
 	const Image& ResourceManager::image(ImageID id) const {
 		auto it = m_images.find(id.value);
@@ -67,14 +67,14 @@ namespace engine {
 		return it->second;
 	}
 
-	Typeface* ResourceManager::font(FontID id) {
-		for (size_t i = 0; i < m_fonts.size(); i++) {
-			auto& [path, current_id] = m_font_ids[i];
-			if (id.value == current_id) {
-				return &m_fonts[i];
-			}
-		}
-		return nullptr;
-	}
+	// Typeface* ResourceManager::font(FontID id) {
+	// 	for (size_t i = 0; i < m_fonts.size(); i++) {
+	// 		auto& [path, current_id] = m_font_ids[i];
+	// 		if (id.value == current_id) {
+	// 			return &m_fonts[i];
+	// 		}
+	// 	}
+	// 	return nullptr;
+	// }
 
 } // namespace engine
