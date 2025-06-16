@@ -131,6 +131,7 @@ int WINAPI WinMain(
 	LOG_INFO("Initialized");
 
 	engine::DeltaTimer frame_timer;
+	engine::DeltaTimer render_timer;
 
 	/* Main loop */
 	while (!g_context.engine.should_quit) {
@@ -148,8 +149,16 @@ int WINAPI WinMain(
 		/* Render */
 		game::draw(&g_context.engine.renderer, g_context.game);
 		engine::draw(&g_context.engine.renderer, g_context.engine);
-		g_context.engine.renderer.render(&g_context.engine.bitmap, &g_context.engine.resources);
-		g_context.engine.window.render(g_context.engine.bitmap);
+		using namespace engine;
+		std::string text = std::format("render: {:.1f} ms", render_timer.average_delta() * 1e3);
+		int32_t text_width = g_context.engine.resources.font(FontID(1)).text_width(16, text);
+		g_context.engine.renderer.draw_text(FontID(1), 16, Rect { g_context.engine.screen_resolution.x - text_width, 16 }, RGBA::white(), text);
+		render_timer.start();
+		{
+			g_context.engine.renderer.render(&g_context.engine.bitmap, &g_context.engine.resources);
+			g_context.engine.window.render(g_context.engine.bitmap);
+		}
+		render_timer.end();
 
 		/* End frame */
 		frame_timer.end();

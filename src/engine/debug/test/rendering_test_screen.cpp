@@ -280,10 +280,6 @@ namespace engine {
 			RGBA tint = { 255, 255, 255, m_alpha };
 			renderer->draw_image(m_render_test_image_id, rect, clip, tint);
 		}
-
-		/* Test screen render time */
-		{
-		}
 	}
 
 } // namespace engine

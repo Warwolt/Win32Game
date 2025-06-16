@@ -413,7 +413,7 @@ namespace engine {
 		int cursor_y = rect.y;
 		for (char character : text) {
 			/* Render character */
-			const engine::Glyph& glyph = typeface->glyph(16, character);
+			const engine::Glyph& glyph = typeface->glyph(font_size, character);
 			for (int32_t y = 0; y < glyph.height; y++) {
 				for (int32_t x = 0; x < glyph.width; x++) {
 					engine::Pixel pixel = engine::Pixel::from_rgb(color);
@@ -424,7 +424,7 @@ namespace engine {
 
 			/* Advance position */
 			cursor_x += glyph.advance_width;
-			if (cursor_x - rect.x >= rect.width) {
+			if (rect.width > 0 && (cursor_x - rect.x >= rect.width)) {
 				cursor_x = rect.x;
 				cursor_y += font_size;
 			}
