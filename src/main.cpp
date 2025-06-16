@@ -1,18 +1,18 @@
 #include <engine/debug/assert.h>
+#include <engine/debug/delta_timer.h>
 #include <engine/engine.h>
 #include <engine/input/input.h>
 #include <engine/math/ivec2.h>
 #include <game/game.h>
 
-#include <expected>
-#include <format>
 #include <windows.h>
 #include <windowsx.h>
 
-// prototyping only
-#include <engine/graphics/font.h>
-#include <engine/graphics/font_id.h>
-#include <utility>
+#include <array>
+#include <chrono>
+#include <expected>
+#include <format>
+#include <numeric>
 
 struct ProgramContext {
 	bool initialized = false;
@@ -124,13 +124,19 @@ int WINAPI WinMain(
 	int /*command_show*/
 ) {
 	/* Initialize */
-	g_context.engine = initialize_engine_or_abort(instance, on_window_event, "Game");
+	const char* window_title = "Game";
+	g_context.engine = initialize_engine_or_abort(instance, on_window_event, window_title);
 	g_context.game = game::initialize(&g_context.engine);
 	g_context.initialized = true;
 	LOG_INFO("Initialized");
 
+	engine::DeltaTimer frame_timer;
+
 	/* Main loop */
 	while (!g_context.engine.should_quit) {
+		/* Start frame */
+		frame_timer.start();
+
 		/* Input */
 		pump_window_messages();
 		update_input();
@@ -144,6 +150,10 @@ int WINAPI WinMain(
 		engine::draw(&g_context.engine.renderer, g_context.engine);
 		g_context.engine.renderer.render(&g_context.engine.bitmap, &g_context.engine.resources);
 		g_context.engine.window.render(g_context.engine.bitmap);
+
+		/* End frame */
+		frame_timer.end();
+		g_context.engine.window.set_title(std::format("{} ({:.1f} fps)", window_title, 1.0f / frame_timer.average_delta()));
 	}
 
 	LOG_INFO("Shutting down");
