@@ -7,7 +7,7 @@ Maybe ideas:
 - Text mode engine debugging UI (for selecting various test screens and tools)
 
 # Todo
-- Diagnos what parts of render test screen is slow
+- Diagnose what parts of render test screen is slow
 - Text Mode UI prototype
 - [!] Write Blackjack game
 - CPU Profiling
