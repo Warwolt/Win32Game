@@ -118,6 +118,10 @@ namespace engine {
 		}
 	}
 
+	void Window::set_title(const std::string& title) {
+		SetWindowTextA(m_handle, title.c_str());
+	}
+
 	void Window::render(const Bitmap& bitmap) {
 		HDC device_context = GetDC(m_handle);
 		_render(bitmap, device_context);

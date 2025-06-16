@@ -3,8 +3,10 @@
 #include <engine/graphics/bitmap.h>
 #include <engine/math/ivec2.h>
 
-#include <expected>
 #include <windows.h>
+
+#include <expected>
+#include <string>
 
 namespace engine {
 
@@ -17,13 +19,15 @@ namespace engine {
 	public:
 		static std::expected<Window, WindowError> initialize(HINSTANCE instance, WNDPROC wnd_proc, IVec2 window_size, const char* window_title);
 
-		IVec2 size() const;
-		bool is_focused() const;
-
 		IVec2 on_resized();
 		void on_focus_changed(bool is_focused);
 
+		IVec2 size() const;
+		bool is_focused() const;
+
 		void toggle_fullscreen();
+		void set_title(const std::string& title);
+
 		void render(const Bitmap& bitmap);
 		void render_wm_paint(const Bitmap& bitmap);
 

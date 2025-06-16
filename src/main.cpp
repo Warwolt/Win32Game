@@ -124,10 +124,14 @@ int WINAPI WinMain(
 	int /*command_show*/
 ) {
 	/* Initialize */
-	g_context.engine = initialize_engine_or_abort(instance, on_window_event, "Game");
+	const char* window_title = "Game";
+	g_context.engine = initialize_engine_or_abort(instance, on_window_event, window_title);
 	g_context.game = game::initialize(&g_context.engine);
 	g_context.initialized = true;
 	LOG_INFO("Initialized");
+
+	std::string title_with_fps = std::format("{} (0.0 fps)", window_title);
+	g_context.engine.window.set_title(title_with_fps);
 
 	/* Main loop */
 	while (!g_context.engine.should_quit) {
