@@ -284,10 +284,10 @@ namespace engine {
 		m_batches.push_back(batch);
 	}
 
-	void Renderer::draw_text(FontID font_id, int32_t font_size, Rect rect, RGBA color, std::string text) {
+	void Renderer::draw_text(FontID font_id, int32_t font_size, IVec2 pos, RGBA color, std::string text) {
 		m_batches.push_back(CommandBatch {
 			.commands = {
-				DrawText { font_id, font_size, rect, color, text },
+				DrawText { font_id, font_size, pos, color, text },
 			},
 		});
 	}
@@ -315,9 +315,9 @@ namespace engine {
 						_put_line(bitmap, v1, v2, image, true);
 					}
 					if (auto* draw_text = std::get_if<DrawText>(&command)) {
-						auto& [font_id, font_size, rect, color, text] = *draw_text;
+						auto& [font_id, font_size, pos, color, text] = *draw_text;
 						Typeface& typeface = resources->font(font_id);
-						_put_text(bitmap, &typeface, font_size, rect, color, text);
+						_put_text(bitmap, &typeface, font_size, pos, color, text);
 					}
 				}
 			}
@@ -408,9 +408,9 @@ namespace engine {
 		}
 	}
 
-	void Renderer::_put_text(Bitmap* bitmap, Typeface* typeface, int32_t font_size, const Rect& rect, RGBA color, const std::string& text) {
-		int cursor_x = rect.x;
-		int cursor_y = rect.y;
+	void Renderer::_put_text(Bitmap* bitmap, Typeface* typeface, int32_t font_size, IVec2 pos, RGBA color, const std::string& text) {
+		int cursor_x = pos.x;
+		int cursor_y = pos.y;
 		for (char character : text) {
 			/* Render character */
 			const engine::Glyph& glyph = typeface->glyph(font_size, character);
@@ -424,10 +424,6 @@ namespace engine {
 
 			/* Advance position */
 			cursor_x += glyph.advance_width;
-			if (rect.width > 0 && (cursor_x - rect.x >= rect.width)) {
-				cursor_x = rect.x;
-				cursor_y += font_size;
-			}
 		}
 	}
 

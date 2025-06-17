@@ -38,7 +38,7 @@ namespace engine {
 		void draw_triangle(Vertex v1, Vertex v2, Vertex v3);
 		void draw_triangle_fill(Vertex v1, Vertex v2, Vertex v3);
 		void draw_image(ImageID image_id, Rect rect, Rect clip = {}, RGBA tint = RGBA::white());
-		void draw_text(FontID font_id, int32_t font_size, Rect rect, RGBA color, std::string text);
+		void draw_text(FontID font_id, int32_t font_size, IVec2 pos, RGBA color, std::string text);
 
 		void render(Bitmap* bitmap, ResourceManager* resources);
 
@@ -56,7 +56,7 @@ namespace engine {
 		struct DrawText {
 			FontID font_id;
 			int32_t font_size;
-			Rect rect;
+			IVec2 pos;
 			RGBA color;
 			std::string text;
 		};
@@ -80,7 +80,7 @@ namespace engine {
 		void _clear_screen(Bitmap* bitmap, RGBA color);
 		void _put_point(Bitmap* bitmap, Vertex v1, bool use_alpha);
 		void _put_line(Bitmap* bitmap, Vertex v1, Vertex v2, const Image* image, bool use_alpha);
-		void _put_text(Bitmap* bitmap, Typeface* typeface, int32_t font_size, const Rect& rect, RGBA color, const std::string& text);
+		void _put_text(Bitmap* bitmap, Typeface* typeface, int32_t font_size, IVec2 pos, RGBA color, const std::string& text);
 	};
 
 } // namespace engine

@@ -31,7 +31,7 @@ namespace engine {
 
 	void update(EngineState* engine, const InputDevices& input) {
 		/* Update engine */
-		update_debug(&engine->debug, input, &engine->window, &engine->resources);
+		update_debug(&engine->debug, input, &engine->window);
 
 		/* Process commands */
 		for (const Command& command : engine->commands) {

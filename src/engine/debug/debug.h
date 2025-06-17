@@ -22,7 +22,7 @@ namespace engine {
 	};
 
 	void initialize_debug(DebugState* debug, ResourceManager* resources);
-	void update_debug(DebugState* debug, const InputDevices& input, Window* window, ResourceManager* resources);
+	void update_debug(DebugState* debug, const InputDevices& input, Window* window);
 	void draw_debug(Renderer* renderer, const DebugState& debug, ResourceManager* resources, IVec2 screen_resolution);
 
 } // namespace engine

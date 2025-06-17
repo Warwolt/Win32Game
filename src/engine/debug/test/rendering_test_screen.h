@@ -14,7 +14,7 @@ namespace engine {
 	class RenderingTestScreen {
 	public:
 		void initialize(ResourceManager* resources);
-		void update(const InputDevices& input, ResourceManager* resources);
+		void update(const InputDevices& input);
 		void draw(Renderer* renderer, IVec2 screen_resolution) const;
 
 	private:
@@ -22,7 +22,6 @@ namespace engine {
 		uint8_t m_alpha = 255;
 		FontID m_font_id = FontID(0);
 		int32_t m_font_size = 16;
-		int32_t m_text_width = 0;
 	};
 
 } // namespace engine

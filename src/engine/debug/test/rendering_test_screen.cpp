@@ -15,9 +15,8 @@ namespace engine {
 		m_font_size = 16;
 	}
 
-	void RenderingTestScreen::update(const InputDevices& input, ResourceManager* resources) {
+	void RenderingTestScreen::update(const InputDevices& input) {
 		m_alpha = (uint8_t)std::clamp((int16_t)m_alpha + 16 * input.mouse.mouse_wheel_delta, 0, 255);
-		m_text_width = resources->font(m_font_id).text_width(m_font_size, "the quick brown fox jumps");
 	}
 
 	void RenderingTestScreen::draw(Renderer* renderer, IVec2 screen_resolution) const {
@@ -67,14 +66,14 @@ namespace engine {
 		// note: for simplicity we put this at the top of the file, since we
 		// draw the text at the top of the screen
 		{
-			Rect rect {
+			IVec2 pos {
 				.x = 0,
 				.y = m_font_size,
-				.width = m_text_width,
 			};
 			RGBA text_color = RGBA::white();
 			text_color.a = m_alpha;
-			renderer->draw_text(m_font_id, m_font_size, rect, text_color, "the quick brown fox jumps over the lazy dog");
+			renderer->draw_text(m_font_id, m_font_size, pos, text_color, "the quick brown fox jumps");
+			renderer->draw_text(m_font_id, m_font_size, pos + IVec2 { 0, m_font_size }, text_color, "over the lazy dog");
 		}
 
 		/* Draw line */
