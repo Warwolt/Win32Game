@@ -1,6 +1,6 @@
 #include <engine/math/vec2.h>
 
-#include <algorithm>
+#include <engine/math/math.h>
 
 namespace engine {
 
@@ -64,8 +64,8 @@ namespace engine {
 
 	Vec2 Vec2::lerp(Vec2 lhs, const Vec2& rhs, float t) {
 		return Vec2 {
-			.x = std::lerp(lhs.x, rhs.x, t),
-			.y = std::lerp(lhs.y, rhs.y, t),
+			.x = engine::lerp(lhs.x, rhs.x, t),
+			.y = engine::lerp(lhs.y, rhs.y, t),
 		};
 	}
 

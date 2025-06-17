@@ -1,8 +1,8 @@
 #include <engine/graphics/bitmap.h>
 
-namespace engine {
+#include <engine/math/math.h>
 
-	inline float lerp(float a, float b, float t) { return a + t * (b - a); }
+namespace engine {
 
 	Pixel Pixel::from_rgb(RGBA color) {
 		return Pixel {

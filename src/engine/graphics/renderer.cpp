@@ -3,6 +3,7 @@
 #include <engine/file/resource_manager.h>
 #include <engine/graphics/font.h>
 #include <engine/graphics/image.h>
+#include <engine/math/math.h>
 
 #include <algorithm>
 #include <cmath>
@@ -267,7 +268,7 @@ namespace engine {
 				.color = tint,
 				.uv = {
 					uv0.x,
-					std::lerp(uv0.y, uv1.y, 1.0f - ((float)y / (float)rect.height)),
+					engine::lerp(uv0.y, uv1.y, 1.0f - ((float)y / (float)rect.height)),
 				}
 			};
 			Vertex right = {
@@ -275,7 +276,7 @@ namespace engine {
 				.color = tint,
 				.uv = {
 					uv1.x,
-					std::lerp(uv0.y, uv1.y, 1.0f - ((float)y / (float)rect.height)),
+					engine::lerp(uv0.y, uv1.y, 1.0f - ((float)y / (float)rect.height)),
 				}
 			};
 			batch.commands.push_back(DrawLine { left, right });

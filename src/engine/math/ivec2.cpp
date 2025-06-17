@@ -1,5 +1,7 @@
 #include <engine/math/ivec2.h>
 
+#include <engine/math/math.h>
+
 #include <cmath>
 
 namespace engine {
@@ -71,8 +73,8 @@ namespace engine {
 
 	IVec2 IVec2::lerp(IVec2 lhs, const IVec2& rhs, float t) {
 		return IVec2 {
-			.x = (int32_t)std::round(std::lerp(lhs.x, rhs.x, t)),
-			.y = (int32_t)std::round(std::lerp(lhs.y, rhs.y, t)),
+			.x = (int32_t)std::round(engine::lerp((float)lhs.x, (float)rhs.x, t)),
+			.y = (int32_t)std::round(engine::lerp((float)lhs.y, (float)rhs.y, t)),
 		};
 	}
 

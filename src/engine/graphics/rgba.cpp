@@ -1,5 +1,7 @@
 #include <engine/graphics/rgba.h>
 
+#include <engine/math/math.h>
+
 #include <algorithm>
 #include <cmath>
 
@@ -7,10 +9,10 @@ namespace engine {
 
 	RGBA RGBA::lerp(RGBA start, RGBA end, float t) {
 		return RGBA {
-			.r = (uint8_t)std::lerp(start.r, end.r, t),
-			.g = (uint8_t)std::lerp(start.g, end.g, t),
-			.b = (uint8_t)std::lerp(start.b, end.b, t),
-			.a = (uint8_t)std::lerp(start.a, end.a, t),
+			.r = (uint8_t)engine::lerp(start.r, end.r, t),
+			.g = (uint8_t)engine::lerp(start.g, end.g, t),
+			.b = (uint8_t)engine::lerp(start.b, end.b, t),
+			.a = (uint8_t)engine::lerp(start.a, end.a, t),
 		};
 	}
 
