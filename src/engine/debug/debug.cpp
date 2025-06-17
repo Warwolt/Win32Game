@@ -1,15 +1,26 @@
 #include <engine/debug/debug.h>
 
-#include <engine/graphics/window.h>
-#include <engine/graphics/renderer.h>
 #include <engine/file/resource_manager.h>
+#include <engine/graphics/renderer.h>
+#include <engine/graphics/window.h>
 
 namespace engine {
 
-	static void draw_text_right_aligned() {
-		// TODO:
-		// take in a string and a rect, draw string right aligned in that rect
+	static void draw_text_right_aligned(
+		Renderer* renderer,
+		ResourceManager* resources,
+		FontID font_id,
+		int32_t font_size,
+		IVec2 pos,
+		int32_t box_width,
+		RGBA color,
+		const std::string& text
+	) {
+		int32_t text_width = resources->font(font_id).text_width(font_size, text);
+		renderer->draw_text(font_id, font_size, IVec2 { pos.x + box_width - text_width, font_size }, color, text);
 	}
+
+	// static void draw_section_timing()
 
 	void initialize_debug(DebugState* debug, ResourceManager* resources) {
 		debug->test_screens.rendering.initialize(resources);
@@ -33,8 +44,9 @@ namespace engine {
 
 		// TODO: render text right aligned
 		std::string text = std::format("render: {:.1f} ms", debug.performance.render_timer.average_delta() * 1e3);
-		int32_t text_width = resources->font(debug_font_id).text_width(font_size, text);
-		renderer->draw_text(debug_font_id, font_size, IVec2 { screen_resolution.x - text_width, font_size }, RGBA::white(), text);
+		draw_text_right_aligned(renderer, resources, debug_font_id, font_size, { 0, font_size }, screen_resolution.x, RGBA::white(), text);
+		// int32_t text_width = resources->font(debug_font_id).text_width(font_size, text);
+		// renderer->draw_text(debug_font_id, font_size, IVec2 { screen_resolution.x - text_width, font_size }, RGBA::white(), text);
 
 		// TODO: print input frame delta
 		// TODO: print update frame delta
