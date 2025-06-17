@@ -1,8 +1,8 @@
 #include <engine/graphics/bitmap.h>
 
-#include <algorithm>
-
 namespace engine {
+
+	inline float lerp(float a, float b, float t) { return a + t * (b - a); }
 
 	Pixel Pixel::from_rgb(RGBA color) {
 		return Pixel {
@@ -14,9 +14,9 @@ namespace engine {
 
 	Pixel Pixel::lerp(Pixel rhs, float t) const {
 		return Pixel {
-			.b = (uint8_t)std::lerp(this->b, rhs.b, t),
-			.g = (uint8_t)std::lerp(this->g, rhs.g, t),
-			.r = (uint8_t)std::lerp(this->r, rhs.r, t),
+			.b = (uint8_t)engine::lerp(this->b, rhs.b, t),
+			.g = (uint8_t)engine::lerp(this->g, rhs.g, t),
+			.r = (uint8_t)engine::lerp(this->r, rhs.r, t),
 		};
 	}
 
@@ -40,8 +40,7 @@ namespace engine {
 				m_data[x + m_width * y] = pixel;
 			}
 			else {
-				const Pixel& current_pixel = m_data[x + m_width * y];
-				m_data[x + m_width * y] = current_pixel.lerp(pixel, alpha);
+				m_data[x + m_width * y] = m_data[x + m_width * y].lerp(pixel, alpha);
 			}
 		}
 	}
