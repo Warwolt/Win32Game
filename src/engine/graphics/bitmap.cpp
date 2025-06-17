@@ -28,6 +28,14 @@ namespace engine {
 		return bitmap;
 	}
 
+	void Bitmap::clear(Pixel color) {
+		for (int32_t y = 0; y < m_height; y++) {
+			for (int32_t x = 0; x < m_width; x++) {
+				m_data[x + y * m_width] = color;
+			}
+		}
+	}
+
 	void Bitmap::resize(int32_t width, int32_t height) {
 		m_width = std::max(width, 0);
 		m_height = std::max(height, 0);

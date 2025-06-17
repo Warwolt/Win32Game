@@ -357,12 +357,7 @@ namespace engine {
 	void Renderer::_clear_screen(Bitmap* bitmap, RGBA color) {
 		constexpr bool use_new = true;
 		if constexpr (use_new) {
-			Pixel pixel = Pixel::from_rgb(color);
-			for (int32_t y = 0; y < bitmap->height(); y++) {
-				for (int32_t x = 0; x < bitmap->width(); x++) {
-					bitmap->put(x, y, pixel);
-				}
-			}
+			bitmap->clear(Pixel::from_rgb(color));
 		}
 		else {
 			for (int32_t y = 0; y < bitmap->height(); y++) {
