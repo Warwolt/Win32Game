@@ -10,7 +10,7 @@ namespace engine {
 	public:
 		void start();
 		void end();
-		float average_delta() const;
+		float average_delta() const; // in seconds
 
 	private:
 		std::chrono::steady_clock::time_point m_start;
