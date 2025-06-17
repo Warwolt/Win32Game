@@ -37,12 +37,6 @@ namespace engine {
 	}
 
 	void Bitmap::clear_section(Pixel color, Rect rect) {
-		// TODO: Rect::clamp
-		rect.x = engine::clamp(rect.x, 0, m_width);
-		rect.y = engine::clamp(rect.y, 0, m_height);
-		rect.width = engine::clamp(rect.width, 0, m_width);
-		rect.height = engine::clamp(rect.height, 0, m_height);
-
 		for (int32_t y = rect.y; y < rect.height; y++) {
 			for (int32_t x = rect.x; x < rect.width; x++) {
 				m_data[x + y * m_width] = color;
