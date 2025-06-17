@@ -355,17 +355,7 @@ namespace engine {
 	}
 
 	void Renderer::_clear_screen(Bitmap* bitmap, RGBA color) {
-		constexpr bool use_new = true;
-		if constexpr (use_new) {
-			bitmap->clear(Pixel::from_rgb(color));
-		}
-		else {
-			for (int32_t y = 0; y < bitmap->height(); y++) {
-				for (int32_t x = 0; x < bitmap->width(); x++) {
-					bitmap->put(x, y, Pixel::from_rgb(color));
-				}
-			}
-		}
+		bitmap->clear(Pixel::from_rgb(color));
 	}
 
 	void Renderer::_put_point(Bitmap* bitmap, Vertex v1, bool use_alpha) {
