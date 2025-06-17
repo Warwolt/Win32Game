@@ -35,7 +35,7 @@ namespace engine {
 
 	void draw_debug(Renderer* renderer, const DebugState& debug, ResourceManager* resources, IVec2 screen_resolution) {
 		/* Draw test screens */
-		// debug.test_screens.rendering.draw(renderer, debug.debug_font_id, screen_resolution);
+		debug.test_screens.rendering.draw(renderer, debug.debug_font_id, screen_resolution);
 
 		/* Render CPU profiling overlay */
 		FontID debug_font_id = FontID(1); // FIXME: we should store this in DebugState
