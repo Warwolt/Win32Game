@@ -5,9 +5,7 @@
 #include <engine/graphics/image.h>
 #include <engine/math/math.h>
 
-#include <algorithm>
 #include <cmath>
-#include <unordered_set>
 
 namespace engine {
 
@@ -252,13 +250,13 @@ namespace engine {
 		}
 		// bottom left
 		Vec2 uv0 = {
-			.x = std::clamp((float)clip.x / (float)(rect.width - 1), 0.0f, 1.0f),
-			.y = std::clamp((float)clip.y / (float)(rect.height), 0.0f, 1.0f),
+			.x = engine::clamp((float)clip.x / (float)(rect.width - 1), 0.0f, 1.0f),
+			.y = engine::clamp((float)clip.y / (float)(rect.height), 0.0f, 1.0f),
 		};
 		// top right
 		Vec2 uv1 = {
-			.x = std::clamp((float)(clip.x + clip.width - 1) / (float)(rect.width - 1), 0.0f, 1.0f),
-			.y = std::clamp((float)(clip.y + clip.height) / (float)(rect.height), 0.0f, 1.0f),
+			.x = engine::clamp((float)(clip.x + clip.width - 1) / (float)(rect.width - 1), 0.0f, 1.0f),
+			.y = engine::clamp((float)(clip.y + clip.height) / (float)(rect.height), 0.0f, 1.0f),
 		};
 
 		/* Draw image line by line */
@@ -366,7 +364,7 @@ namespace engine {
 		// vertical line
 		if (v1.pos.x == v2.pos.x) {
 			int32_t y0 = std::min(v1.pos.y, v2.pos.y);
-			int32_t y1 = std::max(v1.pos.y, v2.pos.y);
+			int32_t y1 = max(v1.pos.y, v2.pos.y);
 			for (int32_t y = y0; y <= y1; y++) {
 				IVec2 pos = IVec2 { v1.pos.x, y };
 				float t = (float)(pos.y - v1.pos.y) / (float)(v2.pos.y - v1.pos.y);
@@ -386,7 +384,7 @@ namespace engine {
 			int32_t dy = v2.pos.y - v1.pos.y;
 			int32_t abs_dx = std::abs(dx);
 			int32_t abs_dy = std::abs(dy);
-			int32_t big_delta = std::max(abs_dx, abs_dy);
+			int32_t big_delta = max(abs_dx, abs_dy);
 			float x_step = (float)dx / (float)big_delta;
 			float y_step = (float)dy / (float)big_delta;
 			for (int32_t i = 0; i <= big_delta; i++) {
