@@ -27,7 +27,8 @@ namespace engine {
 		static Bitmap with_size(int32_t width, int32_t height);
 
 		void resize(int32_t width, int32_t height);
-		void put(int32_t x, int32_t y, Pixel pixel, float alpha = 1.0f);
+		void put(int32_t x, int32_t y, Pixel pixel);
+		void put(int32_t x, int32_t y, Pixel pixel, float alpha);
 		Pixel get(int32_t x, int32_t y);
 		bool empty() const;
 		int32_t width() const;
