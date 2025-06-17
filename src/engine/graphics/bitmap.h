@@ -28,8 +28,7 @@ namespace engine {
 
 		void clear(Pixel color);
 		void resize(int32_t width, int32_t height);
-		void put(int32_t x, int32_t y, Pixel pixel);
-		void put(int32_t x, int32_t y, Pixel pixel, float alpha);
+		void put(int32_t x, int32_t y, Pixel pixel, float alpha = 1.0f);
 		Pixel get(int32_t x, int32_t y);
 		bool empty() const;
 		int32_t width() const;
