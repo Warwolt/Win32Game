@@ -1,6 +1,7 @@
 #pragma once
 
 #include <engine/graphics/rgba.h>
+#include <engine/graphics/rect.h>
 
 #include <cmath>
 #include <stdint.h>
@@ -27,6 +28,7 @@ namespace engine {
 		static Bitmap with_size(int32_t width, int32_t height);
 
 		void clear(Pixel color);
+		void clear_section(Pixel color, Rect rect);
 		void resize(int32_t width, int32_t height);
 		void put(int32_t x, int32_t y, Pixel pixel, float alpha = 1.0f);
 		Pixel get(int32_t x, int32_t y);

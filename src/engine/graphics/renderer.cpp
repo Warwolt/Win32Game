@@ -324,11 +324,7 @@ namespace engine {
 			}
 			else {
 				/* Clear scratch pad area */
-				for (int32_t y = batch.rect.y; y < batch.rect.y + batch.rect.height; y++) {
-					for (int32_t x = batch.rect.x; x < batch.rect.x + batch.rect.width; x++) {
-						m_scratchpad.put(x, y, Pixel { 0, 0, 0, 0 });
-					}
-				}
+				m_scratchpad.clear_section(Pixel {0,0,0,0}, batch.rect);
 
 				/* Draw onto scratch pad */
 				for (const DrawCommand& command : batch.commands) {
@@ -364,6 +360,8 @@ namespace engine {
 		bitmap->put(v1.pos.x, v1.pos.y, pixel, use_alpha ? v1.color.a / 255.0f : 1.0f);
 	}
 
+	// TODO: Sampling with debugger pausing indicates we spend a lot of time in _put_line
+	// Probably worth re-implementing with integer only algorithm?
 	void Renderer::_put_line(Bitmap* bitmap, Vertex v1, Vertex v2, const Image* image, bool use_alpha) {
 		// vertical line
 		if (v1.pos.x == v2.pos.x) {
