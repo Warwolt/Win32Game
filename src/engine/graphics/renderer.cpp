@@ -355,9 +355,20 @@ namespace engine {
 	}
 
 	void Renderer::_clear_screen(Bitmap* bitmap, RGBA color) {
-		for (int32_t y = 0; y < bitmap->height(); y++) {
-			for (int32_t x = 0; x < bitmap->width(); x++) {
-				bitmap->put(x, y, Pixel::from_rgb(color));
+		constexpr bool use_new = true;
+		if constexpr (use_new) {
+			Pixel pixel = Pixel::from_rgb(color);
+			for (int32_t y = 0; y < bitmap->height(); y++) {
+				for (int32_t x = 0; x < bitmap->width(); x++) {
+					bitmap->put(x, y, pixel);
+				}
+			}
+		}
+		else {
+			for (int32_t y = 0; y < bitmap->height(); y++) {
+				for (int32_t x = 0; x < bitmap->width(); x++) {
+					bitmap->put(x, y, Pixel::from_rgb(color));
+				}
 			}
 		}
 	}

@@ -2,6 +2,7 @@
 
 #include <engine/debug/delta_timer.h>
 #include <engine/debug/test/rendering_test_screen.h>
+#include <engine/graphics/font_id.h>
 #include <engine/math/ivec2.h>
 
 namespace engine {
@@ -10,12 +11,15 @@ namespace engine {
 	class Window;
 
 	struct DebugState {
+		FontID debug_font_id;
+
 		struct CPUPerformance {
 			DeltaTimer input_timer;
 			DeltaTimer update_timer;
 			DeltaTimer render_timer;
 			DeltaTimer frame_timer;
 		} performance;
+
 		struct TestScreens {
 			RenderingTestScreen rendering;
 		} test_screens;
