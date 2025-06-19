@@ -1,5 +1,7 @@
 #pragma once
 
+#include <engine/debug/assert.h>
+
 #include <array>
 
 namespace engine {
@@ -13,7 +15,7 @@ namespace engine {
 
 		inplace_vector() = default;
 		inplace_vector(std::initializer_list<T> elems) {
-			m_size = std::min(elems.size(), capacity);
+			m_size = elems.size() < capacity ? elems.size() : capacity;
 			std::copy_n(elems.begin(), m_size, m_elems.begin());
 		}
 
@@ -23,6 +25,10 @@ namespace engine {
 
 		bool empty() const {
 			return m_size == 0;
+		}
+
+		bool full() const {
+			return m_size == capacity;
 		}
 
 		T& operator[](size_t index) {
@@ -37,6 +43,11 @@ namespace engine {
 			if (m_size < capacity) {
 				m_elems[m_size] = value;
 				m_size++;
+			}
+			else {
+#ifdef INPLACE_VECTOR_BOUNDS_CHECK
+				DEBUG_FAIL("Tried to push to inplace_vector that is full!");
+#endif
 			}
 		}
 

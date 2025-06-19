@@ -1,5 +1,8 @@
 #pragma once
 
+#undef max
+#undef min
+
 namespace engine {
 
 	inline float lerp(float a, float b, float t) {

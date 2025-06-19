@@ -1,5 +1,6 @@
 #pragma once
 
+#include <engine/container/inplace_vector.h>
 #include <engine/graphics/bitmap.h>
 #include <engine/graphics/font_id.h>
 #include <engine/graphics/image_id.h>
