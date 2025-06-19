@@ -56,7 +56,10 @@ namespace engine {
 				m_data[x + m_width * y] = pixel;
 			}
 			else {
-				m_data[x + m_width * y] = m_data[x + m_width * y].lerp(pixel, alpha);
+				Pixel& bitmap_pixel = m_data[x + m_width * y];
+				bitmap_pixel.b = (uint8_t)engine::lerp(bitmap_pixel.b, pixel.b, alpha);
+				bitmap_pixel.g = (uint8_t)engine::lerp(bitmap_pixel.g, pixel.g, alpha);
+				bitmap_pixel.r = (uint8_t)engine::lerp(bitmap_pixel.r, pixel.r, alpha);
 			}
 		}
 	}

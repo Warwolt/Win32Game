@@ -119,13 +119,13 @@ namespace engine {
 		};
 		for (IVec2 point : circle_octant_points(radius)) {
 			for (int32_t x = -point.x; x <= point.x; x++) {
-				batch.commands.push_back(DrawLine {
+				batch.commands.emplace_back(DrawLine {
 					.v1 = { .pos = center + IVec2 { x, point.y }, .color = color },
 					.v2 = { .pos = center + IVec2 { x, -point.y }, .color = color },
 				});
 			}
 			for (int32_t y = -point.y; y <= point.y; y++) {
-				batch.commands.push_back(DrawLine {
+				batch.commands.emplace_back(DrawLine {
 					.v1 = { .pos = center + IVec2 { y, point.x }, .color = color },
 					.v2 = { .pos = center + IVec2 { y, -point.x }, .color = color },
 				});
