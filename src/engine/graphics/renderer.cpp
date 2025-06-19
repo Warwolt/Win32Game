@@ -5,6 +5,7 @@
 #include <engine/graphics/image.h>
 #include <engine/math/math.h>
 
+#include "renderer.h"
 #include <cmath>
 
 namespace engine {
@@ -61,17 +62,9 @@ namespace engine {
 	}
 
 	void Renderer::draw_rect(Rect rect, RGBA color) {
-		Vertex top_left = { .pos = { rect.x, rect.y }, .color = color };
-		Vertex top_right = { .pos = { rect.x + rect.width - 1, rect.y }, .color = color };
-		Vertex bottom_left = { .pos = { rect.x, rect.y + rect.height - 1 }, .color = color };
-		Vertex bottom_right = { .pos = { rect.x + rect.width - 1, rect.y + rect.height - 1 }, .color = color };
 		m_batches.push_back(CommandBatch {
-			.rect = rect,
 			.commands = {
-				DrawLine { top_left, top_right },
-				DrawLine { top_left, bottom_left },
-				DrawLine { top_right, bottom_right },
-				DrawLine { bottom_left, bottom_right },
+				DrawRect { rect, color, false },
 			},
 		});
 	}
@@ -314,6 +307,14 @@ namespace engine {
 						auto& [v1, v2] = *draw_line;
 						_put_line(bitmap, v1, v2, image, true);
 					}
+					if (auto* draw_rect = std::get_if<DrawRect>(&command)) {
+						auto& [rect, color, filled] = *draw_rect;
+						if (filled) {
+						}
+						else {
+							_put_rect(bitmap, rect, color);
+						}
+					}
 					if (auto* draw_text = std::get_if<DrawText>(&command)) {
 						auto& [font_id, font_size, pos, color, text] = *draw_text;
 						Typeface& typeface = resources->font(font_id);
@@ -397,6 +398,27 @@ namespace engine {
 				cursor.pos.y += sign_y;
 			}
 		}
+	}
+
+	void Renderer::_put_rect(Bitmap* bitmap, Rect rect, RGBA color) {
+		IVec2 top_left = { rect.x, rect.y };
+		IVec2 top_right = { rect.x + rect.width - 1, rect.y };
+		IVec2 bottom_left = { rect.x, rect.y + rect.height - 1 };
+		IVec2 bottom_right = { rect.x + rect.width - 1, rect.y + rect.height - 1 };
+
+		Vertex top_start = { .pos = top_left, .color = color };
+		Vertex top_end = { .pos = top_right, .color = color };
+		Vertex bottom_start = { .pos = bottom_left, .color = color };
+		Vertex bottom_end = { .pos = bottom_right, .color = color };
+		Vertex left_start = { .pos = top_left + IVec2 { 0, 1 }, .color = color };
+		Vertex left_end = { .pos = bottom_left - IVec2 { 0, 1 }, .color = color };
+		Vertex right_start = { .pos = top_right + IVec2 { 0, 1 }, .color = color };
+		Vertex right_end = { .pos = bottom_right - IVec2 { 0, 1 }, .color = color };
+
+		_put_line(bitmap, top_start, top_end, nullptr, true);
+		_put_line(bitmap, bottom_start, bottom_end, nullptr, true);
+		_put_line(bitmap, left_start, left_end, nullptr, true);
+		_put_line(bitmap, right_start, right_end, nullptr, true);
 	}
 
 	void Renderer::_put_text(Bitmap* bitmap, Typeface* typeface, int32_t font_size, IVec2 pos, RGBA color, const std::string& text) {

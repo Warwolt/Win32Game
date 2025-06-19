@@ -54,6 +54,11 @@ namespace engine {
 			Vertex v1;
 			Vertex v2;
 		};
+		struct DrawRect {
+			Rect rect;
+			RGBA color;
+			bool filled;
+		};
 		struct DrawText {
 			FontID font_id;
 			int32_t font_size;
@@ -65,6 +70,7 @@ namespace engine {
 			ClearScreen,
 			DrawPoint,
 			DrawLine,
+			DrawRect,
 			DrawText>;
 		struct CommandBatch {
 			Rect rect;
@@ -81,6 +87,7 @@ namespace engine {
 		void _clear_screen(Bitmap* bitmap, RGBA color);
 		void _put_point(Bitmap* bitmap, Vertex v1, bool use_alpha);
 		void _put_line(Bitmap* bitmap, Vertex v1, Vertex v2, const Image* image, bool use_alpha);
+		void _put_rect(Bitmap* bitmap, Rect rect, RGBA color);
 		void _put_text(Bitmap* bitmap, Typeface* typeface, int32_t font_size, IVec2 pos, RGBA color, const std::string& text);
 	};
 
