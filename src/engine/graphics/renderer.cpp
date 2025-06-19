@@ -78,25 +78,11 @@ namespace engine {
 	}
 
 	void Renderer::draw_circle(IVec2 center, int32_t radius, RGBA color) {
-		CommandBatch batch = {
-			.rect = Rect {
-				.x = center.x - radius,
-				.y = center.y - radius,
-				.width = 2 * radius + 1,
-				.height = 2 * radius + 1,
+		m_batches.push_back(CommandBatch {
+			.commands = {
+				DrawCircle { center, radius, color, false },
 			},
-		};
-		for (IVec2 point : circle_octant_points(radius)) {
-			batch.commands.push_back(DrawPoint { Vertex { .pos = center + IVec2 { point.x, point.y }, .color = color } });
-			batch.commands.push_back(DrawPoint { Vertex { .pos = center + IVec2 { point.y, point.x }, .color = color } });
-			batch.commands.push_back(DrawPoint { Vertex { .pos = center + IVec2 { point.y, -point.x }, .color = color } });
-			batch.commands.push_back(DrawPoint { Vertex { .pos = center + IVec2 { point.x, -point.y }, .color = color } });
-			batch.commands.push_back(DrawPoint { Vertex { .pos = center + IVec2 { -point.x, point.y }, .color = color } });
-			batch.commands.push_back(DrawPoint { Vertex { .pos = center + IVec2 { -point.y, point.x }, .color = color } });
-			batch.commands.push_back(DrawPoint { Vertex { .pos = center + IVec2 { -point.y, -point.x }, .color = color } });
-			batch.commands.push_back(DrawPoint { Vertex { .pos = center + IVec2 { -point.x, -point.y }, .color = color } });
-		}
-		m_batches.push_back(batch);
+		});
 	}
 
 	void Renderer::draw_circle_fill(IVec2 center, int32_t radius, RGBA color) {
@@ -314,6 +300,15 @@ namespace engine {
 							_put_rect(bitmap, rect, color);
 						}
 					}
+					if (auto* draw_circle = std::get_if<DrawCircle>(&command)) {
+						auto& [center, radius, color, filled] = *draw_circle;
+						if (filled) {
+							// _put_rect_fill(bitmap, rect, color);
+						}
+						else {
+							_put_circle(bitmap, center, radius, color);
+						}
+					}
 					if (auto* draw_text = std::get_if<DrawText>(&command)) {
 						auto& [font_id, font_size, pos, color, text] = *draw_text;
 						Typeface& typeface = resources->font(font_id);
@@ -426,6 +421,21 @@ namespace engine {
 			for (int32_t x = rect.x; x < rect.x + rect.width; x++) {
 				bitmap->put(x, y, pixel, color.a / 255.0f);
 			}
+		}
+	}
+
+	void Renderer::_put_circle(Bitmap* bitmap, IVec2 center, int32_t radius, RGBA color) {
+		Pixel pixel = Pixel::from_rgb(color);
+		float alpha = color.a / 255.0f;
+		for (IVec2 point : circle_octant_points(radius)) {
+			bitmap->put(center.x + point.x, center.y + point.y, pixel, alpha);
+			bitmap->put(center.x + point.y, center.y + point.x, pixel, alpha);
+			bitmap->put(center.x + point.y, center.y + -point.x, pixel, alpha);
+			bitmap->put(center.x + point.x, center.y + -point.y, pixel, alpha);
+			bitmap->put(center.x + -point.x, center.y + point.y, pixel, alpha);
+			bitmap->put(center.x + -point.y, center.y + point.x, pixel, alpha);
+			bitmap->put(center.x + -point.y, center.y + -point.x, pixel, alpha);
+			bitmap->put(center.x + -point.x, center.y + -point.y, pixel, alpha);
 		}
 	}
 

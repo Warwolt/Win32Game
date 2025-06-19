@@ -35,6 +35,7 @@ namespace engine {
 		void draw_rect(Rect rect, RGBA color);
 		void draw_rect_fill(Rect rect, RGBA color);
 		void draw_circle(IVec2 center, int32_t radius, RGBA color);
+
 		void draw_circle_fill(IVec2 center, int32_t radius, RGBA color);
 		void draw_triangle(Vertex v1, Vertex v2, Vertex v3);
 		void draw_triangle_fill(Vertex v1, Vertex v2, Vertex v3);
@@ -59,6 +60,12 @@ namespace engine {
 			RGBA color;
 			bool filled;
 		};
+		struct DrawCircle {
+			IVec2 center;
+			int32_t radius;
+			RGBA color;
+			bool filled;
+		};
 		struct DrawText {
 			FontID font_id;
 			int32_t font_size;
@@ -71,6 +78,7 @@ namespace engine {
 			DrawPoint,
 			DrawLine,
 			DrawRect,
+			DrawCircle,
 			DrawText>;
 		struct CommandBatch {
 			Rect rect;
@@ -89,6 +97,7 @@ namespace engine {
 		void _put_line(Bitmap* bitmap, Vertex v1, Vertex v2, const Image* image, bool use_alpha);
 		void _put_rect(Bitmap* bitmap, Rect rect, RGBA color);
 		void _put_rect_fill(Bitmap* bitmap, Rect rect, RGBA color);
+		void _put_circle(Bitmap* bitmap, IVec2 center, int32_t radius, RGBA color);
 		void _put_text(Bitmap* bitmap, Typeface* typeface, int32_t font_size, IVec2 pos, RGBA color, const std::string& text);
 	};
 
