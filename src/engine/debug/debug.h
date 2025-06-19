@@ -16,6 +16,7 @@ namespace engine {
 		struct CPUPerformance {
 			DeltaTimer input_timer;
 			DeltaTimer update_timer;
+			DeltaTimer draw_timer;
 			DeltaTimer render_timer;
 			DeltaTimer frame_timer;
 		} performance;

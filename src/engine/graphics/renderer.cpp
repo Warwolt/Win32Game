@@ -359,8 +359,6 @@ namespace engine {
 		bitmap->put(v1.pos.x, v1.pos.y, pixel, use_alpha ? v1.color.a / 255.0f : 1.0f);
 	}
 
-	// TODO: Sampling with debugger pausing indicates we spend a lot of time in _put_line
-	// Probably worth re-implementing with integer only algorithm?
 	void Renderer::_put_line(Bitmap* bitmap, Vertex v1, Vertex v2, const Image* image, bool use_alpha) {
 		// vertical line
 		if (v1.pos.x == v2.pos.x) {

@@ -46,7 +46,8 @@ namespace engine {
 		};
 		draw_section_timing("input", debug.performance.input_timer, 1);
 		draw_section_timing("update", debug.performance.update_timer, 2);
-		draw_section_timing("render", debug.performance.render_timer, 3);
+		draw_section_timing("draw", debug.performance.draw_timer, 3);
+		draw_section_timing("render", debug.performance.render_timer, 4);
 	}
 
 } // namespace engine

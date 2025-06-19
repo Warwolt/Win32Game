@@ -131,6 +131,7 @@ int WINAPI WinMain(
 
 	/* Main loop */
 	engine::DeltaTimer& frame_timer = g_context.engine.debug.performance.frame_timer;
+	engine::DeltaTimer& draw_timer = g_context.engine.debug.performance.draw_timer;
 	engine::DeltaTimer& render_timer = g_context.engine.debug.performance.render_timer;
 	while (!g_context.engine.should_quit) {
 		/* Start frame */
@@ -144,10 +145,14 @@ int WINAPI WinMain(
 		game::update(&g_context.game, &g_context.engine.commands, g_context.engine.input);
 		engine::update(&g_context.engine, g_context.engine.input);
 
-		/* Render */
-		render_timer.start();
+		/* Draw */
+		draw_timer.start();
 		game::draw(&g_context.engine.renderer, g_context.game);
 		engine::draw(&g_context.engine.renderer, &g_context.engine);
+		draw_timer.end();
+
+		/* Render */
+		render_timer.start();
 		g_context.engine.renderer.render(&g_context.engine.bitmap, &g_context.engine.resources);
 		g_context.engine.window.render(g_context.engine.bitmap);
 		render_timer.end();
