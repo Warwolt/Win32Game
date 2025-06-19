@@ -86,29 +86,11 @@ namespace engine {
 	}
 
 	void Renderer::draw_circle_fill(IVec2 center, int32_t radius, RGBA color) {
-		CommandBatch batch = {
-			.rect = Rect {
-				.x = center.x - radius,
-				.y = center.y - radius,
-				.width = 2 * radius + 1,
-				.height = 2 * radius + 1,
+		m_batches.push_back(CommandBatch {
+			.commands = {
+				DrawCircle { center, radius, color, true },
 			},
-		};
-		for (IVec2 point : circle_octant_points(radius)) {
-			for (int32_t x = -point.x; x <= point.x; x++) {
-				batch.commands.emplace_back(DrawLine {
-					.v1 = { .pos = center + IVec2 { x, point.y }, .color = color },
-					.v2 = { .pos = center + IVec2 { x, -point.y }, .color = color },
-				});
-			}
-			for (int32_t y = -point.y; y <= point.y; y++) {
-				batch.commands.emplace_back(DrawLine {
-					.v1 = { .pos = center + IVec2 { y, point.x }, .color = color },
-					.v2 = { .pos = center + IVec2 { y, -point.x }, .color = color },
-				});
-			}
-		}
-		m_batches.push_back(batch);
+		});
 	}
 
 	void Renderer::draw_triangle(Vertex v1, Vertex v2, Vertex v3) {
@@ -303,7 +285,7 @@ namespace engine {
 					if (auto* draw_circle = std::get_if<DrawCircle>(&command)) {
 						auto& [center, radius, color, filled] = *draw_circle;
 						if (filled) {
-							// _put_rect_fill(bitmap, rect, color);
+							_put_circle_fill(bitmap, center, radius, color);
 						}
 						else {
 							_put_circle(bitmap, center, radius, color);
@@ -436,6 +418,36 @@ namespace engine {
 			bitmap->put(center.x + -point.y, center.y + point.x, pixel, alpha);
 			bitmap->put(center.x + -point.y, center.y + -point.x, pixel, alpha);
 			bitmap->put(center.x + -point.x, center.y + -point.y, pixel, alpha);
+		}
+	}
+
+	void Renderer::_put_circle_fill(Bitmap* bitmap, IVec2 center, int32_t radius, RGBA color) {
+		// FIXME:
+		// This is currently doing an INSANE amount of overdraw
+		// We should be finding the points and drawing at the same time
+		//
+		// As we step in the x-direction, we should draw a horizontal line when
+		// we're about to step to the next y-value, since that will be the
+		// actual endpoint for that horizontal line.
+		for (IVec2 point : circle_octant_points(radius)) {
+			for (int32_t x = -point.x; x <= point.x; x++) {
+				_put_line(
+					bitmap,
+					Vertex { .pos = center + IVec2 { x, point.y }, .color = color },
+					Vertex { .pos = center + IVec2 { x, -point.y }, .color = color },
+					nullptr,
+					true
+				);
+			}
+			for (int32_t y = -point.y; y <= point.y; y++) {
+				_put_line(
+					bitmap,
+					Vertex { .pos = center + IVec2 { y, point.x }, .color = color },
+					Vertex { .pos = center + IVec2 { y, -point.x }, .color = color },
+					nullptr,
+					true
+				);
+			}
 		}
 	}
 

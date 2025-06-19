@@ -35,8 +35,8 @@ namespace engine {
 		void draw_rect(Rect rect, RGBA color);
 		void draw_rect_fill(Rect rect, RGBA color);
 		void draw_circle(IVec2 center, int32_t radius, RGBA color);
-
 		void draw_circle_fill(IVec2 center, int32_t radius, RGBA color);
+
 		void draw_triangle(Vertex v1, Vertex v2, Vertex v3);
 		void draw_triangle_fill(Vertex v1, Vertex v2, Vertex v3);
 		void draw_image(ImageID image_id, Rect rect, Rect clip = {}, RGBA tint = RGBA::white());
@@ -98,6 +98,7 @@ namespace engine {
 		void _put_rect(Bitmap* bitmap, Rect rect, RGBA color);
 		void _put_rect_fill(Bitmap* bitmap, Rect rect, RGBA color);
 		void _put_circle(Bitmap* bitmap, IVec2 center, int32_t radius, RGBA color);
+		void _put_circle_fill(Bitmap* bitmap, IVec2 center, int32_t radius, RGBA color);
 		void _put_text(Bitmap* bitmap, Typeface* typeface, int32_t font_size, IVec2 pos, RGBA color, const std::string& text);
 	};
 
