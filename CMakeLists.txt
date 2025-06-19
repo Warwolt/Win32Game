@@ -54,8 +54,9 @@ set(INC
 
 set(TEST_SRC
     test/engine/button_tests.cpp
-    test/engine/moving_average_tests.cpp
+    test/engine/inplace_vector_tests.cpp
     test/engine/keyboard_tests.cpp
+    test/engine/moving_average_tests.cpp
 )
 
 # Src Library

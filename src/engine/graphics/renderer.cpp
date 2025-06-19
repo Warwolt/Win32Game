@@ -199,6 +199,7 @@ namespace engine {
 
 		for (int32_t y = min_y; y <= max_y; y++) {
 			/* Get intersections */
+			// TODO: try replacing all std::vector with our own std::array based "engine::vector<T, Capacity>" to see if getting rid of allocation helps?
 			std::vector<int32_t> xs;
 			for (const TriangleEdge& edge : edges) {
 				xs.push_back((int32_t)std::round(edge.inv_slope * (y - edge.y0) + edge.x0));
