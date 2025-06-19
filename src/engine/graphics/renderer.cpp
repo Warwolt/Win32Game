@@ -171,7 +171,7 @@ namespace engine {
 			};
 		};
 
-		std::vector<TriangleEdge> edges = {
+		std::array<TriangleEdge, 3> edges = {
 			make_triangle_edge(v1, v2),
 			make_triangle_edge(v1, v3),
 			make_triangle_edge(v2, v3),
@@ -198,14 +198,14 @@ namespace engine {
 		float area_v1v2v3 = triangle_area(v2.pos - v1.pos, v3.pos - v1.pos);
 
 		for (int32_t y = min_y; y <= max_y; y++) {
-			/* Get intersections */
-			// TODO: try replacing all std::vector with our own std::array based "engine::vector<T, Capacity>" to see if getting rid of allocation helps?
-			std::vector<int32_t> xs;
-			for (const TriangleEdge& edge : edges) {
-				xs.push_back((int32_t)std::round(edge.inv_slope * (y - edge.y0) + edge.x0));
-			}
+			/* Get intersections betwen scanline and lines extended from triangle sides */
+			std::array<int32_t, 3> xs = {
+				(int32_t)std::round(edges[0].inv_slope * (y - edges[0].y0) + edges[0].x0),
+				(int32_t)std::round(edges[1].inv_slope * (y - edges[1].y0) + edges[1].x0),
+				(int32_t)std::round(edges[2].inv_slope * (y - edges[2].y0) + edges[2].x0),
+			};
 
-			/* Get left and right triangle positions */
+			/* Discard line intersections outside of triangle */
 			auto is_out_of_bounds = [min_x, max_x](int32_t x) { return x < min_x || x > max_x; };
 			auto last = std::remove_if(xs.begin(), xs.end(), is_out_of_bounds);
 			std::sort(xs.begin(), xs.end());
@@ -323,7 +323,7 @@ namespace engine {
 			}
 			else {
 				/* Clear scratch pad area */
-				m_scratchpad.clear_section(Pixel {0,0,0,0}, batch.rect);
+				m_scratchpad.clear_section(Pixel { 0, 0, 0, 0 }, batch.rect);
 
 				/* Draw onto scratch pad */
 				for (const DrawCommand& command : batch.commands) {
