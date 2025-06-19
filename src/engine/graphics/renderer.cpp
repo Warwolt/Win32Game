@@ -70,13 +70,11 @@ namespace engine {
 	}
 
 	void Renderer::draw_rect_fill(Rect rect, RGBA color) {
-		CommandBatch batch = { .rect = rect };
-		for (int32_t y = rect.y; y < rect.y + rect.height; y++) {
-			Vertex left = { .pos = { rect.x, y }, .color = color };
-			Vertex right = { .pos = { rect.x + rect.width - 1, y }, .color = color };
-			batch.commands.push_back(DrawLine { left, right });
-		}
-		m_batches.push_back(batch);
+		m_batches.push_back(CommandBatch {
+			.commands = {
+				DrawRect { rect, color, true },
+			},
+		});
 	}
 
 	void Renderer::draw_circle(IVec2 center, int32_t radius, RGBA color) {
@@ -310,6 +308,7 @@ namespace engine {
 					if (auto* draw_rect = std::get_if<DrawRect>(&command)) {
 						auto& [rect, color, filled] = *draw_rect;
 						if (filled) {
+							_put_rect_fill(bitmap, rect, color);
 						}
 						else {
 							_put_rect(bitmap, rect, color);
@@ -419,6 +418,15 @@ namespace engine {
 		_put_line(bitmap, bottom_start, bottom_end, nullptr, true);
 		_put_line(bitmap, left_start, left_end, nullptr, true);
 		_put_line(bitmap, right_start, right_end, nullptr, true);
+	}
+
+	void Renderer::_put_rect_fill(Bitmap* bitmap, Rect rect, RGBA color) {
+		Pixel pixel = Pixel::from_rgb(color);
+		for (int32_t y = rect.y; y < rect.y + rect.height; y++) {
+			for (int32_t x = rect.x; x < rect.x + rect.width; x++) {
+				bitmap->put(x, y, pixel, color.a / 255.0f);
+			}
+		}
 	}
 
 	void Renderer::_put_text(Bitmap* bitmap, Typeface* typeface, int32_t font_size, IVec2 pos, RGBA color, const std::string& text) {
