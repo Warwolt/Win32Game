@@ -360,42 +360,31 @@ namespace engine {
 	}
 
 	void Renderer::_put_line(Bitmap* bitmap, Vertex v1, Vertex v2, const Image* image, bool use_alpha) {
-		// vertical line
-		if (v1.pos.x == v2.pos.x) {
-			int32_t y0 = std::min(v1.pos.y, v2.pos.y);
-			int32_t y1 = max(v1.pos.y, v2.pos.y);
-			for (int32_t y = y0; y <= y1; y++) {
-				IVec2 pos = IVec2 { v1.pos.x, y };
-				float t = (float)(pos.y - v1.pos.y) / (float)(v2.pos.y - v1.pos.y);
-				RGBA color = image
-					? color = image->sample(Vec2::lerp(v1.uv, v2.uv, t)) * RGBA::lerp(v1.color, v2.color, t)
-					: color = RGBA::lerp(v1.color, v2.color, t);
-				Vertex vertex = { .pos = pos, .color = color };
-				_put_point(bitmap, vertex, use_alpha);
+		// Bresenham's drawing algorithm
+		// Alois Zingl, 2016, "A Rasterizing Algorithm for Drawing Curves", page 13
+		// https://zingl.github.io/Bresenham.pdf
+		int32_t delta_x = std::abs(v2.pos.x - v1.pos.x);
+		int32_t delta_y = -std::abs(v2.pos.y - v1.pos.y);
+		int32_t sign_x = v1.pos.x < v2.pos.x ? 1 : -1;
+		int32_t sign_y = v1.pos.y < v2.pos.y ? 1 : -1;
+		int32_t error = delta_x + delta_y;
+
+		Vertex cursor = v1;
+		while (true) {
+			_put_point(bitmap, cursor, use_alpha);
+			if (2 * error >= delta_y) {
+				if (cursor.pos.x == v2.pos.x) {
+					break;
+				}
+				error += delta_y;
+				cursor.pos.x += sign_x;
 			}
-		}
-		// sloped line
-		else {
-			// big_delta is the longer side of the triangle formed by the line
-			// if dx is greater, x_step will be +1 or -1 and y_step will be the slope
-			// if dy is greater, we flip it along the diagonal
-			int32_t dx = v2.pos.x - v1.pos.x;
-			int32_t dy = v2.pos.y - v1.pos.y;
-			int32_t abs_dx = std::abs(dx);
-			int32_t abs_dy = std::abs(dy);
-			int32_t big_delta = max(abs_dx, abs_dy);
-			float x_step = (float)dx / (float)big_delta;
-			float y_step = (float)dy / (float)big_delta;
-			for (int32_t i = 0; i <= big_delta; i++) {
-				IVec2 pos = IVec2 { .x = (int32_t)(v1.pos.x + i * x_step), .y = (int32_t)(v1.pos.y + i * y_step) };
-				float t = abs_dx > abs_dy
-					? (float)(pos.x - v1.pos.x) / (float)(v2.pos.x - v1.pos.x)
-					: (float)(pos.y - v1.pos.y) / (float)(v2.pos.y - v1.pos.y);
-				RGBA color = image
-					? color = image->sample(Vec2::lerp(v1.uv, v2.uv, t)) * RGBA::lerp(v1.color, v2.color, t)
-					: color = RGBA::lerp(v1.color, v2.color, t);
-				Vertex vertex = { .pos = pos, .color = color };
-				_put_point(bitmap, vertex, use_alpha);
+			if (2 * error <= delta_x) {
+				if (cursor.pos.y == v2.pos.y) {
+					break;
+				}
+				error += delta_x;
+				cursor.pos.y += sign_y;
 			}
 		}
 	}
