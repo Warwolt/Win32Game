@@ -378,7 +378,8 @@ namespace engine {
 			cursor.color = image
 				? image->sample(Vec2::lerp(v1.uv, v2.uv, t)) * RGBA::lerp(v1.color, v2.color, t)
 				: RGBA::lerp(v1.color, v2.color, t);
-			_put_point(bitmap, cursor, use_alpha);
+			Pixel pixel = { .b = cursor.color.b, .g = cursor.color.g, .r = cursor.color.r, .padding = cursor.color.a };
+			bitmap->put(cursor.pos.x, cursor.pos.y, pixel, use_alpha ? cursor.color.a / 255.0f : 1.0f);
 
 			/* Step to next point */
 			if (2 * error >= delta_y) {
