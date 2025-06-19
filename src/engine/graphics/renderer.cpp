@@ -371,7 +371,16 @@ namespace engine {
 
 		Vertex cursor = v1;
 		while (true) {
+			/* Put current point */
+			float t = delta_x > 0
+				? ((float)(cursor.pos.x - v1.pos.x) / (float)(v2.pos.x - v1.pos.x))
+				: ((float)(cursor.pos.y - v1.pos.y) / (float)(v2.pos.y - v1.pos.y));
+			cursor.color = image
+				? image->sample(Vec2::lerp(v1.uv, v2.uv, t)) * RGBA::lerp(v1.color, v2.color, t)
+				: RGBA::lerp(v1.color, v2.color, t);
 			_put_point(bitmap, cursor, use_alpha);
+
+			/* Step to next point */
 			if (2 * error >= delta_y) {
 				if (cursor.pos.x == v2.pos.x) {
 					break;
