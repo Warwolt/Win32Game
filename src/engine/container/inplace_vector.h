@@ -9,6 +9,8 @@ namespace engine {
 	class inplace_vector {
 	public:
 		using iterator = std::array<T, capacity>::iterator;
+		using const_iterator = std::array<T, capacity>::const_iterator;
+
 		inplace_vector() = default;
 		inplace_vector(std::initializer_list<T> elems) {
 			m_size = std::min(elems.size(), capacity);
@@ -36,6 +38,22 @@ namespace engine {
 				m_elems[m_size] = value;
 				m_size++;
 			}
+		}
+
+		iterator begin() {
+			return m_elems.begin();
+		}
+
+		const_iterator begin() const {
+			return m_elems.begin();
+		}
+
+		iterator end() {
+			return m_elems.end();
+		}
+
+		const_iterator end() const {
+			return m_elems.end();
 		}
 
 	private:

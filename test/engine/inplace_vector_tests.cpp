@@ -36,7 +36,7 @@ TEST(InplaceVectorTests, PushedElements_BeyondCapacity_AreIgnored) {
 	EXPECT_EQ(vec.size(), 3);
 }
 
-TEST(InplaceVectorTests, InitializerListConstructor_CopiesElems) {
+TEST(InplaceVectorTests, InitializerListConstructor_CopiesElements) {
 	engine::inplace_vector<int, 3> vec = { 1, 2, 3 };
 
 	EXPECT_EQ(vec[0], 1);
@@ -45,11 +45,23 @@ TEST(InplaceVectorTests, InitializerListConstructor_CopiesElems) {
 	EXPECT_EQ(vec.size(), 3);
 }
 
-TEST(InplaceVectorTests, InitializerListConstructor_TooMany_DiscardsBeyondcapacity) {
+TEST(InplaceVectorTests, InitializerListConstructor_DiscardsBeyondCapacity) {
 	engine::inplace_vector<int, 3> vec = { 1, 2, 3, 4, 5 };
 
 	EXPECT_EQ(vec[0], 1);
 	EXPECT_EQ(vec[1], 2);
 	EXPECT_EQ(vec[2], 3);
 	EXPECT_EQ(vec.size(), 3);
+}
+
+TEST(InplaceVectorTests, ForEachLoop) {
+	engine::inplace_vector<int, 3> vec = { 1, 2, 3 };
+
+	for (int& x : vec) {
+		x++;
+	}
+
+	EXPECT_EQ(vec[0], 2);
+	EXPECT_EQ(vec[1], 3);
+	EXPECT_EQ(vec[2], 4);
 }
