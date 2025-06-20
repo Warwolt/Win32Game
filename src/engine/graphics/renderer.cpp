@@ -5,7 +5,6 @@
 #include <engine/graphics/image.h>
 #include <engine/math/math.h>
 
-#include "renderer.h"
 #include <cmath>
 
 namespace engine {
@@ -30,7 +29,6 @@ namespace engine {
 		IVec2 point = { 0, radius };
 		while (point.x <= point.y) {
 			octant_points.push_back(point);
-
 			int32_t midpoint_x = point.x + 1;
 			float midpoint_y = point.y - 0.5f;
 			if (pow(midpoint_x, 2) + pow(midpoint_y, 2) > pow(radius, 2)) {
@@ -39,6 +37,38 @@ namespace engine {
 			point.x += 1;
 		}
 		return octant_points;
+	}
+
+	static std::vector<IVec2> half_circle_points(int32_t radius) {
+		/* Compute half circle*/
+		//         , - ~ ~ ~ - ,
+		//     , '               ' ,
+		//   ,                       ,
+		//  ,                         ,
+		// ,                           ,
+		// '-------------o-------------'
+		std::vector<IVec2> octant_points = circle_octant_points(radius);
+		std::vector<IVec2> half_circle_points;
+		IVec2 prev_point = IVec2 { octant_points[0].x, octant_points[0].y };
+		for (IVec2 point : octant_points) {
+			int32_t delta_y = point.y - prev_point.y;
+			if (delta_y != 0) {
+				half_circle_points.push_back(point);
+			}
+			prev_point = point;
+		}
+
+		prev_point = IVec2 { octant_points[0].y, octant_points[0].x };
+		half_circle_points.push_back(prev_point);
+		for (IVec2 point : octant_points) {
+			IVec2 flip_point = { point.y, point.x };
+			int32_t delta_y = flip_point.y - prev_point.y;
+			if (delta_y != 0) {
+				half_circle_points.push_back(flip_point);
+			}
+			prev_point = flip_point;
+		}
+		return half_circle_points;
 	}
 
 	void Renderer::clear_screen(RGBA color) {
@@ -422,31 +452,15 @@ namespace engine {
 	}
 
 	void Renderer::_put_circle_fill(Bitmap* bitmap, IVec2 center, int32_t radius, RGBA color) {
-		// FIXME:
-		// This is currently doing an INSANE amount of overdraw
-		// We should be finding the points and drawing at the same time
-		//
-		// As we step in the x-direction, we should draw a horizontal line when
-		// we're about to step to the next y-value, since that will be the
-		// actual endpoint for that horizontal line.
-		for (IVec2 point : circle_octant_points(radius)) {
-			for (int32_t x = -point.x; x <= point.x; x++) {
-				_put_line(
-					bitmap,
-					Vertex { .pos = center + IVec2 { x, point.y }, .color = color },
-					Vertex { .pos = center + IVec2 { x, -point.y }, .color = color },
-					nullptr,
-					true
-				);
-			}
-			for (int32_t y = -point.y; y <= point.y; y++) {
-				_put_line(
-					bitmap,
-					Vertex { .pos = center + IVec2 { y, point.x }, .color = color },
-					Vertex { .pos = center + IVec2 { y, -point.x }, .color = color },
-					nullptr,
-					true
-				);
+		for (IVec2 point : half_circle_points(radius)) {
+			IVec2 bottom_left = center + IVec2 { -point.x, point.y };
+			IVec2 bottom_right = center + IVec2 { point.x, point.y };
+			_put_line(bitmap, Vertex { .pos = bottom_left, .color = color }, Vertex { .pos = bottom_right, .color = color }, nullptr, true);
+
+			IVec2 top_left = center + IVec2 { -point.x, -point.y };
+			IVec2 top_right = center + IVec2 { point.x, -point.y };
+			if (top_left.y != bottom_left.y) {
+				_put_line(bitmap, Vertex { .pos = top_left, .color = color }, Vertex { .pos = top_right, .color = color }, nullptr, true);
 			}
 		}
 	}
