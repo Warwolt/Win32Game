@@ -41,7 +41,7 @@ namespace engine {
 		FontID debug_font_id = FontID(1); // FIXME: we should store this in DebugState
 		auto draw_section_timing = [&](const std::string& label, const DeltaTimer& timer, int32_t y) {
 			int32_t font_size = 16;
-			std::string text = std::format("{}: {:.1f} ms", label, timer.average_delta() * 1e3);
+			std::string text = std::format("{}: {:.2f} ms", label, timer.average_delta() * 1e3);
 			draw_text_right_aligned(renderer, resources, debug_font_id, font_size, { 0, font_size * y }, screen_resolution.x, RGBA::white(), text);
 		};
 		draw_section_timing("input", debug.performance.input_timer, 1);
