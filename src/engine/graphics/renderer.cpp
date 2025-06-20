@@ -124,21 +124,9 @@ namespace engine {
 	}
 
 	void Renderer::draw_triangle(Vertex v1, Vertex v2, Vertex v3) {
-		int32_t min_x = std::min({ v1.pos.x, v2.pos.x, v3.pos.x });
-		int32_t min_y = std::min({ v1.pos.y, v2.pos.y, v3.pos.y });
-		int32_t max_x = std::max({ v1.pos.x, v2.pos.x, v3.pos.x });
-		int32_t max_y = std::max({ v1.pos.y, v2.pos.y, v3.pos.y });
 		m_batches.push_back(CommandBatch {
-			.rect = Rect {
-				min_x,
-				min_y,
-				max_x - min_x + 1,
-				max_y - min_y + 1,
-			},
 			.commands = {
-				DrawLine { v1, v2 },
-				DrawLine { v1, v3 },
-				DrawLine { v2, v3 },
+				DrawTriangle { v1, v2, v3, false },
 			},
 		});
 	}
@@ -321,6 +309,15 @@ namespace engine {
 							_put_circle(bitmap, center, radius, color);
 						}
 					}
+					if (auto* draw_triangle = std::get_if<DrawTriangle>(&command)) {
+						auto& [v1, v2, v3, filled] = *draw_triangle;
+						if (filled) {
+							// _put_triangle_fill(bitmap, center, radius, color);
+						}
+						else {
+							_put_triangle(bitmap, v1, v2, v3);
+						}
+					}
 					if (auto* draw_text = std::get_if<DrawText>(&command)) {
 						auto& [font_id, font_size, pos, color, text] = *draw_text;
 						Typeface& typeface = resources->font(font_id);
@@ -463,6 +460,13 @@ namespace engine {
 				_put_line(bitmap, Vertex { .pos = top_left, .color = color }, Vertex { .pos = top_right, .color = color }, nullptr, true);
 			}
 		}
+	}
+
+	void Renderer::_put_triangle(Bitmap* bitmap, Vertex v1, Vertex v2, Vertex v3) {
+		// FIXME: avoid overdraw
+		_put_line(bitmap, v1, v2, nullptr, true);
+		_put_line(bitmap, v1, v3, nullptr, true);
+		_put_line(bitmap, v2, v3, nullptr, true);
 	}
 
 	void Renderer::_put_text(Bitmap* bitmap, Typeface* typeface, int32_t font_size, IVec2 pos, RGBA color, const std::string& text) {
