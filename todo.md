@@ -7,10 +7,9 @@ Maybe ideas:
 - Text mode engine debugging UI (for selecting various test screens and tools)
 
 # Todo
-- [!] Write Blackjack game
-- CPU Profiling
-- Measure render API, see if things can be optimized (e.g. less loops, SIMD, less memory allocations etc.)
+- Text Mode UI prototype
 - DLL based hot reloading
+- [!] Write Blackjack game
 - Asset system (store audio, images, fonts, etc.)
 - [!] Write Tetris game
 - Collisions
@@ -21,10 +20,10 @@ Maybe ideas:
 - Draw API: Polygons (triangle strips, triangle fans)
 
 # Doing
-- Text Mode UI prototype
 
 # Done
 - Diagnose what parts of render test screen is slow
+- CPU Profiling
 - Get rid of CommandAPI class, just work with a `std::vector<Command>` directly
 - Measure frame delta
 - Font support
