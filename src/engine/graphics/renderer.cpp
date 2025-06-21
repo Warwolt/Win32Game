@@ -124,11 +124,11 @@ namespace engine {
 			}
 			if (auto* draw_point = std::get_if<DrawPoint>(&command)) {
 				auto& [v1] = *draw_point;
-				_put_point(bitmap, v1, true);
+				_put_point(bitmap, v1);
 			}
 			if (auto* draw_line = std::get_if<DrawLine>(&command)) {
 				auto& [v1, v2] = *draw_line;
-				_put_line(bitmap, v1, v2, nullptr, true);
+				_put_line(bitmap, v1, v2, nullptr);
 			}
 			if (auto* draw_rect = std::get_if<DrawRect>(&command)) {
 				auto& [rect, color, filled] = *draw_rect;
@@ -174,12 +174,12 @@ namespace engine {
 		bitmap->clear(Pixel::from_rgb(color));
 	}
 
-	void Renderer::_put_point(Bitmap* bitmap, Vertex v1, bool use_alpha) {
+	void Renderer::_put_point(Bitmap* bitmap, Vertex v1) {
 		Pixel pixel = { .b = v1.color.b, .g = v1.color.g, .r = v1.color.r, .padding = v1.color.a };
-		bitmap->put(v1.pos.x, v1.pos.y, pixel, use_alpha ? v1.color.a / 255.0f : 1.0f);
+		bitmap->put(v1.pos.x, v1.pos.y, pixel, v1.color.a / 255.0f);
 	}
 
-	void Renderer::_put_line(Bitmap* bitmap, Vertex v1, Vertex v2, const Image* image, bool use_alpha) {
+	void Renderer::_put_line(Bitmap* bitmap, Vertex v1, Vertex v2, const Image* image) {
 		// Bresenham's drawing algorithm
 		// Alois Zingl, 2016, "A Rasterizing Algorithm for Drawing Curves", page 13
 		// https://zingl.github.io/Bresenham.pdf
@@ -198,8 +198,8 @@ namespace engine {
 			cursor.color = image
 				? image->sample(Vec2::lerp(v1.uv, v2.uv, t)) * RGBA::lerp(v1.color, v2.color, t)
 				: RGBA::lerp(v1.color, v2.color, t);
-			Pixel pixel = { .b = cursor.color.b, .g = cursor.color.g, .r = cursor.color.r, .padding = cursor.color.a };
-			bitmap->put(cursor.pos.x, cursor.pos.y, pixel, use_alpha ? cursor.color.a / 255.0f : 1.0f);
+			Pixel pixel = { .b = cursor.color.b, .g = cursor.color.g, .r = cursor.color.r };
+			bitmap->put(cursor.pos.x, cursor.pos.y, pixel, cursor.color.a / 255.0f);
 
 			/* Step to next point */
 			if (2 * error >= delta_y) {
@@ -234,10 +234,10 @@ namespace engine {
 		Vertex right_start = { .pos = top_right + IVec2 { 0, 1 }, .color = color };
 		Vertex right_end = { .pos = bottom_right - IVec2 { 0, 1 }, .color = color };
 
-		_put_line(bitmap, top_start, top_end, nullptr, true);
-		_put_line(bitmap, bottom_start, bottom_end, nullptr, true);
-		_put_line(bitmap, left_start, left_end, nullptr, true);
-		_put_line(bitmap, right_start, right_end, nullptr, true);
+		_put_line(bitmap, top_start, top_end, nullptr);
+		_put_line(bitmap, bottom_start, bottom_end, nullptr);
+		_put_line(bitmap, left_start, left_end, nullptr);
+		_put_line(bitmap, right_start, right_end, nullptr);
 	}
 
 	void Renderer::_put_rect_fill(Bitmap* bitmap, Rect rect, RGBA color) {
@@ -268,20 +268,20 @@ namespace engine {
 		for (IVec2 point : half_circle_points(radius)) {
 			IVec2 bottom_left = center + IVec2 { -point.x, point.y };
 			IVec2 bottom_right = center + IVec2 { point.x, point.y };
-			_put_line(bitmap, Vertex { .pos = bottom_left, .color = color }, Vertex { .pos = bottom_right, .color = color }, nullptr, true);
+			_put_line(bitmap, Vertex { .pos = bottom_left, .color = color }, Vertex { .pos = bottom_right, .color = color }, nullptr);
 
 			IVec2 top_left = center + IVec2 { -point.x, -point.y };
 			IVec2 top_right = center + IVec2 { point.x, -point.y };
 			if (top_left.y != bottom_left.y) {
-				_put_line(bitmap, Vertex { .pos = top_left, .color = color }, Vertex { .pos = top_right, .color = color }, nullptr, true);
+				_put_line(bitmap, Vertex { .pos = top_left, .color = color }, Vertex { .pos = top_right, .color = color }, nullptr);
 			}
 		}
 	}
 
 	void Renderer::_put_triangle(Bitmap* bitmap, Vertex v1, Vertex v2, Vertex v3) {
-		_put_line(bitmap, v1, v2, nullptr, true);
-		_put_line(bitmap, v1, v3, nullptr, true);
-		_put_line(bitmap, v2, v3, nullptr, true);
+		_put_line(bitmap, v1, v2, nullptr);
+		_put_line(bitmap, v1, v3, nullptr);
+		_put_line(bitmap, v2, v3, nullptr);
 	}
 
 	void Renderer::_put_triangle_fill(Bitmap* bitmap, Vertex v1, Vertex v2, Vertex v3) {
@@ -337,7 +337,7 @@ namespace engine {
 			p2.color = v1_t2 * v1.color + v2_t2 * v2.color + v3_t2 * v3.color;
 
 			/* Draw line */
-			_put_line(bitmap, p1, p2, nullptr, true);
+			_put_line(bitmap, p1, p2, nullptr);
 		}
 	}
 
@@ -376,7 +376,7 @@ namespace engine {
 					engine::lerp(uv0.y, uv1.y, 1.0f - ((float)y / (float)rect.height)),
 				}
 			};
-			_put_line(bitmap, left, right, &image, true);
+			_put_line(bitmap, left, right, &image);
 		}
 	}
 

@@ -96,8 +96,8 @@ namespace engine {
 		std::vector<DrawCommand> m_commands;
 
 		void _clear_screen(Bitmap* bitmap, RGBA color);
-		void _put_point(Bitmap* bitmap, Vertex v1, bool use_alpha);
-		void _put_line(Bitmap* bitmap, Vertex v1, Vertex v2, const Image* image, bool use_alpha);
+		void _put_point(Bitmap* bitmap, Vertex v1);
+		void _put_line(Bitmap* bitmap, Vertex v1, Vertex v2, const Image* image);
 		void _put_rect(Bitmap* bitmap, Rect rect, RGBA color);
 		void _put_rect_fill(Bitmap* bitmap, Rect rect, RGBA color);
 		void _put_circle(Bitmap* bitmap, IVec2 center, int32_t radius, RGBA color);
