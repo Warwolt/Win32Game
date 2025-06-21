@@ -54,6 +54,10 @@ namespace engine {
 		if (input.keyboard.key_was_pressed_now(VK_F3)) {
 			debug->show_cpu_timing_overlay = !debug->show_cpu_timing_overlay;
 		}
+
+		if (input.keyboard.key_was_pressed_now(VK_MENU)) {
+			debug->menu_bar_focused = !debug->menu_bar_focused;
+		}
 	}
 
 	void draw_debug(Renderer* renderer, const DebugState& debug, ResourceManager* resources, IVec2 screen_resolution) {
@@ -63,7 +67,12 @@ namespace engine {
 		}
 
 		/* Draw menu bar */
-		renderer->draw_rect_fill(Rect { 0, 0, screen_resolution.x, DEBUG_UI_FONT_SIZE }, RGBA::light_grey());
+		renderer->draw_rect_fill(Rect { 0, 0, screen_resolution.x, DEBUG_UI_FONT_SIZE + 2 }, RGBA::light_grey());
+		renderer->draw_text(debug.debug_font_id, DEBUG_UI_FONT_SIZE, { 8, DEBUG_UI_FONT_SIZE - 2 }, RGBA::black(), "Debug");
+		if (debug.menu_bar_focused) {
+			int32_t letter_width = resources->font(debug.debug_font_id).glyph(DEBUG_UI_FONT_SIZE, 'D').width;
+			renderer->draw_line({ 8, DEBUG_UI_FONT_SIZE - 1 }, { 8 + letter_width, DEBUG_UI_FONT_SIZE - 1 }, RGBA::black());
+		}
 
 		/* Render CPU profiling overlay */
 		if (debug.show_cpu_timing_overlay) {

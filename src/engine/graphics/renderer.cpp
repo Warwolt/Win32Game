@@ -86,6 +86,10 @@ namespace engine {
 		m_commands.push_back(DrawLine { v1, v2 });
 	}
 
+	void Renderer::draw_line(IVec2 pos1, IVec2 pos2, RGBA color) {
+		m_commands.push_back(DrawLine { Vertex { .pos = pos1, .color = color }, Vertex { .pos = pos2, .color = color } });
+	}
+
 	void Renderer::draw_rect(Rect rect, RGBA color) {
 		m_commands.push_back(DrawRect { rect, color, false });
 	}

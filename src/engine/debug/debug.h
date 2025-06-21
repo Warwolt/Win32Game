@@ -13,6 +13,7 @@ namespace engine {
 	struct DebugState {
 		FontID debug_font_id;
 		bool show_cpu_timing_overlay = false;
+		bool menu_bar_focused = false;
 
 		struct CPUPerformance {
 			DeltaTimer input_timer;
