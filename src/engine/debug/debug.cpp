@@ -32,18 +32,20 @@ namespace engine {
 		draw_section_timing("draw", debug.performance.draw_timer, 3);
 		draw_section_timing("render", debug.performance.render_timer, 4);
 		draw_section_timing("frame", debug.performance.frame_timer, 5);
-		std::string text = std::format("fps: {:3}    ", (int)(1.0f / debug.performance.frame_timer.average_delta()));
+		std::string text = std::format("fps: {:>4}   ", (int)(1.0f / debug.performance.frame_timer.average_delta()));
 		draw_text_right_aligned(renderer, resources, debug.debug_font_id, font_size, { 0, font_size * 6 }, screen_resolution.x, RGBA::white(), text);
 	}
 
 	void initialize_debug(DebugState* debug, ResourceManager* resources) {
 		debug->debug_font_id = resources->load_font("assets/font/ModernDOS8x16.ttf").value();
-		debug->test_screens.rendering.initialize(resources);
+		debug->rendering_test_screen.initialize(resources);
 	}
 
 	void update_debug(DebugState* debug, const InputDevices& input, Window* window) {
 		/* Update test screens */
-		debug->test_screens.rendering.update(input);
+		if (debug->show_rendering_test_screen) {
+			debug->rendering_test_screen.update(input);
+		}
 
 		/* Show CPU profiling information in window title */
 		window->set_title(std::format("{} ({:.1f} fps)", "Game", 1.0f / debug->performance.frame_timer.average_delta())); // FIXME: We should replace "Game" with some constant
@@ -55,7 +57,9 @@ namespace engine {
 
 	void draw_debug(Renderer* renderer, const DebugState& debug, ResourceManager* resources, IVec2 screen_resolution) {
 		/* Draw test screens */
-		debug.test_screens.rendering.draw(renderer, debug.debug_font_id, screen_resolution);
+		if (debug.show_rendering_test_screen) {
+			debug.rendering_test_screen.draw(renderer, debug.debug_font_id, screen_resolution);
+		}
 
 		/* Render CPU profiling overlay */
 		if (debug.show_cpu_timing_overlay) {
