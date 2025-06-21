@@ -391,7 +391,7 @@ namespace engine {
 
 	void Renderer::_put_text(Bitmap* bitmap, Font* typeface, int32_t font_size, IVec2 pos, RGBA color, const std::string& text) {
 		int cursor_x = pos.x;
-		int cursor_y = pos.y;
+		int cursor_y = pos.y + font_size;
 		for (char character : text) {
 			/* Render character */
 			const engine::Glyph& glyph = typeface->glyph(font_size, character);

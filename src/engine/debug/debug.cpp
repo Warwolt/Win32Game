@@ -14,17 +14,21 @@ namespace engine {
 		FontID font_id;
 		int32_t font_size;
 		RGBA color;
+		RGBA background_color = { 0, 0, 0, 0 };
 	};
 
 	static void draw_text_styled(
 		Renderer* renderer,
-		ResourceManager* /*resources*/,
+		ResourceManager* resources,
 		IVec2 position,
 		const Style& style,
 		const std::string& text
 	) {
-		// int32_t text_width = resources->font(style.font_id).text_width(style.font_size, text);
 		IVec2 padded_position = { position.x + style.padding, position.y - style.padding };
+		if (style.background_color) {
+			int32_t text_width = resources->font(style.font_id).text_width(style.font_size, text);
+			renderer->draw_rect_fill(Rect { position.x, position.y, text_width + 2 * style.padding, style.font_size + 2 * style.padding }, style.background_color);
+		}
 		renderer->draw_text(style.font_id, style.font_size, padded_position, style.color, text);
 	}
 
@@ -47,13 +51,13 @@ namespace engine {
 			std::string text = std::format("{}: {:.2f} ms", label, timer.average_delta() * 1e3);
 			draw_text_right_aligned(renderer, resources, debug.debug_font_id, DEBUG_UI_FONT_SIZE, { 0, DEBUG_UI_FONT_SIZE * y }, screen_resolution.x, RGBA::white(), text);
 		};
-		draw_section_timing("input", debug.performance.input_timer, 1);
-		draw_section_timing("update", debug.performance.update_timer, 2);
-		draw_section_timing("draw", debug.performance.draw_timer, 3);
-		draw_section_timing("render", debug.performance.render_timer, 4);
-		draw_section_timing("frame", debug.performance.frame_timer, 5);
+		draw_section_timing("input", debug.performance.input_timer, 0);
+		draw_section_timing("update", debug.performance.update_timer, 1);
+		draw_section_timing("draw", debug.performance.draw_timer, 2);
+		draw_section_timing("render", debug.performance.render_timer, 3);
+		draw_section_timing("frame", debug.performance.frame_timer, 4);
 		std::string text = std::format("fps: {:>4}   ", (int)(1.0f / debug.performance.frame_timer.average_delta()));
-		draw_text_right_aligned(renderer, resources, debug.debug_font_id, DEBUG_UI_FONT_SIZE, { 0, DEBUG_UI_FONT_SIZE * 6 }, screen_resolution.x, RGBA::white(), text);
+		draw_text_right_aligned(renderer, resources, debug.debug_font_id, DEBUG_UI_FONT_SIZE, { 0, DEBUG_UI_FONT_SIZE * 5 }, screen_resolution.x, RGBA::white(), text);
 	}
 
 	void initialize_debug(DebugState* debug, ResourceManager* resources) {
@@ -103,6 +107,7 @@ namespace engine {
 				.font_id = debug.debug_font_id,
 				.font_size = DEBUG_UI_FONT_SIZE,
 				.color = { 0, 0, 0, 255 },
+				.background_color = { 255, 0, 0, 255 }
 			};
 
 			/* Draw menu bar */
@@ -118,7 +123,7 @@ namespace engine {
 			// 	renderer->draw_line(IVec2 { menu_item_padding, DEBUG_UI_FONT_SIZE - 1 }, IVec2 { menu_item_padding + letter_width, DEBUG_UI_FONT_SIZE - 1 }, menu_bar_color_text);
 			// }
 			// renderer->draw_text(debug.debug_font_id, DEBUG_UI_FONT_SIZE, { menu_item_padding, DEBUG_UI_FONT_SIZE - 2 }, menu_bar_color_text, "Debug");
-			draw_text_styled(renderer, resources, { 0, DEBUG_UI_FONT_SIZE }, menu_item_style, "Debug");
+			draw_text_styled(renderer, resources, { 0, 0 }, menu_item_style, "Debug");
 		}
 
 		/* Render CPU profiling overlay */

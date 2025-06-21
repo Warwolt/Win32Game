@@ -15,6 +15,11 @@ namespace engine {
 		};
 	}
 
+	// A fully transparent color can't be shown, and is thus "falsy"
+	RGBA::operator bool() const {
+		return this->a > 0;
+	}
+
 	RGBA operator+(const RGBA& lhs, const RGBA& rhs) {
 		return RGBA {
 			.r = (uint8_t)engine::min(lhs.r + rhs.r, 255),
