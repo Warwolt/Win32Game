@@ -99,11 +99,7 @@ namespace engine {
 		/* Draw Debug UI */
 		{
 			constexpr RGBA menu_bar_color_bg = { 177, 177, 177, 255 };
-			// constexpr RGBA menu_bar_color_focus = { 197, 197, 197, 255 };
-			// constexpr RGBA menu_bar_color_text = { 0, 0, 0, 255 };
 			constexpr int32_t menu_bar_height = DEBUG_UI_FONT_SIZE + 6;
-			// constexpr int32_t menu_item_padding = 8;
-			// constexpr int32_t menu_item_focus_padding = 2;
 
 			Style menu_item_style {
 				.padding = 1,
@@ -116,18 +112,16 @@ namespace engine {
 
 			/* Draw menu bar */
 			renderer->draw_rect_fill(Rect { 0, 0, screen_resolution.x, menu_bar_height }, menu_bar_color_bg);
-			// if (debug.menu_bar_focused) {
-			// 	// draw focus
-			// 	int32_t text_width = resources->font(debug.debug_font_id).text_width(DEBUG_UI_FONT_SIZE, "Debug");
-			// 	int32_t focus_padding = menu_item_focus_padding;
-			// 	renderer->draw_rect_fill(Rect { menu_item_padding - focus_padding, focus_padding, text_width + focus_padding, DEBUG_UI_FONT_SIZE }, menu_bar_color_focus);
-
-			// 	// draw underline
-			// 	int32_t letter_width = resources->font(debug.debug_font_id).glyph(DEBUG_UI_FONT_SIZE, 'D').width;
-			// 	renderer->draw_line(IVec2 { menu_item_padding, DEBUG_UI_FONT_SIZE - 1 }, IVec2 { menu_item_padding + letter_width, DEBUG_UI_FONT_SIZE - 1 }, menu_bar_color_text);
-			// }
-			// renderer->draw_text(debug.debug_font_id, DEBUG_UI_FONT_SIZE, { menu_item_padding, DEBUG_UI_FONT_SIZE - 2 }, menu_bar_color_text, "Debug");
 			draw_text_styled(renderer, resources, { 0, 0 }, menu_item_style, "Debug");
+			if (debug.menu_bar_focused) {
+				// draw underline
+				Style& style = menu_item_style;
+				Font& font = resources->font(debug.debug_font_id);
+				int32_t ascent = font.ascent(DEBUG_UI_FONT_SIZE);
+				int32_t letter_width = font.glyph(DEBUG_UI_FONT_SIZE, 'D').width;
+				IVec2 offset = { style.margin + style.padding, style.margin + style.padding + ascent };
+				renderer->draw_line(offset + IVec2 { 0, 1 }, offset + IVec2 { letter_width, 1 }, style.color);
+			}
 		}
 
 		/* Render CPU profiling overlay */
