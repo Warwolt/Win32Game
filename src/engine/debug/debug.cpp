@@ -24,9 +24,10 @@ namespace engine {
 		const Style& style,
 		const std::string& text
 	) {
-		IVec2 padded_position = { position.x + style.padding, position.y - style.padding };
+		IVec2 padded_position = { position.x + style.padding, position.y + style.padding };
 		if (style.background_color) {
-			int32_t text_width = resources->font(style.font_id).text_width(style.font_size, text);
+			Font& font = resources->font(style.font_id);
+			int32_t text_width = font.text_width(style.font_size, text);
 			renderer->draw_rect_fill(Rect { position.x, position.y, text_width + 2 * style.padding, style.font_size + 2 * style.padding }, style.background_color);
 		}
 		renderer->draw_text(style.font_id, style.font_size, padded_position, style.color, text);
