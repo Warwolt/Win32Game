@@ -71,14 +71,14 @@ static LRESULT CALLBACK on_window_event(
 		case WM_KEYDOWN: {
 			uint32_t key_id = (uint32_t)w_param;
 			g_context.engine.input.keyboard.on_key_event(key_id, true);
-			return (LRESULT)1;
+			return (LRESULT)0;
 		} break;
 
 		case WM_SYSKEYUP:
 		case WM_KEYUP: {
 			uint32_t key_id = (uint32_t)w_param;
 			g_context.engine.input.keyboard.on_key_event(key_id, false);
-			return (LRESULT)1;
+			return (LRESULT)0;
 		} break;
 
 		case WM_DESTROY: {
