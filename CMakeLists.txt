@@ -54,7 +54,6 @@ set(INC
 
 set(TEST_SRC
     test/engine/button_tests.cpp
-    test/engine/inplace_vector_tests.cpp
     test/engine/keyboard_tests.cpp
     test/engine/moving_average_tests.cpp
 )
@@ -67,7 +66,6 @@ target_include_directories(source PUBLIC src ${INC})
 add_executable(win32game WIN32 src/main.cpp)
 target_include_directories(win32game PUBLIC src ${INC})
 target_link_libraries(win32game PUBLIC source)
-target_compile_definitions(win32game PUBLIC INPLACE_VECTOR_BOUNDS_CHECK)
 set_property(TARGET win32game PROPERTY WIN32_EXECUTABLE TRUE)
 set_property(TARGET win32game PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT win32game)
