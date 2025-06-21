@@ -166,7 +166,7 @@ namespace engine {
 			}
 			if (auto* draw_text = std::get_if<DrawText>(&command)) {
 				auto& [font_id, font_size, pos, color, text] = *draw_text;
-				Typeface& typeface = resources->font(font_id);
+				Font& typeface = resources->font(font_id);
 				_put_text(bitmap, &typeface, font_size, pos, color, text);
 			}
 		}
@@ -385,7 +385,7 @@ namespace engine {
 		}
 	}
 
-	void Renderer::_put_text(Bitmap* bitmap, Typeface* typeface, int32_t font_size, IVec2 pos, RGBA color, const std::string& text) {
+	void Renderer::_put_text(Bitmap* bitmap, Font* typeface, int32_t font_size, IVec2 pos, RGBA color, const std::string& text) {
 		int cursor_x = pos.x;
 		int cursor_y = pos.y;
 		for (char character : text) {

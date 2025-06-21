@@ -47,7 +47,7 @@ namespace engine {
 		}
 
 		/* Load and store font */
-		if (std::optional<Typeface> font = Typeface::from_path(filepath)) {
+		if (std::optional<Font> font = Font::from_path(filepath)) {
 			FontID id = FontID(m_next_font_id++);
 			m_fonts[id.value] = font.value();
 			return id;
@@ -66,7 +66,7 @@ namespace engine {
 		return it->second;
 	}
 
-	Typeface& ResourceManager::font(FontID id) {
+	Font& ResourceManager::font(FontID id) {
 		DEBUG_ASSERT(m_fonts.contains(id.value), "Trying to access non-existing font using id %d", id.value);
 		return m_fonts.at(id.value);
 	}

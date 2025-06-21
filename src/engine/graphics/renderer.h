@@ -16,7 +16,7 @@ namespace engine {
 
 	class ResourceManager;
 	struct Image;
-	class Typeface;
+	class Font;
 
 	struct Vertex {
 		IVec2 pos;
@@ -104,7 +104,7 @@ namespace engine {
 		void _put_triangle(Bitmap* bitmap, Vertex v1, Vertex v2, Vertex v3);
 		void _put_triangle_fill(Bitmap* bitmap, Vertex v1, Vertex v2, Vertex v3);
 		void _put_image(Bitmap* bitmap, const Image& image, Rect rect, Rect clip, RGBA tint);
-		void _put_text(Bitmap* bitmap, Typeface* typeface, int32_t font_size, IVec2 pos, RGBA color, const std::string& text);
+		void _put_text(Bitmap* bitmap, Font* typeface, int32_t font_size, IVec2 pos, RGBA color, const std::string& text);
 	};
 
 } // namespace engine
