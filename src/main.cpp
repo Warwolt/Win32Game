@@ -155,6 +155,10 @@ int WINAPI WinMain(
 		update_input();
 		input_timer.end();
 
+		if (g_context.engine.window.is_minimized()) {
+			continue;
+		}
+
 		/* Update */
 		update_timer.start();
 		game::update(&g_context.game, &g_context.engine.commands, g_context.engine.input);
