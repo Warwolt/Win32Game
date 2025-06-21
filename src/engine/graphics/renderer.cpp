@@ -132,90 +132,11 @@ namespace engine {
 	}
 
 	void Renderer::draw_triangle_fill(Vertex v1, Vertex v2, Vertex v3) {
-		struct TriangleEdge {
-			int32_t x0;
-			int32_t y0;
-			int32_t y1;
-			float inv_slope;
-		};
-
-		auto make_triangle_edge = [](Vertex a, Vertex b) -> TriangleEdge {
-			return TriangleEdge {
-				.x0 = a.pos.x,
-				.y0 = a.pos.y,
-				.y1 = b.pos.y,
-				.inv_slope = (float)(b.pos.x - a.pos.x) / (float)(b.pos.y - a.pos.y),
-			};
-		};
-
-		std::array<TriangleEdge, 3> edges = {
-			make_triangle_edge(v1, v2),
-			make_triangle_edge(v1, v3),
-			make_triangle_edge(v2, v3),
-		};
-
-		int32_t min_x = std::min({ v1.pos.x, v2.pos.x, v3.pos.x });
-		int32_t min_y = std::min({ v1.pos.y, v2.pos.y, v3.pos.y });
-		int32_t max_x = std::max({ v1.pos.x, v2.pos.x, v3.pos.x });
-		int32_t max_y = std::max({ v1.pos.y, v2.pos.y, v3.pos.y });
-
-		CommandBatch batch = {
-			.rect = Rect {
-				min_x,
-				min_y,
-				max_x - min_x + 1,
-				max_y - min_y + 1,
+		m_batches.push_back(CommandBatch {
+			.commands = {
+				DrawTriangle { v1, v2, v3, true },
 			},
-		};
-
-		auto triangle_area = [](IVec2 a, IVec2 b) -> float {
-			return std::abs((float)(a.x * b.y - a.y * b.x) / 2.0f);
-		};
-
-		float area_v1v2v3 = triangle_area(v2.pos - v1.pos, v3.pos - v1.pos);
-
-		for (int32_t y = min_y; y <= max_y; y++) {
-			/* Get intersections betwen scanline and lines extended from triangle sides */
-			std::array<int32_t, 3> xs = {
-				(int32_t)std::round(edges[0].inv_slope * (y - edges[0].y0) + edges[0].x0),
-				(int32_t)std::round(edges[1].inv_slope * (y - edges[1].y0) + edges[1].x0),
-				(int32_t)std::round(edges[2].inv_slope * (y - edges[2].y0) + edges[2].x0),
-			};
-
-			/* Discard line intersections outside of triangle */
-			auto is_out_of_bounds = [min_x, max_x](int32_t x) { return x < min_x || x > max_x; };
-			auto last = std::remove_if(xs.begin(), xs.end(), is_out_of_bounds);
-			std::sort(xs.begin(), xs.end());
-			IVec2 p1 = { xs[0], y };
-			IVec2 p2 = { xs[1], y };
-
-			/* Interpolate colors */
-			// left color
-			float area_v1v2p1 = triangle_area(v2.pos - v1.pos, p1 - v1.pos);
-			float area_v1v3p1 = triangle_area(v3.pos - v1.pos, p1 - v1.pos);
-			float area_v2v3p1 = triangle_area(v3.pos - v2.pos, p1 - v2.pos);
-			float v1_t1 = area_v2v3p1 / area_v1v2v3;
-			float v2_t1 = area_v1v3p1 / area_v1v2v3;
-			float v3_t1 = area_v1v2p1 / area_v1v2v3;
-			RGBA color1 = v1_t1 * v1.color + v2_t1 * v2.color + v3_t1 * v3.color;
-
-			// right color
-			float area_v1v2p2 = triangle_area(v2.pos - v1.pos, p2 - v1.pos);
-			float area_v1v3p2 = triangle_area(v3.pos - v1.pos, p2 - v1.pos);
-			float area_v2v3p2 = triangle_area(v3.pos - v2.pos, p2 - v2.pos);
-			float v1_t2 = area_v2v3p2 / area_v1v2v3;
-			float v2_t2 = area_v1v3p2 / area_v1v2v3;
-			float v3_t2 = area_v1v2p2 / area_v1v2v3;
-			RGBA color2 = v1_t2 * v1.color + v2_t2 * v2.color + v3_t2 * v3.color;
-
-			/* Draw line */
-			batch.commands.push_back(DrawLine {
-				.v1 = Vertex { .pos = { xs[0], y }, .color = color1 },
-				.v2 = Vertex { .pos = { xs[1], y }, .color = color2 },
-			});
-		}
-
-		m_batches.push_back(batch);
+		});
 	}
 
 	void Renderer::draw_image(ImageID image_id, Rect rect, Rect clip, RGBA tint) {
@@ -312,7 +233,7 @@ namespace engine {
 					if (auto* draw_triangle = std::get_if<DrawTriangle>(&command)) {
 						auto& [v1, v2, v3, filled] = *draw_triangle;
 						if (filled) {
-							// _put_triangle_fill(bitmap, center, radius, color);
+							_put_triangle_fill(bitmap, v1, v2, v3);
 						}
 						else {
 							_put_triangle(bitmap, v1, v2, v3);
@@ -463,10 +384,66 @@ namespace engine {
 	}
 
 	void Renderer::_put_triangle(Bitmap* bitmap, Vertex v1, Vertex v2, Vertex v3) {
-		// FIXME: avoid overdraw
 		_put_line(bitmap, v1, v2, nullptr, true);
 		_put_line(bitmap, v1, v3, nullptr, true);
 		_put_line(bitmap, v2, v3, nullptr, true);
+	}
+
+	void Renderer::_put_triangle_fill(Bitmap* bitmap, Vertex v1, Vertex v2, Vertex v3) {
+		auto triangle_area = [](IVec2 a, IVec2 b) -> float {
+			return std::abs((float)(a.x * b.y - a.y * b.x) / 2.0f);
+		};
+
+		int32_t x_min = std::min({ v1.pos.x, v2.pos.x, v3.pos.x });
+		int32_t x_max = std::max({ v1.pos.x, v2.pos.x, v3.pos.x });
+		int32_t y_min = std::min({ v1.pos.y, v2.pos.y, v3.pos.y });
+		int32_t y_max = std::max({ v1.pos.y, v2.pos.y, v3.pos.y });
+
+		float inv_slope[3] = {
+			(float)(v2.pos.x - v1.pos.x) / (float)(v2.pos.y - v1.pos.y),
+			(float)(v3.pos.x - v1.pos.x) / (float)(v3.pos.y - v1.pos.y),
+			(float)(v3.pos.x - v2.pos.x) / (float)(v3.pos.y - v2.pos.y),
+		};
+
+		float area_v1v2v3 = triangle_area(v2.pos - v1.pos, v3.pos - v1.pos);
+		for (int32_t y = y_min; y <= y_max; y++) {
+			/* Get intersections betwen scanline and lines extended from triangle sides */
+			int32_t xs[3] = {
+				(int32_t)std::round((y - v1.pos.y) * inv_slope[0] + v1.pos.x),
+				(int32_t)std::round((y - v1.pos.y) * inv_slope[1] + v1.pos.x),
+				(int32_t)std::round((y - v2.pos.y) * inv_slope[2] + v2.pos.x),
+			};
+
+			/* Discard line intersections outside of triangle */
+			if (xs[0] < x_min || xs[0] > x_max) {
+				std::swap(xs[0], xs[2]);
+			}
+			else if (xs[1] < x_min || xs[1] > x_max) {
+				std::swap(xs[1], xs[2]);
+			}
+			Vertex p1 = { .pos = { (int32_t)xs[0], y } };
+			Vertex p2 = { .pos = { (int32_t)xs[1], y } };
+
+			/* Interpolate colors */
+			float area_v1v2p1 = triangle_area(v2.pos - v1.pos, p1.pos - v1.pos);
+			float area_v1v3p1 = triangle_area(v3.pos - v1.pos, p1.pos - v1.pos);
+			float area_v2v3p1 = triangle_area(v3.pos - v2.pos, p1.pos - v2.pos);
+			float v1_t1 = area_v2v3p1 / area_v1v2v3;
+			float v2_t1 = area_v1v3p1 / area_v1v2v3;
+			float v3_t1 = area_v1v2p1 / area_v1v2v3;
+			p1.color = v1_t1 * v1.color + v2_t1 * v2.color + v3_t1 * v3.color;
+
+			float area_v1v2p2 = triangle_area(v2.pos - v1.pos, p2.pos - v1.pos);
+			float area_v1v3p2 = triangle_area(v3.pos - v1.pos, p2.pos - v1.pos);
+			float area_v2v3p2 = triangle_area(v3.pos - v2.pos, p2.pos - v2.pos);
+			float v1_t2 = area_v2v3p2 / area_v1v2v3;
+			float v2_t2 = area_v1v3p2 / area_v1v2v3;
+			float v3_t2 = area_v1v2p2 / area_v1v2v3;
+			p2.color = v1_t2 * v1.color + v2_t2 * v2.color + v3_t2 * v3.color;
+
+			/* Draw line */
+			_put_line(bitmap, p1, p2, nullptr, true);
+		}
 	}
 
 	void Renderer::_put_text(Bitmap* bitmap, Typeface* typeface, int32_t font_size, IVec2 pos, RGBA color, const std::string& text) {

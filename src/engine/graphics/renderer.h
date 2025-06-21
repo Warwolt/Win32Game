@@ -37,8 +37,8 @@ namespace engine {
 		void draw_circle(IVec2 center, int32_t radius, RGBA color);
 		void draw_circle_fill(IVec2 center, int32_t radius, RGBA color);
 		void draw_triangle(Vertex v1, Vertex v2, Vertex v3);
-
 		void draw_triangle_fill(Vertex v1, Vertex v2, Vertex v3);
+
 		void draw_image(ImageID image_id, Rect rect, Rect clip = {}, RGBA tint = RGBA::white());
 		void draw_text(FontID font_id, int32_t font_size, IVec2 pos, RGBA color, std::string text);
 
@@ -87,17 +87,15 @@ namespace engine {
 			DrawCircle,
 			DrawTriangle,
 			DrawText>;
+		// FIXME: remove `CommandBatch`
 		struct CommandBatch {
 			Rect rect;
 			std::optional<ImageID> image_id;
 			std::vector<DrawCommand> commands;
 		};
 
-		// The scratchpad is used to separate drawing the pixels from the alpha
-		// blending, so that we don't have to care about overdraw. We borrow
-		// `padding` in Pixel to store the alpha value.
-		Bitmap m_scratchpad;
-		std::vector<CommandBatch> m_batches;
+		Bitmap m_scratchpad; // FIXME: remove `m_scratchpad`
+		std::vector<CommandBatch> m_batches; // FIXME: change this to DrawCommand
 
 		void _clear_screen(Bitmap* bitmap, RGBA color);
 		void _put_point(Bitmap* bitmap, Vertex v1, bool use_alpha);
@@ -107,6 +105,7 @@ namespace engine {
 		void _put_circle(Bitmap* bitmap, IVec2 center, int32_t radius, RGBA color);
 		void _put_circle_fill(Bitmap* bitmap, IVec2 center, int32_t radius, RGBA color);
 		void _put_triangle(Bitmap* bitmap, Vertex v1, Vertex v2, Vertex v3);
+		void _put_triangle_fill(Bitmap* bitmap, Vertex v1, Vertex v2, Vertex v3);
 		void _put_text(Bitmap* bitmap, Typeface* typeface, int32_t font_size, IVec2 pos, RGBA color, const std::string& text);
 	};
 
