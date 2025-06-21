@@ -7,6 +7,8 @@
 
 namespace engine {
 
+	constexpr int32_t DEBUG_UI_FONT_SIZE = 16;
+
 	static void draw_text_right_aligned(
 		Renderer* renderer,
 		ResourceManager* resources,
@@ -22,10 +24,9 @@ namespace engine {
 	}
 
 	static void draw_cpu_timing_overlay(Renderer* renderer, const DebugState& debug, ResourceManager* resources, IVec2 screen_resolution) {
-		int32_t font_size = 16;
 		auto draw_section_timing = [&](const std::string& label, const DeltaTimer& timer, int32_t y) {
 			std::string text = std::format("{}: {:.2f} ms", label, timer.average_delta() * 1e3);
-			draw_text_right_aligned(renderer, resources, debug.debug_font_id, font_size, { 0, font_size * y }, screen_resolution.x, RGBA::white(), text);
+			draw_text_right_aligned(renderer, resources, debug.debug_font_id, DEBUG_UI_FONT_SIZE, { 0, DEBUG_UI_FONT_SIZE * y }, screen_resolution.x, RGBA::white(), text);
 		};
 		draw_section_timing("input", debug.performance.input_timer, 1);
 		draw_section_timing("update", debug.performance.update_timer, 2);
@@ -33,7 +34,7 @@ namespace engine {
 		draw_section_timing("render", debug.performance.render_timer, 4);
 		draw_section_timing("frame", debug.performance.frame_timer, 5);
 		std::string text = std::format("fps: {:>4}   ", (int)(1.0f / debug.performance.frame_timer.average_delta()));
-		draw_text_right_aligned(renderer, resources, debug.debug_font_id, font_size, { 0, font_size * 6 }, screen_resolution.x, RGBA::white(), text);
+		draw_text_right_aligned(renderer, resources, debug.debug_font_id, DEBUG_UI_FONT_SIZE, { 0, DEBUG_UI_FONT_SIZE * 6 }, screen_resolution.x, RGBA::white(), text);
 	}
 
 	void initialize_debug(DebugState* debug, ResourceManager* resources) {
@@ -60,6 +61,9 @@ namespace engine {
 		if (debug.show_rendering_test_screen) {
 			debug.rendering_test_screen.draw(renderer, debug.debug_font_id, screen_resolution);
 		}
+
+		/* Draw menu bar */
+		renderer->draw_rect_fill(Rect { 0, 0, screen_resolution.x, DEBUG_UI_FONT_SIZE }, RGBA::light_grey());
 
 		/* Render CPU profiling overlay */
 		if (debug.show_cpu_timing_overlay) {
