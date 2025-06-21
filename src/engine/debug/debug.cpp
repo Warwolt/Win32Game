@@ -70,8 +70,10 @@ namespace engine {
 		renderer->draw_rect_fill(Rect { 0, 0, screen_resolution.x, DEBUG_UI_FONT_SIZE + 2 }, RGBA::light_grey());
 		renderer->draw_text(debug.debug_font_id, DEBUG_UI_FONT_SIZE, { 8, DEBUG_UI_FONT_SIZE - 2 }, RGBA::black(), "Debug");
 		if (debug.menu_bar_focused) {
+			int32_t text_width = resources->font(debug.debug_font_id).text_width(DEBUG_UI_FONT_SIZE, "Debug");
 			int32_t letter_width = resources->font(debug.debug_font_id).glyph(DEBUG_UI_FONT_SIZE, 'D').width;
-			renderer->draw_line({ 8, DEBUG_UI_FONT_SIZE - 1 }, { 8 + letter_width, DEBUG_UI_FONT_SIZE - 1 }, RGBA::black());
+			renderer->draw_rect(Rect { 8 - 2, 2, text_width + 2, DEBUG_UI_FONT_SIZE }, RGBA::purple());
+			renderer->draw_line(IVec2 { 8, DEBUG_UI_FONT_SIZE - 1 }, IVec2 { 8 + letter_width, DEBUG_UI_FONT_SIZE - 1 }, RGBA::black());
 		}
 
 		/* Render CPU profiling overlay */
