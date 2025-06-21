@@ -93,16 +93,7 @@ namespace engine {
 			DrawTriangle,
 			DrawImage,
 			DrawText>;
-
-		// FIXME: remove `CommandBatch`
-		struct CommandBatch {
-			Rect rect;
-			std::optional<ImageID> image_id;
-			std::vector<DrawCommand> commands;
-		};
-
-		Bitmap m_scratchpad;                 // FIXME: remove `m_scratchpad`
-		std::vector<CommandBatch> m_batches; // FIXME: change this to DrawCommand
+		std::vector<DrawCommand> m_commands;
 
 		void _clear_screen(Bitmap* bitmap, RGBA color);
 		void _put_point(Bitmap* bitmap, Vertex v1, bool use_alpha);

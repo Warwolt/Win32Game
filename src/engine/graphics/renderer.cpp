@@ -72,176 +72,102 @@ namespace engine {
 	}
 
 	void Renderer::clear_screen(RGBA color) {
-		m_batches.push_back(CommandBatch { .commands = { ClearScreen { color } } });
+		m_commands.push_back(ClearScreen { color });
 	}
 
 	void Renderer::draw_point(Vertex v1) {
-		m_batches.push_back(CommandBatch {
-			.commands = {
-				DrawPoint { v1 },
-			},
-		});
+		m_commands.push_back(DrawPoint { v1 });
 	}
 
 	void Renderer::draw_line(Vertex v1, Vertex v2) {
-		m_batches.push_back(CommandBatch {
-			.commands = {
-				DrawLine { v1, v2 },
-			},
-		});
+		m_commands.push_back(DrawLine { v1, v2 });
 	}
 
 	void Renderer::draw_rect(Rect rect, RGBA color) {
-		m_batches.push_back(CommandBatch {
-			.commands = {
-				DrawRect { rect, color, false },
-			},
-		});
+		m_commands.push_back(DrawRect { rect, color, false });
 	}
 
 	void Renderer::draw_rect_fill(Rect rect, RGBA color) {
-		m_batches.push_back(CommandBatch {
-			.commands = {
-				DrawRect { rect, color, true },
-			},
-		});
+		m_commands.push_back(DrawRect { rect, color, true });
 	}
 
 	void Renderer::draw_circle(IVec2 center, int32_t radius, RGBA color) {
-		m_batches.push_back(CommandBatch {
-			.commands = {
-				DrawCircle { center, radius, color, false },
-			},
-		});
+		m_commands.push_back(DrawCircle { center, radius, color, false });
 	}
 
 	void Renderer::draw_circle_fill(IVec2 center, int32_t radius, RGBA color) {
-		m_batches.push_back(CommandBatch {
-			.commands = {
-				DrawCircle { center, radius, color, true },
-			},
-		});
+		m_commands.push_back(DrawCircle { center, radius, color, true });
 	}
 
 	void Renderer::draw_triangle(Vertex v1, Vertex v2, Vertex v3) {
-		m_batches.push_back(CommandBatch {
-			.commands = {
-				DrawTriangle { v1, v2, v3, false },
-			},
-		});
+		m_commands.push_back(DrawTriangle { v1, v2, v3, false });
 	}
 
 	void Renderer::draw_triangle_fill(Vertex v1, Vertex v2, Vertex v3) {
-		m_batches.push_back(CommandBatch {
-			.commands = {
-				DrawTriangle { v1, v2, v3, true },
-			},
-		});
+		m_commands.push_back(DrawTriangle { v1, v2, v3, true });
 	}
 
 	void Renderer::draw_image(ImageID image_id, Rect rect, Rect clip, RGBA tint) {
-		m_batches.push_back(CommandBatch {
-			.commands = {
-				DrawImage { image_id, rect, clip, tint },
-			},
-		});
+		m_commands.push_back(DrawImage { image_id, rect, clip, tint });
 	}
 
 	void Renderer::draw_text(FontID font_id, int32_t font_size, IVec2 pos, RGBA color, std::string text) {
-		m_batches.push_back(CommandBatch {
-			.commands = {
-				DrawText { font_id, font_size, pos, color, text },
-			},
-		});
+		m_commands.push_back(DrawText { font_id, font_size, pos, color, text });
 	}
 
 	void Renderer::render(Bitmap* bitmap, ResourceManager* resources) {
-		/* Keep scratchpad size in sync with bitmap */
-		m_scratchpad.resize(bitmap->width(), bitmap->height());
-
 		/* Run commands */
-		for (const CommandBatch& batch : m_batches) {
-			const Image* image = batch.image_id ? &resources->image(*batch.image_id) : nullptr;
-			if (batch.rect.empty()) {
-				/* Draw directly to bitmap */
-				for (const DrawCommand& command : batch.commands) {
-					if (auto* clear_screen = std::get_if<ClearScreen>(&command)) {
-						auto& [color] = *clear_screen;
-						_clear_screen(bitmap, color);
-					}
-					if (auto* draw_point = std::get_if<DrawPoint>(&command)) {
-						auto& [v1] = *draw_point;
-						_put_point(bitmap, v1, true);
-					}
-					if (auto* draw_line = std::get_if<DrawLine>(&command)) {
-						auto& [v1, v2] = *draw_line;
-						_put_line(bitmap, v1, v2, image, true);
-					}
-					if (auto* draw_rect = std::get_if<DrawRect>(&command)) {
-						auto& [rect, color, filled] = *draw_rect;
-						if (filled) {
-							_put_rect_fill(bitmap, rect, color);
-						}
-						else {
-							_put_rect(bitmap, rect, color);
-						}
-					}
-					if (auto* draw_circle = std::get_if<DrawCircle>(&command)) {
-						auto& [center, radius, color, filled] = *draw_circle;
-						if (filled) {
-							_put_circle_fill(bitmap, center, radius, color);
-						}
-						else {
-							_put_circle(bitmap, center, radius, color);
-						}
-					}
-					if (auto* draw_triangle = std::get_if<DrawTriangle>(&command)) {
-						auto& [v1, v2, v3, filled] = *draw_triangle;
-						if (filled) {
-							_put_triangle_fill(bitmap, v1, v2, v3);
-						}
-						else {
-							_put_triangle(bitmap, v1, v2, v3);
-						}
-					}
-					if (auto* draw_image = std::get_if<DrawImage>(&command)) {
-						auto& [image_id, rect, clip, tint] = *draw_image;
-						_put_image(bitmap, resources->image(image_id), rect, clip, tint);
-					}
-					if (auto* draw_text = std::get_if<DrawText>(&command)) {
-						auto& [font_id, font_size, pos, color, text] = *draw_text;
-						Typeface& typeface = resources->font(font_id);
-						_put_text(bitmap, &typeface, font_size, pos, color, text);
-					}
+		for (const DrawCommand& command : m_commands) {
+			if (auto* clear_screen = std::get_if<ClearScreen>(&command)) {
+				auto& [color] = *clear_screen;
+				_clear_screen(bitmap, color);
+			}
+			if (auto* draw_point = std::get_if<DrawPoint>(&command)) {
+				auto& [v1] = *draw_point;
+				_put_point(bitmap, v1, true);
+			}
+			if (auto* draw_line = std::get_if<DrawLine>(&command)) {
+				auto& [v1, v2] = *draw_line;
+				_put_line(bitmap, v1, v2, nullptr, true);
+			}
+			if (auto* draw_rect = std::get_if<DrawRect>(&command)) {
+				auto& [rect, color, filled] = *draw_rect;
+				if (filled) {
+					_put_rect_fill(bitmap, rect, color);
+				}
+				else {
+					_put_rect(bitmap, rect, color);
 				}
 			}
-			else {
-				/* Clear scratch pad area */
-				m_scratchpad.clear_section(Pixel { 0, 0, 0, 0 }, batch.rect);
-
-				/* Draw onto scratch pad */
-				for (const DrawCommand& command : batch.commands) {
-					if (auto* draw_point = std::get_if<DrawPoint>(&command)) {
-						_put_point(&m_scratchpad, draw_point->v1, false);
-					}
-					if (auto* draw_line = std::get_if<DrawLine>(&command)) {
-						_put_line(&m_scratchpad, draw_line->v1, draw_line->v2, image, false);
-					}
+			if (auto* draw_circle = std::get_if<DrawCircle>(&command)) {
+				auto& [center, radius, color, filled] = *draw_circle;
+				if (filled) {
+					_put_circle_fill(bitmap, center, radius, color);
 				}
-
-				/* Draw scratch pad onto bitmap */
-				for (int32_t y = batch.rect.y; y < batch.rect.y + batch.rect.height; y++) {
-					for (int32_t x = batch.rect.x; x < batch.rect.x + batch.rect.width; x++) {
-						Pixel scratchpad_pixel = m_scratchpad.get(x, y);
-						float alpha = scratchpad_pixel.padding / 255.0f;
-						bitmap->put(x, y, scratchpad_pixel, alpha);
-					}
+				else {
+					_put_circle(bitmap, center, radius, color);
 				}
+			}
+			if (auto* draw_triangle = std::get_if<DrawTriangle>(&command)) {
+				auto& [v1, v2, v3, filled] = *draw_triangle;
+				if (filled) {
+					_put_triangle_fill(bitmap, v1, v2, v3);
+				}
+				else {
+					_put_triangle(bitmap, v1, v2, v3);
+				}
+			}
+			if (auto* draw_image = std::get_if<DrawImage>(&command)) {
+				auto& [image_id, rect, clip, tint] = *draw_image;
+				_put_image(bitmap, resources->image(image_id), rect, clip, tint);
+			}
+			if (auto* draw_text = std::get_if<DrawText>(&command)) {
+				auto& [font_id, font_size, pos, color, text] = *draw_text;
+				Typeface& typeface = resources->font(font_id);
+				_put_text(bitmap, &typeface, font_size, pos, color, text);
 			}
 		}
-
-		/* Clear commands */
-		m_batches.clear();
+		m_commands.clear();
 	}
 
 	void Renderer::_clear_screen(Bitmap* bitmap, RGBA color) {
