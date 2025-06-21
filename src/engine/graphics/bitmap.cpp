@@ -1,6 +1,6 @@
 #include <engine/graphics/bitmap.h>
 
-#include <algorithm>
+#include <engine/math/math.h>
 
 namespace engine {
 
@@ -14,9 +14,9 @@ namespace engine {
 
 	Pixel Pixel::lerp(Pixel rhs, float t) const {
 		return Pixel {
-			.b = (uint8_t)std::lerp(this->b, rhs.b, t),
-			.g = (uint8_t)std::lerp(this->g, rhs.g, t),
-			.r = (uint8_t)std::lerp(this->r, rhs.r, t),
+			.b = (uint8_t)engine::lerp(this->b, rhs.b, t),
+			.g = (uint8_t)engine::lerp(this->g, rhs.g, t),
+			.r = (uint8_t)engine::lerp(this->r, rhs.r, t),
 		};
 	}
 
@@ -26,6 +26,10 @@ namespace engine {
 		bitmap.m_height = std::max(height, 0);
 		bitmap.m_data.resize(bitmap.m_width * bitmap.m_height);
 		return bitmap;
+	}
+
+	void Bitmap::clear(Pixel color) {
+		std::fill(m_data.begin(), m_data.end(), color);
 	}
 
 	void Bitmap::resize(int32_t width, int32_t height) {
@@ -40,8 +44,10 @@ namespace engine {
 				m_data[x + m_width * y] = pixel;
 			}
 			else {
-				const Pixel& current_pixel = m_data[x + m_width * y];
-				m_data[x + m_width * y] = current_pixel.lerp(pixel, alpha);
+				Pixel& bitmap_pixel = m_data[x + m_width * y];
+				bitmap_pixel.b = (uint8_t)engine::lerp(bitmap_pixel.b, pixel.b, alpha);
+				bitmap_pixel.g = (uint8_t)engine::lerp(bitmap_pixel.g, pixel.g, alpha);
+				bitmap_pixel.r = (uint8_t)engine::lerp(bitmap_pixel.r, pixel.r, alpha);
 			}
 		}
 	}

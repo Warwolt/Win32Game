@@ -11,21 +11,14 @@ namespace engine {
 
 	void RenderingTestScreen::initialize(ResourceManager* resources) {
 		m_render_test_image_id = resources->load_image("assets/image/render_test.png").value_or(INVALID_IMAGE_ID);
-		m_font_id = resources->load_font("assets/font/ModernDOS8x16.ttf").value();
 		m_font_size = 16;
 	}
 
-	void RenderingTestScreen::update(const InputDevices& input, ResourceManager* resources) {
+	void RenderingTestScreen::update(const InputDevices& input) {
 		m_alpha = (uint8_t)std::clamp((int16_t)m_alpha + 16 * input.mouse.mouse_wheel_delta, 0, 255);
-
-		m_text_width = 0;
-		for (char character : "the quick brown fox jumps") {
-			const engine::Glyph& glyph = resources->font(m_font_id).glyph(m_font_size, character);
-			m_text_width += glyph.advance_width;
-		}
 	}
 
-	void RenderingTestScreen::draw(Renderer* renderer, IVec2 screen_resolution) const {
+	void RenderingTestScreen::draw(Renderer* renderer, FontID debug_font_id, IVec2 screen_resolution) const {
 		enum class FillMode {
 			Outline,
 			Filled,
@@ -72,14 +65,14 @@ namespace engine {
 		// note: for simplicity we put this at the top of the file, since we
 		// draw the text at the top of the screen
 		{
-			Rect rect {
+			IVec2 pos {
 				.x = 0,
 				.y = m_font_size,
-				.width = m_text_width,
 			};
 			RGBA text_color = RGBA::white();
 			text_color.a = m_alpha;
-			renderer->draw_text(m_font_id, m_font_size, rect, text_color, "the quick brown fox jumps over the lazy dog");
+			renderer->draw_text(debug_font_id, m_font_size, pos, text_color, "the quick brown fox jumps");
+			renderer->draw_text(debug_font_id, m_font_size, pos + IVec2 { 0, m_font_size }, text_color, "over the lazy dog");
 		}
 
 		/* Draw line */

@@ -3,10 +3,9 @@
 #include <engine/file/resource_manager.h>
 #include <engine/graphics/font.h>
 #include <engine/graphics/image.h>
+#include <engine/math/math.h>
 
-#include <algorithm>
 #include <cmath>
-#include <unordered_set>
 
 namespace engine {
 
@@ -30,7 +29,6 @@ namespace engine {
 		IVec2 point = { 0, radius };
 		while (point.x <= point.y) {
 			octant_points.push_back(point);
-
 			int32_t midpoint_x = point.x + 1;
 			float midpoint_y = point.y - 0.5f;
 			if (pow(midpoint_x, 2) + pow(midpoint_y, 2) > pow(radius, 2)) {
@@ -41,209 +39,314 @@ namespace engine {
 		return octant_points;
 	}
 
+	static std::vector<IVec2> half_circle_points(int32_t radius) {
+		/* Compute half circle*/
+		//         , - ~ ~ ~ - ,
+		//     , '               ' ,
+		//   ,                       ,
+		//  ,                         ,
+		// ,                           ,
+		// '-------------o-------------'
+		std::vector<IVec2> octant_points = circle_octant_points(radius);
+		IVec2 prev_point = IVec2 { octant_points[0].x, octant_points[0].y };
+		std::vector<IVec2> half_circle_points = { prev_point };
+		for (IVec2 point : octant_points) {
+			int32_t delta_y = point.y - prev_point.y;
+			if (delta_y == 0) {
+				half_circle_points.back() = point;
+			}
+			else {
+				half_circle_points.push_back(point);
+			}
+			prev_point = point;
+		}
+
+		prev_point = IVec2 { octant_points[0].y, octant_points[0].x };
+		half_circle_points.push_back(prev_point);
+		for (IVec2 point : octant_points) {
+			IVec2 flip_point = { point.y, point.x };
+			int32_t delta_y = flip_point.y - prev_point.y;
+			if (delta_y != 0) {
+				half_circle_points.push_back(flip_point);
+			}
+			prev_point = flip_point;
+		}
+		return half_circle_points;
+	}
+
 	void Renderer::clear_screen(RGBA color) {
-		m_batches.push_back(CommandBatch { .commands = { ClearScreen { color } } });
+		m_commands.push_back(ClearScreen { color });
 	}
 
 	void Renderer::draw_point(Vertex v1) {
-		m_batches.push_back(CommandBatch {
-			.commands = {
-				DrawPoint { v1 },
-			},
-		});
+		m_commands.push_back(DrawPoint { v1 });
 	}
 
 	void Renderer::draw_line(Vertex v1, Vertex v2) {
-		m_batches.push_back(CommandBatch {
-			.commands = {
-				DrawLine { v1, v2 },
-			},
-		});
+		m_commands.push_back(DrawLine { v1, v2 });
 	}
 
 	void Renderer::draw_rect(Rect rect, RGBA color) {
-		Vertex top_left = { .pos = { rect.x, rect.y }, .color = color };
-		Vertex top_right = { .pos = { rect.x + rect.width - 1, rect.y }, .color = color };
-		Vertex bottom_left = { .pos = { rect.x, rect.y + rect.height - 1 }, .color = color };
-		Vertex bottom_right = { .pos = { rect.x + rect.width - 1, rect.y + rect.height - 1 }, .color = color };
-		m_batches.push_back(CommandBatch {
-			.rect = rect,
-			.commands = {
-				DrawLine { top_left, top_right },
-				DrawLine { top_left, bottom_left },
-				DrawLine { top_right, bottom_right },
-				DrawLine { bottom_left, bottom_right },
-			},
-		});
+		m_commands.push_back(DrawRect { rect, color, false });
 	}
 
 	void Renderer::draw_rect_fill(Rect rect, RGBA color) {
-		CommandBatch batch = { .rect = rect };
-		for (int32_t y = rect.y; y < rect.y + rect.height; y++) {
-			Vertex left = { .pos = { rect.x, y }, .color = color };
-			Vertex right = { .pos = { rect.x + rect.width - 1, y }, .color = color };
-			batch.commands.push_back(DrawLine { left, right });
-		}
-		m_batches.push_back(batch);
+		m_commands.push_back(DrawRect { rect, color, true });
 	}
 
 	void Renderer::draw_circle(IVec2 center, int32_t radius, RGBA color) {
-		CommandBatch batch = {
-			.rect = Rect {
-				.x = center.x - radius,
-				.y = center.y - radius,
-				.width = 2 * radius + 1,
-				.height = 2 * radius + 1,
-			},
-		};
-		for (IVec2 point : circle_octant_points(radius)) {
-			batch.commands.push_back(DrawPoint { Vertex { .pos = center + IVec2 { point.x, point.y }, .color = color } });
-			batch.commands.push_back(DrawPoint { Vertex { .pos = center + IVec2 { point.y, point.x }, .color = color } });
-			batch.commands.push_back(DrawPoint { Vertex { .pos = center + IVec2 { point.y, -point.x }, .color = color } });
-			batch.commands.push_back(DrawPoint { Vertex { .pos = center + IVec2 { point.x, -point.y }, .color = color } });
-			batch.commands.push_back(DrawPoint { Vertex { .pos = center + IVec2 { -point.x, point.y }, .color = color } });
-			batch.commands.push_back(DrawPoint { Vertex { .pos = center + IVec2 { -point.y, point.x }, .color = color } });
-			batch.commands.push_back(DrawPoint { Vertex { .pos = center + IVec2 { -point.y, -point.x }, .color = color } });
-			batch.commands.push_back(DrawPoint { Vertex { .pos = center + IVec2 { -point.x, -point.y }, .color = color } });
-		}
-		m_batches.push_back(batch);
+		m_commands.push_back(DrawCircle { center, radius, color, false });
 	}
 
 	void Renderer::draw_circle_fill(IVec2 center, int32_t radius, RGBA color) {
-		CommandBatch batch = {
-			.rect = Rect {
-				.x = center.x - radius,
-				.y = center.y - radius,
-				.width = 2 * radius + 1,
-				.height = 2 * radius + 1,
-			},
-		};
-		for (IVec2 point : circle_octant_points(radius)) {
-			for (int32_t x = -point.x; x <= point.x; x++) {
-				batch.commands.push_back(DrawLine {
-					.v1 = { .pos = center + IVec2 { x, point.y }, .color = color },
-					.v2 = { .pos = center + IVec2 { x, -point.y }, .color = color },
-				});
-			}
-			for (int32_t y = -point.y; y <= point.y; y++) {
-				batch.commands.push_back(DrawLine {
-					.v1 = { .pos = center + IVec2 { y, point.x }, .color = color },
-					.v2 = { .pos = center + IVec2 { y, -point.x }, .color = color },
-				});
-			}
-		}
-		m_batches.push_back(batch);
+		m_commands.push_back(DrawCircle { center, radius, color, true });
 	}
 
 	void Renderer::draw_triangle(Vertex v1, Vertex v2, Vertex v3) {
-		int32_t min_x = std::min({ v1.pos.x, v2.pos.x, v3.pos.x });
-		int32_t min_y = std::min({ v1.pos.y, v2.pos.y, v3.pos.y });
-		int32_t max_x = std::max({ v1.pos.x, v2.pos.x, v3.pos.x });
-		int32_t max_y = std::max({ v1.pos.y, v2.pos.y, v3.pos.y });
-		m_batches.push_back(CommandBatch {
-			.rect = Rect {
-				min_x,
-				min_y,
-				max_x - min_x + 1,
-				max_y - min_y + 1,
-			},
-			.commands = {
-				DrawLine { v1, v2 },
-				DrawLine { v1, v3 },
-				DrawLine { v2, v3 },
-			},
-		});
+		m_commands.push_back(DrawTriangle { v1, v2, v3, false });
 	}
 
 	void Renderer::draw_triangle_fill(Vertex v1, Vertex v2, Vertex v3) {
-		struct TriangleEdge {
-			int32_t x0;
-			int32_t y0;
-			int32_t y1;
-			float inv_slope;
-		};
+		m_commands.push_back(DrawTriangle { v1, v2, v3, true });
+	}
 
-		auto make_triangle_edge = [](Vertex a, Vertex b) -> TriangleEdge {
-			return TriangleEdge {
-				.x0 = a.pos.x,
-				.y0 = a.pos.y,
-				.y1 = b.pos.y,
-				.inv_slope = (float)(b.pos.x - a.pos.x) / (float)(b.pos.y - a.pos.y),
-			};
-		};
+	void Renderer::draw_image(ImageID image_id, Rect rect, Rect clip, RGBA tint) {
+		m_commands.push_back(DrawImage { image_id, rect, clip, tint });
+	}
 
-		std::vector<TriangleEdge> edges = {
-			make_triangle_edge(v1, v2),
-			make_triangle_edge(v1, v3),
-			make_triangle_edge(v2, v3),
-		};
+	void Renderer::draw_text(FontID font_id, int32_t font_size, IVec2 pos, RGBA color, std::string text) {
+		m_commands.push_back(DrawText { font_id, font_size, pos, color, text });
+	}
 
-		int32_t min_x = std::min({ v1.pos.x, v2.pos.x, v3.pos.x });
-		int32_t min_y = std::min({ v1.pos.y, v2.pos.y, v3.pos.y });
-		int32_t max_x = std::max({ v1.pos.x, v2.pos.x, v3.pos.x });
-		int32_t max_y = std::max({ v1.pos.y, v2.pos.y, v3.pos.y });
+	void Renderer::render(Bitmap* bitmap, ResourceManager* resources) {
+		/* Run commands */
+		for (const DrawCommand& command : m_commands) {
+			if (auto* clear_screen = std::get_if<ClearScreen>(&command)) {
+				auto& [color] = *clear_screen;
+				_clear_screen(bitmap, color);
+			}
+			if (auto* draw_point = std::get_if<DrawPoint>(&command)) {
+				auto& [v1] = *draw_point;
+				_put_point(bitmap, v1);
+			}
+			if (auto* draw_line = std::get_if<DrawLine>(&command)) {
+				auto& [v1, v2] = *draw_line;
+				_put_line(bitmap, v1, v2, nullptr);
+			}
+			if (auto* draw_rect = std::get_if<DrawRect>(&command)) {
+				auto& [rect, color, filled] = *draw_rect;
+				if (filled) {
+					_put_rect_fill(bitmap, rect, color);
+				}
+				else {
+					_put_rect(bitmap, rect, color);
+				}
+			}
+			if (auto* draw_circle = std::get_if<DrawCircle>(&command)) {
+				auto& [center, radius, color, filled] = *draw_circle;
+				if (filled) {
+					_put_circle_fill(bitmap, center, radius, color);
+				}
+				else {
+					_put_circle(bitmap, center, radius, color);
+				}
+			}
+			if (auto* draw_triangle = std::get_if<DrawTriangle>(&command)) {
+				auto& [v1, v2, v3, filled] = *draw_triangle;
+				if (filled) {
+					_put_triangle_fill(bitmap, v1, v2, v3);
+				}
+				else {
+					_put_triangle(bitmap, v1, v2, v3);
+				}
+			}
+			if (auto* draw_image = std::get_if<DrawImage>(&command)) {
+				auto& [image_id, rect, clip, tint] = *draw_image;
+				_put_image(bitmap, resources->image(image_id), rect, clip, tint);
+			}
+			if (auto* draw_text = std::get_if<DrawText>(&command)) {
+				auto& [font_id, font_size, pos, color, text] = *draw_text;
+				Typeface& typeface = resources->font(font_id);
+				_put_text(bitmap, &typeface, font_size, pos, color, text);
+			}
+		}
+		m_commands.clear();
+	}
 
-		CommandBatch batch = {
-			.rect = Rect {
-				min_x,
-				min_y,
-				max_x - min_x + 1,
-				max_y - min_y + 1,
-			},
-		};
+	void Renderer::_clear_screen(Bitmap* bitmap, RGBA color) {
+		bitmap->clear(Pixel::from_rgb(color));
+	}
 
+	void Renderer::_put_point(Bitmap* bitmap, Vertex v1) {
+		Pixel pixel = { .b = v1.color.b, .g = v1.color.g, .r = v1.color.r, .padding = v1.color.a };
+		bitmap->put(v1.pos.x, v1.pos.y, pixel, v1.color.a / 255.0f);
+	}
+
+	void Renderer::_put_line(Bitmap* bitmap, Vertex v1, Vertex v2, const Image* image) {
+		// Bresenham's drawing algorithm
+		// Alois Zingl, 2016, "A Rasterizing Algorithm for Drawing Curves", page 13
+		// https://zingl.github.io/Bresenham.pdf
+		int32_t delta_x = std::abs(v2.pos.x - v1.pos.x);
+		int32_t delta_y = -std::abs(v2.pos.y - v1.pos.y);
+		int32_t sign_x = v1.pos.x < v2.pos.x ? 1 : -1;
+		int32_t sign_y = v1.pos.y < v2.pos.y ? 1 : -1;
+		int32_t error = delta_x + delta_y;
+
+		Vertex cursor = v1;
+		while (true) {
+			/* Put current point */
+			float t = delta_x > 0
+				? ((float)(cursor.pos.x - v1.pos.x) / (float)(v2.pos.x - v1.pos.x))
+				: ((float)(cursor.pos.y - v1.pos.y) / (float)(v2.pos.y - v1.pos.y));
+			if (image) {
+				cursor.color = image->sample(Vec2::lerp(v1.uv, v2.uv, t)) * RGBA::lerp(v1.color, v2.color, t);
+			}
+			else {
+				cursor.color = RGBA::lerp(v1.color, v2.color, t);
+			}
+			bitmap->put(cursor.pos.x, cursor.pos.y, Pixel::from_rgb(cursor.color), cursor.color.a / 255.0f);
+
+			/* Step to next point */
+			if (2 * error >= delta_y) {
+				if (cursor.pos.x == v2.pos.x) {
+					break;
+				}
+				error += delta_y;
+				cursor.pos.x += sign_x;
+			}
+			if (2 * error <= delta_x) {
+				if (cursor.pos.y == v2.pos.y) {
+					break;
+				}
+				error += delta_x;
+				cursor.pos.y += sign_y;
+			}
+		}
+	}
+
+	void Renderer::_put_rect(Bitmap* bitmap, Rect rect, RGBA color) {
+		IVec2 top_left = { rect.x, rect.y };
+		IVec2 top_right = { rect.x + rect.width - 1, rect.y };
+		IVec2 bottom_left = { rect.x, rect.y + rect.height - 1 };
+		IVec2 bottom_right = { rect.x + rect.width - 1, rect.y + rect.height - 1 };
+
+		Vertex top_start = { .pos = top_left, .color = color };
+		Vertex top_end = { .pos = top_right, .color = color };
+		Vertex bottom_start = { .pos = bottom_left, .color = color };
+		Vertex bottom_end = { .pos = bottom_right, .color = color };
+		Vertex left_start = { .pos = top_left + IVec2 { 0, 1 }, .color = color };
+		Vertex left_end = { .pos = bottom_left - IVec2 { 0, 1 }, .color = color };
+		Vertex right_start = { .pos = top_right + IVec2 { 0, 1 }, .color = color };
+		Vertex right_end = { .pos = bottom_right - IVec2 { 0, 1 }, .color = color };
+
+		_put_line(bitmap, top_start, top_end, nullptr);
+		_put_line(bitmap, bottom_start, bottom_end, nullptr);
+		_put_line(bitmap, left_start, left_end, nullptr);
+		_put_line(bitmap, right_start, right_end, nullptr);
+	}
+
+	void Renderer::_put_rect_fill(Bitmap* bitmap, Rect rect, RGBA color) {
+		Pixel pixel = Pixel::from_rgb(color);
+		for (int32_t y = rect.y; y < rect.y + rect.height; y++) {
+			for (int32_t x = rect.x; x < rect.x + rect.width; x++) {
+				bitmap->put(x, y, pixel, color.a / 255.0f);
+			}
+		}
+	}
+
+	void Renderer::_put_circle(Bitmap* bitmap, IVec2 center, int32_t radius, RGBA color) {
+		Pixel pixel = Pixel::from_rgb(color);
+		float alpha = color.a / 255.0f;
+		for (IVec2 point : circle_octant_points(radius)) {
+			bitmap->put(center.x + point.x, center.y + point.y, pixel, alpha);
+			bitmap->put(center.x + point.y, center.y + point.x, pixel, alpha);
+			bitmap->put(center.x + point.y, center.y + -point.x, pixel, alpha);
+			bitmap->put(center.x + point.x, center.y + -point.y, pixel, alpha);
+			bitmap->put(center.x + -point.x, center.y + point.y, pixel, alpha);
+			bitmap->put(center.x + -point.y, center.y + point.x, pixel, alpha);
+			bitmap->put(center.x + -point.y, center.y + -point.x, pixel, alpha);
+			bitmap->put(center.x + -point.x, center.y + -point.y, pixel, alpha);
+		}
+	}
+
+	void Renderer::_put_circle_fill(Bitmap* bitmap, IVec2 center, int32_t radius, RGBA color) {
+		for (IVec2 point : half_circle_points(radius)) {
+			IVec2 bottom_left = center + IVec2 { -point.x, point.y };
+			IVec2 bottom_right = center + IVec2 { point.x, point.y };
+			_put_line(bitmap, Vertex { .pos = bottom_left, .color = color }, Vertex { .pos = bottom_right, .color = color }, nullptr);
+
+			IVec2 top_left = center + IVec2 { -point.x, -point.y };
+			IVec2 top_right = center + IVec2 { point.x, -point.y };
+			if (top_left.y != bottom_left.y) {
+				_put_line(bitmap, Vertex { .pos = top_left, .color = color }, Vertex { .pos = top_right, .color = color }, nullptr);
+			}
+		}
+	}
+
+	void Renderer::_put_triangle(Bitmap* bitmap, Vertex v1, Vertex v2, Vertex v3) {
+		_put_line(bitmap, v1, v2, nullptr);
+		_put_line(bitmap, v1, v3, nullptr);
+		_put_line(bitmap, v2, v3, nullptr);
+	}
+
+	void Renderer::_put_triangle_fill(Bitmap* bitmap, Vertex v1, Vertex v2, Vertex v3) {
 		auto triangle_area = [](IVec2 a, IVec2 b) -> float {
 			return std::abs((float)(a.x * b.y - a.y * b.x) / 2.0f);
 		};
 
+		int32_t x_min = std::min({ v1.pos.x, v2.pos.x, v3.pos.x });
+		int32_t x_max = std::max({ v1.pos.x, v2.pos.x, v3.pos.x });
+		int32_t y_min = std::min({ v1.pos.y, v2.pos.y, v3.pos.y });
+		int32_t y_max = std::max({ v1.pos.y, v2.pos.y, v3.pos.y });
+
+		float inv_slope[3] = {
+			(float)(v2.pos.x - v1.pos.x) / (float)(v2.pos.y - v1.pos.y),
+			(float)(v3.pos.x - v1.pos.x) / (float)(v3.pos.y - v1.pos.y),
+			(float)(v3.pos.x - v2.pos.x) / (float)(v3.pos.y - v2.pos.y),
+		};
+
 		float area_v1v2v3 = triangle_area(v2.pos - v1.pos, v3.pos - v1.pos);
+		for (int32_t y = y_min; y <= y_max; y++) {
+			/* Get intersections betwen scanline and lines extended from triangle sides */
+			int32_t xs[3] = {
+				(int32_t)std::round((y - v1.pos.y) * inv_slope[0] + v1.pos.x),
+				(int32_t)std::round((y - v1.pos.y) * inv_slope[1] + v1.pos.x),
+				(int32_t)std::round((y - v2.pos.y) * inv_slope[2] + v2.pos.x),
+			};
 
-		for (int32_t y = min_y; y <= max_y; y++) {
-			/* Get intersections */
-			std::vector<int32_t> xs;
-			for (const TriangleEdge& edge : edges) {
-				xs.push_back((int32_t)std::round(edge.inv_slope * (y - edge.y0) + edge.x0));
+			/* Discard line intersections outside of triangle */
+			if (xs[0] < x_min || xs[0] > x_max) {
+				std::swap(xs[0], xs[2]);
 			}
-
-			/* Get left and right triangle positions */
-			auto is_out_of_bounds = [min_x, max_x](int32_t x) { return x < min_x || x > max_x; };
-			auto last = std::remove_if(xs.begin(), xs.end(), is_out_of_bounds);
-			std::sort(xs.begin(), xs.end());
-			IVec2 p1 = { xs[0], y };
-			IVec2 p2 = { xs[1], y };
+			else if (xs[1] < x_min || xs[1] > x_max) {
+				std::swap(xs[1], xs[2]);
+			}
+			Vertex p1 = { .pos = { (int32_t)xs[0], y } };
+			Vertex p2 = { .pos = { (int32_t)xs[1], y } };
 
 			/* Interpolate colors */
-			// left color
-			float area_v1v2p1 = triangle_area(v2.pos - v1.pos, p1 - v1.pos);
-			float area_v1v3p1 = triangle_area(v3.pos - v1.pos, p1 - v1.pos);
-			float area_v2v3p1 = triangle_area(v3.pos - v2.pos, p1 - v2.pos);
+			float area_v1v2p1 = triangle_area(v2.pos - v1.pos, p1.pos - v1.pos);
+			float area_v1v3p1 = triangle_area(v3.pos - v1.pos, p1.pos - v1.pos);
+			float area_v2v3p1 = triangle_area(v3.pos - v2.pos, p1.pos - v2.pos);
 			float v1_t1 = area_v2v3p1 / area_v1v2v3;
 			float v2_t1 = area_v1v3p1 / area_v1v2v3;
 			float v3_t1 = area_v1v2p1 / area_v1v2v3;
-			RGBA color1 = v1_t1 * v1.color + v2_t1 * v2.color + v3_t1 * v3.color;
+			p1.color = v1_t1 * v1.color + v2_t1 * v2.color + v3_t1 * v3.color;
 
-			// right color
-			float area_v1v2p2 = triangle_area(v2.pos - v1.pos, p2 - v1.pos);
-			float area_v1v3p2 = triangle_area(v3.pos - v1.pos, p2 - v1.pos);
-			float area_v2v3p2 = triangle_area(v3.pos - v2.pos, p2 - v2.pos);
+			float area_v1v2p2 = triangle_area(v2.pos - v1.pos, p2.pos - v1.pos);
+			float area_v1v3p2 = triangle_area(v3.pos - v1.pos, p2.pos - v1.pos);
+			float area_v2v3p2 = triangle_area(v3.pos - v2.pos, p2.pos - v2.pos);
 			float v1_t2 = area_v2v3p2 / area_v1v2v3;
 			float v2_t2 = area_v1v3p2 / area_v1v2v3;
 			float v3_t2 = area_v1v2p2 / area_v1v2v3;
-			RGBA color2 = v1_t2 * v1.color + v2_t2 * v2.color + v3_t2 * v3.color;
+			p2.color = v1_t2 * v1.color + v2_t2 * v2.color + v3_t2 * v3.color;
 
 			/* Draw line */
-			batch.commands.push_back(DrawLine {
-				.v1 = Vertex { .pos = { xs[0], y }, .color = color1 },
-				.v2 = Vertex { .pos = { xs[1], y }, .color = color2 },
-			});
+			_put_line(bitmap, p1, p2, nullptr);
 		}
-
-		m_batches.push_back(batch);
 	}
 
-	void Renderer::draw_image(ImageID image_id, Rect rect, Rect clip, RGBA tint) {
-		CommandBatch batch = { .rect = rect, .image_id = image_id };
-
+	void Renderer::_put_image(Bitmap* bitmap, const Image& image, Rect rect, Rect clip, RGBA tint) {
 		/* UV coordinates */
 		if (clip.empty()) {
 			clip.width = rect.width;
@@ -251,13 +354,13 @@ namespace engine {
 		}
 		// bottom left
 		Vec2 uv0 = {
-			.x = std::clamp((float)clip.x / (float)(rect.width - 1), 0.0f, 1.0f),
-			.y = std::clamp((float)clip.y / (float)(rect.height), 0.0f, 1.0f),
+			.x = engine::clamp((float)clip.x / (float)(rect.width - 1), 0.0f, 1.0f),
+			.y = engine::clamp((float)clip.y / (float)(rect.height), 0.0f, 1.0f),
 		};
 		// top right
 		Vec2 uv1 = {
-			.x = std::clamp((float)(clip.x + clip.width - 1) / (float)(rect.width - 1), 0.0f, 1.0f),
-			.y = std::clamp((float)(clip.y + clip.height) / (float)(rect.height), 0.0f, 1.0f),
+			.x = engine::clamp((float)(clip.x + clip.width - 1) / (float)(rect.width - 1), 0.0f, 1.0f),
+			.y = engine::clamp((float)(clip.y + clip.height) / (float)(rect.height), 0.0f, 1.0f),
 		};
 
 		/* Draw image line by line */
@@ -267,7 +370,7 @@ namespace engine {
 				.color = tint,
 				.uv = {
 					uv0.x,
-					std::lerp(uv0.y, uv1.y, 1.0f - ((float)y / (float)rect.height)),
+					engine::lerp(uv0.y, uv1.y, 1.0f - ((float)y / (float)rect.height)),
 				}
 			};
 			Vertex right = {
@@ -275,145 +378,19 @@ namespace engine {
 				.color = tint,
 				.uv = {
 					uv1.x,
-					std::lerp(uv0.y, uv1.y, 1.0f - ((float)y / (float)rect.height)),
+					engine::lerp(uv0.y, uv1.y, 1.0f - ((float)y / (float)rect.height)),
 				}
 			};
-			batch.commands.push_back(DrawLine { left, right });
-		}
-
-		m_batches.push_back(batch);
-	}
-
-	void Renderer::draw_text(FontID font_id, int32_t font_size, Rect rect, RGBA color, std::string text) {
-		m_batches.push_back(CommandBatch {
-			.commands = {
-				DrawText { font_id, font_size, rect, color, text },
-			},
-		});
-	}
-
-	void Renderer::render(Bitmap* bitmap, ResourceManager* resources) {
-		/* Keep scratchpad size in sync with bitmap */
-		m_scratchpad.resize(bitmap->width(), bitmap->height());
-
-		/* Run commands */
-		for (const CommandBatch& batch : m_batches) {
-			const Image* image = batch.image_id ? &resources->image(*batch.image_id) : nullptr;
-			if (batch.rect.empty()) {
-				/* Draw directly to bitmap */
-				for (const DrawCommand& command : batch.commands) {
-					if (auto* clear_screen = std::get_if<ClearScreen>(&command)) {
-						auto& [color] = *clear_screen;
-						_clear_screen(bitmap, color);
-					}
-					if (auto* draw_point = std::get_if<DrawPoint>(&command)) {
-						auto& [v1] = *draw_point;
-						_put_point(bitmap, v1, true);
-					}
-					if (auto* draw_line = std::get_if<DrawLine>(&command)) {
-						auto& [v1, v2] = *draw_line;
-						_put_line(bitmap, v1, v2, image, true);
-					}
-					if (auto* draw_text = std::get_if<DrawText>(&command)) {
-						auto& [font_id, font_size, rect, color, text] = *draw_text;
-						Typeface& typeface = resources->font(font_id);
-						_put_text(bitmap, &typeface, font_size, rect, color, text);
-					}
-				}
-			}
-			else {
-				/* Clear scratch pad area */
-				for (int32_t y = batch.rect.y; y < batch.rect.y + batch.rect.height; y++) {
-					for (int32_t x = batch.rect.x; x < batch.rect.x + batch.rect.width; x++) {
-						m_scratchpad.put(x, y, Pixel { 0, 0, 0, 0 });
-					}
-				}
-
-				/* Draw onto scratch pad */
-				for (const DrawCommand& command : batch.commands) {
-					if (auto* draw_point = std::get_if<DrawPoint>(&command)) {
-						_put_point(&m_scratchpad, draw_point->v1, false);
-					}
-					if (auto* draw_line = std::get_if<DrawLine>(&command)) {
-						_put_line(&m_scratchpad, draw_line->v1, draw_line->v2, image, false);
-					}
-				}
-
-				/* Draw scratch pad onto bitmap */
-				for (int32_t y = batch.rect.y; y < batch.rect.y + batch.rect.height; y++) {
-					for (int32_t x = batch.rect.x; x < batch.rect.x + batch.rect.width; x++) {
-						Pixel scratchpad_pixel = m_scratchpad.get(x, y);
-						float alpha = scratchpad_pixel.padding / 255.0f;
-						bitmap->put(x, y, scratchpad_pixel, alpha);
-					}
-				}
-			}
-		}
-
-		/* Clear commands */
-		m_batches.clear();
-	}
-
-	void Renderer::_clear_screen(Bitmap* bitmap, RGBA color) {
-		for (int32_t y = 0; y < bitmap->height(); y++) {
-			for (int32_t x = 0; x < bitmap->width(); x++) {
-				bitmap->put(x, y, Pixel::from_rgb(color));
-			}
+			_put_line(bitmap, left, right, &image);
 		}
 	}
 
-	void Renderer::_put_point(Bitmap* bitmap, Vertex v1, bool use_alpha) {
-		Pixel pixel = { .b = v1.color.b, .g = v1.color.g, .r = v1.color.r, .padding = v1.color.a };
-		bitmap->put(v1.pos.x, v1.pos.y, pixel, use_alpha ? v1.color.a / 255.0f : 1.0f);
-	}
-
-	void Renderer::_put_line(Bitmap* bitmap, Vertex v1, Vertex v2, const Image* image, bool use_alpha) {
-		// vertical line
-		if (v1.pos.x == v2.pos.x) {
-			int32_t y0 = std::min(v1.pos.y, v2.pos.y);
-			int32_t y1 = std::max(v1.pos.y, v2.pos.y);
-			for (int32_t y = y0; y <= y1; y++) {
-				IVec2 pos = IVec2 { v1.pos.x, y };
-				float t = (float)(pos.y - v1.pos.y) / (float)(v2.pos.y - v1.pos.y);
-				RGBA color = image
-					? color = image->sample(Vec2::lerp(v1.uv, v2.uv, t)) * RGBA::lerp(v1.color, v2.color, t)
-					: color = RGBA::lerp(v1.color, v2.color, t);
-				Vertex vertex = { .pos = pos, .color = color };
-				_put_point(bitmap, vertex, use_alpha);
-			}
-		}
-		// sloped line
-		else {
-			// big_delta is the longer side of the triangle formed by the line
-			// if dx is greater, x_step will be +1 or -1 and y_step will be the slope
-			// if dy is greater, we flip it along the diagonal
-			int32_t dx = v2.pos.x - v1.pos.x;
-			int32_t dy = v2.pos.y - v1.pos.y;
-			int32_t abs_dx = std::abs(dx);
-			int32_t abs_dy = std::abs(dy);
-			int32_t big_delta = std::max(abs_dx, abs_dy);
-			float x_step = (float)dx / (float)big_delta;
-			float y_step = (float)dy / (float)big_delta;
-			for (int32_t i = 0; i <= big_delta; i++) {
-				IVec2 pos = IVec2 { .x = (int32_t)(v1.pos.x + i * x_step), .y = (int32_t)(v1.pos.y + i * y_step) };
-				float t = abs_dx > abs_dy
-					? (float)(pos.x - v1.pos.x) / (float)(v2.pos.x - v1.pos.x)
-					: (float)(pos.y - v1.pos.y) / (float)(v2.pos.y - v1.pos.y);
-				RGBA color = image
-					? color = image->sample(Vec2::lerp(v1.uv, v2.uv, t)) * RGBA::lerp(v1.color, v2.color, t)
-					: color = RGBA::lerp(v1.color, v2.color, t);
-				Vertex vertex = { .pos = pos, .color = color };
-				_put_point(bitmap, vertex, use_alpha);
-			}
-		}
-	}
-
-	void Renderer::_put_text(Bitmap* bitmap, Typeface* typeface, int32_t font_size, const Rect& rect, RGBA color, const std::string& text) {
-		int cursor_x = rect.x;
-		int cursor_y = rect.y;
+	void Renderer::_put_text(Bitmap* bitmap, Typeface* typeface, int32_t font_size, IVec2 pos, RGBA color, const std::string& text) {
+		int cursor_x = pos.x;
+		int cursor_y = pos.y;
 		for (char character : text) {
 			/* Render character */
-			const engine::Glyph& glyph = typeface->glyph(16, character);
+			const engine::Glyph& glyph = typeface->glyph(font_size, character);
 			for (int32_t y = 0; y < glyph.height; y++) {
 				for (int32_t x = 0; x < glyph.width; x++) {
 					engine::Pixel pixel = engine::Pixel::from_rgb(color);
@@ -424,10 +401,6 @@ namespace engine {
 
 			/* Advance position */
 			cursor_x += glyph.advance_width;
-			if (cursor_x - rect.x >= rect.width) {
-				cursor_x = rect.x;
-				cursor_y += font_size;
-			}
 		}
 	}
 

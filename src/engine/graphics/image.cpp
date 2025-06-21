@@ -1,19 +1,15 @@
 #include <engine/graphics/image.h>
 
-#include <engine/math/ivec2.h>
-
 #include <stb_image/stb_image.h>
 
-#include <algorithm>
+#include <cmath>
 
 namespace engine {
 
 	RGBA Image::sample(Vec2 uv) const {
-		IVec2 sample_point = IVec2::from_vec2({
-			.x = std::clamp(uv.x, 0.0f, 1.0f) * (this->width - 1),
-			.y = (1.0f - std::clamp(uv.y, 0.0f, 1.0f)) * (this->height - 1),
-		});
-		return this->data[sample_point.x + sample_point.y * this->width];
+		int32_t sample_point_x = (int32_t)std::round(uv.x * (this->width - 1));
+		int32_t sample_point_y = (int32_t)std::round((1.0f - uv.y) * (this->height - 1));
+		return this->data[sample_point_x + sample_point_y * this->width];
 	}
 
 	std::optional<Image> Image::from_path(std::filesystem::path path) {

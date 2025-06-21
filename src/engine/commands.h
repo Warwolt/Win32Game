@@ -2,20 +2,26 @@
 
 #include <engine/audio/audio_id.h>
 
+#include <string>
 #include <variant>
 
 namespace engine {
 
-	// app
-	struct QuitCommand {};
-	struct ToggleFullscreenCommand {};
-	using AppCommand = std::variant<QuitCommand, ToggleFullscreenCommand>;
+	// clang-format off
+	struct AppCommand_Quit {};
+	struct AppCommand_ToggleFullscreen {};
+	// clang-format on
 
-	// audio
-	struct PlaySoundCommand {
-		AudioID id;
-	};
-	using AudioCommand = std::variant<PlaySoundCommand>;
+	using AppCommand = std::variant<
+		AppCommand_Quit,
+		AppCommand_ToggleFullscreen>;
+
+	// clang-format off
+	struct AudioCommand_PlaySound { AudioID id; };
+	// clang-format on
+
+	using AudioCommand = std::variant<
+		AudioCommand_PlaySound>;
 
 	using Command = std::variant<AppCommand, AudioCommand>;
 

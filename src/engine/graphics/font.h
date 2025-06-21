@@ -47,6 +47,7 @@ namespace engine {
 
 		static std::optional<Typeface> from_path(std::filesystem::path path);
 		Glyph& glyph(int32_t size, char codepoint);
+		int32_t text_width(int32_t size, const std::string& text);
 
 	private:
 		Font& _get_or_make_font(int32_t size);

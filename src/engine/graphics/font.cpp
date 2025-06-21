@@ -72,6 +72,15 @@ namespace engine {
 		return font.glyphs[codepoint];
 	}
 
+	int32_t Typeface::text_width(int32_t size, const std::string& text) {
+		int32_t text_width = 1;
+		for (char character : text) {
+			const engine::Glyph& glyph = this->glyph(size, character);
+			text_width += glyph.advance_width;
+		}
+		return text_width;
+	}
+
 	Font& Typeface::_get_or_make_font(int32_t size) {
 		if (auto it = m_fonts.find(size); it != m_fonts.end()) {
 			return it->second;

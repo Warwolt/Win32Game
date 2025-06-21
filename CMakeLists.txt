@@ -16,6 +16,8 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     set(gtest_force_shared_crt OFF CACHE BOOL "" FORCE)
 endif()
 
+# Disable Run Time Checks that are otherwise default in Debug builds
+string(REPLACE "/RTC1" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
 
 set(SRC
     libs/stb/stb_image/stb_image.c
@@ -52,8 +54,8 @@ set(INC
 
 set(TEST_SRC
     test/engine/button_tests.cpp
-    test/engine/moving_average_tests.cpp
     test/engine/keyboard_tests.cpp
+    test/engine/moving_average_tests.cpp
 )
 
 # Src Library
@@ -85,12 +87,8 @@ endif()
 foreach(TARGET IN ITEMS ${TARGETS})
     set_property(TARGET ${TARGET} PROPERTY CXX_STANDARD 23)
     add_compile_definitions(${TARGET} PUBLIC _CRT_SECURE_NO_WARNINGS)
-    target_compile_options(${TARGET} PUBLIC
-        $<$<CXX_COMPILER_ID:MSVC>: /W4 /w44062>
-        $<$<NOT:$<CXX_COMPILER_ID:MSVC>>: -Wall -Wextra -Wpedantic>)
+    target_compile_options(${TARGET} PUBLIC /W4 /w44062 /O2)
     if (WARNINGS_AS_ERRORS)
-        target_compile_options(${TARGET} PUBLIC
-        $<$<CXX_COMPILER_ID:MSVC>: /WX>
-        $<$<NOT:$<CXX_COMPILER_ID:MSVC>>: -Werror>)
+        target_compile_options(${TARGET} PUBLIC /WX)
     endif()
 endforeach()

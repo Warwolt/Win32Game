@@ -107,7 +107,7 @@ static LRESULT CALLBACK on_window_event(
 
 				/* Render*/
 				game::draw(&g_context.engine.renderer, g_context.game);
-				engine::draw(&g_context.engine.renderer, g_context.engine);
+				engine::draw(&g_context.engine.renderer, &g_context.engine);
 				g_context.engine.renderer.render(&g_context.engine.bitmap, &g_context.engine.resources);
 				g_context.engine.window.render_wm_paint(g_context.engine.bitmap);
 			}
@@ -124,13 +124,17 @@ int WINAPI WinMain(
 	int /*command_show*/
 ) {
 	/* Initialize */
-	const char* window_title = "Game";
-	g_context.engine = initialize_engine_or_abort(instance, on_window_event, window_title);
+	g_context.engine = initialize_engine_or_abort(instance, on_window_event, "Game");
 	g_context.game = game::initialize(&g_context.engine);
 	g_context.initialized = true;
 	LOG_INFO("Initialized");
 
-	engine::DeltaTimer frame_timer;
+	/* Timing */
+	engine::DeltaTimer& frame_timer = g_context.engine.debug.performance.frame_timer;
+	engine::DeltaTimer& input_timer = g_context.engine.debug.performance.input_timer;
+	engine::DeltaTimer& update_timer = g_context.engine.debug.performance.update_timer;
+	engine::DeltaTimer& draw_timer = g_context.engine.debug.performance.draw_timer;
+	engine::DeltaTimer& render_timer = g_context.engine.debug.performance.render_timer;
 
 	/* Main loop */
 	while (!g_context.engine.should_quit) {
@@ -138,22 +142,31 @@ int WINAPI WinMain(
 		frame_timer.start();
 
 		/* Input */
+		input_timer.start();
 		pump_window_messages();
 		update_input();
+		input_timer.end();
 
 		/* Update */
+		update_timer.start();
 		game::update(&g_context.game, &g_context.engine.commands, g_context.engine.input);
 		engine::update(&g_context.engine, g_context.engine.input);
+		update_timer.end();
+
+		/* Draw */
+		draw_timer.start();
+		game::draw(&g_context.engine.renderer, g_context.game);
+		engine::draw(&g_context.engine.renderer, &g_context.engine);
+		draw_timer.end();
 
 		/* Render */
-		game::draw(&g_context.engine.renderer, g_context.game);
-		engine::draw(&g_context.engine.renderer, g_context.engine);
+		render_timer.start();
 		g_context.engine.renderer.render(&g_context.engine.bitmap, &g_context.engine.resources);
 		g_context.engine.window.render(g_context.engine.bitmap);
+		render_timer.end();
 
 		/* End frame */
 		frame_timer.end();
-		g_context.engine.window.set_title(std::format("{} ({:.1f} fps)", window_title, 1.0f / frame_timer.average_delta()));
 	}
 
 	LOG_INFO("Shutting down");
