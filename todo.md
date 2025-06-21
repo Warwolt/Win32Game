@@ -7,7 +7,6 @@ Maybe ideas:
 - Text mode engine debugging UI (for selecting various test screens and tools)
 
 # Todo
-- Text Mode UI prototype
 - [!] Write Blackjack game
 - CPU Profiling
 - Measure render API, see if things can be optimized (e.g. less loops, SIMD, less memory allocations etc.)
@@ -22,15 +21,10 @@ Maybe ideas:
 - Draw API: Polygons (triangle strips, triangle fans)
 
 # Doing
-- Diagnose what parts of render test screen is slow
-    - [x] display render times for input, update, render steps in a debug overlay
-    - [x] try to apply some stuff from https://www.agner.org/optimize/optimizing_cpp.pdf
-    - [] use faster line drawing algorithm
-    - [] "CommandBatch" seems slow, we need an alternative
-        - (I think we should just defunctionalize each draw_ method)
-        - (Also, we should probably only use the scratchpad in the case we actually _need_ opacity, it's a big price to pay!)
+- Text Mode UI prototype
 
 # Done
+- Diagnose what parts of render test screen is slow
 - Get rid of CommandAPI class, just work with a `std::vector<Command>` directly
 - Measure frame delta
 - Font support
