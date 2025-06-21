@@ -48,11 +48,14 @@ namespace engine {
 		// ,                           ,
 		// '-------------o-------------'
 		std::vector<IVec2> octant_points = circle_octant_points(radius);
-		std::vector<IVec2> half_circle_points;
 		IVec2 prev_point = IVec2 { octant_points[0].x, octant_points[0].y };
+		std::vector<IVec2> half_circle_points = { prev_point };
 		for (IVec2 point : octant_points) {
 			int32_t delta_y = point.y - prev_point.y;
-			if (delta_y != 0) {
+			if (delta_y == 0) {
+				half_circle_points.back() = point;
+			}
+			else {
 				half_circle_points.push_back(point);
 			}
 			prev_point = point;
