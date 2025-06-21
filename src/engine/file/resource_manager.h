@@ -18,7 +18,7 @@ namespace engine {
 		std::optional<ImageID> load_image(std::filesystem::path filepath);
 		std::optional<FontID> load_font(std::filesystem::path filepath);
 		const Image& image(ImageID id) const;
-		Typeface& font(FontID id);
+		Font& font(FontID id);
 
 	private:
 		int m_next_image_id = 1;
@@ -27,7 +27,7 @@ namespace engine {
 
 		int m_next_font_id = 1;
 		std::unordered_map<std::filesystem::path, int> m_font_ids;
-		std::unordered_map<int, Typeface> m_fonts;
+		std::unordered_map<int, Font> m_fonts;
 	};
 
 } // namespace engine

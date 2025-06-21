@@ -4,40 +4,40 @@
 
 namespace engine {
 
-	Typeface::Typeface(const Typeface& other) noexcept {
+	Font::Font(const Font& other) noexcept {
 		m_file_data = other.m_file_data;
 		stbtt_InitFont(&m_font_info, m_file_data.data(), 0);
-		m_fonts = other.m_fonts;
+		m_font_data = other.m_font_data;
 	}
 
-	Typeface& Typeface::operator=(const Typeface& other) noexcept {
+	Font& Font::operator=(const Font& other) noexcept {
 		m_file_data = other.m_file_data;
 		stbtt_InitFont(&m_font_info, m_file_data.data(), 0);
-		m_fonts = other.m_fonts;
+		m_font_data = other.m_font_data;
 		return *this;
 	}
 
-	Typeface::Typeface(Typeface&& other) noexcept {
+	Font::Font(Font&& other) noexcept {
 		if (this != &other) {
 			m_file_data = std::move(other.m_file_data);
 			stbtt_InitFont(&m_font_info, m_file_data.data(), 0);
 			other.m_font_info = {};
-			m_fonts = std::move(other.m_fonts);
+			m_font_data = std::move(other.m_font_data);
 		}
 	}
 
-	Typeface& Typeface::operator=(Typeface&& other) noexcept {
+	Font& Font::operator=(Font&& other) noexcept {
 		if (this != &other) {
 			m_file_data = std::move(other.m_file_data);
 			stbtt_InitFont(&m_font_info, m_file_data.data(), 0);
 			other.m_font_info = {};
-			m_fonts = std::move(other.m_fonts);
+			m_font_data = std::move(other.m_font_data);
 		}
 		return *this;
 	}
 
-	std::optional<Typeface> Typeface::from_path(std::filesystem::path path) {
-		Typeface typeface;
+	std::optional<Font> Font::from_path(std::filesystem::path path) {
+		Font typeface;
 
 		if (!std::filesystem::exists(path)) {
 			return {};
@@ -62,8 +62,8 @@ namespace engine {
 		return typeface;
 	}
 
-	Glyph& Typeface::glyph(int32_t size, char codepoint) {
-		Font& font = _get_or_make_font(size);
+	Glyph& Font::glyph(int32_t size, char codepoint) {
+		FontData& font = _get_or_make_font_data(size);
 		if (auto it = font.glyphs.find(codepoint); it != font.glyphs.end()) {
 			return it->second;
 		}
@@ -72,7 +72,7 @@ namespace engine {
 		return font.glyphs[codepoint];
 	}
 
-	int32_t Typeface::text_width(int32_t size, const std::string& text) {
+	int32_t Font::text_width(int32_t size, const std::string& text) {
 		int32_t text_width = 1;
 		for (char character : text) {
 			const engine::Glyph& glyph = this->glyph(size, character);
@@ -81,8 +81,8 @@ namespace engine {
 		return text_width;
 	}
 
-	Font& Typeface::_get_or_make_font(int32_t size) {
-		if (auto it = m_fonts.find(size); it != m_fonts.end()) {
+	Font::FontData& Font::_get_or_make_font_data(int32_t size) {
+		if (auto it = m_font_data.find(size); it != m_font_data.end()) {
 			return it->second;
 		}
 
@@ -90,16 +90,16 @@ namespace engine {
 		int ascent;
 		stbtt_GetFontVMetrics(&m_font_info, &ascent, nullptr, nullptr);
 		ascent = (int)std::round(ascent * scale);
-		m_fonts[size] = Font {
+		m_font_data[size] = FontData {
 			.size = size,
 			.ascent = ascent,
 			.scale = scale,
 			.glyphs = {},
 		};
-		return m_fonts[size];
+		return m_font_data[size];
 	}
 
-	Glyph Typeface::_make_glyph(const Font& font, char codepoint) const {
+	Glyph Font::_make_glyph(const FontData& font, char codepoint) const {
 		int advance_width, left_side_bearing;
 		stbtt_GetCodepointHMetrics(&m_font_info, codepoint, &advance_width, &left_side_bearing);
 		advance_width = (int)std::round(advance_width * font.scale);

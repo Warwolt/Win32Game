@@ -30,32 +30,31 @@ namespace engine {
 		}
 	};
 
-	struct Font {
-		int32_t size;
-		int32_t ascent;
-		float scale;
-		std::unordered_map<char, Glyph> glyphs;
-	};
-
-	class Typeface {
+	class Font {
 	public:
-		Typeface() = default;
-		Typeface(const Typeface& other) noexcept;
-		Typeface& operator=(const Typeface& other) noexcept;
-		Typeface(Typeface&& other) noexcept;
-		Typeface& operator=(Typeface&& other) noexcept;
+		Font() = default;
+		Font(const Font& other) noexcept;
+		Font& operator=(const Font& other) noexcept;
+		Font(Font&& other) noexcept;
+		Font& operator=(Font&& other) noexcept;
 
-		static std::optional<Typeface> from_path(std::filesystem::path path);
+		static std::optional<Font> from_path(std::filesystem::path path);
 		Glyph& glyph(int32_t size, char codepoint);
 		int32_t text_width(int32_t size, const std::string& text);
 
 	private:
-		Font& _get_or_make_font(int32_t size);
-		Glyph _make_glyph(const Font& font, char codepoint) const;
+		struct FontData {
+			int32_t size;
+			int32_t ascent;
+			float scale;
+			std::unordered_map<char, Glyph> glyphs;
+		};
+		FontData& _get_or_make_font_data(int32_t size);
+		Glyph _make_glyph(const FontData& font, char codepoint) const;
 
 		std::vector<uint8_t> m_file_data;
 		stbtt_fontinfo m_font_info = {};
-		std::unordered_map<int32_t, Font> m_fonts;
+		std::unordered_map<int32_t, FontData> m_font_data;
 	};
 
 } // namespace engine
