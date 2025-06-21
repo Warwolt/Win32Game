@@ -34,6 +34,14 @@ namespace engine {
 	}
 
 	RGBA operator*(RGBA lhs, const RGBA& rhs) {
+		// Shortcut on identities
+		if (rhs == RGBA::white()) {
+			return lhs;
+		}
+		if (lhs == RGBA::white()) {
+			return rhs;
+		}
+
 		// Note:
 		// White should be the identity element for multiplication,
 		// i.e. color * white = color, so we normalize before multipying, and then scale back to 0-255 range
