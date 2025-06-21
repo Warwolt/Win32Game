@@ -40,6 +40,7 @@ namespace engine {
 
 		static std::optional<Font> from_path(std::filesystem::path path);
 		Glyph& glyph(int32_t size, char codepoint);
+		int32_t ascent(int32_t size);
 		int32_t text_width(int32_t size, const std::string& text);
 
 	private:
@@ -49,6 +50,7 @@ namespace engine {
 			float scale;
 			std::unordered_map<char, Glyph> glyphs;
 		};
+
 		FontData& _get_or_make_font_data(int32_t size);
 		Glyph _make_glyph(const FontData& font, char codepoint) const;
 
