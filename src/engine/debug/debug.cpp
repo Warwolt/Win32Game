@@ -9,6 +9,25 @@ namespace engine {
 
 	constexpr int32_t DEBUG_UI_FONT_SIZE = 16;
 
+	struct Style {
+		int32_t padding;
+		FontID font_id;
+		int32_t font_size;
+		RGBA color;
+	};
+
+	static void draw_text_styled(
+		Renderer* renderer,
+		ResourceManager* /*resources*/,
+		IVec2 position,
+		const Style& style,
+		const std::string& text
+	) {
+		// int32_t text_width = resources->font(style.font_id).text_width(style.font_size, text);
+		IVec2 padded_position = { position.x + style.padding, position.y - style.padding };
+		renderer->draw_text(style.font_id, style.font_size, padded_position, style.color, text);
+	}
+
 	static void draw_text_right_aligned(
 		Renderer* renderer,
 		ResourceManager* resources,
@@ -49,14 +68,18 @@ namespace engine {
 		}
 
 		/* Show CPU profiling information in window title */
-		window->set_title(std::format("{} ({:.1f} fps)", "Game", 1.0f / debug->performance.frame_timer.average_delta())); // FIXME: We should replace "Game" with some constant
+		const char* window_title = "Game";
+		window->set_title(std::format("{} ({:.1f} fps)", window_title, 1.0f / debug->performance.frame_timer.average_delta()));
 
-		if (input.keyboard.key_was_pressed_now(VK_F3)) {
-			debug->show_cpu_timing_overlay = !debug->show_cpu_timing_overlay;
-		}
+		/* Update Debug UI */
+		{
+			if (input.keyboard.key_was_pressed_now(VK_F3)) {
+				debug->show_cpu_timing_overlay = !debug->show_cpu_timing_overlay;
+			}
 
-		if (input.keyboard.key_was_pressed_now(VK_MENU)) {
-			debug->menu_bar_focused = !debug->menu_bar_focused;
+			if (input.keyboard.key_was_pressed_now(VK_MENU)) {
+				debug->menu_bar_focused = !debug->menu_bar_focused;
+			}
 		}
 	}
 
@@ -66,26 +89,37 @@ namespace engine {
 			debug.rendering_test_screen.draw(renderer, debug.debug_font_id, screen_resolution);
 		}
 
-		constexpr RGBA menu_bar_color_bg = { 177, 177, 177, 255 };
-		constexpr RGBA menu_bar_color_focus = { 197, 197, 197, 255 };
-		constexpr RGBA menu_bar_color_text = { 0, 0, 0, 255 };
-		constexpr int32_t menu_bar_height = DEBUG_UI_FONT_SIZE + 4;
-		constexpr int32_t menu_item_padding = 8;
-		constexpr int32_t menu_item_focus_padding = 2;
+		/* Draw Debug UI */
+		{
+			constexpr RGBA menu_bar_color_bg = { 177, 177, 177, 255 };
+			// constexpr RGBA menu_bar_color_focus = { 197, 197, 197, 255 };
+			// constexpr RGBA menu_bar_color_text = { 0, 0, 0, 255 };
+			constexpr int32_t menu_bar_height = DEBUG_UI_FONT_SIZE + 4;
+			// constexpr int32_t menu_item_padding = 8;
+			// constexpr int32_t menu_item_focus_padding = 2;
 
-		/* Draw menu bar */
-		renderer->draw_rect_fill(Rect { 0, 0, screen_resolution.x, menu_bar_height }, menu_bar_color_bg);
-		if (debug.menu_bar_focused) {
-			// draw focus
-			int32_t text_width = resources->font(debug.debug_font_id).text_width(DEBUG_UI_FONT_SIZE, "Debug");
-			int32_t focus_padding = menu_item_focus_padding;
-			renderer->draw_rect_fill(Rect { menu_item_padding - focus_padding, focus_padding, text_width + focus_padding, DEBUG_UI_FONT_SIZE }, menu_bar_color_focus);
+			Style menu_item_style {
+				.padding = 2,
+				.font_id = debug.debug_font_id,
+				.font_size = DEBUG_UI_FONT_SIZE,
+				.color = { 0, 0, 0, 255 },
+			};
 
-			// draw underline
-			int32_t letter_width = resources->font(debug.debug_font_id).glyph(DEBUG_UI_FONT_SIZE, 'D').width;
-			renderer->draw_line(IVec2 { menu_item_padding, DEBUG_UI_FONT_SIZE - 1 }, IVec2 { menu_item_padding + letter_width, DEBUG_UI_FONT_SIZE - 1 }, menu_bar_color_text);
+			/* Draw menu bar */
+			renderer->draw_rect_fill(Rect { 0, 0, screen_resolution.x, menu_bar_height }, menu_bar_color_bg);
+			// if (debug.menu_bar_focused) {
+			// 	// draw focus
+			// 	int32_t text_width = resources->font(debug.debug_font_id).text_width(DEBUG_UI_FONT_SIZE, "Debug");
+			// 	int32_t focus_padding = menu_item_focus_padding;
+			// 	renderer->draw_rect_fill(Rect { menu_item_padding - focus_padding, focus_padding, text_width + focus_padding, DEBUG_UI_FONT_SIZE }, menu_bar_color_focus);
+
+			// 	// draw underline
+			// 	int32_t letter_width = resources->font(debug.debug_font_id).glyph(DEBUG_UI_FONT_SIZE, 'D').width;
+			// 	renderer->draw_line(IVec2 { menu_item_padding, DEBUG_UI_FONT_SIZE - 1 }, IVec2 { menu_item_padding + letter_width, DEBUG_UI_FONT_SIZE - 1 }, menu_bar_color_text);
+			// }
+			// renderer->draw_text(debug.debug_font_id, DEBUG_UI_FONT_SIZE, { menu_item_padding, DEBUG_UI_FONT_SIZE - 2 }, menu_bar_color_text, "Debug");
+			draw_text_styled(renderer, resources, { 0, DEBUG_UI_FONT_SIZE }, menu_item_style, "Debug");
 		}
-		renderer->draw_text(debug.debug_font_id, DEBUG_UI_FONT_SIZE, { 8, DEBUG_UI_FONT_SIZE - 2 }, menu_bar_color_text, "Debug");
 
 		/* Render CPU profiling overlay */
 		if (debug.show_cpu_timing_overlay) {
