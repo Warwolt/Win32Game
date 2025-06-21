@@ -140,46 +140,11 @@ namespace engine {
 	}
 
 	void Renderer::draw_image(ImageID image_id, Rect rect, Rect clip, RGBA tint) {
-		CommandBatch batch = { .rect = rect, .image_id = image_id };
-
-		/* UV coordinates */
-		if (clip.empty()) {
-			clip.width = rect.width;
-			clip.height = rect.height;
-		}
-		// bottom left
-		Vec2 uv0 = {
-			.x = engine::clamp((float)clip.x / (float)(rect.width - 1), 0.0f, 1.0f),
-			.y = engine::clamp((float)clip.y / (float)(rect.height), 0.0f, 1.0f),
-		};
-		// top right
-		Vec2 uv1 = {
-			.x = engine::clamp((float)(clip.x + clip.width - 1) / (float)(rect.width - 1), 0.0f, 1.0f),
-			.y = engine::clamp((float)(clip.y + clip.height) / (float)(rect.height), 0.0f, 1.0f),
-		};
-
-		/* Draw image line by line */
-		for (int32_t y = 0; y < rect.height; y++) {
-			Vertex left = {
-				.pos = { rect.x, rect.y + y },
-				.color = tint,
-				.uv = {
-					uv0.x,
-					engine::lerp(uv0.y, uv1.y, 1.0f - ((float)y / (float)rect.height)),
-				}
-			};
-			Vertex right = {
-				.pos = { rect.x + rect.width - 1, rect.y + y },
-				.color = tint,
-				.uv = {
-					uv1.x,
-					engine::lerp(uv0.y, uv1.y, 1.0f - ((float)y / (float)rect.height)),
-				}
-			};
-			batch.commands.push_back(DrawLine { left, right });
-		}
-
-		m_batches.push_back(batch);
+		m_batches.push_back(CommandBatch {
+			.commands = {
+				DrawImage { image_id, rect, clip, tint },
+			},
+		});
 	}
 
 	void Renderer::draw_text(FontID font_id, int32_t font_size, IVec2 pos, RGBA color, std::string text) {
@@ -238,6 +203,10 @@ namespace engine {
 						else {
 							_put_triangle(bitmap, v1, v2, v3);
 						}
+					}
+					if (auto* draw_image = std::get_if<DrawImage>(&command)) {
+						auto& [image_id, rect, clip, tint] = *draw_image;
+						_put_image(bitmap, resources->image(image_id), rect, clip, tint);
 					}
 					if (auto* draw_text = std::get_if<DrawText>(&command)) {
 						auto& [font_id, font_size, pos, color, text] = *draw_text;
@@ -443,6 +412,45 @@ namespace engine {
 
 			/* Draw line */
 			_put_line(bitmap, p1, p2, nullptr, true);
+		}
+	}
+
+	void Renderer::_put_image(Bitmap* bitmap, const Image& image, Rect rect, Rect clip, RGBA tint) {
+		/* UV coordinates */
+		if (clip.empty()) {
+			clip.width = rect.width;
+			clip.height = rect.height;
+		}
+		// bottom left
+		Vec2 uv0 = {
+			.x = engine::clamp((float)clip.x / (float)(rect.width - 1), 0.0f, 1.0f),
+			.y = engine::clamp((float)clip.y / (float)(rect.height), 0.0f, 1.0f),
+		};
+		// top right
+		Vec2 uv1 = {
+			.x = engine::clamp((float)(clip.x + clip.width - 1) / (float)(rect.width - 1), 0.0f, 1.0f),
+			.y = engine::clamp((float)(clip.y + clip.height) / (float)(rect.height), 0.0f, 1.0f),
+		};
+
+		/* Draw image line by line */
+		for (int32_t y = 0; y < rect.height; y++) {
+			Vertex left = {
+				.pos = { rect.x, rect.y + y },
+				.color = tint,
+				.uv = {
+					uv0.x,
+					engine::lerp(uv0.y, uv1.y, 1.0f - ((float)y / (float)rect.height)),
+				}
+			};
+			Vertex right = {
+				.pos = { rect.x + rect.width - 1, rect.y + y },
+				.color = tint,
+				.uv = {
+					uv1.x,
+					engine::lerp(uv0.y, uv1.y, 1.0f - ((float)y / (float)rect.height)),
+				}
+			};
+			_put_line(bitmap, left, right, &image, true);
 		}
 	}
 

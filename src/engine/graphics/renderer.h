@@ -38,7 +38,6 @@ namespace engine {
 		void draw_circle_fill(IVec2 center, int32_t radius, RGBA color);
 		void draw_triangle(Vertex v1, Vertex v2, Vertex v3);
 		void draw_triangle_fill(Vertex v1, Vertex v2, Vertex v3);
-
 		void draw_image(ImageID image_id, Rect rect, Rect clip = {}, RGBA tint = RGBA::white());
 		void draw_text(FontID font_id, int32_t font_size, IVec2 pos, RGBA color, std::string text);
 
@@ -66,18 +65,24 @@ namespace engine {
 			RGBA color;
 			bool filled;
 		};
+		struct DrawTriangle {
+			Vertex v1;
+			Vertex v2;
+			Vertex v3;
+			bool filled;
+		};
+		struct DrawImage {
+			ImageID image_id;
+			Rect rect;
+			Rect clip;
+			RGBA tint;
+		};
 		struct DrawText {
 			FontID font_id;
 			int32_t font_size;
 			IVec2 pos;
 			RGBA color;
 			std::string text;
-		};
-		struct DrawTriangle {
-			Vertex v1;
-			Vertex v2;
-			Vertex v3;
-			bool filled;
 		};
 		using DrawCommand = std::variant<
 			ClearScreen,
@@ -86,7 +91,9 @@ namespace engine {
 			DrawRect,
 			DrawCircle,
 			DrawTriangle,
+			DrawImage,
 			DrawText>;
+
 		// FIXME: remove `CommandBatch`
 		struct CommandBatch {
 			Rect rect;
@@ -94,7 +101,7 @@ namespace engine {
 			std::vector<DrawCommand> commands;
 		};
 
-		Bitmap m_scratchpad; // FIXME: remove `m_scratchpad`
+		Bitmap m_scratchpad;                 // FIXME: remove `m_scratchpad`
 		std::vector<CommandBatch> m_batches; // FIXME: change this to DrawCommand
 
 		void _clear_screen(Bitmap* bitmap, RGBA color);
@@ -106,6 +113,7 @@ namespace engine {
 		void _put_circle_fill(Bitmap* bitmap, IVec2 center, int32_t radius, RGBA color);
 		void _put_triangle(Bitmap* bitmap, Vertex v1, Vertex v2, Vertex v3);
 		void _put_triangle_fill(Bitmap* bitmap, Vertex v1, Vertex v2, Vertex v3);
+		void _put_image(Bitmap* bitmap, const Image& image, Rect rect, Rect clip, RGBA tint);
 		void _put_text(Bitmap* bitmap, Typeface* typeface, int32_t font_size, IVec2 pos, RGBA color, const std::string& text);
 	};
 
