@@ -12,6 +12,8 @@ namespace engine {
 
 	struct DebugState {
 		FontID debug_font_id;
+		bool show_cpu_timing_overlay = false;
+		bool menu_bar_focused = false;
 
 		struct CPUPerformance {
 			DeltaTimer input_timer;
@@ -21,9 +23,8 @@ namespace engine {
 			DeltaTimer frame_timer;
 		} performance;
 
-		struct TestScreens {
-			RenderingTestScreen rendering;
-		} test_screens;
+		bool show_rendering_test_screen = false;
+		RenderingTestScreen rendering_test_screen;
 	};
 
 	void initialize_debug(DebugState* debug, ResourceManager* resources);

@@ -16,6 +16,7 @@ namespace engine {
 
 		static RGBA lerp(RGBA start, RGBA end, float t);
 		bool operator==(const RGBA& rhs) const = default;
+		operator bool() const;
 		friend RGBA operator+(const RGBA& lhs, const RGBA& rhs);
 		friend RGBA operator*(float t, const RGBA& rhs);
 		friend RGBA operator*(RGBA lhs, const RGBA& rhs);
