@@ -29,19 +29,7 @@ namespace engine {
 	}
 
 	void Bitmap::clear(Pixel color) {
-		for (int32_t y = 0; y < m_height; y++) {
-			for (int32_t x = 0; x < m_width; x++) {
-				m_data[x + y * m_width] = color;
-			}
-		}
-	}
-
-	void Bitmap::clear_section(Pixel color, Rect rect) {
-		for (int32_t y = rect.y; y < rect.height; y++) {
-			for (int32_t x = rect.x; x < rect.width; x++) {
-				m_data[x + y * m_width] = color;
-			}
-		}
+		std::fill(m_data.begin(), m_data.end(), color);
 	}
 
 	void Bitmap::resize(int32_t width, int32_t height) {
