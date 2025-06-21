@@ -1,17 +1,16 @@
 #include <engine/graphics/image.h>
 
 #include <engine/math/ivec2.h>
+#include <engine/math/math.h>
 
 #include <stb_image/stb_image.h>
-
-#include <algorithm>
 
 namespace engine {
 
 	RGBA Image::sample(Vec2 uv) const {
 		IVec2 sample_point = IVec2::from_vec2({
-			.x = std::clamp(uv.x, 0.0f, 1.0f) * (this->width - 1),
-			.y = (1.0f - std::clamp(uv.y, 0.0f, 1.0f)) * (this->height - 1),
+			.x = engine::clamp(uv.x, 0.0f, 1.0f) * (this->width - 1),
+			.y = (1.0f - engine::clamp(uv.y, 0.0f, 1.0f)) * (this->height - 1),
 		});
 		return this->data[sample_point.x + sample_point.y * this->width];
 	}
