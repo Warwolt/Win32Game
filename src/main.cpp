@@ -156,6 +156,7 @@ int WINAPI WinMain(
 		input_timer.end();
 
 		if (g_context.engine.window.is_minimized()) {
+			// Don't perform any work while not open
 			continue;
 		}
 
@@ -178,6 +179,7 @@ int WINAPI WinMain(
 		render_timer.end();
 
 		/* End frame */
+		Sleep(1); // Without this we seem to get an unresponsive taskbar
 		frame_timer.end();
 	}
 
