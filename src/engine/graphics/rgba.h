@@ -11,7 +11,6 @@ namespace engine {
 		uint8_t a = 255;
 
 		static constexpr RGBA white() { return { 255, 255, 255, 255 }; }
-		static constexpr RGBA light_grey() { return { 177, 177, 177, 255 }; }
 		static constexpr RGBA black() { return { 0, 0, 0, 255 }; }
 		static constexpr RGBA purple() { return { 255, 0, 255, 255 }; }
 
