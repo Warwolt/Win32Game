@@ -11,6 +11,7 @@ namespace engine {
 
 	struct Style {
 		int32_t padding;
+		int32_t margin;
 		FontID font_id;
 		int32_t font_size;
 		RGBA color;
@@ -24,11 +25,12 @@ namespace engine {
 		const Style& style,
 		const std::string& text
 	) {
-		IVec2 padded_position = { position.x + style.padding, position.y + style.padding };
+		IVec2 margined_pos = position + IVec2 { style.margin, style.margin };
+		IVec2 padded_position = margined_pos + IVec2 { style.padding, style.padding };
 		if (style.background_color) {
 			Font& font = resources->font(style.font_id);
 			int32_t text_width = font.text_width(style.font_size, text);
-			renderer->draw_rect_fill(Rect { position.x, position.y, text_width + 2 * style.padding, style.font_size + 2 * style.padding }, style.background_color);
+			renderer->draw_rect_fill(Rect { margined_pos.x, margined_pos.y, text_width + 2 * style.padding, style.font_size + 2 * style.padding }, style.background_color);
 		}
 		renderer->draw_text(style.font_id, style.font_size, padded_position, style.color, text);
 	}
@@ -99,16 +101,17 @@ namespace engine {
 			constexpr RGBA menu_bar_color_bg = { 177, 177, 177, 255 };
 			// constexpr RGBA menu_bar_color_focus = { 197, 197, 197, 255 };
 			// constexpr RGBA menu_bar_color_text = { 0, 0, 0, 255 };
-			constexpr int32_t menu_bar_height = DEBUG_UI_FONT_SIZE + 4;
+			constexpr int32_t menu_bar_height = DEBUG_UI_FONT_SIZE + 6;
 			// constexpr int32_t menu_item_padding = 8;
 			// constexpr int32_t menu_item_focus_padding = 2;
 
 			Style menu_item_style {
-				.padding = 2,
+				.padding = 1,
+				.margin = 2,
 				.font_id = debug.debug_font_id,
 				.font_size = DEBUG_UI_FONT_SIZE,
 				.color = { 0, 0, 0, 255 },
-				.background_color = { 255, 0, 0, 255 }
+				.background_color = debug.menu_bar_focused ? RGBA { 199, 199, 199, 255 } : RGBA { 0 },
 			};
 
 			/* Draw menu bar */

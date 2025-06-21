@@ -78,7 +78,7 @@ namespace engine {
 	}
 
 	int32_t Font::text_width(int32_t size, const std::string& text) {
-		int32_t text_width = 1;
+		int32_t text_width = 0;
 		for (char character : text) {
 			const engine::Glyph& glyph = this->glyph(size, character);
 			text_width += glyph.advance_width;

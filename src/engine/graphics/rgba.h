@@ -8,7 +8,7 @@ namespace engine {
 		uint8_t r;
 		uint8_t g;
 		uint8_t b;
-		uint8_t a = 255;
+		uint8_t a;
 
 		static constexpr RGBA white() { return { 255, 255, 255, 255 }; }
 		static constexpr RGBA black() { return { 0, 0, 0, 255 }; }
