@@ -46,10 +46,10 @@ namespace engine {
 		// White should be the identity element for multiplication,
 		// i.e. color * white = color, so we normalize before multipying, and then scale back to 0-255 range
 		return RGBA {
-			.r = (uint8_t)std::round(255.0f * engine::clamp<float>(((float)lhs.r / 255.0f) * ((float)rhs.r / 255.0f), 0.0f, 1.0f)),
-			.g = (uint8_t)std::round(255.0f * engine::clamp<float>(((float)lhs.g / 255.0f) * ((float)rhs.g / 255.0f), 0.0f, 1.0f)),
-			.b = (uint8_t)std::round(255.0f * engine::clamp<float>(((float)lhs.b / 255.0f) * ((float)rhs.b / 255.0f), 0.0f, 1.0f)),
-			.a = (uint8_t)std::round(255.0f * engine::clamp<float>(((float)lhs.a / 255.0f) * ((float)rhs.a / 255.0f), 0.0f, 1.0f)),
+			.r = (uint8_t)((255 * lhs.r * rhs.r) / (255 * 255)),
+			.g = (uint8_t)((255 * lhs.g * rhs.g) / (255 * 255)),
+			.b = (uint8_t)((255 * lhs.b * rhs.b) / (255 * 255)),
+			.a = (uint8_t)((255 * lhs.a * rhs.a) / (255 * 255)),
 		};
 	}
 
