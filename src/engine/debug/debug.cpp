@@ -38,9 +38,9 @@ namespace engine {
 		debug.test_screens.rendering.draw(renderer, debug.debug_font_id, screen_resolution);
 
 		/* Render CPU profiling overlay */
+		int32_t font_size = 16;
 		FontID debug_font_id = FontID(1); // FIXME: we should store this in DebugState
 		auto draw_section_timing = [&](const std::string& label, const DeltaTimer& timer, int32_t y) {
-			int32_t font_size = 16;
 			std::string text = std::format("{}: {:.2f} ms", label, timer.average_delta() * 1e3);
 			draw_text_right_aligned(renderer, resources, debug_font_id, font_size, { 0, font_size * y }, screen_resolution.x, RGBA::white(), text);
 		};
@@ -49,6 +49,8 @@ namespace engine {
 		draw_section_timing("draw", debug.performance.draw_timer, 3);
 		draw_section_timing("render", debug.performance.render_timer, 4);
 		draw_section_timing("frame", debug.performance.frame_timer, 5);
+		std::string text = std::format("fps: {:3}    ", (int)(1.0f / debug.performance.frame_timer.average_delta()));
+		draw_text_right_aligned(renderer, resources, debug_font_id, font_size, { 0, font_size * 6 }, screen_resolution.x, RGBA::white(), text);
 	}
 
 } // namespace engine
