@@ -1,20 +1,34 @@
+#include <engine/debug/assert.h>
 #include <engine/debug/debug.h>
-
+#include <engine/debug/logging.h>
 #include <engine/file/resource_manager.h>
 #include <engine/graphics/renderer.h>
 #include <engine/graphics/window.h>
 #include <engine/input/input.h>
-
-#include <engine/debug/logging.h>
 
 namespace engine {
 
 	constexpr int32_t DEBUG_UI_FONT_SIZE = 16;
 
 	struct Style {
-		int32_t padding;
-		int32_t border;
-		int32_t margin;
+		int32_t margin = 0;
+		int32_t margin_top = 0;
+		int32_t margin_right = 0;
+		int32_t margin_bottom = 0;
+		int32_t margin_left = 0;
+
+		int32_t border = 0;
+		int32_t border_top = 0;
+		int32_t border_right = 0;
+		int32_t border_bottom = 0;
+		int32_t border_left = 0;
+
+		int32_t padding = 0;
+		int32_t padding_top = 0;
+		int32_t padding_right = 0;
+		int32_t padding_bottom = 0;
+		int32_t padding_left = 0;
+
 		FontID font_id;
 		int32_t font_size;
 		RGBA color;
@@ -22,41 +36,54 @@ namespace engine {
 		RGBA border_color = { 0 };
 	};
 
-	static void draw_text_styled(
-		Renderer* renderer,
-		ResourceManager* resources,
-		IVec2 position,
-		const Style& style,
-		const std::string& text
-	) {
+	static void draw_text_styled(Renderer* renderer, ResourceManager* resources, IVec2 position, const Style& style, const std::string& text) {
+		DEBUG_ASSERT(style.font_size > 0, "Can't render font size 0!");
+
+		/* Margin */
+		int32_t margin_top = style.margin ? style.margin : style.margin_top;
+		// int32_t margin_right = style.margin ? style.margin : style.margin_right;
+		// int32_t margin_bottom = style.margin ? style.margin : style.margin_bottom;
+		int32_t margin_left = style.margin ? style.margin : style.margin_left;
+
+		/* Border */
+		int32_t border_top = style.border ? style.border : style.border_top;
+		int32_t border_right = style.border ? style.border : style.border_right;
+		int32_t border_bottom = style.border ? style.border : style.border_bottom;
+		int32_t border_left = style.border ? style.border : style.border_left;
+
+		/* Padding */
+		int32_t padding_top = style.padding ? style.padding : style.padding_top;
+		int32_t padding_right = style.padding ? style.padding : style.padding_right;
+		int32_t padding_bottom = style.padding ? style.padding : style.padding_bottom;
+		int32_t padding_left = style.padding ? style.padding : style.padding_left;
+
+		/* Widths and heights */
 		Font& font = resources->font(style.font_id);
-		IVec2 margined_pos = position + IVec2 { style.margin, style.margin };
-		IVec2 padded_position = margined_pos + IVec2 { style.padding, style.padding };
-		if (style.background_color || style.border_color) {
-			int32_t text_width = font.text_width(style.font_size, text);
-			Rect rect = Rect { margined_pos.x, margined_pos.y, text_width + 2 * style.padding, style.font_size + 2 * style.padding };
-			if (style.background_color) {
-				renderer->draw_rect_fill(rect, style.background_color);
-			}
-			if (style.border_color) {
-				for (int32_t i = 0; i < style.border; i++) {
-					renderer->draw_rect(Rect { rect.x - i, rect.y - i, rect.width + 2 * i, rect.height + 2 * i }, style.border_color);
-				}
-			}
+		int32_t content_width = font.text_width(style.font_size, text);
+		int32_t content_height = style.font_size;
+
+		int32_t padding_width = content_width + padding_left + padding_right;
+		int32_t padding_height = content_height + padding_top + padding_bottom;
+
+		int32_t border_width = padding_width + border_left + border_right;
+		int32_t border_height = padding_height + border_top + border_bottom;
+
+		/* Positions */
+		IVec2 box_position = position + IVec2 { margin_left, margin_top };
+		IVec2 border_position = box_position + IVec2 { border_left, border_top };
+		IVec2 content_position = border_position + IVec2 { padding_left, padding_top };
+
+		/* Draw background and border */
+		if (style.background_color) {
+			Rect rect = { border_position.x, border_position.y, border_width, border_height };
+			renderer->draw_rect_fill(rect, style.background_color);
 		}
-		renderer->draw_text(style.font_id, style.font_size, padded_position, style.color, text);
+
+		/* Draw text */
+		renderer->draw_text(style.font_id, style.font_size, content_position, style.color, text);
 	}
 
-	static void draw_text_right_aligned(
-		Renderer* renderer,
-		ResourceManager* resources,
-		FontID font_id,
-		int32_t font_size,
-		IVec2 pos,
-		int32_t box_width,
-		RGBA color,
-		const std::string& text
-	) {
+	static void draw_text_right_aligned(Renderer* renderer, ResourceManager* resources, FontID font_id, int32_t font_size, IVec2 pos, int32_t box_width, RGBA color, const std::string& text) {
 		int32_t text_width = resources->font(font_id).text_width(font_size, text);
 		renderer->draw_text(font_id, font_size, IVec2 { pos.x + box_width - text_width, pos.y }, color, text);
 	}
@@ -89,7 +116,8 @@ namespace engine {
 		/* Show CPU profiling information in window title */
 		float avg_fps = 1.0f / debug->performance.frame_timer.average_delta();
 		const char* window_title = "Game";
-		std::string window_title_with_fps = std::format("{} ({:.1f} fps)", window_title, avg_fps);
+		std::string window_title_with_fps =
+			std::format("{} ({:.1f} fps)", window_title, avg_fps);
 		commands->push_back(AppCommand_SetWindowTitle { window_title_with_fps });
 
 		/* Update Debug UI */
@@ -98,27 +126,38 @@ namespace engine {
 				debug->show_cpu_timing_overlay = !debug->show_cpu_timing_overlay;
 			}
 
-			if (input.keyboard.key_was_pressed_now(VK_MENU)) {
-				debug->menu_bar_focused = !debug->menu_bar_focused;
-				if (!debug->menu_bar_focused) {
-					debug->file_menu_opened = false;
+			/* Menu bar */
+			if (!debug->menu_bar_active) {
+				if (input.keyboard.key_was_pressed_now(VK_MENU)) {
+					/* Open menu bar */
+					debug->menu_bar_active = true;
+					debug->menu_bar_show_shortcuts = true;
+					debug->menu_bar_file_item_focused = true;
 				}
 			}
-
-			if (debug->menu_bar_focused) {
-				if (input.keyboard.key_was_pressed_now('F')) {
-					debug->file_menu_opened = true;
+			else if (debug->menu_bar_active) {
+				/* Close menu bar */
+				if (input.keyboard.key_was_pressed_now(VK_MENU) ||
+					input.keyboard.key_was_pressed_now(VK_ESCAPE)) {
+					debug->menu_bar_active = false;
+					debug->menu_bar_show_shortcuts = false;
+					debug->menu_bar_file_item_focused = false;
+					debug->file_menu_open = false;
 				}
 
-				if (debug->file_menu_opened) {
+				/* Open file menu */
+				if (input.keyboard.key_was_pressed_now(VK_RETURN) ||
+					input.keyboard.key_was_pressed_now('F')) {
+					debug->menu_bar_file_item_focused = false;
+					debug->file_menu_open = true;
+					debug->file_menu_exit_item_focused = true;
+				}
+
+				/* File menu */
+				if (debug->file_menu_open) {
 					if (input.keyboard.key_was_pressed_now('X')) {
 						commands->push_back(AppCommand_Quit());
 					}
-				}
-
-				if (input.keyboard.key_was_pressed_now(VK_ESCAPE)) {
-					debug->menu_bar_focused = false;
-					debug->file_menu_opened = false;
 				}
 			}
 		}
@@ -130,50 +169,77 @@ namespace engine {
 			debug.rendering_test_screen.draw(renderer, debug.debug_font_id, screen_resolution);
 		}
 
+		// test out stylized drawing
+		Style test_style = {
+			.margin = 1,
+			.border = 1,
+			.padding = 1,
+			.font_id = debug.debug_font_id,
+			.font_size = DEBUG_UI_FONT_SIZE,
+			.color = RGBA::white(),
+			.background_color = RGBA::red(),
+			.border_color = RGBA::green(),
+		};
+		draw_text_styled(renderer, resources, { 0, 0 }, test_style, "H");
+
 		/* Draw Debug UI */
 		{
-			constexpr RGBA menu_color = { 177, 177, 177, 255 };
-			constexpr int32_t menu_bar_height = DEBUG_UI_FONT_SIZE + 6;
+			// constexpr RGBA menu_color = { 177, 177, 177, 255 };
+			// constexpr int32_t menu_bar_height = DEBUG_UI_FONT_SIZE + 6;
 
-			Style menu_item_style {
-				.padding = 1,
-				.border = 2,
-				.margin = 2,
-				.font_id = debug.debug_font_id,
-				.font_size = DEBUG_UI_FONT_SIZE,
-				.color = { 0, 0, 0, 255 },
-				.background_color = debug.menu_bar_focused ? RGBA { 191, 191, 191, 255 } : RGBA { 0 },
-				.border_color = debug.menu_bar_focused ? RGBA { 204, 204, 204, 255 } : RGBA { 0 },
-			};
+			// Style menu_item_style {
+			// 	.margin = 2,
+			// 	.border = 2,
+			// 	.padding = 1,
+			// 	.font_id = debug.debug_font_id,
+			// 	.font_size = DEBUG_UI_FONT_SIZE,
+			// 	.color = { 0, 0, 0, 255 },
+			// 	.background_color = debug.menu_bar_active ? RGBA { 191, 191, 191, 255 } : RGBA { 0 },
+			// 	.border_color = debug.menu_bar_file_item_focused ? RGBA { 204, 204, 204, 255 } : RGBA { 0 },
+			// };
 
-			/* Draw menu bar */
-			renderer->draw_rect_fill(Rect { 0, 0, screen_resolution.x, menu_bar_height }, menu_color);
-			draw_text_styled(renderer, resources, { 0, 0 }, menu_item_style, "File");
-			if (debug.menu_bar_focused) {
-				// draw underscore
-				Style& style = menu_item_style;
-				Font& font = resources->font(debug.debug_font_id);
-				int32_t ascent = font.ascent(DEBUG_UI_FONT_SIZE);
-				int32_t letter_width = font.glyph(DEBUG_UI_FONT_SIZE, 'F').width;
-				IVec2 offset = { style.margin + style.padding, style.margin + style.padding + ascent };
-				renderer->draw_line(offset + IVec2 { 0, 1 }, offset + IVec2 { letter_width, 1 }, style.color);
-			}
+			// /* Draw menu bar */
+			// renderer->draw_rect_fill(Rect { 0, 0, screen_resolution.x, menu_bar_height }, menu_color);
+			// draw_text_styled(renderer, resources, { 0, 0 }, menu_item_style, "File");
+			// if (debug.menu_bar_show_shortcuts) {
+			// 	// draw underscore
+			// 	Style& style = menu_item_style;
+			// 	Font& font = resources->font(debug.debug_font_id);
+			// 	int32_t ascent = font.ascent(DEBUG_UI_FONT_SIZE);
+			// 	int32_t letter_width = font.glyph(DEBUG_UI_FONT_SIZE, 'F').width;
+			// 	IVec2 offset = { style.margin + style.padding,
+			// 					 style.margin + style.padding + ascent };
+			// 	renderer->draw_line(offset + IVec2 { 0, 1 }, offset + IVec2 { letter_width, 1 }, style.color);
+			// }
 
-			/* File menu */
-			if (debug.file_menu_opened) {
-				Style& style = menu_item_style;
-				IVec2 offset = { style.margin + style.padding, style.margin + style.padding };
-				IVec2 text_pos = offset + IVec2 { 8, menu_bar_height };
-				renderer->draw_rect_fill(Rect { 0, menu_bar_height, 64, DEBUG_UI_FONT_SIZE + offset.y }, menu_color);
-				renderer->draw_text(debug.debug_font_id, DEBUG_UI_FONT_SIZE, text_pos, menu_item_style.color, "Exit");
+			// /* File menu */
+			// Style file_menu_item_style = menu_item_style;
+			// file_menu_item_style.margin = 0;
+			// file_menu_item_style.background_color =
+			// 	debug.menu_bar_active ? RGBA { 191, 191, 191, 255 } : RGBA { 0 };
+			// file_menu_item_style.border_color =
+			// 	debug.file_menu_exit_item_focused ? RGBA { 204, 204, 204, 255 } : RGBA { 0 };
 
-				// draw underscore
-				Font& font = resources->font(debug.debug_font_id);
-				int32_t ascent = font.ascent(DEBUG_UI_FONT_SIZE);
-				int32_t underscore_offset = font.text_width(DEBUG_UI_FONT_SIZE, "E");
-				int32_t letter_width = font.glyph(DEBUG_UI_FONT_SIZE, 'x').width;
-				renderer->draw_line(text_pos + IVec2 { underscore_offset, ascent + 1 }, text_pos + IVec2 { underscore_offset + letter_width, ascent + 1 }, style.color);
-			}
+			// if (debug.file_menu_open) {
+			// 	draw_text_styled(renderer, resources, { 0, menu_bar_height }, file_menu_item_style, "Exit");
+
+			// Style& style = file_menu_item_style;
+			// IVec2 offset = { style.margin + style.padding, style.margin +
+			// style.padding }; IVec2 text_pos = offset + IVec2 { 8, menu_bar_height
+			// }; renderer->draw_rect_fill(Rect { 0, menu_bar_height, 64,
+			// DEBUG_UI_FONT_SIZE + offset.y }, menu_color);
+			// renderer->draw_text(debug.debug_font_id, DEBUG_UI_FONT_SIZE, text_pos,
+			// file_menu_item_style.color, "Exit");
+
+			// // draw underscore
+			// Font& font = resources->font(debug.debug_font_id);
+			// int32_t ascent = font.ascent(DEBUG_UI_FONT_SIZE);
+			// int32_t underscore_offset = font.text_width(DEBUG_UI_FONT_SIZE, "E");
+			// int32_t letter_width = font.glyph(DEBUG_UI_FONT_SIZE, 'x').width;
+			// renderer->draw_line(text_pos + IVec2 { underscore_offset, ascent + 1 },
+			// text_pos + IVec2 { underscore_offset + letter_width, ascent + 1 },
+			// style.color);
+			// }
 		}
 
 		/* Render CPU profiling overlay */

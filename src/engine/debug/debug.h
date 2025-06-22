@@ -10,11 +10,20 @@ namespace engine {
 
 	class ResourceManager;
 
+	// Only one thing can be focused at a time
+	// When we press ALT, the first item in the menu bar gets focus and active
+	// Presseing F or ENTER should open the "File" menu bar item
+	// When the file menu opens, focus moves to first file menu item
+	// The file menu bar item should still be active
+
 	struct DebugState {
 		FontID debug_font_id;
 		bool show_cpu_timing_overlay = false;
-		bool menu_bar_focused = false;
-		bool file_menu_opened = false;
+		bool menu_bar_active; // we're navigating the menu bar
+		bool menu_bar_show_shortcuts = false; // controls underscore
+		bool menu_bar_file_item_focused = false; // white border
+		bool file_menu_open; // controls "file" gets highlighted
+		bool file_menu_exit_item_focused = false; // white border
 
 		struct CPUPerformance {
 			DeltaTimer input_timer;
