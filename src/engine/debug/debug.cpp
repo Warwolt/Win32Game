@@ -13,11 +13,13 @@ namespace engine {
 
 	struct Style {
 		int32_t padding;
+		int32_t border;
 		int32_t margin;
 		FontID font_id;
 		int32_t font_size;
 		RGBA color;
-		RGBA background_color = { 0, 0, 0, 0 };
+		RGBA background_color = { 0 };
+		RGBA border_color = { 0 };
 	};
 
 	static void draw_text_styled(
@@ -27,12 +29,20 @@ namespace engine {
 		const Style& style,
 		const std::string& text
 	) {
+		Font& font = resources->font(style.font_id);
 		IVec2 margined_pos = position + IVec2 { style.margin, style.margin };
 		IVec2 padded_position = margined_pos + IVec2 { style.padding, style.padding };
-		if (style.background_color) {
-			Font& font = resources->font(style.font_id);
+		if (style.background_color || style.border_color) {
 			int32_t text_width = font.text_width(style.font_size, text);
-			renderer->draw_rect_fill(Rect { margined_pos.x, margined_pos.y, text_width + 2 * style.padding, style.font_size + 2 * style.padding }, style.background_color);
+			Rect rect = Rect { margined_pos.x, margined_pos.y, text_width + 2 * style.padding, style.font_size + 2 * style.padding };
+			if (style.background_color) {
+				renderer->draw_rect_fill(rect, style.background_color);
+			}
+			if (style.border_color) {
+				for (int32_t i = 0; i < style.border; i++) {
+					renderer->draw_rect(Rect { rect.x - i, rect.y - i, rect.width + 2 * i, rect.height + 2 * i }, style.border_color);
+				}
+			}
 		}
 		renderer->draw_text(style.font_id, style.font_size, padded_position, style.color, text);
 	}
@@ -127,11 +137,13 @@ namespace engine {
 
 			Style menu_item_style {
 				.padding = 1,
+				.border = 2,
 				.margin = 2,
 				.font_id = debug.debug_font_id,
 				.font_size = DEBUG_UI_FONT_SIZE,
 				.color = { 0, 0, 0, 255 },
-				.background_color = debug.menu_bar_focused ? RGBA { 199, 199, 199, 255 } : RGBA { 0 },
+				.background_color = debug.menu_bar_focused ? RGBA { 191, 191, 191, 255 } : RGBA { 0 },
+				.border_color = debug.menu_bar_focused ? RGBA { 204, 204, 204, 255 } : RGBA { 0 },
 			};
 
 			/* Draw menu bar */
