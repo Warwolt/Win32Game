@@ -189,47 +189,46 @@ namespace engine {
 		}
 
 		// test out stylized drawing
-		Style test_style = {
-			.margin = 0,
-			.border = 10,
-			.padding = 10,
-			.font_id = debug.debug_font_id,
-			.font_size = DEBUG_UI_FONT_SIZE,
-			.color = RGBA::white(),
-			.background_color = RGBA::red(),
-			.border_color = RGBA::green(),
-		};
-		draw_text_styled(renderer, resources, { 0, 0 }, test_style, "The quick fox jumps over the lazy dog");
+		// Style test_style = {
+		// 	.margin = 10,
+		// 	.border = 10,
+		// 	.padding = 10,
+		// 	.font_id = debug.debug_font_id,
+		// 	.font_size = DEBUG_UI_FONT_SIZE,
+		// 	.color = RGBA::white(),
+		// 	.background_color = RGBA::red(),
+		// 	.border_color = RGBA::green(),
+		// };
+		// draw_text_styled(renderer, resources, { 0, 0 }, test_style, "The quick fox jumps over the lazy dog!");
 
 		/* Draw Debug UI */
 		{
-			// constexpr RGBA menu_color = { 177, 177, 177, 255 };
-			// constexpr int32_t menu_bar_height = DEBUG_UI_FONT_SIZE + 6;
+			constexpr RGBA menu_color = { 177, 177, 177, 255 };
+			constexpr int32_t menu_bar_height = DEBUG_UI_FONT_SIZE + 6;
 
-			// Style menu_item_style {
-			// 	.margin = 2,
-			// 	.border = 2,
-			// 	.padding = 1,
-			// 	.font_id = debug.debug_font_id,
-			// 	.font_size = DEBUG_UI_FONT_SIZE,
-			// 	.color = { 0, 0, 0, 255 },
-			// 	.background_color = debug.menu_bar_active ? RGBA { 191, 191, 191, 255 } : RGBA { 0 },
-			// 	.border_color = debug.menu_bar_file_item_focused ? RGBA { 204, 204, 204, 255 } : RGBA { 0 },
-			// };
+			Style menu_item_style {
+				.margin = 1,
+				.border = 1,
+				.padding = 1,
+				.font_id = debug.debug_font_id,
+				.font_size = DEBUG_UI_FONT_SIZE,
+				.color = { 0, 0, 0, 255 },
+				.background_color = debug.menu_bar_active ? RGBA { 191, 191, 191, 255 } : RGBA { 0 },
+				.border_color = debug.menu_bar_file_item_focused ? RGBA { 204, 204, 204, 255 } : RGBA { 0 },
+			};
 
-			// /* Draw menu bar */
-			// renderer->draw_rect_fill(Rect { 0, 0, screen_resolution.x, menu_bar_height }, menu_color);
-			// draw_text_styled(renderer, resources, { 0, 0 }, menu_item_style, "File");
-			// if (debug.menu_bar_show_shortcuts) {
-			// 	// draw underscore
-			// 	Style& style = menu_item_style;
-			// 	Font& font = resources->font(debug.debug_font_id);
-			// 	int32_t ascent = font.ascent(DEBUG_UI_FONT_SIZE);
-			// 	int32_t letter_width = font.glyph(DEBUG_UI_FONT_SIZE, 'F').width;
-			// 	IVec2 offset = { style.margin + style.padding,
-			// 					 style.margin + style.padding + ascent };
-			// 	renderer->draw_line(offset + IVec2 { 0, 1 }, offset + IVec2 { letter_width, 1 }, style.color);
-			// }
+			/* Draw menu bar */
+			renderer->draw_rect_fill(Rect { 0, 0, screen_resolution.x, menu_bar_height }, menu_color);
+			draw_text_styled(renderer, resources, { 0, 0 }, menu_item_style, "File");
+			if (debug.menu_bar_show_shortcuts) {
+				// draw underscore
+				Style& style = menu_item_style;
+				Font& font = resources->font(debug.debug_font_id);
+				int32_t ascent = font.ascent(DEBUG_UI_FONT_SIZE);
+				int32_t letter_width = font.glyph(DEBUG_UI_FONT_SIZE, 'F').width;
+				IVec2 offset = { style.margin + style.border + style.padding, style.margin + style.padding + ascent + 1 };
+				renderer->draw_line(offset + IVec2 { 0, 1 }, offset + IVec2 { letter_width, 1 }, style.color);
+			}
 
 			// /* File menu */
 			// Style file_menu_item_style = menu_item_style;
