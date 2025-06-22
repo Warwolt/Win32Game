@@ -4,14 +4,25 @@
 #include <engine/debug/test/rendering_test_screen.h>
 #include <engine/graphics/font_id.h>
 #include <engine/math/ivec2.h>
+#include <engine/commands.h>
 
 namespace engine {
 
 	class ResourceManager;
-	class Window;
+
+	// Only one thing can be focused at a time
+	// When we press ALT, the first item in the menu bar gets focus and active
+	// Presseing F or ENTER should open the "File" menu bar item
+	// When the file menu opens, focus moves to first file menu item
+	// The file menu bar item should still be active
 
 	struct DebugState {
 		FontID debug_font_id;
+		bool show_cpu_timing_overlay = false;
+		bool menu_bar_active; // we're navigating the menu bar
+		bool menu_bar_file_item_focused = false; // white border
+		bool file_menu_open; // controls "file" gets highlighted
+		bool file_menu_exit_item_focused = false; // white border
 
 		struct CPUPerformance {
 			DeltaTimer input_timer;
@@ -21,13 +32,12 @@ namespace engine {
 			DeltaTimer frame_timer;
 		} performance;
 
-		struct TestScreens {
-			RenderingTestScreen rendering;
-		} test_screens;
+		bool show_rendering_test_screen = false;
+		RenderingTestScreen rendering_test_screen;
 	};
 
 	void initialize_debug(DebugState* debug, ResourceManager* resources);
-	void update_debug(DebugState* debug, const InputDevices& input, Window* window);
+	void update_debug(DebugState* debug, const InputDevices& input, std::vector<Command>* commands);
 	void draw_debug(Renderer* renderer, const DebugState& debug, ResourceManager* resources, IVec2 screen_resolution);
 
 } // namespace engine

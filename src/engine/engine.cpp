@@ -15,7 +15,7 @@ namespace engine {
 		initialize_debug(&engine.debug, &engine.resources);
 
 		constexpr int zoom = 2;
-		IVec2 screen_resolution = IVec2 { 640, 480 };
+		IVec2 screen_resolution = IVec2 { 1920 / 4, 1200 / 4 };
 		if (std::expected<Window, EngineError> window_result = Window::initialize(instance, wnd_proc, zoom * screen_resolution, window_title)) {
 			engine.window = window_result.value();
 		}
@@ -31,7 +31,7 @@ namespace engine {
 
 	void update(EngineState* engine, const InputDevices& input) {
 		/* Update engine */
-		update_debug(&engine->debug, input, &engine->window);
+		update_debug(&engine->debug, input, &engine->commands);
 
 		/* Process commands */
 		for (const Command& command : engine->commands) {
@@ -42,6 +42,10 @@ namespace engine {
 				}
 				if (auto* toggle_fullscreen = std::get_if<AppCommand_ToggleFullscreen>(app_command)) {
 					engine->window.toggle_fullscreen();
+				}
+				if (auto* set_window_title = std::get_if<AppCommand_SetWindowTitle>(app_command)) {
+					auto& [window_title] = *set_window_title;
+					engine->window.set_title(window_title);
 				}
 			}
 			/* Audio commands */

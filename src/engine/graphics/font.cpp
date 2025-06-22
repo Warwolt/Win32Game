@@ -37,7 +37,7 @@ namespace engine {
 	}
 
 	std::optional<Font> Font::from_path(std::filesystem::path path) {
-		Font typeface;
+		Font font;
 
 		if (!std::filesystem::exists(path)) {
 			return {};
@@ -47,19 +47,19 @@ namespace engine {
 		{
 			size_t file_size = std::filesystem::file_size(path);
 			std::ifstream font_file(path, std::ios_base::binary);
-			typeface.m_file_data.resize(file_size);
-			if (!font_file.read(reinterpret_cast<char*>(typeface.m_file_data.data()), file_size)) {
+			font.m_file_data.resize(file_size);
+			if (!font_file.read(reinterpret_cast<char*>(font.m_file_data.data()), file_size)) {
 				return {};
 			}
 		}
 
-		/* Prepare typeface */
-		bool init_result = stbtt_InitFont(&typeface.m_font_info, typeface.m_file_data.data(), 0);
+		/* Prepare font */
+		bool init_result = stbtt_InitFont(&font.m_font_info, font.m_file_data.data(), 0);
 		if (!init_result) {
 			return {};
 		}
 
-		return typeface;
+		return font;
 	}
 
 	Glyph& Font::glyph(int32_t size, char codepoint) {
@@ -72,11 +72,21 @@ namespace engine {
 		return font.glyphs[codepoint];
 	}
 
+	int32_t Font::ascent(int32_t size) {
+		FontData& font = _get_or_make_font_data(size);
+		return font.ascent;
+	}
+
 	int32_t Font::text_width(int32_t size, const std::string& text) {
-		int32_t text_width = 1;
-		for (char character : text) {
-			const engine::Glyph& glyph = this->glyph(size, character);
-			text_width += glyph.advance_width;
+		int32_t text_width = 0;
+		for (size_t i = 0; i < text.length(); i++) {
+			const engine::Glyph& glyph = this->glyph(size, text[i]);
+			if (i + 1 == text.length()) {
+				text_width += glyph.width;
+			}
+			else {
+				text_width += glyph.advance_width;
+			}
 		}
 		return text_width;
 	}

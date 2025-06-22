@@ -48,6 +48,11 @@ static void pump_window_messages() {
 static void update_input() {
 	engine::update_input_devices(&g_context.engine.input, g_context.engine.events, g_context.engine.window);
 	g_context.engine.events = {};
+	// HACK: we're not forwarding key events to DefWindowProc, so we have to handle ALT+F4 manually
+	const engine::Keyboard& keyboard = g_context.engine.input.keyboard;
+	if (keyboard.key_is_pressed(VK_MENU) && keyboard.key_was_pressed_now(VK_F4)) {
+		g_context.engine.should_quit = true;
+	}
 }
 
 static LRESULT CALLBACK on_window_event(
@@ -61,16 +66,19 @@ static LRESULT CALLBACK on_window_event(
 			engine::IVec2 window_size = g_context.engine.window.on_resized();
 		} break;
 
+		case WM_SYSCHAR:
 		case WM_SYSKEYDOWN:
 		case WM_KEYDOWN: {
 			uint32_t key_id = (uint32_t)w_param;
 			g_context.engine.input.keyboard.on_key_event(key_id, true);
+			return (LRESULT)0;
 		} break;
 
 		case WM_SYSKEYUP:
 		case WM_KEYUP: {
 			uint32_t key_id = (uint32_t)w_param;
 			g_context.engine.input.keyboard.on_key_event(key_id, false);
+			return (LRESULT)0;
 		} break;
 
 		case WM_DESTROY: {
@@ -147,6 +155,11 @@ int WINAPI WinMain(
 		update_input();
 		input_timer.end();
 
+		if (g_context.engine.window.is_minimized()) {
+			// Don't perform any work while not open
+			continue;
+		}
+
 		/* Update */
 		update_timer.start();
 		game::update(&g_context.game, &g_context.engine.commands, g_context.engine.input);
@@ -166,6 +179,7 @@ int WINAPI WinMain(
 		render_timer.end();
 
 		/* End frame */
+		// Sleep(1);  // Without this we seem to get an unresponsive taskbar
 		frame_timer.end();
 	}
 

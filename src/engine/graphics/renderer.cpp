@@ -86,6 +86,10 @@ namespace engine {
 		m_commands.push_back(DrawLine { v1, v2 });
 	}
 
+	void Renderer::draw_line(IVec2 pos1, IVec2 pos2, RGBA color) {
+		m_commands.push_back(DrawLine { Vertex { .pos = pos1, .color = color }, Vertex { .pos = pos2, .color = color } });
+	}
+
 	void Renderer::draw_rect(Rect rect, RGBA color) {
 		m_commands.push_back(DrawRect { rect, color, false });
 	}
@@ -166,8 +170,8 @@ namespace engine {
 			}
 			if (auto* draw_text = std::get_if<DrawText>(&command)) {
 				auto& [font_id, font_size, pos, color, text] = *draw_text;
-				Font& typeface = resources->font(font_id);
-				_put_text(bitmap, &typeface, font_size, pos, color, text);
+				Font& font = resources->font(font_id);
+				_put_text(bitmap, &font, font_size, pos, color, text);
 			}
 		}
 		m_commands.clear();
@@ -385,12 +389,13 @@ namespace engine {
 		}
 	}
 
-	void Renderer::_put_text(Bitmap* bitmap, Font* typeface, int32_t font_size, IVec2 pos, RGBA color, const std::string& text) {
-		int cursor_x = pos.x;
-		int cursor_y = pos.y;
+	void Renderer::_put_text(Bitmap* bitmap, Font* font, int32_t font_size, IVec2 pos, RGBA color, const std::string& text) {
+		int32_t ascent = font->ascent(font_size);
+		int32_t cursor_x = pos.x;
+		int32_t cursor_y = pos.y + ascent;
 		for (char character : text) {
 			/* Render character */
-			const engine::Glyph& glyph = typeface->glyph(font_size, character);
+			const engine::Glyph& glyph = font->glyph(font_size, character);
 			for (int32_t y = 0; y < glyph.height; y++) {
 				for (int32_t x = 0; x < glyph.width; x++) {
 					engine::Pixel pixel = engine::Pixel::from_rgb(color);

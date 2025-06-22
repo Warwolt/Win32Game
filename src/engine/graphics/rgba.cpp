@@ -15,6 +15,11 @@ namespace engine {
 		};
 	}
 
+	// A fully transparent color can't be shown, and is thus "falsy"
+	RGBA::operator bool() const {
+		return this->a > 0;
+	}
+
 	RGBA operator+(const RGBA& lhs, const RGBA& rhs) {
 		return RGBA {
 			.r = (uint8_t)engine::min(lhs.r + rhs.r, 255),
@@ -25,12 +30,11 @@ namespace engine {
 	}
 
 	RGBA operator*(float t, const RGBA& rhs) {
-		t = engine::clamp(t, 0.0f, 1.0f);
 		return RGBA {
-			.r = (uint8_t)std::round(t * rhs.r),
-			.g = (uint8_t)std::round(t * rhs.g),
-			.b = (uint8_t)std::round(t * rhs.b),
-			.a = (uint8_t)std::round(t * rhs.a),
+			.r = (uint8_t)engine::max((int)std::round(t * rhs.r), 255),
+			.g = (uint8_t)engine::max((int)std::round(t * rhs.g), 255),
+			.b = (uint8_t)engine::max((int)std::round(t * rhs.b), 255),
+			.a = (uint8_t)engine::max((int)std::round(t * rhs.a), 255),
 		};
 	}
 

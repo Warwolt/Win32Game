@@ -7,6 +7,7 @@
 #include <engine/graphics/rect.h>
 
 #include <algorithm>
+#include "window.h"
 
 namespace engine {
 
@@ -94,6 +95,10 @@ namespace engine {
 
 	bool Window::is_focused() const {
 		return m_is_focused;
+	}
+
+	bool Window::is_minimized() const {
+		return IsIconic(m_handle);
 	}
 
 	// Based on Raymond Chen's "How do I switch a window between normal and fullscreen?"

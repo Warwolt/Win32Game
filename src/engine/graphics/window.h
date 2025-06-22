@@ -24,6 +24,7 @@ namespace engine {
 
 		IVec2 size() const;
 		bool is_focused() const;
+		bool is_minimized() const;
 
 		void toggle_fullscreen();
 		void set_title(const std::string& title);

@@ -31,6 +31,7 @@ namespace engine {
 
 		void draw_point(Vertex v1);
 		void draw_line(Vertex v1, Vertex v2);
+		void draw_line(IVec2 pos1, IVec2 pos2, RGBA color);
 		void draw_rect(Rect rect, RGBA color);
 		void draw_rect_fill(Rect rect, RGBA color);
 		void draw_circle(IVec2 center, int32_t radius, RGBA color);
