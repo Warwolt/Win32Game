@@ -88,9 +88,9 @@ namespace engine {
 			}
 			else {
 				Rect top = { border_position.x, border_position.y, border_width, border_top };
-				Rect bottom = { border_position.x, border_position.y + border_top + content_height, border_width, border_top };
-				Rect left = { border_position.x, border_position.y + border_top, border_left, content_height };
-				Rect right = { border_position.x + border_left + content_width, border_position.y + border_top, border_right, content_height };
+				Rect bottom = { border_position.x, border_position.y + border_top + padding_height, border_width, border_top };
+				Rect left = { border_position.x, border_position.y + border_top, border_left, padding_height };
+				Rect right = { border_position.x + border_left + padding_width, border_position.y + border_top, border_right, padding_height };
 				renderer->draw_rect_fill(top, style.border_color);
 				renderer->draw_rect_fill(bottom, style.border_color);
 				renderer->draw_rect_fill(left, style.border_color);
@@ -192,7 +192,7 @@ namespace engine {
 		Style test_style = {
 			.margin = 0,
 			.border = 10,
-			.padding = 0,
+			.padding = 10,
 			.font_id = debug.debug_font_id,
 			.font_size = DEBUG_UI_FONT_SIZE,
 			.color = RGBA::white(),
