@@ -16,9 +16,6 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     set(gtest_force_shared_crt OFF CACHE BOOL "" FORCE)
 endif()
 
-# Disable Run Time Checks that are otherwise default in Debug builds
-string(REPLACE "/RTC1" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
-
 set(SRC
     libs/stb/stb_image/stb_image.c
     libs/stb/stb_truetype/stb_truetype.c
@@ -87,7 +84,7 @@ endif()
 foreach(TARGET IN ITEMS ${TARGETS})
     set_property(TARGET ${TARGET} PROPERTY CXX_STANDARD 23)
     add_compile_definitions(${TARGET} PUBLIC _CRT_SECURE_NO_WARNINGS)
-    target_compile_options(${TARGET} PUBLIC /W4 /w44062 /O2)
+    target_compile_options(${TARGET} PUBLIC /W4 /w44062)
     if (WARNINGS_AS_ERRORS)
         target_compile_options(${TARGET} PUBLIC /WX)
     endif()
