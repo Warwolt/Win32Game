@@ -105,6 +105,11 @@ namespace engine {
 						commands->push_back(AppCommand_Quit());
 					}
 				}
+
+				if (input.keyboard.key_was_pressed_now(VK_ESCAPE)) {
+					debug->menu_bar_focused = false;
+					debug->file_menu_opened = false;
+				}
 			}
 		}
 	}

@@ -41,10 +41,6 @@ namespace game {
 	}
 
 	void update(GameState* game, std::vector<engine::Command>* commands, const engine::InputDevices& input) {
-		if (input.keyboard.key_was_pressed_now(VK_ESCAPE)) {
-			commands->push_back(engine::AppCommand_Quit());
-		}
-
 		if (input.keyboard.key_was_pressed_now(VK_F11)) {
 			commands->push_back(engine::AppCommand_ToggleFullscreen());
 		}
