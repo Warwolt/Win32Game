@@ -70,15 +70,17 @@ namespace engine {
 		debug->rendering_test_screen.initialize(resources);
 	}
 
-	void update_debug(DebugState* debug, const InputDevices& input, Window* window) {
+	void update_debug(DebugState* debug, const InputDevices& input, std::vector<Command>* commands) {
 		/* Update test screens */
 		if (debug->show_rendering_test_screen) {
 			debug->rendering_test_screen.update(input);
 		}
 
 		/* Show CPU profiling information in window title */
+		float avg_fps = 1.0f / debug->performance.frame_timer.average_delta();
 		const char* window_title = "Game";
-		window->set_title(std::format("{} ({:.1f} fps)", window_title, 1.0f / debug->performance.frame_timer.average_delta()));
+		std::string window_title_with_fps = std::format("{} ({:.1f} fps)", window_title, avg_fps);
+		commands->push_back(AppCommand_SetWindowTitle { window_title_with_fps });
 
 		/* Update Debug UI */
 		{

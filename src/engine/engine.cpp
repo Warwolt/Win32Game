@@ -31,7 +31,7 @@ namespace engine {
 
 	void update(EngineState* engine, const InputDevices& input) {
 		/* Update engine */
-		update_debug(&engine->debug, input, &engine->window);
+		update_debug(&engine->debug, input, &engine->commands);
 
 		/* Process commands */
 		for (const Command& command : engine->commands) {
@@ -42,6 +42,10 @@ namespace engine {
 				}
 				if (auto* toggle_fullscreen = std::get_if<AppCommand_ToggleFullscreen>(app_command)) {
 					engine->window.toggle_fullscreen();
+				}
+				if (auto* set_window_title = std::get_if<AppCommand_SetWindowTitle>(app_command)) {
+					auto& [window_title] = *set_window_title;
+					engine->window.set_title(window_title);
 				}
 			}
 			/* Audio commands */

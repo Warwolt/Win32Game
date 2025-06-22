@@ -4,11 +4,11 @@
 #include <engine/debug/test/rendering_test_screen.h>
 #include <engine/graphics/font_id.h>
 #include <engine/math/ivec2.h>
+#include <engine/commands.h>
 
 namespace engine {
 
 	class ResourceManager;
-	class Window;
 
 	struct DebugState {
 		FontID debug_font_id;
@@ -29,7 +29,7 @@ namespace engine {
 	};
 
 	void initialize_debug(DebugState* debug, ResourceManager* resources);
-	void update_debug(DebugState* debug, const InputDevices& input, Window* window);
+	void update_debug(DebugState* debug, const InputDevices& input, std::vector<Command>* commands);
 	void draw_debug(Renderer* renderer, const DebugState& debug, ResourceManager* resources, IVec2 screen_resolution);
 
 } // namespace engine
