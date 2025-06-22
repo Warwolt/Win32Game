@@ -179,7 +179,7 @@ int WINAPI WinMain(
 		render_timer.end();
 
 		/* End frame */
-		Sleep(1); // Without this we seem to get an unresponsive taskbar
+		// Sleep(1);  // Without this we seem to get an unresponsive taskbar
 		frame_timer.end();
 	}
 
