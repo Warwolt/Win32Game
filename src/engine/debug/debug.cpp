@@ -138,7 +138,7 @@ namespace engine {
 			renderer->draw_rect_fill(Rect { 0, 0, screen_resolution.x, menu_bar_height }, menu_color);
 			draw_text_styled(renderer, resources, { 0, 0 }, menu_item_style, "File");
 			if (debug.menu_bar_focused) {
-				// draw underline
+				// draw underscore
 				Style& style = menu_item_style;
 				Font& font = resources->font(debug.debug_font_id);
 				int32_t ascent = font.ascent(DEBUG_UI_FONT_SIZE);
@@ -151,8 +151,16 @@ namespace engine {
 			if (debug.file_menu_opened) {
 				Style& style = menu_item_style;
 				IVec2 offset = { style.margin + style.padding, style.margin + style.padding };
+				IVec2 text_pos = offset + IVec2 { 8, menu_bar_height };
 				renderer->draw_rect_fill(Rect { 0, menu_bar_height, 64, DEBUG_UI_FONT_SIZE + offset.y }, menu_color);
-				renderer->draw_text(debug.debug_font_id, DEBUG_UI_FONT_SIZE, offset + IVec2 { 0, menu_bar_height }, menu_item_style.color, "Exit");
+				renderer->draw_text(debug.debug_font_id, DEBUG_UI_FONT_SIZE, text_pos, menu_item_style.color, "Exit");
+
+				// draw underscore
+				Font& font = resources->font(debug.debug_font_id);
+				int32_t ascent = font.ascent(DEBUG_UI_FONT_SIZE);
+				int32_t underscore_offset = font.text_width(DEBUG_UI_FONT_SIZE, "E");
+				int32_t letter_width = font.glyph(DEBUG_UI_FONT_SIZE, 'x').width;
+				renderer->draw_line(text_pos + IVec2 { underscore_offset, ascent + 1 }, text_pos + IVec2 { underscore_offset + letter_width, ascent + 1 }, style.color);
 			}
 		}
 
