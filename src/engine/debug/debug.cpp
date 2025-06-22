@@ -37,6 +37,7 @@ namespace engine {
 	};
 
 	static void draw_text_styled(Renderer* renderer, ResourceManager* resources, IVec2 position, const Style& style, const std::string& text) {
+		DEBUG_ASSERT(style.font_id.value != 0, "Can't render font id 0!");
 		DEBUG_ASSERT(style.font_size > 0, "Can't render font size 0!");
 
 		/* Margin */
@@ -69,14 +70,32 @@ namespace engine {
 		int32_t border_height = padding_height + border_top + border_bottom;
 
 		/* Positions */
-		IVec2 box_position = position + IVec2 { margin_left, margin_top };
-		IVec2 border_position = box_position + IVec2 { border_left, border_top };
-		IVec2 content_position = border_position + IVec2 { padding_left, padding_top };
+		IVec2 border_position = position + IVec2 { margin_left, margin_top };
+		IVec2 padding_position = border_position + IVec2 { border_left, border_top };
+		IVec2 content_position = padding_position + IVec2 { padding_left, padding_top };
 
-		/* Draw background and border */
+		/* Draw background */
 		if (style.background_color) {
-			Rect rect = { border_position.x, border_position.y, border_width, border_height };
+			Rect rect = { padding_position.x, padding_position.y, padding_width, padding_height };
 			renderer->draw_rect_fill(rect, style.background_color);
+		}
+
+		/* Draw border */
+		if (style.border_color) {
+			if (style.border == 1) {
+				Rect rect = { border_position.x, border_position.y, border_width, border_height };
+				renderer->draw_rect(rect, style.border_color);
+			}
+			else {
+				Rect top = { border_position.x, border_position.y, border_width, border_top };
+				Rect bottom = { border_position.x, border_position.y + border_top + content_height, border_width, border_top };
+				Rect left = { border_position.x, border_position.y + border_top, border_left, content_height };
+				Rect right = { border_position.x + border_left + content_width, border_position.y + border_top, border_right, content_height };
+				renderer->draw_rect_fill(top, style.border_color);
+				renderer->draw_rect_fill(bottom, style.border_color);
+				renderer->draw_rect_fill(left, style.border_color);
+				renderer->draw_rect_fill(right, style.border_color);
+			}
 		}
 
 		/* Draw text */
@@ -171,16 +190,16 @@ namespace engine {
 
 		// test out stylized drawing
 		Style test_style = {
-			.margin = 1,
-			.border = 1,
-			.padding = 1,
+			.margin = 0,
+			.border = 10,
+			.padding = 0,
 			.font_id = debug.debug_font_id,
 			.font_size = DEBUG_UI_FONT_SIZE,
 			.color = RGBA::white(),
 			.background_color = RGBA::red(),
 			.border_color = RGBA::green(),
 		};
-		draw_text_styled(renderer, resources, { 0, 0 }, test_style, "H");
+		draw_text_styled(renderer, resources, { 0, 0 }, test_style, "The quick fox jumps over the lazy dog");
 
 		/* Draw Debug UI */
 		{
