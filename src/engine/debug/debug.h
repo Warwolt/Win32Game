@@ -10,12 +10,6 @@ namespace engine {
 
 	class ResourceManager;
 
-	// Only one thing can be focused at a time
-	// When we press ALT, the first item in the menu bar gets focus and active
-	// Presseing F or ENTER should open the "File" menu bar item
-	// When the file menu opens, focus moves to first file menu item
-	// The file menu bar item should still be active
-
 	struct DebugState {
 		FontID debug_font_id;
 		bool show_cpu_timing_overlay = false;

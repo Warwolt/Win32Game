@@ -7,7 +7,6 @@
 #include <engine/graphics/rect.h>
 
 #include <algorithm>
-#include "window.h"
 
 namespace engine {
 
