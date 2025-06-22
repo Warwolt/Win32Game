@@ -101,7 +101,9 @@ namespace engine {
 				}
 
 				if (debug->file_menu_opened) {
-					//
+					if (input.keyboard.key_was_pressed_now('X')) {
+						commands->push_back(AppCommand_Quit());
+					}
 				}
 			}
 		}
@@ -144,7 +146,7 @@ namespace engine {
 			if (debug.file_menu_opened) {
 				Style& style = menu_item_style;
 				IVec2 offset = { style.margin + style.padding, style.margin + style.padding };
-				renderer->draw_rect_fill(Rect { 0, menu_bar_height, 100, DEBUG_UI_FONT_SIZE + offset.y }, menu_color);
+				renderer->draw_rect_fill(Rect { 0, menu_bar_height, 64, DEBUG_UI_FONT_SIZE + offset.y }, menu_color);
 				renderer->draw_text(debug.debug_font_id, DEBUG_UI_FONT_SIZE, offset + IVec2 { 0, menu_bar_height }, menu_item_style.color, "Exit");
 			}
 		}
