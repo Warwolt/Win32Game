@@ -5,6 +5,8 @@
 #include <engine/graphics/window.h>
 #include <engine/input/input.h>
 
+#include <engine/debug/logging.h>
+
 namespace engine {
 
 	constexpr int32_t DEBUG_UI_FONT_SIZE = 16;
@@ -86,6 +88,19 @@ namespace engine {
 
 			if (input.keyboard.key_was_pressed_now(VK_MENU)) {
 				debug->menu_bar_focused = !debug->menu_bar_focused;
+				if (!debug->menu_bar_focused) {
+					debug->file_menu_opened = false;
+				}
+			}
+
+			if (debug->menu_bar_focused) {
+				if (input.keyboard.key_was_pressed_now('F')) {
+					debug->file_menu_opened = true;
+				}
+
+				if (debug->file_menu_opened) {
+					//
+				}
 			}
 		}
 	}
@@ -98,7 +113,7 @@ namespace engine {
 
 		/* Draw Debug UI */
 		{
-			constexpr RGBA menu_bar_color_bg = { 177, 177, 177, 255 };
+			constexpr RGBA menu_color = { 177, 177, 177, 255 };
 			constexpr int32_t menu_bar_height = DEBUG_UI_FONT_SIZE + 6;
 
 			Style menu_item_style {
@@ -111,16 +126,24 @@ namespace engine {
 			};
 
 			/* Draw menu bar */
-			renderer->draw_rect_fill(Rect { 0, 0, screen_resolution.x, menu_bar_height }, menu_bar_color_bg);
-			draw_text_styled(renderer, resources, { 0, 0 }, menu_item_style, "Debug");
+			renderer->draw_rect_fill(Rect { 0, 0, screen_resolution.x, menu_bar_height }, menu_color);
+			draw_text_styled(renderer, resources, { 0, 0 }, menu_item_style, "File");
 			if (debug.menu_bar_focused) {
 				// draw underline
 				Style& style = menu_item_style;
 				Font& font = resources->font(debug.debug_font_id);
 				int32_t ascent = font.ascent(DEBUG_UI_FONT_SIZE);
-				int32_t letter_width = font.glyph(DEBUG_UI_FONT_SIZE, 'D').width;
+				int32_t letter_width = font.glyph(DEBUG_UI_FONT_SIZE, 'F').width;
 				IVec2 offset = { style.margin + style.padding, style.margin + style.padding + ascent };
 				renderer->draw_line(offset + IVec2 { 0, 1 }, offset + IVec2 { letter_width, 1 }, style.color);
+			}
+
+			/* File menu */
+			if (debug.file_menu_opened) {
+				Style& style = menu_item_style;
+				IVec2 offset = { style.margin + style.padding, style.margin + style.padding };
+				renderer->draw_rect_fill(Rect { 0, menu_bar_height, 100, DEBUG_UI_FONT_SIZE + offset.y }, menu_color);
+				renderer->draw_text(debug.debug_font_id, DEBUG_UI_FONT_SIZE, offset + IVec2 { 0, menu_bar_height }, menu_item_style.color, "Exit");
 			}
 		}
 

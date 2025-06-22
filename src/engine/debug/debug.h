@@ -14,6 +14,7 @@ namespace engine {
 		FontID debug_font_id;
 		bool show_cpu_timing_overlay = false;
 		bool menu_bar_focused = false;
+		bool file_menu_opened = false;
 
 		struct CPUPerformance {
 			DeltaTimer input_timer;
