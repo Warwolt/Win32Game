@@ -3,12 +3,10 @@ Overall goal:
 - Simple complete games (pong, tetris etc.)
 - Simple Win32 level editor (create content for the games)
 
-Maybe ideas:
-- Text mode engine debugging UI (for selecting various test screens and tools)
-
 # Todo
-- Text Mode UI prototype
 - DLL based hot reloading
+- CSS box model, support splitting text so we can easily render underscored letters in drop down
+- Drop down component for debug ui menu bar, generic immediate mode solution
 - [!] Write Blackjack game
 - Asset system (store audio, images, fonts, etc.)
 - [!] Write Tetris game
@@ -22,6 +20,7 @@ Maybe ideas:
 # Doing
 
 # Done
+- Text Mode UI prototype
 - Diagnose what parts of render test screen is slow
 - CPU Profiling
 - Get rid of CommandAPI class, just work with a `std::vector<Command>` directly

@@ -20,7 +20,6 @@ namespace engine {
 		FontID debug_font_id;
 		bool show_cpu_timing_overlay = false;
 		bool menu_bar_active; // we're navigating the menu bar
-		bool menu_bar_show_shortcuts = false; // controls underscore
 		bool menu_bar_file_item_focused = false; // white border
 		bool file_menu_open; // controls "file" gets highlighted
 		bool file_menu_exit_item_focused = false; // white border
