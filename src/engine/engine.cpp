@@ -35,26 +35,7 @@ namespace engine {
 		update_debug(&engine->debug, input, &engine->commands);
 
 		/* Process commands */
-		for (const Command& command : engine->commands) {
-			/* App commands */
-			MATCH_VARIANT_IF(command, AppCommand) {
-				MATCH_UNIT_CASE(AppCommand_Quit) {
-					engine->should_quit = true;
-				}
-				MATCH_UNIT_CASE(AppCommand_ToggleFullscreen) {
-					engine->window.toggle_fullscreen();
-				}
-				MATCH_CASE(AppCommand_SetWindowTitle, window_title) {
-					engine->window.set_title(window_title);
-				}
-			}
-			/* Audio commands */
-			MATCH_VARIANT_IF(command, AudioCommand) {
-				MATCH_CASE(AudioCommand_PlaySound, sound_id) {
-					engine->audio.play(sound_id);
-				}
-			}
-		}
+		run_commands(engine->commands, &engine->should_quit, &engine->window, &engine->audio);
 		engine->commands.clear();
 	}
 

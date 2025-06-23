@@ -4,8 +4,12 @@
 
 #include <string>
 #include <variant>
+#include <vector>
 
 namespace engine {
+
+	class Window;
+	class AudioPlayer;
 
 	// clang-format off
 	struct AppCommand_Quit {};
@@ -26,5 +30,7 @@ namespace engine {
 		AudioCommand_PlaySound>;
 
 	using Command = std::variant<AppCommand, AudioCommand>;
+
+	void run_commands(const std::vector<Command>& commands, bool* should_quit, Window* window, AudioPlayer* audio);
 
 } // namespace engine
