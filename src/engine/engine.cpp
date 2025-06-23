@@ -1,5 +1,6 @@
 #include <engine/engine.h>
 
+#include <engine/container/match_variant.h>
 #include <engine/debug/logging.h>
 #include <engine/input/input.h>
 
@@ -36,22 +37,21 @@ namespace engine {
 		/* Process commands */
 		for (const Command& command : engine->commands) {
 			/* App commands */
-			if (auto* app_command = std::get_if<AppCommand>(&command)) {
-				if (auto* quit = std::get_if<AppCommand_Quit>(app_command)) {
+			MATCH_VARIANT_IF(command, AppCommand) {
+				MATCH_UNIT_CASE(AppCommand_Quit) {
 					engine->should_quit = true;
 				}
-				if (auto* toggle_fullscreen = std::get_if<AppCommand_ToggleFullscreen>(app_command)) {
+				MATCH_UNIT_CASE(AppCommand_ToggleFullscreen) {
 					engine->window.toggle_fullscreen();
 				}
-				if (auto* set_window_title = std::get_if<AppCommand_SetWindowTitle>(app_command)) {
-					auto& [window_title] = *set_window_title;
+				MATCH_CASE(AppCommand_SetWindowTitle, window_title) {
 					engine->window.set_title(window_title);
 				}
 			}
 			/* Audio commands */
-			if (auto* audio_command = std::get_if<AudioCommand>(&command)) {
-				if (auto* play_sound = std::get_if<AudioCommand_PlaySound>(audio_command)) {
-					engine->audio.play(play_sound->id);
+			MATCH_VARIANT_IF(command, AudioCommand) {
+				MATCH_CASE(AudioCommand_PlaySound, sound_id) {
+					engine->audio.play(sound_id);
 				}
 			}
 		}

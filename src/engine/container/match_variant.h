@@ -7,7 +7,7 @@
 // In that case, consider using IF_MATCH_VARIANT.
 //
 // MATCH_VARIANT(my_vec) {
-//     MATCH_CASE_EMPTY(IVec0) {
+//     MATCH_UNIT_CASE(IVec0) {
 //       // do something
 //     }
 //     MATCH_CASE(IVec2, x, y) {
@@ -21,10 +21,17 @@
 #define MATCH_VARIANT(variant) \
 	if (auto& _match_variant_var = variant; true)
 
-#define MATCH_CASE(type, ...)                                  \
-	if (auto* result = std::get_if<type>(&_match_variant_var)) \
-		if (auto& [__VA_ARGS__] = *result; true)
+#define MATCH_VARIANT_IF(variant, type)             \
+	if (auto* result##type = std::get_if<type>(&variant)) \
+		if (auto& _match_variant_var = *result##type; true)
 
-#define IF_MATCH_VARIANT(variant, type, ...)        \
-	if (auto* result = std::get_if<type>(&variant)) \
-		if (auto& [__VA_ARGS__] = *result; true)
+#define MATCH_CASE(type, ...)                                        \
+	if (auto* result##type = std::get_if<type>(&_match_variant_var)) \
+		if (auto& [__VA_ARGS__] = *result##type; true)
+
+#define MATCH_UNIT_CASE(type) \
+	if (auto* result##type = std::get_if<type>(&_match_variant_var))
+
+#define IF_MATCH_VARIANT(variant, type, ...)              \
+	if (auto* result##type = std::get_if<type>(&variant)) \
+		if (auto& [__VA_ARGS__] = *result##type; true)
