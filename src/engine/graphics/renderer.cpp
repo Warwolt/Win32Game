@@ -4,6 +4,7 @@
 #include <engine/graphics/font.h>
 #include <engine/graphics/image.h>
 #include <engine/math/math.h>
+#include <engine/container/match_variant.h>
 
 #include <cmath>
 
@@ -125,53 +126,47 @@ namespace engine {
 	void Renderer::render(Bitmap* bitmap, ResourceManager* resources) {
 		/* Run commands */
 		for (const DrawCommand& command : m_commands) {
-			if (auto* clear_screen = std::get_if<ClearScreen>(&command)) {
-				auto& [color] = *clear_screen;
-				_clear_screen(bitmap, color);
-			}
-			if (auto* draw_point = std::get_if<DrawPoint>(&command)) {
-				auto& [v1] = *draw_point;
-				_put_point(bitmap, v1);
-			}
-			if (auto* draw_line = std::get_if<DrawLine>(&command)) {
-				auto& [v1, v2] = *draw_line;
-				_put_line(bitmap, v1, v2, nullptr);
-			}
-			if (auto* draw_rect = std::get_if<DrawRect>(&command)) {
-				auto& [rect, color, filled] = *draw_rect;
-				if (filled) {
-					_put_rect_fill(bitmap, rect, color);
+			MATCH_VARIANT(command) {
+				MATCH_CASE(ClearScreen, color) {
+					_clear_screen(bitmap, color);
 				}
-				else {
-					_put_rect(bitmap, rect, color);
+				MATCH_CASE(DrawPoint, v1) {
+					_put_point(bitmap, v1);
 				}
-			}
-			if (auto* draw_circle = std::get_if<DrawCircle>(&command)) {
-				auto& [center, radius, color, filled] = *draw_circle;
-				if (filled) {
-					_put_circle_fill(bitmap, center, radius, color);
+				MATCH_CASE(DrawLine, v1, v2) {
+					_put_line(bitmap, v1, v2, nullptr);
 				}
-				else {
-					_put_circle(bitmap, center, radius, color);
+				MATCH_CASE(DrawRect, rect, color, filled) {
+					if (filled) {
+						_put_rect_fill(bitmap, rect, color);
+					}
+					else {
+						_put_rect(bitmap, rect, color);
+					}
 				}
-			}
-			if (auto* draw_triangle = std::get_if<DrawTriangle>(&command)) {
-				auto& [v1, v2, v3, filled] = *draw_triangle;
-				if (filled) {
-					_put_triangle_fill(bitmap, v1, v2, v3);
+				MATCH_CASE(DrawCircle, center, radius, color, filled) {
+					if (filled) {
+						_put_circle_fill(bitmap, center, radius, color);
+					}
+					else {
+						_put_circle(bitmap, center, radius, color);
+					}
 				}
-				else {
-					_put_triangle(bitmap, v1, v2, v3);
+				MATCH_CASE(DrawTriangle, v1, v2, v3, filled) {
+					if (filled) {
+						_put_triangle_fill(bitmap, v1, v2, v3);
+					}
+					else {
+						_put_triangle(bitmap, v1, v2, v3);
+					}
 				}
-			}
-			if (auto* draw_image = std::get_if<DrawImage>(&command)) {
-				auto& [image_id, rect, clip, tint] = *draw_image;
-				_put_image(bitmap, resources->image(image_id), rect, clip, tint);
-			}
-			if (auto* draw_text = std::get_if<DrawText>(&command)) {
-				auto& [font_id, font_size, pos, color, text] = *draw_text;
-				Font& font = resources->font(font_id);
-				_put_text(bitmap, &font, font_size, pos, color, text);
+				MATCH_CASE(DrawImage, image_id, rect, clip, tint) {
+					_put_image(bitmap, resources->image(image_id), rect, clip, tint);
+				}
+				MATCH_CASE(DrawText, font_id, font_size, pos, color, text) {
+					Font& font = resources->font(font_id);
+					_put_text(bitmap, &font, font_size, pos, color, text);
+				}
 			}
 		}
 		m_commands.clear();
