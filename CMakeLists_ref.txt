@@ -1,0 +1,65 @@
+cmake_minimum_required(VERSION 4.0.0)
+project(Application)
+
+option(LINK_DYNAMICALLY "Link app dynamically (for hot reloading)" ON)
+message(STATUS "LINK_DYNAMICALLY = ${LINK_DYNAMICALLY}")
+
+# Include GoogleTest
+add_subdirectory(libs/googletest)
+
+# Windows workaround for Google Test
+if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
+    set(gtest_force_shared_crt OFF CACHE BOOL "" FORCE)
+endif()
+
+# Source
+set(SRC
+    src/platform/keyboard.cpp
+    src/platform/command_line.cpp
+)
+
+set(TEST_SRC
+    test/keyboard_tests.cpp
+)
+
+# Executable
+add_executable(Executable src/main.cpp)
+set_target_properties(Executable PROPERTIES OUTPUT_NAME ${PROJECT_NAME}) # Application.exe
+
+# Application Library
+if (LINK_DYNAMICALLY)
+    # Build library as DLL
+    add_library(Library SHARED src/app.cpp)
+    target_compile_definitions(Library PRIVATE APP_LIBRARY_EXPORTS)
+    # Link Executable to library loader
+    target_sources(Executable PRIVATE
+        src/platform/keyboard.cpp
+        src/platform/command_line.cpp
+        src/library/app_library.cpp
+        src/library/library_loader.cpp
+    )
+    target_compile_definitions(Executable PRIVATE APP_LIBRARY_NAME="${PROJECT_NAME}")
+else()
+    # Link executable to static library
+    add_library(Library STATIC src/app.cpp)
+    target_link_libraries(Executable Library)
+endif()
+set_target_properties(Library PROPERTIES OUTPUT_NAME ${PROJECT_NAME}) # Application.dll or Application.lib
+target_link_libraries(Library Source)
+
+# Source Library
+add_library(Source STATIC ${SRC})
+
+# Tests
+add_executable(Tests test/main.cpp ${TEST_SRC})
+target_link_libraries(Tests Source gtest gmock)
+
+# Set shared compilation options
+SET(TARGETS Executable Library Source Tests)
+foreach(TARGET IN ITEMS ${TARGETS})
+    target_include_directories(${TARGET} PRIVATE src)
+    target_compile_options(${TARGET} PUBLIC /W4 /w44062)
+    set_property(TARGET ${TARGET} PROPERTY CXX_STANDARD 23)
+    add_compile_definitions(${TARGET} PUBLIC _CRT_SECURE_NO_WARNINGS)
+endforeach()
