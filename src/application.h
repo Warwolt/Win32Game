@@ -8,6 +8,7 @@
 namespace application {
 
 	struct State {
+		bool is_initialized = false;
 		engine::Engine engine;
 		game::Game game;
 	};

@@ -22,7 +22,7 @@ namespace engine {
 		IVec2 screen_resolution;
 		std::vector<Command> commands;
 		// input/output
-		InputEvents events;
+		InputEvents events; // FIXME: rename this to input_events
 		InputDevices input;
 		AudioPlayer audio;
 		// file
@@ -39,7 +39,7 @@ namespace engine {
 	using EngineResult = std::expected<Engine, EngineError>;
 
 	EngineResult initialize(HINSTANCE instance, WNDPROC wnd_proc);
-	void update(Engine* engine, const InputDevices& input);
-	void draw(Renderer* renderer, Engine* engine);
+	void update(Engine* engine, const InputDevices& input); // FIXME: remove InputDevices, it's already in Engine
+	void draw(Renderer* renderer, Engine* engine); // FIXME: remove Renderer, it's already in Engine
 
 } // namespace engine
