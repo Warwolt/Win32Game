@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 4.0.0)
 project(Win32Game)
 
+option(WARNINGS_AS_ERRORS "Compile with warnings as errors" OFF)
+option(BUILD_TESTS "Build tests" ON)
+
 set(SRC
     libs/stb/stb_image/stb_image.c
     libs/stb/stb_truetype/stb_truetype.c
@@ -31,6 +34,12 @@ set(SRC
     src/game/game.cpp
 )
 
+set(TEST_SRC
+    test/engine/button_tests.cpp
+    test/engine/keyboard_tests.cpp
+    test/engine/moving_average_tests.cpp
+)
+
 set(INC
     src
     libs/stb
@@ -51,10 +60,33 @@ target_link_libraries(Library Source)
 # Source Library
 add_library(Source STATIC ${SRC})
 
+# Tests
+if(BUILD_TESTS)
+    # Google Test
+    add_subdirectory(libs/googletest)
+
+    # Windows workaround for Google Test
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+        set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
+        set(gtest_force_shared_crt OFF CACHE BOOL "" FORCE)
+    endif()
+
+    # Test Runner
+    add_executable(Tests test/main.cpp ${TEST_SRC})
+    target_include_directories(Tests PUBLIC src test)
+    target_link_libraries(Tests PUBLIC gtest gmock Source)
+endif()
+
 # Set shared compilation options
 SET(TARGETS Executable Library Source)
+if(BUILD_TESTS)
+    list(APPEND TARGETS Tests)
+endif()
 foreach(TARGET IN ITEMS ${TARGETS})
     target_include_directories(${TARGET} PRIVATE ${INC})
     target_compile_options(${TARGET} PUBLIC /W4 /w44062 /wd4996)
     set_property(TARGET ${TARGET} PROPERTY CXX_STANDARD 23)
+    if (WARNINGS_AS_ERRORS)
+        target_compile_options(${TARGET} PUBLIC /WX)
+    endif()
 endforeach()

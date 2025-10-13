@@ -19,7 +19,7 @@ jobs:
         run: cmake --build build --config Debug
 
       - name: Test
-        run: ./build/Debug/unit_tests.exe
+        run: ./build/Debug/Tests.exe
 
   release:
     runs-on: windows-latest
@@ -32,7 +32,7 @@ jobs:
       - name: Setup CMake
         uses: threeal/cmake-action@v1.3.0
         with:
-          options: WARNINGS_AS_ERRORS=ON UNIT_TESTS=OFF
+          options: WARNINGS_AS_ERRORS=ON BUILD_TESTS=OFF
 
       - name: Build
         run: cmake --build build --config Release
