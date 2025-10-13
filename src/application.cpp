@@ -5,12 +5,17 @@
 namespace application {
 
 	State initialize(HINSTANCE instance, WNDPROC on_window_event) {
-		// TODO:
-		// Update CMakeLists.txt to build Source static library containing all source files
-		// Call Window::initialize here
-		// Update signature of this function to std::expected<State, std::string> to permit error returned
-
-		return State {};
+		using namespace engine;
+		const IVec2 window_resolution = IVec2 { 256, 240 }; // NES resolution
+		std::expected<Window, WindowError> window_result = Window::initialize(instance, on_window_event, window_resolution, "Game");
+		if (!window_result) {
+			// FIXME: log an error here
+			// We need to figure out how to handle logging?
+			std::abort();
+		}
+		return State {
+			.window = window_result.value(),
+		};
 	}
 
 	LRESULT CALLBACK on_window_event(
@@ -20,7 +25,7 @@ namespace application {
 		WPARAM w_param,
 		LPARAM l_param
 	) {
-        return DefWindowProc(window, message, w_param, l_param);
+		return DefWindowProc(window, message, w_param, l_param);
 	}
 
 	bool update(State* state) {

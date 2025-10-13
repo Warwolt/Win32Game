@@ -11,7 +11,7 @@
 namespace engine {
 
 	enum class WindowError {
-		FailedToRegisterClass,
+		FailedToRegisterWindow,
 		FailedToCreateWindow,
 	};
 

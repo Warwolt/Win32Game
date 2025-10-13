@@ -14,8 +14,8 @@ int WINAPI WinMain(
 	LPSTR /*command_line*/,
 	int /*command_show*/
 ) {
-	g_state = application::initialize(instance, on_window_event);
 	bool quit = false;
+	g_state = application::initialize(instance, on_window_event);
 	while (!quit) {
 		quit = application::update(&g_state);
 	}

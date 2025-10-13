@@ -1,10 +1,13 @@
 #pragma once
 
+#include <engine/graphics/window.h>
+
 #include <windows.h>
 
 namespace application {
 
 	struct State {
+		engine::Window window;
 	};
 
 	State initialize(HINSTANCE instance, WNDPROC on_window_event);

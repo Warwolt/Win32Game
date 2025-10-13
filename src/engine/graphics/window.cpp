@@ -12,7 +12,7 @@ namespace engine {
 
 	const char* window_error_to_str(WindowError error) {
 		switch (error) {
-			case WindowError::FailedToRegisterClass: return "FailedToRegisterClass";
+			case WindowError::FailedToRegisterWindow: return "FailedToRegisterWindow";
 			case WindowError::FailedToCreateWindow: return "FailedToCreateWindow";
 		}
 		return "";
@@ -35,13 +35,13 @@ namespace engine {
 			.lpszClassName = "WindowClass",
 		};
 		if (!RegisterClassA(&window_class)) {
-			return std::unexpected(WindowError::FailedToRegisterClass);
+			return std::unexpected(WindowError::FailedToRegisterWindow);
 		}
 
 		/* Compute window size */
 		// NOTE: CreateWindowExA width and height will include the menu bar and
 		// border, so we need to compute what the window size should be from
-		// the given client size (what we call window_size).
+		// the given client size (the `window_size` parameter).
 		RECT adjusted_window_size = { 0, 0, window_size.x, window_size.y };
 		AdjustWindowRect(&adjusted_window_size, WS_OVERLAPPEDWINDOW, FALSE);
 		int adjusted_window_width = adjusted_window_size.right - adjusted_window_size.left;
