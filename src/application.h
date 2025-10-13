@@ -1,6 +1,7 @@
 #pragma once
 
 #include <engine/engine.h>
+#include <game/game.h>
 
 #include <windows.h>
 
@@ -8,6 +9,7 @@ namespace application {
 
 	struct State {
 		engine::Engine engine;
+		game::Game game;
 	};
 
 	State initialize(HINSTANCE instance, WNDPROC on_window_event);

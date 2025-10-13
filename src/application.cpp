@@ -10,8 +10,7 @@ namespace application {
 
 	State initialize(HINSTANCE instance, WNDPROC on_window_event) {
 		/* Initialize engine */
-		const char* window_title = "Win32Game";
-		engine::EngineResult engine_result = engine::initialize(instance, on_window_event, window_title);
+		engine::EngineResult engine_result = engine::initialize(instance, on_window_event);
 		if (!engine_result) {
 			if (auto* window_error = std::get_if<engine::WindowError>(&engine_result.error())) {
 				std::string message = std::format("Couldn't create window: {}", engine::window_error_to_str(*window_error));

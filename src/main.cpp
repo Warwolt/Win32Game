@@ -14,10 +14,12 @@ int WINAPI WinMain(
 	LPSTR /*command_line*/,
 	int /*command_show*/
 ) {
-	bool quit = false;
+	/* Init */
 	g_state = application::initialize(instance, on_window_event);
+
+	/* Run */
+	bool quit = false;
 	while (!quit) {
 		quit = application::update(&g_state);
 	}
-	return 0;
 }

@@ -38,7 +38,7 @@ namespace engine {
 	using EngineError = std::variant<WindowError>;
 	using EngineResult = std::expected<Engine, EngineError>;
 
-	EngineResult initialize(HINSTANCE instance, WNDPROC wnd_proc, const char* window_title);
+	EngineResult initialize(HINSTANCE instance, WNDPROC wnd_proc);
 	void update(Engine* engine, const InputDevices& input);
 	void draw(Renderer* renderer, Engine* engine);
 

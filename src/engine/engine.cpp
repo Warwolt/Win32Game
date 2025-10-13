@@ -8,21 +8,23 @@
 
 namespace engine {
 
-	EngineResult initialize(HINSTANCE instance, WNDPROC wnd_proc, const char* window_title) {
+	EngineResult initialize(HINSTANCE instance, WNDPROC wnd_proc) {
 		Engine engine = {};
 
 		initialize_logging(LogLevel::Debug);
 		initialize_gamepad_support();
 		initialize_debug(&engine.debug, &engine.resources);
 
+		/* Create window */
 		constexpr int zoom = 2;
 		IVec2 screen_resolution = IVec2 { 1920 / 4, 1200 / 4 };
-		if (std::expected<Window, EngineError> window_result = Window::initialize(instance, wnd_proc, zoom * screen_resolution, window_title)) {
-			engine.window = window_result.value();
-		}
-		else {
+		const char* window_title = "Win32Game";
+		std::expected<Window, EngineError> window_result = Window::initialize(instance, wnd_proc, zoom * screen_resolution, window_title);
+		if (!window_result) {
 			return std::unexpected(window_result.error());
 		}
+
+		engine.window = window_result.value();
 		engine.screen_resolution = screen_resolution;
 		engine.bitmap = Bitmap::with_size(engine.screen_resolution.x, engine.screen_resolution.y);
 		engine.audio = initialize_audio_player();
