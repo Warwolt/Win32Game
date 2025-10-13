@@ -2,7 +2,11 @@
 
 #include <windows.h>
 
-#include <stdio.h>
+static application::State g_state;
+
+static LRESULT CALLBACK on_window_event(HWND window, UINT message, WPARAM w_param, LPARAM l_param) {
+	return application::on_window_event(&g_state, window, message, w_param, l_param);
+}
 
 int WINAPI WinMain(
 	HINSTANCE instance,
@@ -10,14 +14,10 @@ int WINAPI WinMain(
 	LPSTR /*command_line*/,
 	int /*command_show*/
 ) {
-	initialize_logging();
-	printf("Hello world\n");
-
-	application::State state = application::initialize();
+	g_state = application::initialize(instance, on_window_event);
 	bool quit = false;
 	while (!quit) {
-		quit = application::update(&state);
+		quit = application::update(&g_state);
 	}
-
 	return 0;
 }
