@@ -8,7 +8,7 @@
 
 namespace engine {
 
-	std::expected<EngineState, EngineError> initialize(HINSTANCE instance, WNDPROC wnd_proc, const char* window_title) {
+	EngineResult initialize(HINSTANCE instance, WNDPROC wnd_proc, const char* window_title) {
 		EngineState engine = {};
 
 		initialize_logging(LogLevel::Debug);

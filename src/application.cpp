@@ -1,20 +1,30 @@
 #include <application.h>
 
-#include <stdio.h>
+#include <engine/debug/logging.h>
+
+#include <windows.h>
+
+#include <format>
 
 namespace application {
 
 	State initialize(HINSTANCE instance, WNDPROC on_window_event) {
-		using namespace engine;
-		const IVec2 window_resolution = IVec2 { 256, 240 }; // NES resolution
-		std::expected<Window, WindowError> window_result = Window::initialize(instance, on_window_event, window_resolution, "Game");
-		if (!window_result) {
-			// FIXME: log an error here
-			// We need to figure out how to handle logging?
-			std::abort();
+		/* Initialize engine */
+		const char* window_title = "Win32Game";
+		engine::EngineResult engine_result = engine::initialize(instance, on_window_event, window_title);
+		if (!engine_result) {
+			if (auto* window_error = std::get_if<engine::WindowError>(&engine_result.error())) {
+				std::string message = std::format("Couldn't create window: {}", engine::window_error_to_str(*window_error));
+				MessageBoxA(0, message.c_str(), "Error", MB_OK | MB_ICONERROR);
+				exit(1);
+			}
 		}
-		return State {
-			.window = window_result.value(),
+
+		/* Initialize game */
+
+
+		return {
+			.engine = engine_result.value(),
 		};
 	}
 
@@ -29,6 +39,7 @@ namespace application {
 	}
 
 	bool update(State* state) {
+		LOG_INFO("Hello world!");
 		return true;
 	}
 
