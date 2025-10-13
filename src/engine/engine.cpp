@@ -32,17 +32,17 @@ namespace engine {
 		return engine;
 	}
 
-	void update(Engine* engine, const InputDevices& input) {
+	void update(Engine* engine) {
 		/* Update engine */
-		update_debug(&engine->debug, input, &engine->commands);
+		update_debug(&engine->debug, engine->input, &engine->commands);
 
 		/* Process commands */
 		run_commands(engine->commands, &engine->should_quit, &engine->window, &engine->audio);
 		engine->commands.clear();
 	}
 
-	void draw(Renderer* renderer, Engine* engine) {
-		draw_debug(renderer, engine->debug, &engine->resources, engine->screen_resolution);
+	void draw(Engine* engine) {
+		draw_debug(&engine->renderer, engine->debug, &engine->resources, engine->screen_resolution);
 	}
 
 } // namespace engine

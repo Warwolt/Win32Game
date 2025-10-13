@@ -108,11 +108,11 @@ namespace application {
 
 					/* Update */
 					game::update(&state->game, &state->engine.commands, state->engine.input);
-					engine::update(&state->engine, state->engine.input);
+					engine::update(&state->engine);
 
 					/* Render*/
 					game::draw(&state->engine.renderer, state->game);
-					engine::draw(&state->engine.renderer, &state->engine);
+					engine::draw(&state->engine);
 					state->engine.renderer.render(&state->engine.bitmap, &state->engine.resources);
 					state->engine.window.render_wm_paint(state->engine.bitmap);
 				}
@@ -128,11 +128,11 @@ namespace application {
 
 		/* Update */
 		game::update(&state->game, &state->engine.commands, state->engine.input);
-		engine::update(&state->engine, state->engine.input);
+		engine::update(&state->engine);
 
 		/* Draw */
 		game::draw(&state->engine.renderer, state->game);
-		engine::draw(&state->engine.renderer, &state->engine);
+		engine::draw(&state->engine);
 
 		/* Render */
 		state->engine.renderer.render(&state->engine.bitmap, &state->engine.resources);

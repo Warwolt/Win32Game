@@ -39,7 +39,7 @@ namespace engine {
 	using EngineResult = std::expected<Engine, EngineError>;
 
 	EngineResult initialize(HINSTANCE instance, WNDPROC wnd_proc);
-	void update(Engine* engine, const InputDevices& input); // FIXME: remove InputDevices, it's already in Engine
-	void draw(Renderer* renderer, Engine* engine); // FIXME: remove Renderer, it's already in Engine
+	void update(Engine* engine);
+	void draw(Engine* engine); // FIXME: why does this need Engine* and not const Engine&?
 
 } // namespace engine
