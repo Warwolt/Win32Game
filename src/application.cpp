@@ -122,6 +122,8 @@ namespace application {
 	}
 
 	bool update(State* state) {
+		state->engine.debug.frame_timer.start();
+
 		/* Input */
 		pump_window_messages(state);
 		update_input_devices(state);
@@ -137,6 +139,8 @@ namespace application {
 		/* Render */
 		state->engine.renderer.render(&state->engine.bitmap, &state->engine.resources);
 		state->engine.window.render(state->engine.bitmap);
+
+		state->engine.debug.frame_timer.end();
 
 		/* Check quit */
 		const bool should_quit = state->engine.should_quit;

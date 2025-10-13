@@ -102,25 +102,6 @@ namespace engine {
 		renderer->draw_text(style.font_id, style.font_size, content_position, style.color, text);
 	}
 
-	static void draw_text_right_aligned(Renderer* renderer, ResourceManager* resources, FontID font_id, int32_t font_size, IVec2 pos, int32_t box_width, RGBA color, const std::string& text) {
-		int32_t text_width = resources->font(font_id).text_width(font_size, text);
-		renderer->draw_text(font_id, font_size, IVec2 { pos.x + box_width - text_width, pos.y }, color, text);
-	}
-
-	static void draw_cpu_timing_overlay(Renderer* renderer, const DebugState& debug, ResourceManager* resources, IVec2 screen_resolution) {
-		auto draw_section_timing = [&](const std::string& label, const DeltaTimer& timer, int32_t y) {
-			std::string text = std::format("{}: {:.2f} ms", label, timer.average_delta() * 1e3);
-			draw_text_right_aligned(renderer, resources, debug.debug_font_id, DEBUG_UI_FONT_SIZE, { 0, DEBUG_UI_FONT_SIZE * y }, screen_resolution.x, RGBA::white(), text);
-		};
-		draw_section_timing("input", debug.performance.input_timer, 0);
-		draw_section_timing("update", debug.performance.update_timer, 1);
-		draw_section_timing("draw", debug.performance.draw_timer, 2);
-		draw_section_timing("render", debug.performance.render_timer, 3);
-		draw_section_timing("frame", debug.performance.frame_timer, 4);
-		std::string text = std::format("fps: {:>4}    ", (int)(1.0f / debug.performance.frame_timer.average_delta()));
-		draw_text_right_aligned(renderer, resources, debug.debug_font_id, DEBUG_UI_FONT_SIZE, { 0, DEBUG_UI_FONT_SIZE * 5 }, screen_resolution.x, RGBA::white(), text);
-	}
-
 	void initialize_debug(DebugState* debug, ResourceManager* resources) {
 		debug->debug_font_id = resources->load_font("assets/font/ModernDOS8x16.ttf").value();
 		debug->rendering_test_screen.initialize(resources);
@@ -133,17 +114,13 @@ namespace engine {
 		}
 
 		/* Show CPU profiling information in window title */
-		float avg_fps = 1.0f / debug->performance.frame_timer.average_delta();
+		float avg_fps = 1.0f / debug->frame_timer.average_delta();
 		const char* window_title = "Game";
 		std::string window_title_with_fps = std::format("{} ({:.1f} fps)", window_title, avg_fps);
 		commands->push_back(AppCommand_SetWindowTitle { window_title_with_fps });
 
 		/* Update Debug UI */
 		{
-			if (input.keyboard.key_was_pressed_now(VK_F3)) {
-				debug->show_cpu_timing_overlay = !debug->show_cpu_timing_overlay;
-			}
-
 			/* Menu bar */
 			if (!debug->menu_bar_active) {
 				if (input.keyboard.key_was_pressed_now(VK_MENU)) {
@@ -228,11 +205,6 @@ namespace engine {
 				IVec2 right = left + IVec2 { 8, 0 };
 				renderer->draw_line(left, right, file_menu_item_style.color);
 			}
-		}
-
-		/* Render CPU profiling overlay */
-		if (debug.show_cpu_timing_overlay) {
-			draw_cpu_timing_overlay(renderer, debug, resources, screen_resolution);
 		}
 	}
 
