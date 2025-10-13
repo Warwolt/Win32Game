@@ -13,7 +13,12 @@ namespace engine {
 	class AudioPlayer {
 	public:
 		AudioPlayer() = default;
+		AudioPlayer(const AudioPlayer&) = delete;
+		AudioPlayer& operator=(const AudioPlayer&) = delete;
+		AudioPlayer(AudioPlayer&& other) noexcept;
+		AudioPlayer& operator=(AudioPlayer&& other) noexcept;
 		~AudioPlayer();
+
 		friend AudioPlayer initialize_audio_player();
 
 		std::expected<AudioID, std::string> add_audio_from_file(HANDLE file);

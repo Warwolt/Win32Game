@@ -18,11 +18,14 @@ namespace application {
 				exit(1);
 			}
 		}
+		engine::Engine engine = std::move(engine_result.value());
 
 		/* Initialize game */
+		game::Game game = game::initialize(&engine);
 
 		return {
-			.engine = engine_result.value(),
+			.engine = std::move(engine),
+			.game = game,
 		};
 	}
 
