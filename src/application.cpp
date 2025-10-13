@@ -22,7 +22,6 @@ namespace application {
 
 		/* Initialize game */
 
-
 		return {
 			.engine = engine_result.value(),
 		};

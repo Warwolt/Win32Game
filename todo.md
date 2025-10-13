@@ -34,7 +34,7 @@ Overall goal:
 - Bug: ignore keyboard key/mouse buttons if window not focused
 - Add engine and game init functions
 - Move quit with escape into game.cpp
-- Move stuff from ProgramContext down into EngineState
+- Move stuff from ProgramContext down into Engine
 - Draw API: Add test screen drawing various shapes
 - Draw API: circles
 - Draw API: alpha blending

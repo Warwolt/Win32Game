@@ -16,7 +16,7 @@ namespace engine {
 	struct InputDevices;
 	class Renderer;
 
-	struct EngineState {
+	struct Engine {
 		// application
 		bool should_quit = false;
 		IVec2 screen_resolution;
@@ -36,10 +36,10 @@ namespace engine {
 	};
 
 	using EngineError = std::variant<WindowError>;
-	using EngineResult = std::expected<EngineState, EngineError>;
+	using EngineResult = std::expected<Engine, EngineError>;
 
 	EngineResult initialize(HINSTANCE instance, WNDPROC wnd_proc, const char* window_title);
-	void update(EngineState* engine, const InputDevices& input);
-	void draw(Renderer* renderer, EngineState* engine);
+	void update(Engine* engine, const InputDevices& input);
+	void draw(Renderer* renderer, Engine* engine);
 
 } // namespace engine

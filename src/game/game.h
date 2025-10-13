@@ -6,14 +6,14 @@
 #include <vector>
 
 namespace engine {
-	struct EngineState;
+	struct Engine;
 	struct InputDevices;
 	class Renderer;
 } // namespace engine
 
 namespace game {
 
-	struct GameState {
+	struct Game {
 		struct Assets {
 			struct Audio {
 				engine::AudioID cowbell;
@@ -21,8 +21,8 @@ namespace game {
 		} assets;
 	};
 
-	GameState initialize(engine::EngineState* engine);
-	void update(GameState* game, std::vector<engine::Command>* commands, const engine::InputDevices& input);
-	void draw(engine::Renderer* renderer, const GameState& game);
+	Game initialize(engine::Engine* engine);
+	void update(Game* game, std::vector<engine::Command>* commands, const engine::InputDevices& input);
+	void draw(engine::Renderer* renderer, const Game& game);
 
 } // namespace game

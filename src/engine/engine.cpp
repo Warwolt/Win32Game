@@ -9,7 +9,7 @@
 namespace engine {
 
 	EngineResult initialize(HINSTANCE instance, WNDPROC wnd_proc, const char* window_title) {
-		EngineState engine = {};
+		Engine engine = {};
 
 		initialize_logging(LogLevel::Debug);
 		initialize_gamepad_support();
@@ -30,7 +30,7 @@ namespace engine {
 		return engine;
 	}
 
-	void update(EngineState* engine, const InputDevices& input) {
+	void update(Engine* engine, const InputDevices& input) {
 		/* Update engine */
 		update_debug(&engine->debug, input, &engine->commands);
 
@@ -39,7 +39,7 @@ namespace engine {
 		engine->commands.clear();
 	}
 
-	void draw(Renderer* renderer, EngineState* engine) {
+	void draw(Renderer* renderer, Engine* engine) {
 		draw_debug(renderer, engine->debug, &engine->resources, engine->screen_resolution);
 	}
 

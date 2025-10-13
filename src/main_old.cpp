@@ -16,14 +16,14 @@
 
 struct ProgramContext {
 	bool initialized = false;
-	engine::EngineState engine;
-	game::GameState game;
+	engine::Engine engine;
+	game::Game game;
 };
 
 static ProgramContext g_context;
 
-static engine::EngineState initialize_engine_or_abort(HINSTANCE instance, WNDPROC wnd_proc, const char* window_title) {
-	std::expected<engine::EngineState, engine::EngineError> engine_result = engine::initialize(instance, wnd_proc, window_title);
+static engine::Engine initialize_engine_or_abort(HINSTANCE instance, WNDPROC wnd_proc, const char* window_title) {
+	std::expected<engine::Engine, engine::EngineError> engine_result = engine::initialize(instance, wnd_proc, window_title);
 	if (!engine_result) {
 		if (auto* window_error = std::get_if<engine::WindowError>(&engine_result.error())) {
 			std::string message = std::format("Couldn't create window: {}", engine::window_error_to_str(*window_error));

@@ -7,7 +7,7 @@
 namespace application {
 
 	struct State {
-		engine::EngineState engine;
+		engine::Engine engine;
 	};
 
 	State initialize(HINSTANCE instance, WNDPROC on_window_event);
