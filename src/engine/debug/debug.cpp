@@ -177,7 +177,7 @@ namespace engine {
 		}
 	}
 
-	void draw_debug(Renderer* renderer, const DebugState& debug, ResourceManager* resources, IVec2 screen_resolution) {
+	void draw_debug(Renderer* renderer, ResourceManager* resources, const DebugState& debug, IVec2 screen_resolution) {
 		/* Draw test screens */
 		if (debug.show_rendering_test_screen) {
 			debug.rendering_test_screen.draw(renderer, debug.debug_font_id, screen_resolution);

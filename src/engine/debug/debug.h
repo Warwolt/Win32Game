@@ -32,6 +32,6 @@ namespace engine {
 
 	void initialize_debug(DebugState* debug, ResourceManager* resources);
 	void update_debug(DebugState* debug, const InputDevices& input, std::vector<Command>* commands);
-	void draw_debug(Renderer* renderer, const DebugState& debug, ResourceManager* resources, IVec2 screen_resolution);
+	void draw_debug(Renderer* renderer, ResourceManager* resources, const DebugState& debug, IVec2 screen_resolution);
 
 } // namespace engine

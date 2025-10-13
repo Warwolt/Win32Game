@@ -42,7 +42,7 @@ namespace engine {
 	}
 
 	void draw(Engine* engine) {
-		draw_debug(&engine->renderer, engine->debug, &engine->resources, engine->screen_resolution);
+		draw_debug(&engine->renderer, &engine->resources, engine->debug, engine->screen_resolution);
 	}
 
 } // namespace engine

@@ -21,8 +21,8 @@ namespace application {
 	}
 
 	static void update_input_devices(State* state) {
-		engine::update_input_devices(&state->engine.input, state->engine.events, state->engine.window);
-		state->engine.events = {};
+		engine::update_input_devices(&state->engine.input, state->engine.input_events, state->engine.window);
+		state->engine.input_events = {};
 
 		// HACK: we're not forwarding key events to DefWindowProc, so we have to handle ALT+F4 manually
 		const engine::Keyboard& keyboard = state->engine.input.keyboard;
@@ -89,12 +89,12 @@ namespace application {
 			} break;
 
 			case WM_MOUSEWHEEL: {
-				state->engine.events.mouse.mouse_wheel_delta += GET_WHEEL_DELTA_WPARAM(w_param) / WHEEL_DELTA;
+				state->engine.input_events.mouse.mouse_wheel_delta += GET_WHEEL_DELTA_WPARAM(w_param) / WHEEL_DELTA;
 			} break;
 
 			case WM_MOUSEMOVE: {
-				state->engine.events.mouse.mouse_x = (int16_t)GET_X_LPARAM(l_param);
-				state->engine.events.mouse.mouse_y = (int16_t)GET_Y_LPARAM(l_param);
+				state->engine.input_events.mouse.mouse_x = (int16_t)GET_X_LPARAM(l_param);
+				state->engine.input_events.mouse.mouse_y = (int16_t)GET_Y_LPARAM(l_param);
 			} break;
 
 			case WM_ACTIVATE: {

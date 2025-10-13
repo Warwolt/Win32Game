@@ -22,7 +22,7 @@ namespace engine {
 		IVec2 screen_resolution;
 		std::vector<Command> commands;
 		// input/output
-		InputEvents events; // FIXME: rename this to input_events
+		InputEvents input_events;
 		InputDevices input;
 		AudioPlayer audio;
 		// file
@@ -40,6 +40,6 @@ namespace engine {
 
 	EngineResult initialize(HINSTANCE instance, WNDPROC wnd_proc);
 	void update(Engine* engine);
-	void draw(Engine* engine); // FIXME: why does this need Engine* and not const Engine&?
+	void draw(Engine* engine);
 
 } // namespace engine
