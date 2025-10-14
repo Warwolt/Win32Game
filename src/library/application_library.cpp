@@ -56,6 +56,7 @@ LRESULT CALLBACK on_window_event(State* state, HWND window, UINT message, WPARAM
 		}
 	}
 
+	/* Handle window event */
 	return g_library.on_window_event(state, window, message, w_param, l_param);
 }
 
