@@ -18,7 +18,7 @@ namespace engine {
 		return path_view.substr(path_view.find_last_of(path_separator) + 1).data();
 	}
 
-	void initialize_logging(LogLevel level);
+	void initialize_logging();
 	void debug_log(LogLevel level, const char* file, int line, const char* fmt, ...);
 
 } // namespace engine

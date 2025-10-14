@@ -84,6 +84,10 @@ namespace library {
 		return {};
 	}
 
+	bool LibraryLoader::is_rebuilding_library() const {
+		return m_build_process.is_running();
+	}
+
 	bool LibraryLoader::_library_file_has_changed() const {
 		std::filesystem::file_time_type write_time = std::filesystem::last_write_time(m_library_path);
 		return write_time != m_library_timestamp;

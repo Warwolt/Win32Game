@@ -48,26 +48,28 @@ State* initialize_application(HINSTANCE instance, WNDPROC on_window_event) {
 }
 
 LRESULT CALLBACK on_window_event(State* state, HWND window, UINT message, WPARAM w_param, LPARAM l_param) {
+	/* Check hot reload key */
+	if (message == WM_KEYDOWN && w_param == VK_F5) {
+		if (!g_loader.is_rebuilding_library()) {
+			/* Trigger hot reload */
+			std::expected<void, std::string> reload_start_result = g_loader.trigger_hot_reload();
+			if (!reload_start_result) {
+				fprintf(stderr, "Error when triggering library hot reload: %s\n", reload_start_result.error().c_str());
+			}
+		}
+	}
+
 	return g_library.on_window_event(state, window, message, w_param, l_param);
 }
 
 bool update_application(State* state) {
-	/* Trigger hot reload */
-	bool reload_key_was_pressed_now = false; // FIXME: check if button pressed with WinAPI
-	if (reload_key_was_pressed_now) {
-		std::expected<void, std::string> reload_start_result = g_loader.trigger_hot_reload();
-		if (!reload_start_result) {
-			fprintf(stderr, "Error when triggering library hot reload: %s\n", reload_start_result.error().c_str());
-		}
-	}
-
 	/* Update hot reloading */
 	std::expected<void, std::string> reload_update_result = g_loader.update_hot_reloading(&g_library);
 	if (!reload_update_result) {
 		fprintf(stderr, "Error when updating hot reloading: %s\n", reload_update_result.error().c_str());
 	}
 
-	/* Update app */
+	/* Update application */
 	return g_library.update_application(state);
 }
 

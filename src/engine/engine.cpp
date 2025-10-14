@@ -11,7 +11,7 @@ namespace engine {
 	EngineResult initialize(HINSTANCE instance, WNDPROC wnd_proc) {
 		Engine engine = {};
 
-		initialize_logging(LogLevel::Debug);
+		initialize_logging();
 		initialize_gamepad_support();
 		initialize_debug(&engine.debug, &engine.resources);
 

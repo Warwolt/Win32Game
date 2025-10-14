@@ -22,6 +22,7 @@ namespace library {
 		std::expected<void, std::string> load_library(Library* library);
 		std::expected<void, std::string> trigger_hot_reload();
 		std::expected<void, std::string> update_hot_reloading(Library* library);
+		bool is_rebuilding_library() const;
 
 	private:
 		bool _library_file_has_changed() const;

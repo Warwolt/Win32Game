@@ -32,9 +32,6 @@ namespace engine {
 #define BACKGROUND_CYAN "\033[46m"
 #define BACKGROUND_WHITE "\033[47m"
 
-	static LogLevel g_log_level;
-	static bool g_colors_enabled = false;
-
 	static const char* log_level_to_str(LogLevel level) {
 		switch (level) {
 			case LogLevel::Debug:
@@ -67,9 +64,7 @@ namespace engine {
 		return "";
 	}
 
-	void initialize_logging(LogLevel level) {
-		g_log_level = level;
-
+	void initialize_logging() {
 		// If we're debugging, we're using the Visual Studio debug output window
 		// printf won't work, but the LOG_ macros will print there
 		if (IsDebuggerPresent()) {
@@ -81,18 +76,13 @@ namespace engine {
 		DWORD dwMode = 0;
 		GetConsoleMode(hOut, &dwMode);
 		dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-		g_colors_enabled = SetConsoleMode(hOut, dwMode);
+		SetConsoleMode(hOut, dwMode);
 	}
 
 	void debug_log(LogLevel log_level, const char* file, int line, const char* fmt, ...) {
 		const bool debugger_present = IsDebuggerPresent();
 		char buffer[1024] = {};
 		int offset = 0;
-
-		/* Check log level */
-		if ((int)log_level < (int)g_log_level) {
-			return;
-		}
 
 		/* Add color */
 		if (!debugger_present) {
