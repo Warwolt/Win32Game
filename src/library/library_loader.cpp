@@ -39,12 +39,18 @@ namespace library {
 	}
 
 	std::expected<void, std::string> LibraryLoader::trigger_hot_reload() {
+		// ignore if already reloading
+		if (m_build_process.is_running()) {
+			return {};
+		}
+
 		printf("Hot reload requested. Running command \"%s\"\n", m_library_build_command.c_str());
 		std::expected<engine::CommandProcess, std::string> start_result = engine::CommandProcess::run(m_library_build_command);
 		if (!start_result) {
 			return std::unexpected(std::format("Running command failed: {}", start_result.error()));
 		}
 		m_build_process = *start_result;
+
 		return {};
 	}
 
@@ -85,10 +91,6 @@ namespace library {
 		}
 
 		return {};
-	}
-
-	bool LibraryLoader::is_rebuilding_library() const {
-		return m_build_process.is_running();
 	}
 
 	bool LibraryLoader::_library_file_has_changed() const {

@@ -50,12 +50,10 @@ State* initialize_application(HINSTANCE instance, WNDPROC on_window_event) {
 LRESULT CALLBACK on_window_event(State* state, HWND window, UINT message, WPARAM w_param, LPARAM l_param) {
 	/* Check hot reload key */
 	if (message == WM_KEYDOWN && w_param == VK_F5) {
-		if (!g_loader.is_rebuilding_library()) {
-			/* Trigger hot reload */
-			std::expected<void, std::string> reload_start_result = g_loader.trigger_hot_reload();
-			if (!reload_start_result) {
-				fprintf(stderr, "Error when triggering library hot reload: %s\n", reload_start_result.error().c_str());
-			}
+		/* Trigger hot reload */
+		std::expected<void, std::string> reload_start_result = g_loader.trigger_hot_reload();
+		if (!reload_start_result) {
+			fprintf(stderr, "Error when triggering library hot reload: %s\n", reload_start_result.error().c_str());
 		}
 	}
 
