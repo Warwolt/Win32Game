@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 4.0.0)
+cmake_minimum_required(VERSION 3.31.6)
 project(Win32Game)
 
 option(WARNINGS_AS_ERRORS "Compile with warnings as errors" OFF)
