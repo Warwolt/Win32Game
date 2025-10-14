@@ -5,17 +5,7 @@ Overall goal:
 
 # Todo
 - Integrate Tracy profiler
-- CSS box model, support splitting text so we can easily render underscored letters in drop down
-- Drop down component for debug ui menu bar, generic immediate mode solution
-- [!] Write Blackjack game
-- Asset system (store audio, images, fonts, etc.)
-- [!] Write Tetris game
-- Collisions
-- [!] Write Pong game
-- Camera
-- Enemy AI
-- [!] Write Zelda Dungeon game
-- Draw API: Polygons (triangle strips, triangle fans)
+- Try out LDtk Level Editor (https://ldtk.io/)
 
 # Doing
 - DLL based hot reloading

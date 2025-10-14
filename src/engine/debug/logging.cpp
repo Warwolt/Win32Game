@@ -76,19 +76,6 @@ namespace engine {
 			return;
 		}
 
-		/* Get console */
-		bool has_console = AttachConsole(ATTACH_PARENT_PROCESS); // attach to parent terminal
-		if (!has_console) {
-			has_console = AllocConsole(); // create a new console window
-		}
-
-		/* Attach std streams */
-		if (has_console) {
-			FILE* fi = 0;
-			freopen_s(&fi, "CONOUT$", "wt", stdout);
-			freopen_s(&fi, "CONOUT$", "wt", stderr);
-		}
-
 		/* Enable colors */
 		HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
 		DWORD dwMode = 0;

@@ -3,6 +3,10 @@ project(Win32Game)
 
 option(WARNINGS_AS_ERRORS "Compile with warnings as errors" OFF)
 option(BUILD_TESTS "Build tests" ON)
+option(LINK_DYNAMICALLY "Link app dynamically (for hot reloading)" ON)
+message(STATUS "Option WARNINGS_AS_ERRORS = ${WARNINGS_AS_ERRORS}")
+message(STATUS "Option BUILD_TESTS = ${BUILD_TESTS}")
+message(STATUS "Option LINK_DYNAMICALLY = ${LINK_DYNAMICALLY}")
 
 set(SRC
     libs/stb/stb_image/stb_image.c
@@ -47,15 +51,30 @@ set(INC
 
 # Executable
 add_executable(Executable src/main.cpp)
-set_target_properties(Executable PROPERTIES OUTPUT_NAME ${PROJECT_NAME}) # Win32Game.exe
+set_target_properties(Executable PROPERTIES OUTPUT_NAME ${PROJECT_NAME}) # PROJECT_NAME.exe
 set_property(TARGET Executable PROPERTY WIN32_EXECUTABLE TRUE)
 set_property(TARGET Executable PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Executable)
 target_link_libraries(Executable Library)
 
 # Application Library
-# TODO: split into Shared and Static libraries
-add_library(Library STATIC src/application.cpp)
+if (LINK_DYNAMICALLY)
+    # Build library as DLL
+    add_library(Library SHARED src/application.cpp)
+    target_compile_definitions(Library PRIVATE LINK_APPLICATION_DYNAMICALLY)
+    # Link Exeuctable to library loader
+    target_sources(Executable PRIVATE
+        src/engine/windows/command_line.cpp
+        src/library/application_library.cpp
+        src/library/library_loader.cpp
+    )
+    target_compile_definitions(Executable PRIVATE LIBRARY_NAME="${PROJECT_NAME}")
+else()
+    # Link executable to static library
+    add_library(Library STATIC src/application.cpp)
+    target_link_libraries(Executable Library)
+endif()
+set_target_properties(Library PROPERTIES OUTPUT_NAME ${PROJECT_NAME}) # PROJECT_NAME.dll or PROJECT_NAME.lib
 target_link_libraries(Library Source)
 
 # Source Library
