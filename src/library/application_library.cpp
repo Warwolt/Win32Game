@@ -32,7 +32,7 @@ struct ApplicationLibrary : public library::Library {
 	}
 };
 
-static library::LibraryLoader g_loader = library::LibraryLoader(LIBRARY_NAME, "cmake --build build");
+static library::LibraryLoader g_loader = library::LibraryLoader(LIBRARY_NAME, "cmake --build build --target Library");
 static ApplicationLibrary g_library;
 
 State* initialize_application(HINSTANCE instance, WNDPROC on_window_event) {
