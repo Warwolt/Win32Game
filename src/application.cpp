@@ -122,33 +122,28 @@ LRESULT CALLBACK on_window_event(
 
 bool update_application(State* state) {
 	state->engine.debug.frame_timer.start();
+	{
+		/* Input */
+		pump_window_messages(state);
+		update_input_devices(state);
 
-	/* Input */
-	pump_window_messages(state);
-	update_input_devices(state);
+		/* Update */
+		game::update(&state->game, &state->engine.commands, state->engine.input);
+		engine::update(&state->engine);
 
-	/* Update */
-	game::update(&state->game, &state->engine.commands, state->engine.input);
-	engine::update(&state->engine);
+		/* Draw */
+		game::draw(&state->engine.renderer, state->game);
+		engine::draw(&state->engine);
 
-	/* Draw */
-	game::draw(&state->engine.renderer, state->game);
-	engine::draw(&state->engine);
-
-	/* Render */
-	state->engine.renderer.render(&state->engine.bitmap, &state->engine.resources);
-	state->engine.window.render(state->engine.bitmap);
-
-	state->engine.debug.frame_timer.end();
-
-	/* Check quit */
-	const bool should_quit = state->engine.should_quit;
-	if (should_quit) {
-		LOG_INFO("Shutting down");
+		/* Render */
+		state->engine.renderer.render(&state->engine.bitmap, &state->engine.resources);
+		state->engine.window.render(state->engine.bitmap);
 	}
-	return should_quit;
+	state->engine.debug.frame_timer.end();
+	return state->engine.should_quit;
 }
 
 void shutdown_application(State* state) {
+	LOG_INFO("Shutting down");
 	delete state;
 }
