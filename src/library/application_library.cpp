@@ -50,9 +50,9 @@ State* initialize_application(HINSTANCE instance, WNDPROC on_window_event) {
 LRESULT CALLBACK on_window_event(State* state, HWND window, UINT message, WPARAM w_param, LPARAM l_param) {
 	/* Trigger hot reload */
 	if (message == WM_KEYDOWN && w_param == VK_F5) {
-		std::expected<void, std::string> reload_start_result = g_loader.trigger_hot_reload();
-		if (!reload_start_result) {
-			fprintf(stderr, "Error when triggering library hot reload: %s\n", reload_start_result.error().c_str());
+		std::expected<void, std::string> result = g_loader.trigger_hot_reload();
+		if (!result) {
+			fprintf(stderr, "Error when triggering library hot reload: %s\n", result.error().c_str());
 		}
 	}
 
@@ -62,9 +62,9 @@ LRESULT CALLBACK on_window_event(State* state, HWND window, UINT message, WPARAM
 
 bool update_application(State* state) {
 	/* Update hot reloading */
-	std::expected<void, std::string> reload_update_result = g_loader.update_hot_reloading(&g_library);
-	if (!reload_update_result) {
-		fprintf(stderr, "Error when updating hot reloading: %s\n", reload_update_result.error().c_str());
+	std::expected<void, std::string> result = g_loader.update_hot_reloading(&g_library);
+	if (!result) {
+		fprintf(stderr, "Error when updating hot reloading: %s\n", result.error().c_str());
 	}
 
 	/* Update application */
