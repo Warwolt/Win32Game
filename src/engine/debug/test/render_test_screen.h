@@ -11,7 +11,7 @@ namespace engine {
 	class ResourceManager;
 	class Window;
 
-	class RenderingTestScreen {
+	class RenderTestScreen {
 	public:
 		void initialize(ResourceManager* resources);
 		void update(const InputDevices& input);

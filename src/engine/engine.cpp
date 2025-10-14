@@ -17,7 +17,7 @@ namespace engine {
 
 		/* Create window */
 		constexpr int zoom = 2;
-		IVec2 screen_resolution = IVec2 { 1920 / 4, 1200 / 4 };
+		IVec2 screen_resolution = IVec2 { 1920 / 2, 1200 / 2 };
 		const char* window_title = "Win32Game";
 		std::expected<Window, EngineError> window_result = Window::initialize(instance, wnd_proc, zoom * screen_resolution, window_title);
 		if (!window_result) {
@@ -42,7 +42,7 @@ namespace engine {
 	}
 
 	void draw(Engine* engine) {
-		draw_debug(&engine->renderer, &engine->resources, engine->debug, engine->screen_resolution);
+		draw_debug(&engine->renderer, engine->debug, engine->screen_resolution);
 	}
 
 } // namespace engine

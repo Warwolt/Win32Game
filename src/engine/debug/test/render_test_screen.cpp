@@ -1,4 +1,4 @@
-#include <engine/debug/test/rendering_test_screen.h>
+#include <engine/debug/test/render_test_screen.h>
 
 #include <engine/file/resource_manager.h>
 #include <engine/graphics/renderer.h>
@@ -9,16 +9,16 @@
 
 namespace engine {
 
-	void RenderingTestScreen::initialize(ResourceManager* resources) {
+	void RenderTestScreen::initialize(ResourceManager* resources) {
 		m_render_test_image_id = resources->load_image("assets/image/render_test.png").value_or(INVALID_IMAGE_ID);
 		m_font_size = 16;
 	}
 
-	void RenderingTestScreen::update(const InputDevices& input) {
+	void RenderTestScreen::update(const InputDevices& input) {
 		m_alpha = (uint8_t)std::clamp((int16_t)m_alpha + 16 * input.mouse.mouse_wheel_delta, 0, 255);
 	}
 
-	void RenderingTestScreen::draw(Renderer* renderer, FontID debug_font_id, IVec2 screen_resolution) const {
+	void RenderTestScreen::draw(Renderer* renderer, FontID debug_font_id, IVec2 screen_resolution) const {
 		enum class FillMode {
 			Outline,
 			Filled,
