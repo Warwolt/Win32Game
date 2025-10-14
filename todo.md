@@ -4,7 +4,7 @@ Overall goal:
 - Simple Win32 level editor (create content for the games)
 
 # Todo
-- DLL based hot reloading
+- Integrate Tracy profiler
 - CSS box model, support splitting text so we can easily render underscored letters in drop down
 - Drop down component for debug ui menu bar, generic immediate mode solution
 - [!] Write Blackjack game
@@ -18,6 +18,7 @@ Overall goal:
 - Draw API: Polygons (triangle strips, triangle fans)
 
 # Doing
+- DLL based hot reloading
 
 # Done
 - Text Mode UI prototype

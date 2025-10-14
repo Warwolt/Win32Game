@@ -54,6 +54,7 @@ set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT E
 target_link_libraries(Executable Library)
 
 # Application Library
+# TODO: split into Shared and Static libraries
 add_library(Library STATIC src/application.cpp)
 target_link_libraries(Library Source)
 
