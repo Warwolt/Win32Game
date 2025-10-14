@@ -8,9 +8,9 @@ Overall goal:
 - Try out LDtk Level Editor (https://ldtk.io/)
 
 # Doing
-- DLL based hot reloading
 
 # Done
+- DLL based hot reloading
 - Text Mode UI prototype
 - Diagnose what parts of render test screen is slow
 - CPU Profiling
