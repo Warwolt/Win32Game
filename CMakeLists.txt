@@ -74,7 +74,7 @@ else()
     target_link_libraries(Executable Library)
 endif()
 set_target_properties(Library PROPERTIES OUTPUT_NAME ${PROJECT_NAME}) # PROJECT_NAME.dll or PROJECT_NAME.lib
-target_link_libraries(Library Source)
+target_link_libraries(Library PRIVATE Source)
 
 # Source Library
 add_library(Source STATIC ${SRC})
