@@ -4,22 +4,13 @@ Overall goal:
 - Simple Win32 level editor (create content for the games)
 
 # Todo
-- DLL based hot reloading
-- CSS box model, support splitting text so we can easily render underscored letters in drop down
-- Drop down component for debug ui menu bar, generic immediate mode solution
-- [!] Write Blackjack game
-- Asset system (store audio, images, fonts, etc.)
-- [!] Write Tetris game
-- Collisions
-- [!] Write Pong game
-- Camera
-- Enemy AI
-- [!] Write Zelda Dungeon game
-- Draw API: Polygons (triangle strips, triangle fans)
+- Integrate Tracy profiler
+- Try out LDtk Level Editor (https://ldtk.io/)
 
 # Doing
 
 # Done
+- DLL based hot reloading
 - Text Mode UI prototype
 - Diagnose what parts of render test screen is slow
 - CPU Profiling
@@ -34,7 +25,7 @@ Overall goal:
 - Bug: ignore keyboard key/mouse buttons if window not focused
 - Add engine and game init functions
 - Move quit with escape into game.cpp
-- Move stuff from ProgramContext down into EngineState
+- Move stuff from ProgramContext down into Engine
 - Draw API: Add test screen drawing various shapes
 - Draw API: circles
 - Draw API: alpha blending

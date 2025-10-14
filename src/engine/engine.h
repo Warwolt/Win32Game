@@ -16,13 +16,13 @@ namespace engine {
 	struct InputDevices;
 	class Renderer;
 
-	struct EngineState {
+	struct Engine {
 		// application
 		bool should_quit = false;
 		IVec2 screen_resolution;
 		std::vector<Command> commands;
 		// input/output
-		InputEvents events;
+		InputEvents input_events;
 		InputDevices input;
 		AudioPlayer audio;
 		// file
@@ -37,8 +37,8 @@ namespace engine {
 
 	using EngineError = std::variant<WindowError>;
 
-	std::expected<EngineState, EngineError> initialize(HINSTANCE instance, WNDPROC wnd_proc, const char* window_title);
-	void update(EngineState* engine, const InputDevices& input);
-	void draw(Renderer* renderer, EngineState* engine);
+	std::expected<Engine, EngineError> initialize(HINSTANCE instance, WNDPROC wnd_proc);
+	void update(Engine* engine);
+	void draw(Engine* engine);
 
 } // namespace engine

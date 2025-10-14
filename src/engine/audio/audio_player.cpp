@@ -95,6 +95,34 @@ namespace engine {
 		return audio_player;
 	}
 
+	AudioPlayer::AudioPlayer(AudioPlayer&& other) noexcept {
+		m_audio_engine = other.m_audio_engine;
+		m_mastering_voice = other.m_mastering_voice;
+		m_source_voice = other.m_source_voice;
+		m_audio_buffers = std::move(other.m_audio_buffers);
+		m_next_id = other.m_next_id;
+
+		other.m_audio_engine = nullptr;
+		other.m_mastering_voice = nullptr;
+		other.m_source_voice = nullptr;
+		other.m_next_id = 0;
+	}
+
+	AudioPlayer& AudioPlayer::operator=(AudioPlayer&& other) noexcept {
+		m_audio_engine = other.m_audio_engine;
+		m_mastering_voice = other.m_mastering_voice;
+		m_source_voice = other.m_source_voice;
+		m_audio_buffers = std::move(other.m_audio_buffers);
+		m_next_id = other.m_next_id;
+
+		other.m_audio_engine = nullptr;
+		other.m_mastering_voice = nullptr;
+		other.m_source_voice = nullptr;
+		other.m_next_id = 0;
+
+		return *this;
+	}
+
 	AudioPlayer::~AudioPlayer() {
 		for (auto& [id, buffer] : m_audio_buffers) {
 			delete buffer.pAudioData;

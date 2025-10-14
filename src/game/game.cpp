@@ -33,14 +33,14 @@ namespace game {
 		return result.value();
 	}
 
-	GameState initialize(engine::EngineState* engine) {
-		GameState game = {};
+	Game initialize(engine::Engine* engine) {
+		Game game = {};
 		game.assets.audio.cowbell = load_audio_from_file_or_abort(&engine->audio, "assets/audio/808_cowbell.wav");
 
 		return game;
 	}
 
-	void update(GameState* game, std::vector<engine::Command>* commands, const engine::InputDevices& input) {
+	void update(Game* game, std::vector<engine::Command>* commands, const engine::InputDevices& input) {
 		if (input.keyboard.key_was_pressed_now(VK_F11)) {
 			commands->push_back(engine::AppCommand_ToggleFullscreen());
 		}
@@ -50,7 +50,7 @@ namespace game {
 		}
 	}
 
-	void draw(engine::Renderer* renderer, const GameState& /*game*/) {
+	void draw(engine::Renderer* renderer, const Game& /*game*/) {
 		renderer->clear_screen(engine::RGBA::black());
 	}
 
