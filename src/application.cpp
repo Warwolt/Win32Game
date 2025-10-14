@@ -10,7 +10,6 @@
 #include <format>
 
 struct State {
-	bool is_initialized = false; // FIXME: do we need this anymore?
 	engine::Engine engine;
 	game::Game game;
 };
@@ -49,7 +48,6 @@ State* initialize_application(HINSTANCE instance, WNDPROC on_window_event) {
 	}
 	state->engine = std::move(engine_result.value());
 	state->game = game::initialize(&state->engine);
-	state->is_initialized = true;
 	LOG_INFO("Initialized");
 	return state;
 }
@@ -105,20 +103,18 @@ LRESULT CALLBACK on_window_event(
 		} break;
 
 		case WM_PAINT: {
-			if (state->is_initialized) {
-				/* Input */
-				update_input_devices(state);
+			/* Input */
+			update_input_devices(state);
 
-				/* Update */
-				game::update(&state->game, &state->engine.commands, state->engine.input);
-				engine::update(&state->engine);
+			/* Update */
+			game::update(&state->game, &state->engine.commands, state->engine.input);
+			engine::update(&state->engine);
 
-				/* Render*/
-				game::draw(&state->engine.renderer, state->game);
-				engine::draw(&state->engine);
-				state->engine.renderer.render(&state->engine.bitmap, &state->engine.resources);
-				state->engine.window.render_wm_paint(state->engine.bitmap);
-			}
+			/* Render*/
+			game::draw(&state->engine.renderer, state->game);
+			engine::draw(&state->engine);
+			state->engine.renderer.render(&state->engine.bitmap, &state->engine.resources);
+			state->engine.window.render_wm_paint(state->engine.bitmap);
 		} break;
 	}
 	return DefWindowProc(window, message, w_param, l_param);
