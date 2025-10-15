@@ -126,6 +126,7 @@ namespace engine {
 
 	void Renderer::render(Bitmap* bitmap, ResourceManager* resources) {
 		CPUProfilingScope_Render();
+		TracyPlot("DrawCommands", (int64_t)m_commands.size());
 
 		/* Run commands */
 		for (const DrawCommand& command : m_commands) {
