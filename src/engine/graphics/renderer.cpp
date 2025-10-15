@@ -1,5 +1,6 @@
 #include <engine/graphics/renderer.h>
 
+#include <engine/debug/profiling.h>
 #include <engine/file/resource_manager.h>
 #include <engine/graphics/font.h>
 #include <engine/graphics/image.h>
@@ -124,6 +125,8 @@ namespace engine {
 	}
 
 	void Renderer::render(Bitmap* bitmap, ResourceManager* resources) {
+		CPUProfilingScope();
+
 		/* Run commands */
 		for (const DrawCommand& command : m_commands) {
 			MATCH_VARIANT(command) {

@@ -2,6 +2,7 @@
 
 #include <engine/audio/audio_player.h>
 #include <engine/commands.h>
+#include <engine/debug/profiling.h>
 #include <engine/engine.h>
 #include <engine/graphics/renderer.h>
 #include <engine/input/input.h>
@@ -41,6 +42,7 @@ namespace game {
 	}
 
 	void update(Game* game, std::vector<engine::Command>* commands, const engine::InputDevices& input) {
+		CPUProfilingScope();
 		if (input.keyboard.key_was_pressed_now(VK_F11)) {
 			commands->push_back(engine::AppCommand_ToggleFullscreen());
 		}
@@ -51,6 +53,7 @@ namespace game {
 	}
 
 	void draw(engine::Renderer* renderer, const Game& /*game*/) {
+		CPUProfilingScope();
 		renderer->clear_screen(engine::RGBA::black());
 	}
 

@@ -1,7 +1,7 @@
 #include <application.h>
 
-#include <engine/debug/profiling.h>
 #include <engine/debug/logging.h>
+#include <engine/debug/profiling.h>
 #include <engine/engine.h>
 #include <game/game.h>
 
@@ -9,6 +9,12 @@
 #include <windowsx.h>
 
 #include <format>
+
+#ifdef TRACY_ENABLE
+constexpr bool PROFILING_IS_ENABLED = true;
+#else
+constexpr bool PROFILING_IS_ENABLED = false;
+#endif
 
 struct State {
 	engine::Engine engine;
@@ -52,6 +58,12 @@ State* initialize_application(HINSTANCE instance, WNDPROC on_window_event) {
 	state->engine = std::move(engine_result.value());
 	state->game = game::initialize(&state->engine);
 	LOG_INFO("Initialized");
+	if (PROFILING_IS_ENABLED) {
+		LOG_INFO("CPU profiling enabled");
+	}
+	else {
+		LOG_INFO("CPU profiling disabled");
+	}
 	return state;
 }
 

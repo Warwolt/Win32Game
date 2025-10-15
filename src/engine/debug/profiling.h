@@ -6,4 +6,4 @@
 #define CPUProfilingEndFrame() FrameMark
 
 // Add tracy zone to the current scope
-#define CPUProfilingScope() ZoneScoped
+#define CPUProfilingScope() ZoneTransient(__func__##Tracy, __func__)

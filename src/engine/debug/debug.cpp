@@ -27,7 +27,7 @@ namespace engine {
 		/* Show CPU profiling information in window title */
 		float avg_fps = 1.0f / debug->frame_timer.average_delta();
 		const char* window_title = "Game";
-		std::string window_title_with_fps = std::format("{} ({:.1f} fps)", window_title, avg_fps);
+		std::string window_title_with_fps = std::format("{} ({:.1f} fps)!", window_title, avg_fps);
 		commands->push_back(AppCommand_SetWindowTitle { window_title_with_fps });
 	}
 
