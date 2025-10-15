@@ -125,7 +125,7 @@ namespace engine {
 	}
 
 	void Renderer::render(Bitmap* bitmap, ResourceManager* resources) {
-		CPUProfilingScope();
+		CPUProfilingScope_Render();
 
 		/* Run commands */
 		for (const DrawCommand& command : m_commands) {

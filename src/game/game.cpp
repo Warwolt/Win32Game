@@ -42,7 +42,7 @@ namespace game {
 	}
 
 	void update(Game* game, std::vector<engine::Command>* commands, const engine::InputDevices& input) {
-		CPUProfilingScope();
+		CPUProfilingScope_Game();
 		if (input.keyboard.key_was_pressed_now(VK_F11)) {
 			commands->push_back(engine::AppCommand_ToggleFullscreen());
 		}
@@ -53,7 +53,7 @@ namespace game {
 	}
 
 	void draw(engine::Renderer* renderer, const Game& /*game*/) {
-		CPUProfilingScope();
+		CPUProfilingScope_Game();
 		renderer->clear_screen(engine::RGBA::black());
 	}
 

@@ -128,14 +128,14 @@ namespace engine {
 	}
 
 	void Window::render(const Bitmap& bitmap) {
-		CPUProfilingScope();
+		CPUProfilingScope_Render();
 		HDC device_context = GetDC(m_handle);
 		_render(bitmap, device_context);
 		ReleaseDC(m_handle, device_context);
 	}
 
 	void Window::render_wm_paint(const Bitmap& bitmap) {
-		CPUProfilingScope();
+		CPUProfilingScope_Render();
 		PAINTSTRUCT paint;
 		HDC device_context = BeginPaint(m_handle, &paint);
 		_render(bitmap, device_context);

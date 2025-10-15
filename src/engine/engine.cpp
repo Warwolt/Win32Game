@@ -34,7 +34,7 @@ namespace engine {
 	}
 
 	void update(Engine* engine) {
-		CPUProfilingScope();
+		CPUProfilingScope_Engine();
 
 		/* Update engine */
 		update_debug(&engine->debug, engine->input, &engine->commands);
@@ -45,7 +45,7 @@ namespace engine {
 	}
 
 	void draw(Engine* engine) {
-		CPUProfilingScope();
+		CPUProfilingScope_Engine();
 		draw_debug(&engine->renderer, engine->debug, engine->screen_resolution);
 	}
 

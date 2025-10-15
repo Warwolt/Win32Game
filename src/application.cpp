@@ -22,7 +22,7 @@ struct State {
 };
 
 static void pump_window_messages(State* state) {
-	CPUProfilingScope();
+	CPUProfilingScope_Application();
 	MSG message;
 	while (PeekMessageA(&message, 0, 0, 0, PM_REMOVE)) {
 		TranslateMessage(&message);
@@ -34,7 +34,7 @@ static void pump_window_messages(State* state) {
 }
 
 static void update_input_devices(State* state) {
-	CPUProfilingScope();
+	CPUProfilingScope_Application();
 	engine::update_input_devices(&state->engine.input, state->engine.input_events, state->engine.window);
 	state->engine.input_events = {};
 
@@ -58,12 +58,7 @@ State* initialize_application(HINSTANCE instance, WNDPROC on_window_event) {
 	state->engine = std::move(engine_result.value());
 	state->game = game::initialize(&state->engine);
 	LOG_INFO("Initialized");
-	if (PROFILING_IS_ENABLED) {
-		LOG_INFO("CPU profiling enabled");
-	}
-	else {
-		LOG_INFO("CPU profiling disabled");
-	}
+	LOG_INFO(PROFILING_IS_ENABLED ? "CPU profiling enabled" : "CPU profiling disabled");
 	return state;
 }
 
@@ -74,7 +69,7 @@ LRESULT CALLBACK on_window_event(
 	WPARAM w_param,
 	LPARAM l_param
 ) {
-	CPUProfilingScope();
+	CPUProfilingScope_Application();
 	switch (message) {
 		case WM_SIZE: {
 			engine::IVec2 window_size = state->engine.window.on_resized();
