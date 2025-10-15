@@ -32,7 +32,7 @@ jobs:
       - name: Setup CMake
         uses: threeal/cmake-action@v1.3.0
         with:
-          options: WARNINGS_AS_ERRORS=ON BUILD_TESTS=OFF LINK_DYNAMICALLY=OFF
+          options: WARNINGS_AS_ERRORS=ON BUILD_TESTS=OFF LINK_DYNAMICALLY=OFF ENABLE_PROFILING=OFF
 
       - name: Build
         run: cmake --build build --config Release

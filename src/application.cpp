@@ -1,5 +1,6 @@
 #include <application.h>
 
+#include <engine/debug/profiling.h>
 #include <engine/debug/logging.h>
 #include <engine/engine.h>
 #include <game/game.h>
@@ -15,6 +16,7 @@ struct State {
 };
 
 static void pump_window_messages(State* state) {
+	CPUProfilingScope();
 	MSG message;
 	while (PeekMessageA(&message, 0, 0, 0, PM_REMOVE)) {
 		TranslateMessage(&message);
@@ -26,6 +28,7 @@ static void pump_window_messages(State* state) {
 }
 
 static void update_input_devices(State* state) {
+	CPUProfilingScope();
 	engine::update_input_devices(&state->engine.input, state->engine.input_events, state->engine.window);
 	state->engine.input_events = {};
 
@@ -59,6 +62,7 @@ LRESULT CALLBACK on_window_event(
 	WPARAM w_param,
 	LPARAM l_param
 ) {
+	CPUProfilingScope();
 	switch (message) {
 		case WM_SIZE: {
 			engine::IVec2 window_size = state->engine.window.on_resized();
@@ -140,6 +144,8 @@ bool update_application(State* state) {
 		state->engine.window.render(state->engine.bitmap);
 	}
 	state->engine.debug.frame_timer.end();
+	CPUProfilingEndFrame();
+
 	return state->engine.should_quit;
 }
 
