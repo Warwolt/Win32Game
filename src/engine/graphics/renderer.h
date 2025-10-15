@@ -1,5 +1,6 @@
 #pragma once
 
+#include <engine/debug/filename_from_path.h>
 #include <engine/graphics/bitmap.h>
 #include <engine/graphics/font_id.h>
 #include <engine/graphics/image_id.h>
@@ -7,9 +8,14 @@
 #include <engine/graphics/rgba.h>
 #include <engine/math/ivec2.h>
 
+#include <format>
 #include <string>
 #include <variant>
 #include <vector>
+
+// Adds a tag to the renderer for the current file and line
+#define RENDERER_LOG(renderer, message) \
+	renderer->add_tag(std::format("{}:{}: {}", filename_from_path(__FILE__), __LINE__, message))
 
 namespace engine {
 

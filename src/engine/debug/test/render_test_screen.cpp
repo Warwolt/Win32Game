@@ -4,12 +4,8 @@
 #include <engine/graphics/renderer.h>
 #include <engine/input/input.h>
 
-#include <format>
 #include <algorithm>
 #include <array>
-
-// FIXME: remove this
-#include <engine/debug/filename_from_path.h>
 
 namespace engine {
 
@@ -75,7 +71,7 @@ namespace engine {
 			};
 			RGBA text_color = RGBA::white();
 			text_color.a = m_alpha;
-			renderer->add_tag(std::format("{}:{}: {}", filename_from_path(__FILE__), __LINE__, "Draw Text"));
+			RENDERER_LOG(renderer, "Draw text");
 			renderer->draw_text(debug_font_id, m_font_size, pos, text_color, "the quick brown fox jumps");
 			renderer->draw_text(debug_font_id, m_font_size, pos + IVec2 { 0, m_font_size }, text_color, "over the lazy dog");
 		}
@@ -85,6 +81,7 @@ namespace engine {
 		for (ColorMode color_mode : color_modes) {
 			// horizontal
 			{
+				RENDERER_LOG(renderer, std::format("Draw horizontal line ({})", color_mode == ColorMode::Gradient ? "Gradient" : "Mono"));
 				grid_pos = next_grid_pos(grid_pos);
 				Vertex start = { .pos = get_pos({ -1.0f, 0.0f }, grid_pos), .color = get_color({ 255, 0, 0, m_alpha }, color_mode) };
 				Vertex end = { .pos = get_pos({ 1.0f, 0.0f }, grid_pos), .color = get_color({ 0, 0, 255, m_alpha }, color_mode) };
