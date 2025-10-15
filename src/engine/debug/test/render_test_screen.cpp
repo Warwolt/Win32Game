@@ -90,6 +90,7 @@ namespace engine {
 
 			// slope -0.5
 			{
+				RENDERER_LOG(renderer, std::format("Draw slope -0.5 line ({})", color_mode == ColorMode::Gradient ? "Gradient" : "Mono"));
 				grid_pos = next_grid_pos(grid_pos);
 				Vertex start = { .pos = get_pos({ -1.0f, 0.5f }, grid_pos), .color = get_color({ 255, 0, 0, m_alpha }, color_mode) };
 				Vertex end = { .pos = get_pos({ 1.0f, -0.5f }, grid_pos), .color = get_color({ 0, 0, 255, m_alpha }, color_mode) };
@@ -98,6 +99,7 @@ namespace engine {
 
 			// slope -1
 			{
+				RENDERER_LOG(renderer, std::format("Draw slope -1 line ({})", color_mode == ColorMode::Gradient ? "Gradient" : "Mono"));
 				grid_pos = next_grid_pos(grid_pos);
 				Vertex start = { .pos = get_pos({ -1.0f, 1.0f }, grid_pos), .color = get_color({ 255, 0, 0, m_alpha }, color_mode) };
 				Vertex end = { .pos = get_pos({ 1.0f, -1.0f }, grid_pos), .color = get_color({ 0, 0, 255, m_alpha }, color_mode) };
@@ -106,6 +108,7 @@ namespace engine {
 
 			// slope -2
 			{
+				RENDERER_LOG(renderer, std::format("Draw slope -2 line ({})", color_mode == ColorMode::Gradient ? "Gradient" : "Mono"));
 				grid_pos = next_grid_pos(grid_pos);
 				Vertex start = { .pos = get_pos({ -0.5f, 1.0f }, grid_pos), .color = get_color({ 255, 0, 0, m_alpha }, color_mode) };
 				Vertex end = { .pos = get_pos({ 0.5f, -1.0f }, grid_pos), .color = get_color({ 0, 0, 255, m_alpha }, color_mode) };
@@ -114,6 +117,7 @@ namespace engine {
 
 			// slope inf
 			{
+				RENDERER_LOG(renderer, std::format("Draw slope inf line ({})", color_mode == ColorMode::Gradient ? "Gradient" : "Mono"));
 				grid_pos = next_grid_pos(grid_pos);
 				Vertex start = { .pos = get_pos({ 0.0f, 1.0f }, grid_pos), .color = get_color({ 255, 0, 0, m_alpha }, color_mode) };
 				Vertex end = { .pos = get_pos({ 0.0f, -1.0f }, grid_pos), .color = get_color({ 0, 0, 255, m_alpha }, color_mode) };
@@ -122,6 +126,7 @@ namespace engine {
 
 			// slope +2
 			{
+				RENDERER_LOG(renderer, std::format("Draw slope +2 line ({})", color_mode == ColorMode::Gradient ? "Gradient" : "Mono"));
 				grid_pos = next_grid_pos(grid_pos);
 				Vertex start = { .pos = get_pos({ 0.5f, 1.0f }, grid_pos), .color = get_color({ 255, 0, 0, m_alpha }, color_mode) };
 				Vertex end = { .pos = get_pos({ -0.5f, -1.0f }, grid_pos), .color = get_color({ 0, 0, 255, m_alpha }, color_mode) };
@@ -129,6 +134,7 @@ namespace engine {
 			}
 			// slope +1
 			{
+				RENDERER_LOG(renderer, std::format("Draw slope +1 line ({})", color_mode == ColorMode::Gradient ? "Gradient" : "Mono"));
 				grid_pos = next_grid_pos(grid_pos);
 				Vertex start = { .pos = get_pos({ 1.0f, 1.0f }, grid_pos), .color = get_color({ 255, 0, 0, m_alpha }, color_mode) };
 				Vertex end = { .pos = get_pos({ -1.0f, -1.0f }, grid_pos), .color = get_color({ 0, 0, 255, m_alpha }, color_mode) };
@@ -136,6 +142,7 @@ namespace engine {
 			}
 			// slope +0.5
 			{
+				RENDERER_LOG(renderer, std::format("Draw slope +0.5 line ({})", color_mode == ColorMode::Gradient ? "Gradient" : "Mono"));
 				grid_pos = next_grid_pos(grid_pos);
 				Vertex start = { .pos = get_pos({ 1.0f, 0.5f }, grid_pos), .color = get_color({ 255, 0, 0, m_alpha }, color_mode) };
 				Vertex end = { .pos = get_pos({ -1.0f, -0.5f }, grid_pos), .color = get_color({ 0, 0, 255, m_alpha }, color_mode) };
@@ -147,6 +154,7 @@ namespace engine {
 #pragma region draw rect
 		// rect
 		for (FillMode mode : fill_modes) {
+			RENDERER_LOG(renderer, std::format("Draw rect ({})", mode == FillMode::Outline ? "Outline" : "Filled"));
 			grid_pos = next_grid_pos(grid_pos);
 			IVec2 pos = get_pos(Vec2 { -1.0f, 1.0f }, grid_pos);
 			Rect rect = {
@@ -163,6 +171,7 @@ namespace engine {
 #pragma region draw circle
 		// circle
 		for (FillMode mode : fill_modes) {
+			RENDERER_LOG(renderer, std::format("Draw circle ({})", mode == FillMode::Outline ? "Outline" : "Filled"));
 			grid_pos = next_grid_pos(grid_pos);
 			IVec2 center = get_pos(Vec2 { 0.0f, 0.0f }, grid_pos);
 			if (mode == FillMode::Outline) renderer->draw_circle(center, grid_size / 2, color);
@@ -174,6 +183,7 @@ namespace engine {
 		// isoceles triangle pointing up
 		for (ColorMode color_mode : color_modes) {
 			for (FillMode mode : fill_modes) {
+				RENDERER_LOG(renderer, std::format("Draw isoceles triangle pointing up ({}, {})", color_mode == ColorMode::Gradient ? "Gradient" : "Mono", mode == FillMode::Outline ? "Outline" : "Filled"));
 				grid_pos = next_grid_pos(grid_pos);
 				Vertex left = { .pos = get_pos(Vec2 { -1.0f, -1.0f }, grid_pos), .color = get_color({ 255, 0, 0, m_alpha }, color_mode) };
 				Vertex top = { .pos = get_pos(Vec2 { 0.0f, 1.0f }, grid_pos), .color = get_color({ 0, 255, 0, m_alpha }, color_mode) };
@@ -186,6 +196,7 @@ namespace engine {
 		// isoceles triangle pointing up
 		for (ColorMode color_mode : color_modes) {
 			for (FillMode mode : fill_modes) {
+				RENDERER_LOG(renderer, std::format("Draw isoceles triangle pointing right ({}, {})", color_mode == ColorMode::Gradient ? "Gradient" : "Mono", mode == FillMode::Outline ? "Outline" : "Filled"));
 				grid_pos = next_grid_pos(grid_pos);
 				Vertex left = { .pos = get_pos(Vec2 { -1.0f, -1.0f }, grid_pos), .color = get_color({ 255, 0, 0, m_alpha }, color_mode) };
 				Vertex top = { .pos = get_pos(Vec2 { -1.0f, 1.0f }, grid_pos), .color = get_color({ 0, 255, 0, m_alpha }, color_mode) };
@@ -198,6 +209,7 @@ namespace engine {
 		// scalene triangle
 		for (ColorMode color_mode : color_modes) {
 			for (FillMode mode : fill_modes) {
+				RENDERER_LOG(renderer, std::format("Draw scelene triangle ({}, {})", color_mode == ColorMode::Gradient ? "Gradient" : "Mono", mode == FillMode::Outline ? "Outline" : "Filled"));
 				grid_pos = next_grid_pos(grid_pos);
 				Vertex left = { .pos = get_pos(Vec2 { -0.5f, -1.0f }, grid_pos), .color = get_color({ 255, 0, 0, m_alpha }, color_mode) };
 				Vertex top = { .pos = get_pos(Vec2 { 0.0f, 1.0f }, grid_pos), .color = get_color({ 0, 255, 0, m_alpha }, color_mode) };
@@ -211,6 +223,7 @@ namespace engine {
 #pragma region draw image
 		// draw missing texture
 		{
+			RENDERER_LOG(renderer, "Draw missing texture");
 			grid_pos = next_grid_pos(grid_pos);
 			IVec2 pos = get_pos(Vec2 { -1.0, 1.0 }, grid_pos);
 			Rect rect = {
@@ -226,6 +239,7 @@ namespace engine {
 
 		// draw test image
 		{
+			RENDERER_LOG(renderer, "Draw test image (full image)");
 			grid_pos = next_grid_pos(grid_pos);
 			IVec2 pos = get_pos(Vec2 { -1.0, 1.0 }, grid_pos);
 			Rect rect = {
@@ -241,6 +255,7 @@ namespace engine {
 
 		// draw clipped top left
 		{
+			RENDERER_LOG(renderer, "Draw test image (clipped top left)");
 			grid_pos = next_grid_pos(grid_pos);
 			IVec2 pos = get_pos(Vec2 { -1.0, 1.0 }, grid_pos);
 			Rect rect = {
@@ -262,6 +277,7 @@ namespace engine {
 
 		// draw clipped centered
 		{
+			RENDERER_LOG(renderer, "Draw test image (clipped center)");
 			grid_pos = next_grid_pos(grid_pos);
 			IVec2 pos = get_pos(Vec2 { -1.0, 1.0 }, grid_pos);
 			Rect rect = {
