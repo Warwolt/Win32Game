@@ -177,15 +177,18 @@ namespace engine {
 	}
 
 	void Renderer::_clear_screen(Bitmap* bitmap, RGBA color) {
+		CPUProfilingScope_Render();
 		bitmap->clear(Pixel::from_rgb(color));
 	}
 
 	void Renderer::_put_point(Bitmap* bitmap, Vertex v1) {
+		CPUProfilingScope_Render();
 		Pixel pixel = { .b = v1.color.b, .g = v1.color.g, .r = v1.color.r, .padding = v1.color.a };
 		bitmap->put(v1.pos.x, v1.pos.y, pixel, v1.color.a / 255.0f);
 	}
 
 	void Renderer::_put_line(Bitmap* bitmap, Vertex v1, Vertex v2, const Image* image) {
+		CPUProfilingScope_Render();
 		// Bresenham's drawing algorithm
 		// Alois Zingl, 2016, "A Rasterizing Algorithm for Drawing Curves", page 13
 		// https://zingl.github.io/Bresenham.pdf
@@ -228,6 +231,7 @@ namespace engine {
 	}
 
 	void Renderer::_put_rect(Bitmap* bitmap, Rect rect, RGBA color) {
+		CPUProfilingScope_Render();
 		IVec2 top_left = { rect.x, rect.y };
 		IVec2 top_right = { rect.x + rect.width - 1, rect.y };
 		IVec2 bottom_left = { rect.x, rect.y + rect.height - 1 };
@@ -249,6 +253,7 @@ namespace engine {
 	}
 
 	void Renderer::_put_rect_fill(Bitmap* bitmap, Rect rect, RGBA color) {
+		CPUProfilingScope_Render();
 		Pixel pixel = Pixel::from_rgb(color);
 		for (int32_t y = rect.y; y < rect.y + rect.height; y++) {
 			for (int32_t x = rect.x; x < rect.x + rect.width; x++) {
@@ -258,6 +263,7 @@ namespace engine {
 	}
 
 	void Renderer::_put_circle(Bitmap* bitmap, IVec2 center, int32_t radius, RGBA color) {
+		CPUProfilingScope_Render();
 		Pixel pixel = Pixel::from_rgb(color);
 		float alpha = color.a / 255.0f;
 		for (IVec2 point : circle_octant_points(radius)) {
@@ -273,6 +279,7 @@ namespace engine {
 	}
 
 	void Renderer::_put_circle_fill(Bitmap* bitmap, IVec2 center, int32_t radius, RGBA color) {
+		CPUProfilingScope_Render();
 		for (IVec2 point : half_circle_points(radius)) {
 			IVec2 bottom_left = center + IVec2 { -point.x, point.y };
 			IVec2 bottom_right = center + IVec2 { point.x, point.y };
@@ -287,12 +294,14 @@ namespace engine {
 	}
 
 	void Renderer::_put_triangle(Bitmap* bitmap, Vertex v1, Vertex v2, Vertex v3) {
+		CPUProfilingScope_Render();
 		_put_line(bitmap, v1, v2, nullptr);
 		_put_line(bitmap, v1, v3, nullptr);
 		_put_line(bitmap, v2, v3, nullptr);
 	}
 
 	void Renderer::_put_triangle_fill(Bitmap* bitmap, Vertex v1, Vertex v2, Vertex v3) {
+		CPUProfilingScope_Render();
 		auto triangle_area = [](IVec2 a, IVec2 b) -> float {
 			return std::abs((float)(a.x * b.y - a.y * b.x) / 2.0f);
 		};
@@ -350,6 +359,7 @@ namespace engine {
 	}
 
 	void Renderer::_put_image(Bitmap* bitmap, const Image& image, Rect rect, Rect clip, RGBA tint) {
+		CPUProfilingScope_Render();
 		/* UV coordinates */
 		if (clip.empty()) {
 			clip.width = rect.width;
@@ -389,6 +399,7 @@ namespace engine {
 	}
 
 	void Renderer::_put_text(Bitmap* bitmap, Font* font, int32_t font_size, IVec2 pos, RGBA color, const std::string& text) {
+		CPUProfilingScope_Render();
 		int32_t ascent = font->ascent(font_size);
 		int32_t cursor_x = pos.x;
 		int32_t cursor_y = pos.y + ascent;
