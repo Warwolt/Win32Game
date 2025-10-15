@@ -8,8 +8,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.1.1
         with:
-          submodules: 'recursive'   # Ensures nested submodules also get cloned
-          fetch-depth: 0            # Ensures the correct commit of submodules is available
+          submodules: true
 
       - name: Setup CMake
         uses: threeal/cmake-action@v1.3.0

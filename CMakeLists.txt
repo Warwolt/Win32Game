@@ -55,6 +55,7 @@ set(TEST_SRC
 set(INC
     src
     libs/stb
+    libs/tracy/public
 )
 
 # Executable
