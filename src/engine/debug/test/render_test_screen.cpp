@@ -4,8 +4,12 @@
 #include <engine/graphics/renderer.h>
 #include <engine/input/input.h>
 
+#include <format>
 #include <algorithm>
 #include <array>
+
+// FIXME: remove this
+#include <engine/debug/filename_from_path.h>
 
 namespace engine {
 
@@ -71,6 +75,7 @@ namespace engine {
 			};
 			RGBA text_color = RGBA::white();
 			text_color.a = m_alpha;
+			renderer->add_tag(std::format("{}:{}: {}", filename_from_path(__FILE__), __LINE__, "Draw Text"));
 			renderer->draw_text(debug_font_id, m_font_size, pos, text_color, "the quick brown fox jumps");
 			renderer->draw_text(debug_font_id, m_font_size, pos + IVec2 { 0, m_font_size }, text_color, "over the lazy dog");
 		}

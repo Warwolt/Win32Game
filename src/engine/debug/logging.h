@@ -1,6 +1,6 @@
 #pragma once
 
-#include <string_view>
+#include <engine/debug/filename_from_path.h>
 
 namespace engine {
 
@@ -11,12 +11,6 @@ namespace engine {
 		Error = 3,
 		Fatal = 4,
 	};
-
-	constexpr const char* filename_from_path(const char* path_str) {
-		constexpr char path_separator = '\\';
-		std::string_view path_view = path_str;
-		return path_view.substr(path_view.find_last_of(path_separator) + 1).data();
-	}
 
 	void initialize_logging();
 	void debug_log(LogLevel level, const char* file, int line, const char* fmt, ...);

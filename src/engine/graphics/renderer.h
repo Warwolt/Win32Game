@@ -7,7 +7,6 @@
 #include <engine/graphics/rgba.h>
 #include <engine/math/ivec2.h>
 
-#include <optional>
 #include <string>
 #include <variant>
 #include <vector>
@@ -27,8 +26,10 @@ namespace engine {
 
 	class Renderer {
 	public:
-		void clear_screen(RGBA color = { 0, 0, 0, 255 });
+		// tags next draw command, shows up in Tracy
+		void add_tag(std::string tag);
 
+		void clear_screen(RGBA color = { 0, 0, 0, 255 });
 		void draw_point(Vertex v1);
 		void draw_line(Vertex v1, Vertex v2);
 		void draw_line(IVec2 pos1, IVec2 pos2, RGBA color);
@@ -93,8 +94,14 @@ namespace engine {
 			DrawTriangle,
 			DrawImage,
 			DrawText>;
-		std::vector<DrawCommand> m_commands;
+		struct DrawData {
+			DrawCommand command;
+			std::string tag; // meta data for what's being drawn
+		};
+		std::string m_current_tag;
+		std::vector<DrawData> m_draw_data;
 
+		std::string _take_current_tag();
 		void _clear_screen(Bitmap* bitmap, RGBA color);
 		void _put_point(Bitmap* bitmap, Vertex v1);
 		void _put_line(Bitmap* bitmap, Vertex v1, Vertex v2, const Image* image);

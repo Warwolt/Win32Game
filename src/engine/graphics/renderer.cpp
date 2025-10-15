@@ -1,12 +1,13 @@
 #include <engine/graphics/renderer.h>
 
+#include <engine/container/match_variant.h>
 #include <engine/debug/profiling.h>
 #include <engine/file/resource_manager.h>
 #include <engine/graphics/font.h>
 #include <engine/graphics/image.h>
 #include <engine/math/math.h>
-#include <engine/container/match_variant.h>
 
+#include <utility>
 #include <cmath>
 
 namespace engine {
@@ -76,60 +77,67 @@ namespace engine {
 		return half_circle_points;
 	}
 
+	void Renderer::add_tag(std::string tag) {
+		m_current_tag = tag;
+	}
+
 	void Renderer::clear_screen(RGBA color) {
-		m_commands.push_back(ClearScreen { color });
+		m_draw_data.push_back(DrawData { ClearScreen { color }, _take_current_tag() });
 	}
 
 	void Renderer::draw_point(Vertex v1) {
-		m_commands.push_back(DrawPoint { v1 });
+		m_draw_data.push_back(DrawData { DrawPoint { v1 }, _take_current_tag() });
 	}
 
 	void Renderer::draw_line(Vertex v1, Vertex v2) {
-		m_commands.push_back(DrawLine { v1, v2 });
+		m_draw_data.push_back(DrawData { DrawLine { v1, v2 }, _take_current_tag() });
 	}
 
 	void Renderer::draw_line(IVec2 pos1, IVec2 pos2, RGBA color) {
-		m_commands.push_back(DrawLine { Vertex { .pos = pos1, .color = color }, Vertex { .pos = pos2, .color = color } });
+		m_draw_data.push_back(DrawData { DrawLine { Vertex { .pos = pos1, .color = color }, Vertex { .pos = pos2, .color = color } }, _take_current_tag() });
 	}
 
 	void Renderer::draw_rect(Rect rect, RGBA color) {
-		m_commands.push_back(DrawRect { rect, color, false });
+		m_draw_data.push_back(DrawData { DrawRect { rect, color, false }, _take_current_tag() });
 	}
 
 	void Renderer::draw_rect_fill(Rect rect, RGBA color) {
-		m_commands.push_back(DrawRect { rect, color, true });
+		m_draw_data.push_back(DrawData { DrawRect { rect, color, true }, _take_current_tag() });
 	}
 
 	void Renderer::draw_circle(IVec2 center, int32_t radius, RGBA color) {
-		m_commands.push_back(DrawCircle { center, radius, color, false });
+		m_draw_data.push_back(DrawData { DrawCircle { center, radius, color, false }, _take_current_tag() });
 	}
 
 	void Renderer::draw_circle_fill(IVec2 center, int32_t radius, RGBA color) {
-		m_commands.push_back(DrawCircle { center, radius, color, true });
+		m_draw_data.push_back(DrawData { DrawCircle { center, radius, color, true }, _take_current_tag() });
 	}
 
 	void Renderer::draw_triangle(Vertex v1, Vertex v2, Vertex v3) {
-		m_commands.push_back(DrawTriangle { v1, v2, v3, false });
+		m_draw_data.push_back(DrawData { DrawTriangle { v1, v2, v3, false }, _take_current_tag() });
 	}
 
 	void Renderer::draw_triangle_fill(Vertex v1, Vertex v2, Vertex v3) {
-		m_commands.push_back(DrawTriangle { v1, v2, v3, true });
+		m_draw_data.push_back(DrawData { DrawTriangle { v1, v2, v3, true }, _take_current_tag() });
 	}
 
 	void Renderer::draw_image(ImageID image_id, Rect rect, Rect clip, RGBA tint) {
-		m_commands.push_back(DrawImage { image_id, rect, clip, tint });
+		m_draw_data.push_back(DrawData { DrawImage { image_id, rect, clip, tint }, _take_current_tag() });
 	}
 
 	void Renderer::draw_text(FontID font_id, int32_t font_size, IVec2 pos, RGBA color, std::string text) {
-		m_commands.push_back(DrawText { font_id, font_size, pos, color, text });
+		m_draw_data.push_back(DrawData { DrawText { font_id, font_size, pos, color, text }, _take_current_tag() });
 	}
 
 	void Renderer::render(Bitmap* bitmap, ResourceManager* resources) {
 		CPUProfilingScope_Render();
-		TracyPlot("DrawCommands", (int64_t)m_commands.size());
+		TracyPlot("DrawCommands", (int64_t)m_draw_data.size());
 
 		/* Run commands */
-		for (const DrawCommand& command : m_commands) {
+		for (const auto& [command, tag] : m_draw_data) {
+			if (!tag.empty()) {
+				TracyMessage(tag.data(), tag.size());
+			}
 			MATCH_VARIANT(command) {
 				MATCH_CASE(ClearScreen, color) {
 					_clear_screen(bitmap, color);
@@ -173,7 +181,11 @@ namespace engine {
 				}
 			}
 		}
-		m_commands.clear();
+		m_draw_data.clear();
+	}
+
+	std::string Renderer::_take_current_tag() {
+		return std::exchange(m_current_tag, std::string());
 	}
 
 	void Renderer::_clear_screen(Bitmap* bitmap, RGBA color) {
