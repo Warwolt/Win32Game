@@ -4,13 +4,14 @@ Overall goal:
 - Simple Win32 level editor (create content for the games)
 
 # Todo
+- Add render test screen with lots of images to stress test, get a sense of budget
 - Add a little Link sprite that can walk around with keyboard
 - Try out LDtk Level Editor (https://ldtk.io/)
 
 # Doing
-- Integrate Tracy profiler
 
 # Done
+- Integrate Tracy profiler
 - DLL based hot reloading
 - Text Mode UI prototype
 - Diagnose what parts of render test screen is slow

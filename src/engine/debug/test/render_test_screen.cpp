@@ -1,5 +1,6 @@
 #include <engine/debug/test/render_test_screen.h>
 
+#include <engine/debug/profiling.h>
 #include <engine/file/resource_manager.h>
 #include <engine/graphics/renderer.h>
 #include <engine/input/input.h>
@@ -19,6 +20,8 @@ namespace engine {
 	}
 
 	void RenderTestScreen::draw(Renderer* renderer, FontID debug_font_id, IVec2 screen_resolution) const {
+		CPUProfilingScope_Engine();
+
 		enum class FillMode {
 			Outline,
 			Filled,
