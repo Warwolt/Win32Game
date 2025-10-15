@@ -421,12 +421,12 @@ namespace engine {
 		CPUProfilingScope_Render();
 		for (int32_t y_offset = 0; y_offset < rect.height; y_offset++) {
 			for (int32_t x_offset = 0; x_offset < rect.width; x_offset++) {
-				// FIXME: use the RGBA tint
 				Vec2 uv = {
 					x_offset / (float)(rect.width),
-					y_offset / (float)(rect.height),
+					1.0f - y_offset / (float)(rect.height),
 				};
-				bitmap->put(rect.x + x_offset, rect.y + y_offset, Pixel::from_rgb(image.sample(uv)), 1.0f);
+				RGBA color = image.sample(uv) * tint;
+				bitmap->put(rect.x + x_offset, rect.y + y_offset, Pixel::from_rgb(color), tint.a / 255.0f);
 			}
 		}
 	}
