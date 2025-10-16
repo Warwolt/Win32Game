@@ -1,12 +1,15 @@
 #include <engine/graphics/renderer.h>
 
+#include <engine/container/match_variant.h>
+#include <engine/debug/logging.h>
+#include <engine/debug/profiling.h>
 #include <engine/file/resource_manager.h>
 #include <engine/graphics/font.h>
 #include <engine/graphics/image.h>
 #include <engine/math/math.h>
-#include <engine/container/match_variant.h>
 
 #include <cmath>
+#include <utility>
 
 namespace engine {
 
@@ -75,57 +78,67 @@ namespace engine {
 		return half_circle_points;
 	}
 
+	void Renderer::add_tag(std::string tag) {
+		m_current_tag = tag;
+	}
+
 	void Renderer::clear_screen(RGBA color) {
-		m_commands.push_back(ClearScreen { color });
+		m_draw_data.push_back(DrawData { ClearScreen { color }, _take_current_tag() });
 	}
 
 	void Renderer::draw_point(Vertex v1) {
-		m_commands.push_back(DrawPoint { v1 });
+		m_draw_data.push_back(DrawData { DrawPoint { v1 }, _take_current_tag() });
 	}
 
 	void Renderer::draw_line(Vertex v1, Vertex v2) {
-		m_commands.push_back(DrawLine { v1, v2 });
+		m_draw_data.push_back(DrawData { DrawLine { v1, v2 }, _take_current_tag() });
 	}
 
 	void Renderer::draw_line(IVec2 pos1, IVec2 pos2, RGBA color) {
-		m_commands.push_back(DrawLine { Vertex { .pos = pos1, .color = color }, Vertex { .pos = pos2, .color = color } });
+		m_draw_data.push_back(DrawData { DrawLine { Vertex { .pos = pos1, .color = color }, Vertex { .pos = pos2, .color = color } }, _take_current_tag() });
 	}
 
 	void Renderer::draw_rect(Rect rect, RGBA color) {
-		m_commands.push_back(DrawRect { rect, color, false });
+		m_draw_data.push_back(DrawData { DrawRect { rect, color, false }, _take_current_tag() });
 	}
 
 	void Renderer::draw_rect_fill(Rect rect, RGBA color) {
-		m_commands.push_back(DrawRect { rect, color, true });
+		m_draw_data.push_back(DrawData { DrawRect { rect, color, true }, _take_current_tag() });
 	}
 
 	void Renderer::draw_circle(IVec2 center, int32_t radius, RGBA color) {
-		m_commands.push_back(DrawCircle { center, radius, color, false });
+		m_draw_data.push_back(DrawData { DrawCircle { center, radius, color, false }, _take_current_tag() });
 	}
 
 	void Renderer::draw_circle_fill(IVec2 center, int32_t radius, RGBA color) {
-		m_commands.push_back(DrawCircle { center, radius, color, true });
+		m_draw_data.push_back(DrawData { DrawCircle { center, radius, color, true }, _take_current_tag() });
 	}
 
 	void Renderer::draw_triangle(Vertex v1, Vertex v2, Vertex v3) {
-		m_commands.push_back(DrawTriangle { v1, v2, v3, false });
+		m_draw_data.push_back(DrawData { DrawTriangle { v1, v2, v3, false }, _take_current_tag() });
 	}
 
 	void Renderer::draw_triangle_fill(Vertex v1, Vertex v2, Vertex v3) {
-		m_commands.push_back(DrawTriangle { v1, v2, v3, true });
+		m_draw_data.push_back(DrawData { DrawTriangle { v1, v2, v3, true }, _take_current_tag() });
 	}
 
 	void Renderer::draw_image(ImageID image_id, Rect rect, Rect clip, RGBA tint) {
-		m_commands.push_back(DrawImage { image_id, rect, clip, tint });
+		m_draw_data.push_back(DrawData { DrawImage { image_id, rect, clip, tint }, _take_current_tag() });
 	}
 
 	void Renderer::draw_text(FontID font_id, int32_t font_size, IVec2 pos, RGBA color, std::string text) {
-		m_commands.push_back(DrawText { font_id, font_size, pos, color, text });
+		m_draw_data.push_back(DrawData { DrawText { font_id, font_size, pos, color, text }, _take_current_tag() });
 	}
 
 	void Renderer::render(Bitmap* bitmap, ResourceManager* resources) {
+		CPUProfilingScope_Render();
+		TracyPlot("DrawCommands", (int64_t)m_draw_data.size());
+
 		/* Run commands */
-		for (const DrawCommand& command : m_commands) {
+		for (const auto& [command, tag] : m_draw_data) {
+			if (!tag.empty()) {
+				TracyMessage(tag.data(), tag.size());
+			}
 			MATCH_VARIANT(command) {
 				MATCH_CASE(ClearScreen, color) {
 					_clear_screen(bitmap, color);
@@ -161,7 +174,12 @@ namespace engine {
 					}
 				}
 				MATCH_CASE(DrawImage, image_id, rect, clip, tint) {
-					_put_image(bitmap, resources->image(image_id), rect, clip, tint);
+					if (!clip.empty()) {
+						_put_image_clipped(bitmap, resources->image(image_id), rect, clip, tint);
+					}
+					else {
+						_put_image_full(bitmap, resources->image(image_id), rect, tint);
+					}
 				}
 				MATCH_CASE(DrawText, font_id, font_size, pos, color, text) {
 					Font& font = resources->font(font_id);
@@ -169,19 +187,26 @@ namespace engine {
 				}
 			}
 		}
-		m_commands.clear();
+		m_draw_data.clear();
+	}
+
+	std::string Renderer::_take_current_tag() {
+		return std::exchange(m_current_tag, std::string());
 	}
 
 	void Renderer::_clear_screen(Bitmap* bitmap, RGBA color) {
+		CPUProfilingScope_Render();
 		bitmap->clear(Pixel::from_rgb(color));
 	}
 
 	void Renderer::_put_point(Bitmap* bitmap, Vertex v1) {
+		CPUProfilingScope_Render();
 		Pixel pixel = { .b = v1.color.b, .g = v1.color.g, .r = v1.color.r, .padding = v1.color.a };
 		bitmap->put(v1.pos.x, v1.pos.y, pixel, v1.color.a / 255.0f);
 	}
 
 	void Renderer::_put_line(Bitmap* bitmap, Vertex v1, Vertex v2, const Image* image) {
+		CPUProfilingScope_Render();
 		// Bresenham's drawing algorithm
 		// Alois Zingl, 2016, "A Rasterizing Algorithm for Drawing Curves", page 13
 		// https://zingl.github.io/Bresenham.pdf
@@ -224,6 +249,7 @@ namespace engine {
 	}
 
 	void Renderer::_put_rect(Bitmap* bitmap, Rect rect, RGBA color) {
+		CPUProfilingScope_Render();
 		IVec2 top_left = { rect.x, rect.y };
 		IVec2 top_right = { rect.x + rect.width - 1, rect.y };
 		IVec2 bottom_left = { rect.x, rect.y + rect.height - 1 };
@@ -245,6 +271,7 @@ namespace engine {
 	}
 
 	void Renderer::_put_rect_fill(Bitmap* bitmap, Rect rect, RGBA color) {
+		CPUProfilingScope_Render();
 		Pixel pixel = Pixel::from_rgb(color);
 		for (int32_t y = rect.y; y < rect.y + rect.height; y++) {
 			for (int32_t x = rect.x; x < rect.x + rect.width; x++) {
@@ -254,6 +281,7 @@ namespace engine {
 	}
 
 	void Renderer::_put_circle(Bitmap* bitmap, IVec2 center, int32_t radius, RGBA color) {
+		CPUProfilingScope_Render();
 		Pixel pixel = Pixel::from_rgb(color);
 		float alpha = color.a / 255.0f;
 		for (IVec2 point : circle_octant_points(radius)) {
@@ -269,6 +297,7 @@ namespace engine {
 	}
 
 	void Renderer::_put_circle_fill(Bitmap* bitmap, IVec2 center, int32_t radius, RGBA color) {
+		CPUProfilingScope_Render();
 		for (IVec2 point : half_circle_points(radius)) {
 			IVec2 bottom_left = center + IVec2 { -point.x, point.y };
 			IVec2 bottom_right = center + IVec2 { point.x, point.y };
@@ -283,12 +312,14 @@ namespace engine {
 	}
 
 	void Renderer::_put_triangle(Bitmap* bitmap, Vertex v1, Vertex v2, Vertex v3) {
+		CPUProfilingScope_Render();
 		_put_line(bitmap, v1, v2, nullptr);
 		_put_line(bitmap, v1, v3, nullptr);
 		_put_line(bitmap, v2, v3, nullptr);
 	}
 
 	void Renderer::_put_triangle_fill(Bitmap* bitmap, Vertex v1, Vertex v2, Vertex v3) {
+		CPUProfilingScope_Render();
 		auto triangle_area = [](IVec2 a, IVec2 b) -> float {
 			return std::abs((float)(a.x * b.y - a.y * b.x) / 2.0f);
 		};
@@ -345,9 +376,11 @@ namespace engine {
 		}
 	}
 
-	void Renderer::_put_image(Bitmap* bitmap, const Image& image, Rect rect, Rect clip, RGBA tint) {
+	void Renderer::_put_image_clipped(Bitmap* bitmap, const Image& image, Rect rect, Rect clip, RGBA tint) {
+		CPUProfilingScope_Render();
 		/* UV coordinates */
 		if (clip.empty()) {
+			// LOG_WARNING("Renderer::_put_image called with empty clip rect!");
 			clip.width = rect.width;
 			clip.height = rect.height;
 		}
@@ -384,7 +417,22 @@ namespace engine {
 		}
 	}
 
+	void Renderer::_put_image_full(Bitmap* bitmap, const Image& image, Rect rect, RGBA tint) {
+		CPUProfilingScope_Render();
+		for (int32_t y_offset = 0; y_offset < rect.height; y_offset++) {
+			for (int32_t x_offset = 0; x_offset < rect.width; x_offset++) {
+				Vec2 uv = {
+					x_offset / (float)(rect.width),
+					1.0f - y_offset / (float)(rect.height),
+				};
+				RGBA color = image.sample(uv) * tint;
+				bitmap->put(rect.x + x_offset, rect.y + y_offset, Pixel::from_rgb(color), tint.a / 255.0f);
+			}
+		}
+	}
+
 	void Renderer::_put_text(Bitmap* bitmap, Font* font, int32_t font_size, IVec2 pos, RGBA color, const std::string& text) {
+		CPUProfilingScope_Render();
 		int32_t ascent = font->ascent(font_size);
 		int32_t cursor_x = pos.x;
 		int32_t cursor_y = pos.y + ascent;

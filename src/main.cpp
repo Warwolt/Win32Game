@@ -40,6 +40,7 @@ int WINAPI WinMain(
 	int /*command_show*/
 ) {
 	/* Init */
+	SetProcessDPIAware();
 	enable_printf();
 	g_state = initialize_application(instance, on_window_event);
 

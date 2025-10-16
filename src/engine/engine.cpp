@@ -2,6 +2,7 @@
 
 #include <engine/container/match_variant.h>
 #include <engine/debug/logging.h>
+#include <engine/debug/profiling.h>
 #include <engine/input/input.h>
 
 #include <utility>
@@ -17,7 +18,7 @@ namespace engine {
 
 		/* Create window */
 		constexpr int zoom = 2;
-		IVec2 screen_resolution = IVec2 { 1920 / 4, 1200 / 4 };
+		IVec2 screen_resolution = IVec2 { 640, 480 };
 		const char* window_title = "Win32Game";
 		std::expected<Window, EngineError> window_result = Window::initialize(instance, wnd_proc, zoom * screen_resolution, window_title);
 		if (!window_result) {
@@ -33,6 +34,8 @@ namespace engine {
 	}
 
 	void update(Engine* engine) {
+		CPUProfilingScope_Engine();
+
 		/* Update engine */
 		update_debug(&engine->debug, engine->input, &engine->commands);
 
@@ -42,7 +45,8 @@ namespace engine {
 	}
 
 	void draw(Engine* engine) {
-		draw_debug(&engine->renderer, &engine->resources, engine->debug, engine->screen_resolution);
+		CPUProfilingScope_Engine();
+		draw_debug(&engine->renderer, engine->debug, engine->screen_resolution);
 	}
 
 } // namespace engine

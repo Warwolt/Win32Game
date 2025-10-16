@@ -44,6 +44,7 @@ State* initialize_application(HINSTANCE instance, WNDPROC on_window_event) {
 	}
 
 	/* Initialize app */
+	printf("Hot reloading enabled, hot reload with F5 key\n");
 	return g_library.initialize_application(instance, on_window_event);
 }
 

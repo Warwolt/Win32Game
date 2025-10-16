@@ -1,6 +1,7 @@
 #include <application.h>
 
 #include <engine/debug/logging.h>
+#include <engine/debug/profiling.h>
 #include <engine/engine.h>
 #include <game/game.h>
 
@@ -9,12 +10,19 @@
 
 #include <format>
 
+#ifdef TRACY_ENABLE
+constexpr bool PROFILING_IS_ENABLED = true;
+#else
+constexpr bool PROFILING_IS_ENABLED = false;
+#endif
+
 struct State {
 	engine::Engine engine;
 	game::Game game;
 };
 
 static void pump_window_messages(State* state) {
+	CPUProfilingScope_Application();
 	MSG message;
 	while (PeekMessageA(&message, 0, 0, 0, PM_REMOVE)) {
 		TranslateMessage(&message);
@@ -26,6 +34,7 @@ static void pump_window_messages(State* state) {
 }
 
 static void update_input_devices(State* state) {
+	CPUProfilingScope_Application();
 	engine::update_input_devices(&state->engine.input, state->engine.input_events, state->engine.window);
 	state->engine.input_events = {};
 
@@ -49,6 +58,7 @@ State* initialize_application(HINSTANCE instance, WNDPROC on_window_event) {
 	state->engine = std::move(engine_result.value());
 	state->game = game::initialize(&state->engine);
 	LOG_INFO("Initialized");
+	LOG_INFO(PROFILING_IS_ENABLED ? "CPU profiling enabled" : "CPU profiling disabled");
 	return state;
 }
 
@@ -59,6 +69,7 @@ LRESULT CALLBACK on_window_event(
 	WPARAM w_param,
 	LPARAM l_param
 ) {
+	CPUProfilingScope_Application();
 	switch (message) {
 		case WM_SIZE: {
 			engine::IVec2 window_size = state->engine.window.on_resized();
@@ -140,6 +151,8 @@ bool update_application(State* state) {
 		state->engine.window.render(state->engine.bitmap);
 	}
 	state->engine.debug.frame_timer.end();
+	CPUProfilingEndFrame();
+
 	return state->engine.should_quit;
 }
 

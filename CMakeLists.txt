@@ -4,9 +4,17 @@ project(Win32Game)
 option(WARNINGS_AS_ERRORS "Compile with warnings as errors" OFF)
 option(BUILD_TESTS "Build tests" ON)
 option(LINK_DYNAMICALLY "Link app dynamically (for hot reloading)" ON)
-message(STATUS "Option WARNINGS_AS_ERRORS = ${WARNINGS_AS_ERRORS}")
-message(STATUS "Option BUILD_TESTS = ${BUILD_TESTS}")
-message(STATUS "Option LINK_DYNAMICALLY = ${LINK_DYNAMICALLY}")
+option(ENABLE_PROFILING "Enable profiling tool" OFF)
+
+if (LINK_DYNAMICALLY AND ENABLE_PROFILING)
+    message(WARNING "LINK_DYNAMICALLY and ENABLE_PROFILING are not compatible, Tracy profiler locks PDB file preventing DLL to be re-built! LINK_DYNAMICALLY will be disabled.")
+    set(LINK_DYNAMICALLY OFF)
+endif()
+
+message(STATUS "WARNINGS_AS_ERRORS: ${WARNINGS_AS_ERRORS}")
+message(STATUS "BUILD_TESTS: ${BUILD_TESTS}")
+message(STATUS "LINK_DYNAMICALLY: ${LINK_DYNAMICALLY}")
+message(STATUS "ENABLE_PROFILING: ${ENABLE_PROFILING}")
 
 set(SRC
     libs/stb/stb_image/stb_image.c
@@ -17,7 +25,7 @@ set(SRC
     src/engine/debug/debug.cpp
     src/engine/debug/delta_timer.cpp
     src/engine/debug/logging.cpp
-    src/engine/debug/test/rendering_test_screen.cpp
+    src/engine/debug/test/render_test_screen.cpp
     src/engine/engine.cpp
     src/engine/file/resource_manager.cpp
     src/engine/graphics/bitmap.cpp
@@ -47,6 +55,7 @@ set(TEST_SRC
 set(INC
     src
     libs/stb
+    libs/tracy/public
 )
 
 # Executable
@@ -94,6 +103,18 @@ if(BUILD_TESTS)
     add_executable(Tests test/main.cpp ${TEST_SRC})
     target_include_directories(Tests PUBLIC src test)
     target_link_libraries(Tests PUBLIC gtest gmock Source)
+endif()
+
+# Profiling
+if(ENABLE_PROFILING)
+    # Tracy profiler
+    option(TRACY_ENABLE "" ON)
+    option(TRACY_ON_DEMAND "" ON)
+    add_subdirectory(libs/tracy)
+    target_link_libraries(Library PUBLIC TracyClient)
+    target_link_libraries(Source PUBLIC TracyClient)
+    target_compile_definitions(Library PRIVATE TRACY_ENABLE)
+    target_compile_definitions(Source PRIVATE TRACY_ENABLE)
 endif()
 
 # Set shared compilation options
