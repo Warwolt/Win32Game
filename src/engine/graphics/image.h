@@ -16,6 +16,7 @@ namespace engine {
 
 		static std::optional<Image> from_path(std::filesystem::path path);
 		RGBA sample(Vec2 uv) const;
+		RGBA get(int x, int y) const;
 	};
 
 } // namespace engine

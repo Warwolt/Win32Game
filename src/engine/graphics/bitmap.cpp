@@ -38,6 +38,12 @@ namespace engine {
 		m_data.resize(m_width * m_height);
 	}
 
+	void Bitmap::put(int32_t x, int32_t y, Pixel pixel) {
+		if (0 <= x && x < m_width && 0 <= y && y < m_height) {
+			m_data[x + m_width * y] = pixel;
+		}
+	}
+
 	void Bitmap::put(int32_t x, int32_t y, Pixel pixel, float alpha) {
 		if (0 <= x && x < m_width && 0 <= y && y < m_height) {
 			if (alpha == 1.0f) {

@@ -4,6 +4,8 @@ Overall goal:
 - Simple Win32 level editor (create content for the games)
 
 # Todo
+- Make alpha of image tint color adjust how much tint is added, add separate transparancy paramater
+- Draw sprite from spritesheet (index into spritesheet with pixels, not UV, to avoid too much slow math)
 - Add render test screen with lots of images to stress test, get a sense of budget
 - Add a little Link sprite that can walk around with keyboard
 - Try out LDtk Level Editor (https://ldtk.io/)
@@ -11,6 +13,7 @@ Overall goal:
 # Doing
 
 # Done
+- Optimize image drawing for case when entire image is drawn
 - Integrate Tracy profiler
 - DLL based hot reloading
 - Text Mode UI prototype

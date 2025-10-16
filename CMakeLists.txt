@@ -31,7 +31,6 @@ set(SRC
     src/engine/graphics/bitmap.cpp
     src/engine/graphics/font.cpp
     src/engine/graphics/image.cpp
-    src/engine/graphics/rect.cpp
     src/engine/graphics/renderer.cpp
     src/engine/graphics/rgba.cpp
     src/engine/graphics/window.cpp

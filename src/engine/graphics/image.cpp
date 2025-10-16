@@ -1,6 +1,7 @@
 #include <engine/graphics/image.h>
 
 #include <stb_image/stb_image.h>
+#include <engine/math/math.h>
 
 #include <cmath>
 
@@ -10,6 +11,12 @@ namespace engine {
 		int32_t sample_point_x = (int32_t)std::round(uv.x * (this->width - 1));
 		int32_t sample_point_y = (int32_t)std::round((1.0f - uv.y) * (this->height - 1));
 		return this->data[sample_point_x + sample_point_y * this->width];
+	}
+
+	RGBA Image::get(int x, int y) const {
+		int32_t clamped_x = engine::clamp(x, 0, this->width);
+		int32_t clamped_y = engine::clamp(y, 0, this->height);
+		return this->data[clamped_x + clamped_y * this->width];
 	}
 
 	std::optional<Image> Image::from_path(std::filesystem::path path) {
