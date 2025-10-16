@@ -384,7 +384,7 @@ namespace engine {
 		CPUProfilingScope_Render();
 		/* UV coordinates */
 		if (clip.empty()) {
-			LOG_WARNING("Renderer::_put_image called with empty clip rect!");
+			LOG_WARNING("Renderer::_put_image_scaled_and_clipped called with empty clip rect!");
 			clip.width = rect.width;
 			clip.height = rect.height;
 		}
@@ -437,10 +437,21 @@ namespace engine {
 
 	void Renderer::_put_image(Bitmap* bitmap, const Image& image, IVec2 pos, RGBA tint) {
 		CPUProfilingScope_Render();
-		for (int32_t y_offset = 0; y_offset < image.height; y_offset++) {
-			for (int32_t x_offset = 0; x_offset < image.width; x_offset++) {
-				RGBA color = image.get(x_offset, y_offset) * tint;
-				bitmap->put(pos.x + x_offset, pos.y + y_offset, Pixel::from_rgb(color), tint.a / 255.0f);
+		// optimization: if tint is white we skip the color multiplication
+		if (tint == RGBA::white()) {
+			for (int32_t y_offset = 0; y_offset < image.height; y_offset++) {
+				for (int32_t x_offset = 0; x_offset < image.width; x_offset++) {
+					RGBA color = image.get(x_offset, y_offset);
+					bitmap->put(pos.x + x_offset, pos.y + y_offset, Pixel::from_rgb(color), 1.0f);
+				}
+			}
+		}
+		else {
+			for (int32_t y_offset = 0; y_offset < image.height; y_offset++) {
+				for (int32_t x_offset = 0; x_offset < image.width; x_offset++) {
+					RGBA color = image.get(x_offset, y_offset) * tint;
+					bitmap->put(pos.x + x_offset, pos.y + y_offset, Pixel::from_rgb(color), tint.a / 255.0f);
+				}
 			}
 		}
 	}
