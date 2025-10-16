@@ -176,13 +176,16 @@ namespace engine {
 				MATCH_CASE(DrawImage, image_id, rect, clip, tint) {
 					const Image& image = resources->image(image_id);
 					if (!clip.empty()) {
-						_put_image_scaled_and_clipped(bitmap, image, rect, clip, tint);
+						_put_image_tinted_scaled_clipped(bitmap, image, rect, clip, tint);
 					}
 					else if (image.width != rect.width || image.height != rect.height) {
-						_put_image_scaled(bitmap, image, rect, tint);
+						_put_image_tinted_scaled(bitmap, image, rect, tint);
+					}
+					else if (tint != RGBA::white()) {
+						_put_image_tinted(bitmap, image, rect.pos(), tint);
 					}
 					else {
-						_put_image(bitmap, image, rect.pos(), tint);
+						_put_image(bitmap, image, rect.pos());
 					}
 				}
 				MATCH_CASE(DrawText, font_id, font_size, pos, color, text) {
@@ -380,11 +383,11 @@ namespace engine {
 		}
 	}
 
-	void Renderer::_put_image_scaled_and_clipped(Bitmap* bitmap, const Image& image, Rect rect, Rect clip, RGBA tint) {
+	void Renderer::_put_image_tinted_scaled_clipped(Bitmap* bitmap, const Image& image, Rect rect, Rect clip, RGBA tint) {
 		CPUProfilingScope_Render();
 		/* UV coordinates */
 		if (clip.empty()) {
-			LOG_WARNING("Renderer::_put_image_scaled_and_clipped called with empty clip rect!");
+			LOG_WARNING("Renderer::_put_image_tinted_scaled_clipped called with empty clip rect!");
 			clip.width = rect.width;
 			clip.height = rect.height;
 		}
@@ -421,7 +424,7 @@ namespace engine {
 		}
 	}
 
-	void Renderer::_put_image_scaled(Bitmap* bitmap, const Image& image, Rect rect, RGBA tint) {
+	void Renderer::_put_image_tinted_scaled(Bitmap* bitmap, const Image& image, Rect rect, RGBA tint) {
 		CPUProfilingScope_Render();
 		for (int32_t y_offset = 0; y_offset < rect.height; y_offset++) {
 			for (int32_t x_offset = 0; x_offset < rect.width; x_offset++) {
@@ -435,23 +438,22 @@ namespace engine {
 		}
 	}
 
-	void Renderer::_put_image(Bitmap* bitmap, const Image& image, IVec2 pos, RGBA tint) {
+	void Renderer::_put_image_tinted(Bitmap* bitmap, const Image& image, IVec2 pos, RGBA tint) {
 		CPUProfilingScope_Render();
-		// optimization: if tint is white we skip the color multiplication
-		if (tint == RGBA::white()) {
-			for (int32_t y_offset = 0; y_offset < image.height; y_offset++) {
-				for (int32_t x_offset = 0; x_offset < image.width; x_offset++) {
-					RGBA color = image.get(x_offset, y_offset);
-					bitmap->put(pos.x + x_offset, pos.y + y_offset, Pixel::from_rgb(color), 1.0f);
-				}
+		for (int32_t y_offset = 0; y_offset < image.height; y_offset++) {
+			for (int32_t x_offset = 0; x_offset < image.width; x_offset++) {
+				RGBA color = image.get(x_offset, y_offset) * tint;
+				bitmap->put(pos.x + x_offset, pos.y + y_offset, Pixel::from_rgb(color), tint.a / 255.0f);
 			}
 		}
-		else {
-			for (int32_t y_offset = 0; y_offset < image.height; y_offset++) {
-				for (int32_t x_offset = 0; x_offset < image.width; x_offset++) {
-					RGBA color = image.get(x_offset, y_offset) * tint;
-					bitmap->put(pos.x + x_offset, pos.y + y_offset, Pixel::from_rgb(color), tint.a / 255.0f);
-				}
+	}
+
+	void Renderer::_put_image(Bitmap* bitmap, const Image& image, IVec2 pos) {
+		CPUProfilingScope_Render();
+		for (int32_t y_offset = 0; y_offset < image.height; y_offset++) {
+			for (int32_t x_offset = 0; x_offset < image.width; x_offset++) {
+				RGBA color = image.data[x_offset + y_offset * image.width];
+				bitmap->put(pos.x + x_offset, pos.y + y_offset, Pixel::from_rgb(color));
 			}
 		}
 	}
