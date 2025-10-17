@@ -54,8 +54,7 @@ namespace game {
 
 	void draw(engine::Renderer* renderer, const Game& /*game*/) {
 		CPUProfilingScope_Game();
-		// renderer->clear_screen(engine::RGBA::black());
-		renderer->clear_screen(engine::RGBA { 0, 127, 127, 255 });
+		renderer->clear_screen(engine::RGBA::black());
 	}
 
 } // namespace game
