@@ -399,8 +399,7 @@ namespace engine {
 		};
 
 		/* Draw image line by line */
-		RGBA color = tint;
-		color.a = (uint8_t)(255.0f * alpha);
+		RGBA color = RGBA::lerp(RGBA::white(), tint, tint.a / 255.0f).with_alpha((uint8_t)(255.0f * alpha));
 		for (int32_t y = 0; y < rect.height; y++) {
 			Vertex left = {
 				.pos = { rect.x, rect.y + y },
@@ -426,7 +425,7 @@ namespace engine {
 		CPUProfilingScope_Render();
 		for (int32_t y_offset = 0; y_offset < image.height; y_offset++) {
 			for (int32_t x_offset = 0; x_offset < image.width; x_offset++) {
-				RGBA color = image.get(x_offset, y_offset) * tint;
+				RGBA color = RGBA::tint(image.get(x_offset,y_offset), tint);
 				bitmap->put(pos.x + x_offset, pos.y + y_offset, Pixel::from_rgb(color), alpha);
 			}
 		}
