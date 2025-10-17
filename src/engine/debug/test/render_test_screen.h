@@ -11,9 +11,12 @@ namespace engine {
 	class ResourceManager;
 	class Window;
 
-	enum class RenderTestPage {
-		GeneralTest,
-		SpriteSheetTest,
+	struct RenderTestPage {
+		enum {
+			GeneralTest = 0,
+			SpriteSheetTest = 1,
+			Count,
+		};
 	};
 
 	class RenderTestScreen {
@@ -24,11 +27,12 @@ namespace engine {
 
 	private:
 		void _draw_general_render_test(Renderer* renderer, FontID debug_font_id, IVec2 screen_resolution) const;
+		void _draw_sprite_sheet_test(Renderer* renderer, FontID debug_font_id, IVec2 screen_resolution) const;
 
+		int m_page = RenderTestPage::GeneralTest;
 		ImageID m_clipping_image;
 		ImageID m_transparency_image;
 		uint8_t m_alpha = 255;
-		int32_t m_font_size = 16;
 	};
 
 } // namespace engine

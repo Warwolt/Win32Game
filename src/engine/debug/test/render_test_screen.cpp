@@ -4,30 +4,56 @@
 #include <engine/file/resource_manager.h>
 #include <engine/graphics/renderer.h>
 #include <engine/input/input.h>
+#include <engine/input/keyboard.h>
+
+#include <windows.h>
 
 #include <algorithm>
 #include <array>
+#include <format>
 
 namespace engine {
+
+	constexpr int FONT_SIZE = 16;
 
 	void RenderTestScreen::initialize(ResourceManager* resources) {
 		m_clipping_image = resources->load_image("assets/image/render_test/clipping.png").value_or(INVALID_IMAGE_ID);
 		m_transparency_image = resources->load_image("assets/image/render_test/transparency.png").value_or(INVALID_IMAGE_ID);
-		m_font_size = 16;
 	}
 
 	void RenderTestScreen::update(const InputDevices& input) {
-		m_alpha = (uint8_t)std::clamp((int16_t)m_alpha + 16 * input.mouse.mouse_wheel_delta, 0, 255);
+		/* Update alpha */
+		if (m_page == RenderTestPage::GeneralTest) {
+			m_alpha = (uint8_t)std::clamp((int16_t)m_alpha + 16 * input.mouse.mouse_wheel_delta, 0, 255);
+		}
+
+		/* Switch page */
+		if (input.keyboard.key_was_pressed_now(VK_RIGHT)) {
+			m_page = (RenderTestPage::Count + m_page + 1) % RenderTestPage::Count;
+		}
+		if (input.keyboard.key_was_pressed_now(VK_LEFT)) {
+			m_page = (RenderTestPage::Count + m_page - 1) % RenderTestPage::Count;
+		}
 	}
 
 	void RenderTestScreen::draw(Renderer* renderer, FontID debug_font_id, IVec2 screen_resolution) const {
 		CPUProfilingScope_Engine();
-		_draw_general_render_test(renderer, debug_font_id, screen_resolution);
+		const char* title = "unknown";
+		/* Render page */
+		if (m_page == RenderTestPage::GeneralTest) {
+			title = "general";
+			_draw_general_render_test(renderer, debug_font_id, screen_resolution);
+		}
+		if (m_page == RenderTestPage::SpriteSheetTest) {
+			title = "sprite sheet";
+			_draw_sprite_sheet_test(renderer, debug_font_id, screen_resolution);
+		}
+		/* Render page title */
+		renderer->draw_text(debug_font_id, FONT_SIZE, { 0, 0 }, RGBA::white(), std::format("page {}/{}: {}", (int)m_page + 1, (int)RenderTestPage::Count, title));
 	}
 
 	void RenderTestScreen::_draw_general_render_test(Renderer* renderer, FontID debug_font_id, IVec2 screen_resolution) const {
 		CPUProfilingScope_Engine();
-
 		enum class FillMode {
 			Outline,
 			Filled,
@@ -57,7 +83,7 @@ namespace engine {
 		auto get_pos = [grid_size, grid_spacing](Vec2 ndc_vec, IVec2 grid_pos) -> IVec2 {
 			IVec2 spacing_offset = grid_spacing * IVec2 { grid_pos.x, grid_pos.y + 1 };
 			IVec2 grid_offset = grid_size * grid_pos;
-			int y_offset = 24;
+			int y_offset = 36;
 			return spacing_offset + grid_offset +
 				IVec2::from_vec2(Vec2 {
 					.x = grid_size * (ndc_vec.x + 1.0f) / 2.0f,
@@ -76,13 +102,13 @@ namespace engine {
 		{
 			IVec2 pos {
 				.x = 0,
-				.y = m_font_size,
+				.y = FONT_SIZE + 16,
 			};
 			RGBA text_color = RGBA::white();
 			text_color.a = m_alpha;
 			RENDERER_LOG(renderer, "Draw text");
-			renderer->draw_text(debug_font_id, m_font_size, pos, text_color, "the quick brown fox jumps");
-			renderer->draw_text(debug_font_id, m_font_size, pos + IVec2 { 0, m_font_size }, text_color, "over the lazy dog");
+			renderer->draw_text(debug_font_id, FONT_SIZE, pos, text_color, "the quick brown fox jumps");
+			renderer->draw_text(debug_font_id, FONT_SIZE, pos + IVec2 { 0, FONT_SIZE }, text_color, "over the lazy dog");
 		}
 
 		/* Draw line */
@@ -343,6 +369,12 @@ namespace engine {
 			RGBA tint = { 255, 0, 0, m_alpha };
 			renderer->draw_image(m_transparency_image, pos, clip, 1.0f, tint);
 		}
+	}
+
+	void RenderTestScreen::_draw_sprite_sheet_test(Renderer* /*renderer*/, FontID /*debug_font_id*/, IVec2 /*screen_resolution*/) const {
+		// draw sprite sheet, highlight current sprite
+		// cycle through sprites in sheet
+		// cycle through sprites in sheet, scaled x2
 	}
 
 } // namespace engine
