@@ -11,7 +11,8 @@
 namespace engine {
 
 	void RenderTestScreen::initialize(ResourceManager* resources) {
-		m_render_test_image_id = resources->load_image("assets/image/render_test.png").value_or(INVALID_IMAGE_ID);
+		m_clipping_image = resources->load_image("assets/image/render_test/clipping.png").value_or(INVALID_IMAGE_ID);
+		m_transparency_image = resources->load_image("assets/image/render_test/transparency.png").value_or(INVALID_IMAGE_ID);
 		m_font_size = 16;
 	}
 
@@ -245,7 +246,7 @@ namespace engine {
 			grid_pos = next_grid_pos(grid_pos);
 			IVec2 pos = get_pos(Vec2 { -1.0, 1.0 }, grid_pos);
 			Rect clip = {};
-			renderer->draw_image(m_render_test_image_id, pos, clip, m_alpha / 255.0f);
+			renderer->draw_image(m_clipping_image, pos, clip, m_alpha / 255.0f);
 		}
 
 		// draw clipped top left
@@ -265,7 +266,7 @@ namespace engine {
 				.width = grid_size / 2,
 				.height = grid_size / 2,
 			};
-			renderer->draw_image_scaled(m_render_test_image_id, rect, clip, m_alpha / 255.0f);
+			renderer->draw_image_scaled(m_clipping_image, rect, clip, m_alpha / 255.0f);
 		}
 
 		// draw clipped centered
@@ -285,7 +286,7 @@ namespace engine {
 				.width = grid_size / 2,
 				.height = grid_size / 2,
 			};
-			renderer->draw_image_scaled(m_render_test_image_id, rect, clip, m_alpha / 255.0f);
+			renderer->draw_image_scaled(m_clipping_image, rect, clip, m_alpha / 255.0f);
 		}
 
 		// draw test image tinted
@@ -295,7 +296,7 @@ namespace engine {
 			IVec2 pos = get_pos(Vec2 { -1.0, 1.0 }, grid_pos);
 			Rect clip = {};
 			RGBA tint = { 255, 0, 0, m_alpha };
-			renderer->draw_image(m_render_test_image_id, pos, clip, 1.0f, tint);
+			renderer->draw_image(m_clipping_image, pos, clip, 1.0f, tint);
 		}
 
 		// draw clipped top left tinted
@@ -316,7 +317,16 @@ namespace engine {
 				.height = grid_size / 2,
 			};
 			RGBA tint = { 255, 0, 0, m_alpha };
-			renderer->draw_image_scaled(m_render_test_image_id, rect, clip, 1.0f, tint);
+			renderer->draw_image_scaled(m_clipping_image, rect, clip, 1.0f, tint);
+		}
+
+		// draw transparent image
+		{
+			RENDERER_LOG(renderer, "Draw transparent image");
+			grid_pos = next_grid_pos(grid_pos);
+			IVec2 pos = get_pos(Vec2 { -1.0, 1.0 }, grid_pos);
+			Rect clip = {};
+			renderer->draw_image(m_transparency_image, pos, clip, m_alpha / 255.0f);
 		}
 	}
 
