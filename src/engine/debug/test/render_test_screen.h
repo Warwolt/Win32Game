@@ -11,6 +11,11 @@ namespace engine {
 	class ResourceManager;
 	class Window;
 
+	enum class RenderTestPage {
+		GeneralTest,
+		SpriteSheetTest,
+	};
+
 	class RenderTestScreen {
 	public:
 		void initialize(ResourceManager* resources);
@@ -18,6 +23,8 @@ namespace engine {
 		void draw(Renderer* renderer, FontID debug_font_id, IVec2 screen_resolution) const;
 
 	private:
+		void _draw_general_render_test(Renderer* renderer, FontID debug_font_id, IVec2 screen_resolution) const;
+
 		ImageID m_clipping_image;
 		ImageID m_transparency_image;
 		uint8_t m_alpha = 255;

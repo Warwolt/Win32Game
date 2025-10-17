@@ -3,6 +3,7 @@
 #include <engine/audio/audio_player.h>
 #include <engine/commands.h>
 #include <engine/debug/debug.h>
+#include <engine/debug/debug_state.h>
 #include <engine/file/resource_manager.h>
 #include <engine/graphics/renderer.h>
 #include <engine/graphics/window.h>

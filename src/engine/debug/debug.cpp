@@ -1,5 +1,6 @@
 #include <engine/debug/assert.h>
 #include <engine/debug/debug.h>
+#include <engine/debug/debug_state.h>
 #include <engine/debug/logging.h>
 #include <engine/debug/profiling.h>
 #include <engine/file/resource_manager.h>

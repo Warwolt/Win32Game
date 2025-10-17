@@ -22,6 +22,11 @@ namespace engine {
 
 	void RenderTestScreen::draw(Renderer* renderer, FontID debug_font_id, IVec2 screen_resolution) const {
 		CPUProfilingScope_Engine();
+		_draw_general_render_test(renderer, debug_font_id, screen_resolution);
+	}
+
+	void RenderTestScreen::_draw_general_render_test(Renderer* renderer, FontID debug_font_id, IVec2 screen_resolution) const {
+		CPUProfilingScope_Engine();
 
 		enum class FillMode {
 			Outline,
