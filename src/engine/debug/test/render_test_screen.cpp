@@ -237,7 +237,7 @@ namespace engine {
 			};
 			Rect clip = {};
 			RGBA tint = { 255, 255, 255, m_alpha };
-			renderer->draw_image(ImageID(0), rect, clip, tint);
+			renderer->draw_image_scaled(ImageID(0), rect, clip, tint);
 		}
 
 		// draw test image
@@ -253,7 +253,7 @@ namespace engine {
 			};
 			Rect clip = {};
 			RGBA tint = { 255, 255, 255, m_alpha };
-			renderer->draw_image(m_render_test_image_id, rect, clip, tint);
+			renderer->draw_image_scaled(m_render_test_image_id, rect, clip, tint);
 		}
 
 		// draw test image tinted
@@ -269,7 +269,7 @@ namespace engine {
 			};
 			Rect clip = {};
 			RGBA tint = { 255, 0, 0, m_alpha };
-			renderer->draw_image(m_render_test_image_id, rect, clip, tint);
+			renderer->draw_image_scaled(m_render_test_image_id, rect, clip, tint);
 		}
 
 		// draw clipped top left
@@ -291,7 +291,7 @@ namespace engine {
 
 			};
 			RGBA tint = { 255, 255, 255, m_alpha };
-			renderer->draw_image(m_render_test_image_id, rect, clip, tint);
+			renderer->draw_image_scaled(m_render_test_image_id, rect, clip, tint);
 		}
 
 		// draw clipped centered
@@ -313,7 +313,7 @@ namespace engine {
 
 			};
 			RGBA tint = { 255, 255, 255, m_alpha };
-			renderer->draw_image(m_render_test_image_id, rect, clip, tint);
+			renderer->draw_image_scaled(m_render_test_image_id, rect, clip, tint);
 		}
 	}
 

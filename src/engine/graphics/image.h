@@ -2,6 +2,7 @@
 
 #include <engine/graphics/rgba.h>
 #include <engine/math/vec2.h>
+#include <engine/math/math.h>
 
 #include <filesystem>
 #include <optional>
@@ -16,6 +17,7 @@ namespace engine {
 
 		static std::optional<Image> from_path(std::filesystem::path path);
 		RGBA sample(Vec2 uv) const;
+		RGBA get(int x, int y) const;
 	};
 
 } // namespace engine

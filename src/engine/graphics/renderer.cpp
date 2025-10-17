@@ -1,11 +1,11 @@
 #include <engine/graphics/renderer.h>
 
 #include <engine/container/match_variant.h>
-#include <engine/debug/logging.h>
 #include <engine/debug/profiling.h>
 #include <engine/file/resource_manager.h>
 #include <engine/graphics/font.h>
 #include <engine/graphics/image.h>
+#include <engine/graphics/rect.h>
 #include <engine/math/math.h>
 
 #include <cmath>
@@ -122,7 +122,11 @@ namespace engine {
 		m_draw_data.push_back(DrawData { DrawTriangle { v1, v2, v3, true }, _take_current_tag() });
 	}
 
-	void Renderer::draw_image(ImageID image_id, Rect rect, Rect clip, RGBA tint) {
+	void Renderer::draw_image(ImageID image_id, IVec2 pos, Rect clip, RGBA tint) {
+		m_draw_data.push_back(DrawData { DrawImage { image_id, Rect { pos.x, pos.y }, clip, tint }, _take_current_tag() });
+	}
+
+	void Renderer::draw_image_scaled(ImageID image_id, Rect rect, Rect clip, RGBA tint) {
 		m_draw_data.push_back(DrawData { DrawImage { image_id, rect, clip, tint }, _take_current_tag() });
 	}
 
@@ -174,11 +178,11 @@ namespace engine {
 					}
 				}
 				MATCH_CASE(DrawImage, image_id, rect, clip, tint) {
-					if (!clip.empty()) {
-						_put_image_clipped(bitmap, resources->image(image_id), rect, clip, tint);
+					if (!rect.empty()) {
+						_put_image_scaled(bitmap, resources->image(image_id), rect, clip, tint);
 					}
 					else {
-						_put_image_full(bitmap, resources->image(image_id), rect, tint);
+						_put_image(bitmap, resources->image(image_id), rect.pos(), tint);
 					}
 				}
 				MATCH_CASE(DrawText, font_id, font_size, pos, color, text) {
@@ -376,11 +380,10 @@ namespace engine {
 		}
 	}
 
-	void Renderer::_put_image_clipped(Bitmap* bitmap, const Image& image, Rect rect, Rect clip, RGBA tint) {
+	void Renderer::_put_image_scaled(Bitmap* bitmap, const Image& image, Rect rect, Rect clip, RGBA tint) {
 		CPUProfilingScope_Render();
 		/* UV coordinates */
 		if (clip.empty()) {
-			// LOG_WARNING("Renderer::_put_image called with empty clip rect!");
 			clip.width = rect.width;
 			clip.height = rect.height;
 		}
@@ -417,16 +420,13 @@ namespace engine {
 		}
 	}
 
-	void Renderer::_put_image_full(Bitmap* bitmap, const Image& image, Rect rect, RGBA tint) {
+	void Renderer::_put_image(Bitmap* bitmap, const Image& image, IVec2 pos, RGBA tint) {
 		CPUProfilingScope_Render();
-		for (int32_t y_offset = 0; y_offset < rect.height; y_offset++) {
-			for (int32_t x_offset = 0; x_offset < rect.width; x_offset++) {
-				Vec2 uv = {
-					x_offset / (float)(rect.width),
-					1.0f - y_offset / (float)(rect.height),
-				};
-				RGBA color = image.sample(uv) * tint;
-				bitmap->put(rect.x + x_offset, rect.y + y_offset, Pixel::from_rgb(color), tint.a / 255.0f);
+		for (int32_t y_offset = 0; y_offset < image.height; y_offset++) {
+			for (int32_t x_offset = 0; x_offset < image.width; x_offset++) {
+				RGBA color = image.get(x_offset, y_offset) * tint;
+				// bitmap->put(pos.x + x_offset, pos.y + y_offset, Pixel::from_rgb(color), tint.a / 255.0f);
+				bitmap->put(pos.x + x_offset, pos.y + y_offset, Pixel::from_rgb(color), color.a);
 			}
 		}
 	}
