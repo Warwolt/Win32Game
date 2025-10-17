@@ -122,12 +122,12 @@ namespace engine {
 		m_draw_data.push_back(DrawData { DrawTriangle { v1, v2, v3, true }, _take_current_tag() });
 	}
 
-	void Renderer::draw_image(ImageID image_id, IVec2 pos, Rect clip, RGBA tint) {
-		m_draw_data.push_back(DrawData { DrawImage { image_id, Rect { pos.x, pos.y }, clip, tint }, _take_current_tag() });
+	void Renderer::draw_image(ImageID image_id, IVec2 pos, Rect clip, float alpha, RGBA tint) {
+		m_draw_data.push_back(DrawData { DrawImage { image_id, Rect { pos.x, pos.y }, clip, alpha, tint }, _take_current_tag() });
 	}
 
-	void Renderer::draw_image_scaled(ImageID image_id, Rect rect, Rect clip, RGBA tint) {
-		m_draw_data.push_back(DrawData { DrawImage { image_id, rect, clip, tint }, _take_current_tag() });
+	void Renderer::draw_image_scaled(ImageID image_id, Rect rect, Rect clip, float alpha, RGBA tint) {
+		m_draw_data.push_back(DrawData { DrawImage { image_id, rect, clip, alpha, tint }, _take_current_tag() });
 	}
 
 	void Renderer::draw_text(FontID font_id, int32_t font_size, IVec2 pos, RGBA color, std::string text) {
@@ -177,12 +177,12 @@ namespace engine {
 						_put_triangle(bitmap, v1, v2, v3);
 					}
 				}
-				MATCH_CASE(DrawImage, image_id, rect, clip, tint) {
+				MATCH_CASE(DrawImage, image_id, rect, clip, alpha, tint) {
 					if (!rect.empty()) {
-						_put_image_scaled(bitmap, resources->image(image_id), rect, clip, tint);
+						_put_image_scaled(bitmap, resources->image(image_id), rect, clip, alpha, tint);
 					}
 					else {
-						_put_image(bitmap, resources->image(image_id), rect.pos(), tint);
+						_put_image(bitmap, resources->image(image_id), rect.pos(), alpha, tint);
 					}
 				}
 				MATCH_CASE(DrawText, font_id, font_size, pos, color, text) {
@@ -380,7 +380,7 @@ namespace engine {
 		}
 	}
 
-	void Renderer::_put_image_scaled(Bitmap* bitmap, const Image& image, Rect rect, Rect clip, RGBA tint) {
+	void Renderer::_put_image_scaled(Bitmap* bitmap, const Image& image, Rect rect, Rect clip, float alpha, RGBA tint) {
 		CPUProfilingScope_Render();
 		/* UV coordinates */
 		if (clip.empty()) {
@@ -402,7 +402,7 @@ namespace engine {
 		for (int32_t y = 0; y < rect.height; y++) {
 			Vertex left = {
 				.pos = { rect.x, rect.y + y },
-				.color = tint,
+				.color = { 255, 255, 255, (uint8_t)(255 * alpha) },
 				.uv = {
 					uv0.x,
 					engine::lerp(uv0.y, uv1.y, 1.0f - ((float)y / (float)rect.height)),
@@ -410,7 +410,7 @@ namespace engine {
 			};
 			Vertex right = {
 				.pos = { rect.x + rect.width - 1, rect.y + y },
-				.color = tint,
+				.color = { 255, 255, 255, (uint8_t)(255 * alpha) },
 				.uv = {
 					uv1.x,
 					engine::lerp(uv0.y, uv1.y, 1.0f - ((float)y / (float)rect.height)),
@@ -420,12 +420,12 @@ namespace engine {
 		}
 	}
 
-	void Renderer::_put_image(Bitmap* bitmap, const Image& image, IVec2 pos, RGBA tint) {
+	void Renderer::_put_image(Bitmap* bitmap, const Image& image, IVec2 pos, float alpha, RGBA tint) {
 		CPUProfilingScope_Render();
 		for (int32_t y_offset = 0; y_offset < image.height; y_offset++) {
 			for (int32_t x_offset = 0; x_offset < image.width; x_offset++) {
 				RGBA color = image.get(x_offset, y_offset) * tint;
-				bitmap->put(pos.x + x_offset, pos.y + y_offset, Pixel::from_rgb(color), tint.a / 255.0f);
+				bitmap->put(pos.x + x_offset, pos.y + y_offset, Pixel::from_rgb(color), alpha);
 			}
 		}
 	}

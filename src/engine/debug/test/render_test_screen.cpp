@@ -236,8 +236,7 @@ namespace engine {
 				.height = grid_size,
 			};
 			Rect clip = {};
-			RGBA tint = { 255, 255, 255, m_alpha };
-			renderer->draw_image_scaled(ImageID(0), rect, clip, tint);
+			renderer->draw_image_scaled(ImageID(0), rect, clip, m_alpha / 255.0f);
 		}
 
 		// draw test image
@@ -246,19 +245,19 @@ namespace engine {
 			grid_pos = next_grid_pos(grid_pos);
 			IVec2 pos = get_pos(Vec2 { -1.0, 1.0 }, grid_pos);
 			Rect clip = {};
-			RGBA tint = { 255, 255, 255, m_alpha };
-			renderer->draw_image(m_render_test_image_id, pos, clip, tint);
+			renderer->draw_image(m_render_test_image_id, pos, clip, m_alpha / 255.0f);
 		}
 
-		// draw test image tinted
-		{
-			RENDERER_LOG(renderer, "Draw test image (full image tinted red)");
-			grid_pos = next_grid_pos(grid_pos);
-			IVec2 pos = get_pos(Vec2 { -1.0, 1.0 }, grid_pos);
-			Rect clip = {};
-			RGBA tint = { 255, 0, 0, m_alpha };
-			renderer->draw_image(m_render_test_image_id, pos, clip, tint);
-		}
+		// // draw test image tinted
+		// FIXME: sort out tinting API stuff after we've done opacity
+		// {
+		// 	RENDERER_LOG(renderer, "Draw test image (full image tinted red)");
+		// 	grid_pos = next_grid_pos(grid_pos);
+		// 	IVec2 pos = get_pos(Vec2 { -1.0, 1.0 }, grid_pos);
+		// 	Rect clip = {};
+		// 	RGBA tint = { 255, 0, 0, m_alpha };
+		// 	renderer->draw_image(m_render_test_image_id, pos, clip, tint);
+		// }
 
 		// draw clipped top left
 		{
@@ -278,8 +277,7 @@ namespace engine {
 				.height = grid_size / 2,
 
 			};
-			RGBA tint = { 255, 255, 255, m_alpha };
-			renderer->draw_image_scaled(m_render_test_image_id, rect, clip, tint);
+			renderer->draw_image_scaled(m_render_test_image_id, rect, clip, m_alpha / 255.0f);
 		}
 
 		// draw clipped centered
@@ -298,10 +296,8 @@ namespace engine {
 				.y = grid_size / 4,
 				.width = grid_size / 2,
 				.height = grid_size / 2,
-
 			};
-			RGBA tint = { 255, 255, 255, m_alpha };
-			renderer->draw_image_scaled(m_render_test_image_id, rect, clip, tint);
+			renderer->draw_image_scaled(m_render_test_image_id, rect, clip, m_alpha / 255.0f);
 		}
 	}
 
