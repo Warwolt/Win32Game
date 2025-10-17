@@ -425,8 +425,7 @@ namespace engine {
 		for (int32_t y_offset = 0; y_offset < image.height; y_offset++) {
 			for (int32_t x_offset = 0; x_offset < image.width; x_offset++) {
 				RGBA color = image.get(x_offset, y_offset) * tint;
-				// bitmap->put(pos.x + x_offset, pos.y + y_offset, Pixel::from_rgb(color), tint.a / 255.0f);
-				bitmap->put(pos.x + x_offset, pos.y + y_offset, Pixel::from_rgb(color), color.a);
+				bitmap->put(pos.x + x_offset, pos.y + y_offset, Pixel::from_rgb(color), tint.a / 255.0f);
 			}
 		}
 	}

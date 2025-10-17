@@ -45,6 +45,7 @@ namespace engine {
 		void draw_circle_fill(IVec2 center, int32_t radius, RGBA color);
 		void draw_triangle(Vertex v1, Vertex v2, Vertex v3);
 		void draw_triangle_fill(Vertex v1, Vertex v2, Vertex v3);
+		// FIXME: the alpha of `tint` should be the tint amount, we need a separate opacity parameter
 		void draw_image(ImageID image_id, IVec2 pos, Rect clip = {}, RGBA tint = RGBA::white());
 		void draw_image_scaled(ImageID image_id, Rect rect, Rect clip = {}, RGBA tint = RGBA::white());
 		void draw_text(FontID font_id, int32_t font_size, IVec2 pos, RGBA color, std::string text);

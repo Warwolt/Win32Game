@@ -245,15 +245,9 @@ namespace engine {
 			RENDERER_LOG(renderer, "Draw test image (full image)");
 			grid_pos = next_grid_pos(grid_pos);
 			IVec2 pos = get_pos(Vec2 { -1.0, 1.0 }, grid_pos);
-			Rect rect = {
-				.x = pos.x,
-				.y = pos.y,
-				.width = grid_size,
-				.height = grid_size,
-			};
 			Rect clip = {};
 			RGBA tint = { 255, 255, 255, m_alpha };
-			renderer->draw_image_scaled(m_render_test_image_id, rect, clip, tint);
+			renderer->draw_image(m_render_test_image_id, pos, clip, tint);
 		}
 
 		// draw test image tinted
@@ -261,15 +255,9 @@ namespace engine {
 			RENDERER_LOG(renderer, "Draw test image (full image tinted red)");
 			grid_pos = next_grid_pos(grid_pos);
 			IVec2 pos = get_pos(Vec2 { -1.0, 1.0 }, grid_pos);
-			Rect rect = {
-				.x = pos.x,
-				.y = pos.y,
-				.width = grid_size,
-				.height = grid_size,
-			};
 			Rect clip = {};
 			RGBA tint = { 255, 0, 0, m_alpha };
-			renderer->draw_image_scaled(m_render_test_image_id, rect, clip, tint);
+			renderer->draw_image(m_render_test_image_id, pos, clip, tint);
 		}
 
 		// draw clipped top left
