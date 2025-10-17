@@ -248,17 +248,6 @@ namespace engine {
 			renderer->draw_image(m_render_test_image_id, pos, clip, m_alpha / 255.0f);
 		}
 
-		// // draw test image tinted
-		// FIXME: sort out tinting API stuff after we've done opacity
-		// {
-		// 	RENDERER_LOG(renderer, "Draw test image (full image tinted red)");
-		// 	grid_pos = next_grid_pos(grid_pos);
-		// 	IVec2 pos = get_pos(Vec2 { -1.0, 1.0 }, grid_pos);
-		// 	Rect clip = {};
-		// 	RGBA tint = { 255, 0, 0, m_alpha };
-		// 	renderer->draw_image(m_render_test_image_id, pos, clip, tint);
-		// }
-
 		// draw clipped top left
 		{
 			RENDERER_LOG(renderer, "Draw test image (clipped top left)");
@@ -275,7 +264,6 @@ namespace engine {
 				.y = grid_size / 2,
 				.width = grid_size / 2,
 				.height = grid_size / 2,
-
 			};
 			renderer->draw_image_scaled(m_render_test_image_id, rect, clip, m_alpha / 255.0f);
 		}
@@ -298,6 +286,37 @@ namespace engine {
 				.height = grid_size / 2,
 			};
 			renderer->draw_image_scaled(m_render_test_image_id, rect, clip, m_alpha / 255.0f);
+		}
+
+		// draw test image tinted
+		{
+			RENDERER_LOG(renderer, "Draw test image (full image tinted red)");
+			grid_pos = next_grid_pos(grid_pos);
+			IVec2 pos = get_pos(Vec2 { -1.0, 1.0 }, grid_pos);
+			Rect clip = {};
+			RGBA tint = { 255, 0, 0, m_alpha };
+			renderer->draw_image(m_render_test_image_id, pos, clip, 1.0f, tint);
+		}
+
+		// draw clipped top left tinted
+		{
+			RENDERER_LOG(renderer, "Draw test image (clipped top left tinted red)");
+			grid_pos = next_grid_pos(grid_pos);
+			IVec2 pos = get_pos(Vec2 { -1.0, 1.0 }, grid_pos);
+			Rect rect = {
+				.x = pos.x,
+				.y = pos.y,
+				.width = grid_size,
+				.height = grid_size,
+			};
+			Rect clip = {
+				.x = 0,
+				.y = grid_size / 2,
+				.width = grid_size / 2,
+				.height = grid_size / 2,
+			};
+			RGBA tint = { 255, 0, 0, m_alpha };
+			renderer->draw_image_scaled(m_render_test_image_id, rect, clip, 1.0f, tint);
 		}
 	}
 

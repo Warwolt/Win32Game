@@ -399,10 +399,12 @@ namespace engine {
 		};
 
 		/* Draw image line by line */
+		RGBA color = tint;
+		color.a = (uint8_t)(255.0f * alpha);
 		for (int32_t y = 0; y < rect.height; y++) {
 			Vertex left = {
 				.pos = { rect.x, rect.y + y },
-				.color = { 255, 255, 255, (uint8_t)(255 * alpha) },
+				.color = color,
 				.uv = {
 					uv0.x,
 					engine::lerp(uv0.y, uv1.y, 1.0f - ((float)y / (float)rect.height)),
@@ -410,7 +412,7 @@ namespace engine {
 			};
 			Vertex right = {
 				.pos = { rect.x + rect.width - 1, rect.y + y },
-				.color = { 255, 255, 255, (uint8_t)(255 * alpha) },
+				.color = color,
 				.uv = {
 					uv1.x,
 					engine::lerp(uv0.y, uv1.y, 1.0f - ((float)y / (float)rect.height)),
