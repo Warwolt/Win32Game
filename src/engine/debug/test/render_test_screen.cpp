@@ -328,6 +328,16 @@ namespace engine {
 			Rect clip = {};
 			renderer->draw_image(m_transparency_image, pos, clip, m_alpha / 255.0f);
 		}
+
+		// draw tinted transparent image
+		{
+			RENDERER_LOG(renderer, "Draw transparent image (tinted red)");
+			grid_pos = next_grid_pos(grid_pos);
+			IVec2 pos = get_pos(Vec2 { -1.0, 1.0 }, grid_pos);
+			Rect clip = {};
+			RGBA tint = { 255, 0, 0, m_alpha };
+			renderer->draw_image(m_transparency_image, pos, clip, 1.0f, tint);
+		}
 	}
 
 } // namespace engine
