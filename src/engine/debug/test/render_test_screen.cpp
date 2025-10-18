@@ -83,7 +83,7 @@ namespace engine {
 		auto get_pos = [grid_size, grid_spacing](Vec2 ndc_vec, IVec2 grid_pos) -> IVec2 {
 			IVec2 spacing_offset = grid_spacing * IVec2 { grid_pos.x, grid_pos.y + 1 };
 			IVec2 grid_offset = grid_size * grid_pos;
-			int y_offset = 36;
+			int y_offset = 64;
 			return spacing_offset + grid_offset +
 				IVec2::from_vec2(Vec2 {
 					.x = grid_size * (ndc_vec.x + 1.0f) / 2.0f,
@@ -107,8 +107,8 @@ namespace engine {
 			RGBA text_color = RGBA::white();
 			text_color.a = m_alpha;
 			RENDERER_LOG(renderer, "Draw text");
-			renderer->draw_text(debug_font_id, FONT_SIZE, pos, text_color, "the quick brown fox jumps");
-			renderer->draw_text(debug_font_id, FONT_SIZE, pos + IVec2 { 0, FONT_SIZE }, text_color, "over the lazy dog");
+			renderer->draw_text(debug_font_id, FONT_SIZE, pos, text_color, "the quick brown fox jumps over the lazy dog");
+			renderer->draw_text(debug_font_id, FONT_SIZE, pos + IVec2 { 0, FONT_SIZE }, text_color, "sphinx of black quartz, judge my vow!");
 		}
 
 		/* Draw line */
