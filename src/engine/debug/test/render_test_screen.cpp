@@ -8,6 +8,7 @@
 
 #include <windows.h>
 
+#include "render_test_screen.h"
 #include <algorithm>
 #include <array>
 #include <format>
@@ -51,8 +52,6 @@ namespace engine {
 	void RenderTestScreen::update(const InputDevices& input) {
 		/* Update current page */
 		if (m_page == RenderTestPage::GeneralTest) {
-			/* Update alpha */
-			m_alpha = (uint8_t)std::clamp((int16_t)m_alpha + 16 * input.mouse.mouse_wheel_delta, 0, 255);
 		}
 		if (m_page == RenderTestPage::SpriteSheetTest) {
 			/* Animate */
@@ -77,7 +76,7 @@ namespace engine {
 		/* Render page */
 		if (m_page == RenderTestPage::GeneralTest) {
 			title = "geometry";
-			_draw_general_render_test(renderer, screen_resolution);
+			m_geometry_test_page.draw(renderer, screen_resolution);
 		}
 		if (m_page == RenderTestPage::SpriteSheetTest) {
 			title = "sprite sheet";
@@ -87,7 +86,62 @@ namespace engine {
 		renderer->draw_text(DEFAULT_FONT_ID, FONT_SIZE, { 0, 0 }, RGBA::white(), std::format("page {}/{}: {}", (int)m_page + 1, (int)RenderTestPage::Count, title));
 	}
 
-	void RenderTestScreen::_draw_general_render_test(Renderer* renderer, IVec2 screen_resolution) const {
+	void RenderTestScreen::_draw_sprite_sheet_test(Renderer* renderer) const {
+		const IVec2 sprite_sheet_pos = { 0, 48 };
+		const int32_t sprite_width = 16;
+		const int32_t sprite_height = 16;
+		const Rect sprite_clip_rect = Rect {
+			.x = m_animation_frames[m_animation_index].index * sprite_width,
+			.y = 0,
+			.width = sprite_width,
+			.height = sprite_height,
+		};
+		const bool is_flipped = m_animation_frames[m_animation_index].flipped;
+
+		/* Draw sprite sheet */
+		RENDERER_LOG(renderer, "Draw sprite sheet");
+		renderer->draw_image(m_sprite_sheet, sprite_sheet_pos);
+		renderer->draw_rect(sprite_clip_rect + sprite_sheet_pos, RGBA::green());
+
+		/* Draw sprite */
+		RENDERER_LOG(renderer, "Draw sprite");
+		const IVec2 sprite_pos = sprite_sheet_pos + IVec2 { 0, sprite_height };
+		renderer->draw_image(m_sprite_sheet, sprite_pos, sprite_clip_rect, { .flip_h = is_flipped });
+
+		/* Draw sprite sheet scaled */
+		RENDERER_LOG(renderer, "Draw sprite sheet (scaled up)");
+		const int scale = 2;
+		const Rect scaled_sprite_sheet_rect = {
+			.x = sprite_sheet_pos.x,
+			.y = sprite_sheet_pos.y + 64,
+			.width = (int32_t)(m_sprite_sheet_size.width * scale),
+			.height = (int32_t)(m_sprite_sheet_size.height * scale),
+		};
+		const Rect scaled_sprite_clip_rect = Rect {
+			.x = m_animation_frames[m_animation_index].index * scale * sprite_width,
+			.y = 0,
+			.width = scale * sprite_width,
+			.height = scale * sprite_height,
+		};
+		renderer->draw_image_scaled(m_sprite_sheet, scaled_sprite_sheet_rect);
+		renderer->draw_rect(scaled_sprite_clip_rect + scaled_sprite_sheet_rect.pos(), RGBA::green());
+
+		/* Draw scaled sprite */
+		RENDERER_LOG(renderer, "Draw sprite (scaled up)");
+		const Rect scaled_sprite_rect = Rect {
+			.x = 0,
+			.y = scaled_sprite_sheet_rect.y + scale * sprite_height,
+			.width = scale * sprite_width,
+			.height = scale * sprite_height,
+		};
+		renderer->draw_image_scaled(m_sprite_sheet, scaled_sprite_rect, sprite_clip_rect, { .flip_h = is_flipped });
+	}
+
+	void GeometryTestPage::update(const InputDevices& input) {
+		m_alpha = (uint8_t)std::clamp(m_alpha + 16 * input.mouse.mouse_wheel_delta, 0, 255);
+	}
+
+	void GeometryTestPage::draw(Renderer* renderer, IVec2 screen_resolution) const {
 		CPUProfilingScope_Engine();
 		enum class FillMode {
 			Outline,
@@ -131,7 +185,6 @@ namespace engine {
 		};
 
 		/* Draw line */
-#pragma region draw line
 		for (ColorMode color_mode : color_modes) {
 			// horizontal
 			{
@@ -189,7 +242,6 @@ namespace engine {
 		}
 
 		/* Draw rect */
-#pragma region draw rect
 		// rect
 		for (FillMode mode : fill_modes) {
 			RENDERER_LOG(renderer, std::format("Draw rect ({})", mode == FillMode::Outline ? "Outline" : "Filled"));
@@ -206,7 +258,6 @@ namespace engine {
 		}
 
 		/* Draw circle */
-#pragma region draw circle
 		// circle
 		for (FillMode mode : fill_modes) {
 			RENDERER_LOG(renderer, std::format("Draw circle ({})", mode == FillMode::Outline ? "Outline" : "Filled"));
@@ -217,7 +268,6 @@ namespace engine {
 		}
 
 		/* Draw triangle */
-#pragma region draw triangle
 		// isoceles triangle pointing up
 		for (ColorMode color_mode : color_modes) {
 			for (FillMode mode : fill_modes) {
@@ -256,57 +306,6 @@ namespace engine {
 				if (mode == FillMode::Filled) renderer->draw_triangle_fill(left, top, right);
 			}
 		}
-	}
-
-	void RenderTestScreen::_draw_sprite_sheet_test(Renderer* renderer) const {
-		const IVec2 sprite_sheet_pos = { 0, 48 };
-		const int32_t sprite_width = 16;
-		const int32_t sprite_height = 16;
-		const Rect sprite_clip_rect = Rect {
-			.x = m_animation_frames[m_animation_index].index * sprite_width,
-			.y = 0,
-			.width = sprite_width,
-			.height = sprite_height,
-		};
-		const bool is_flipped = m_animation_frames[m_animation_index].flipped;
-
-		/* Draw sprite sheet */
-		RENDERER_LOG(renderer, "Draw sprite sheet");
-		renderer->draw_image(m_sprite_sheet, sprite_sheet_pos);
-		renderer->draw_rect(sprite_clip_rect + sprite_sheet_pos, RGBA::green());
-
-		/* Draw sprite */
-		RENDERER_LOG(renderer, "Draw sprite");
-		const IVec2 sprite_pos = sprite_sheet_pos + IVec2 { 0, sprite_height };
-		renderer->draw_image(m_sprite_sheet, sprite_pos, sprite_clip_rect, { .flip_h = is_flipped });
-
-		/* Draw sprite sheet scaled */
-		RENDERER_LOG(renderer, "Draw sprite sheet (scaled up)");
-		const int scale = 2;
-		const Rect scaled_sprite_sheet_rect = {
-			.x = sprite_sheet_pos.x,
-			.y = sprite_sheet_pos.y + 64,
-			.width = (int32_t)(m_sprite_sheet_size.width * scale),
-			.height = (int32_t)(m_sprite_sheet_size.height * scale),
-		};
-		const Rect scaled_sprite_clip_rect = Rect {
-			.x = m_animation_frames[m_animation_index].index * scale * sprite_width,
-			.y = 0,
-			.width = scale * sprite_width,
-			.height = scale * sprite_height,
-		};
-		renderer->draw_image_scaled(m_sprite_sheet, scaled_sprite_sheet_rect);
-		renderer->draw_rect(scaled_sprite_clip_rect + scaled_sprite_sheet_rect.pos(), RGBA::green());
-
-		/* Draw scaled sprite */
-		RENDERER_LOG(renderer, "Draw sprite (scaled up)");
-		const Rect scaled_sprite_rect = Rect {
-			.x = 0,
-			.y = scaled_sprite_sheet_rect.y + scale * sprite_height,
-			.width = scale * sprite_width,
-			.height = scale * sprite_height,
-		};
-		renderer->draw_image_scaled(m_sprite_sheet, scaled_sprite_rect, sprite_clip_rect, { .flip_h = is_flipped });
 	}
 
 } // namespace engine

@@ -15,6 +15,15 @@ namespace engine {
 	class ResourceManager;
 	class Window;
 
+	class GeometryTestPage {
+	public:
+		void update(const InputDevices& input);
+		void draw(Renderer* renderer, IVec2 screen_resolution) const;
+
+	private:
+		uint8_t m_alpha = 255;
+	};
+
 	struct RenderTestPage {
 		enum {
 			GeneralTest = 0,
@@ -30,7 +39,6 @@ namespace engine {
 		void draw(Renderer* renderer, IVec2 screen_resolution) const;
 
 	private:
-		void _draw_general_render_test(Renderer* renderer, IVec2 screen_resolution) const;
 		void _draw_sprite_sheet_test(Renderer* renderer) const;
 
 		struct AnimationFrame {
@@ -39,6 +47,9 @@ namespace engine {
 		};
 
 		int m_page = RenderTestPage::GeneralTest;
+		// FIXME: replace these members with a single PIMPL to a struct?
+		GeometryTestPage m_geometry_test_page;
+
 		ImageID m_clipping_image;
 		ImageID m_transparency_image;
 		ImageID m_sprite_sheet;
@@ -46,7 +57,6 @@ namespace engine {
 		Rect m_sprite_sheet_size;
 		std::vector<AnimationFrame> m_animation_frames;
 		Time m_last_sprite_sheet_frame;
-		uint8_t m_alpha = 255;
 	};
 
 } // namespace engine
