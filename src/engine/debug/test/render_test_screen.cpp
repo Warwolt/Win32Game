@@ -4,24 +4,91 @@
 #include <engine/file/resource_manager.h>
 #include <engine/graphics/renderer.h>
 #include <engine/input/input.h>
+#include <engine/input/keyboard.h>
+
+#include <windows.h>
 
 #include <algorithm>
 #include <array>
+#include <format>
 
 namespace engine {
 
+	constexpr int FONT_SIZE = 16;
+
 	void RenderTestScreen::initialize(ResourceManager* resources) {
-		m_render_test_image_id = resources->load_image("assets/image/render_test.png").value_or(INVALID_IMAGE_ID);
-		m_font_size = 16;
+		m_clipping_image = resources->load_image("assets/image/render_test/clipping.png");
+		m_transparency_image = resources->load_image("assets/image/render_test/transparency.png");
+		m_sprite_sheet = resources->load_image("assets/image/render_test/sprite_sheet.png");
+
+		const Image& sprite_sheet = resources->image(m_sprite_sheet);
+		m_sprite_sheet_size.width = sprite_sheet.width;
+		m_sprite_sheet_size.height = sprite_sheet.height;
+
+		m_animation_frames = {
+			{ 0, false },
+			{ 1, false },
+			{ 0, false },
+			{ 1, false },
+
+			{ 3, false },
+			{ 2, false },
+			{ 3, false },
+			{ 2, false },
+
+			{ 4, false },
+			{ 5, false },
+			{ 4, false },
+			{ 5, false },
+
+			{ 3, true },
+			{ 2, true },
+			{ 3, true },
+			{ 2, true },
+		};
 	}
 
 	void RenderTestScreen::update(const InputDevices& input) {
-		m_alpha = (uint8_t)std::clamp((int16_t)m_alpha + 16 * input.mouse.mouse_wheel_delta, 0, 255);
+		/* Update current page */
+		if (m_page == RenderTestPage::GeneralTest) {
+			/* Update alpha */
+			m_alpha = (uint8_t)std::clamp((int16_t)m_alpha + 16 * input.mouse.mouse_wheel_delta, 0, 255);
+		}
+		if (m_page == RenderTestPage::SpriteSheetTest) {
+			/* Animate */
+			if ((input.time_now - m_last_sprite_sheet_frame).in_milliseconds() >= 430) {
+				m_last_sprite_sheet_frame = input.time_now;
+				m_animation_index = (m_animation_index + 1) % m_animation_frames.size();
+			}
+		}
+
+		/* Switch page */
+		if (input.keyboard.key_was_pressed_now(VK_RIGHT)) {
+			m_page = (RenderTestPage::Count + m_page + 1) % RenderTestPage::Count;
+		}
+		if (input.keyboard.key_was_pressed_now(VK_LEFT)) {
+			m_page = (RenderTestPage::Count + m_page - 1) % RenderTestPage::Count;
+		}
 	}
 
-	void RenderTestScreen::draw(Renderer* renderer, FontID debug_font_id, IVec2 screen_resolution) const {
+	void RenderTestScreen::draw(Renderer* renderer, IVec2 screen_resolution) const {
 		CPUProfilingScope_Engine();
+		const char* title = "unknown";
+		/* Render page */
+		if (m_page == RenderTestPage::GeneralTest) {
+			title = "general";
+			_draw_general_render_test(renderer, screen_resolution);
+		}
+		if (m_page == RenderTestPage::SpriteSheetTest) {
+			title = "sprite sheet";
+			_draw_sprite_sheet_test(renderer);
+		}
+		/* Render page title */
+		renderer->draw_text(DEFAULT_FONT_ID, FONT_SIZE, { 0, 0 }, RGBA::white(), std::format("page {}/{}: {}", (int)m_page + 1, (int)RenderTestPage::Count, title));
+	}
 
+	void RenderTestScreen::_draw_general_render_test(Renderer* renderer, IVec2 screen_resolution) const {
+		CPUProfilingScope_Engine();
 		enum class FillMode {
 			Outline,
 			Filled,
@@ -51,7 +118,7 @@ namespace engine {
 		auto get_pos = [grid_size, grid_spacing](Vec2 ndc_vec, IVec2 grid_pos) -> IVec2 {
 			IVec2 spacing_offset = grid_spacing * IVec2 { grid_pos.x, grid_pos.y + 1 };
 			IVec2 grid_offset = grid_size * grid_pos;
-			int y_offset = 24;
+			int y_offset = 64;
 			return spacing_offset + grid_offset +
 				IVec2::from_vec2(Vec2 {
 					.x = grid_size * (ndc_vec.x + 1.0f) / 2.0f,
@@ -70,13 +137,13 @@ namespace engine {
 		{
 			IVec2 pos {
 				.x = 0,
-				.y = m_font_size,
+				.y = FONT_SIZE + 16,
 			};
 			RGBA text_color = RGBA::white();
 			text_color.a = m_alpha;
 			RENDERER_LOG(renderer, "Draw text");
-			renderer->draw_text(debug_font_id, m_font_size, pos, text_color, "the quick brown fox jumps");
-			renderer->draw_text(debug_font_id, m_font_size, pos + IVec2 { 0, m_font_size }, text_color, "over the lazy dog");
+			renderer->draw_text(DEFAULT_FONT_ID, FONT_SIZE, pos, text_color, "the quick brown fox jumps over the lazy dog");
+			renderer->draw_text(DEFAULT_FONT_ID, FONT_SIZE, pos + IVec2 { 0, FONT_SIZE }, text_color, "sphinx of black quartz, judge my vow!");
 		}
 
 		/* Draw line */
@@ -236,8 +303,7 @@ namespace engine {
 				.height = grid_size,
 			};
 			Rect clip = {};
-			RGBA tint = { 255, 255, 255, m_alpha };
-			renderer->draw_image(ImageID(0), rect, clip, tint);
+			renderer->draw_image_scaled(ImageID(0), rect, clip, { .alpha = m_alpha / 255.0f });
 		}
 
 		// draw test image
@@ -245,31 +311,8 @@ namespace engine {
 			RENDERER_LOG(renderer, "Draw test image (full image)");
 			grid_pos = next_grid_pos(grid_pos);
 			IVec2 pos = get_pos(Vec2 { -1.0, 1.0 }, grid_pos);
-			Rect rect = {
-				.x = pos.x,
-				.y = pos.y,
-				.width = grid_size,
-				.height = grid_size,
-			};
 			Rect clip = {};
-			RGBA tint = { 255, 255, 255, m_alpha };
-			renderer->draw_image(m_render_test_image_id, rect, clip, tint);
-		}
-
-		// draw test image tinted
-		{
-			RENDERER_LOG(renderer, "Draw test image (full image tinted red)");
-			grid_pos = next_grid_pos(grid_pos);
-			IVec2 pos = get_pos(Vec2 { -1.0, 1.0 }, grid_pos);
-			Rect rect = {
-				.x = pos.x,
-				.y = pos.y,
-				.width = grid_size,
-				.height = grid_size,
-			};
-			Rect clip = {};
-			RGBA tint = { 255, 0, 0, m_alpha };
-			renderer->draw_image(m_render_test_image_id, rect, clip, tint);
+			renderer->draw_image(m_clipping_image, pos, clip, { .alpha = m_alpha / 255.0f });
 		}
 
 		// draw clipped top left
@@ -288,10 +331,8 @@ namespace engine {
 				.y = grid_size / 2,
 				.width = grid_size / 2,
 				.height = grid_size / 2,
-
 			};
-			RGBA tint = { 255, 255, 255, m_alpha };
-			renderer->draw_image(m_render_test_image_id, rect, clip, tint);
+			renderer->draw_image_scaled(m_clipping_image, rect, clip, { .alpha = m_alpha / 255.0f });
 		}
 
 		// draw clipped centered
@@ -310,11 +351,110 @@ namespace engine {
 				.y = grid_size / 4,
 				.width = grid_size / 2,
 				.height = grid_size / 2,
-
 			};
-			RGBA tint = { 255, 255, 255, m_alpha };
-			renderer->draw_image(m_render_test_image_id, rect, clip, tint);
+			renderer->draw_image_scaled(m_clipping_image, rect, clip, { .alpha = m_alpha / 255.0f });
 		}
+
+		// draw test image tinted
+		{
+			RENDERER_LOG(renderer, "Draw test image (full image tinted red)");
+			grid_pos = next_grid_pos(grid_pos);
+			IVec2 pos = get_pos(Vec2 { -1.0, 1.0 }, grid_pos);
+			Rect clip = {};
+			RGBA tint = { 255, 0, 0, m_alpha };
+			renderer->draw_image(m_clipping_image, pos, clip, { .tint = tint });
+		}
+
+		// draw clipped top left tinted
+		{
+			RENDERER_LOG(renderer, "Draw test image (clipped top left tinted red)");
+			grid_pos = next_grid_pos(grid_pos);
+			IVec2 pos = get_pos(Vec2 { -1.0, 1.0 }, grid_pos);
+			Rect rect = {
+				.x = pos.x,
+				.y = pos.y,
+				.width = grid_size,
+				.height = grid_size,
+			};
+			Rect clip = {
+				.x = 0,
+				.y = grid_size / 2,
+				.width = grid_size / 2,
+				.height = grid_size / 2,
+			};
+			RGBA tint = { 255, 0, 0, m_alpha };
+			renderer->draw_image_scaled(m_clipping_image, rect, clip, { .tint = tint });
+		}
+
+		// draw transparent image
+		{
+			RENDERER_LOG(renderer, "Draw transparent image");
+			grid_pos = next_grid_pos(grid_pos);
+			IVec2 pos = get_pos(Vec2 { -1.0, 1.0 }, grid_pos);
+			Rect clip = {};
+			renderer->draw_image(m_transparency_image, pos, clip, { .alpha = m_alpha / 255.0f });
+		}
+
+		// draw tinted transparent image
+		{
+			RENDERER_LOG(renderer, "Draw transparent image (tinted red)");
+			grid_pos = next_grid_pos(grid_pos);
+			IVec2 pos = get_pos(Vec2 { -1.0, 1.0 }, grid_pos);
+			Rect clip = {};
+			RGBA tint = { 255, 0, 0, m_alpha };
+			renderer->draw_image(m_transparency_image, pos, clip, { .tint = tint });
+		}
+	}
+
+	void RenderTestScreen::_draw_sprite_sheet_test(Renderer* renderer) const {
+		const IVec2 sprite_sheet_pos = { 0, 48 };
+		const int32_t sprite_width = 16;
+		const int32_t sprite_height = 16;
+		const Rect sprite_clip_rect = Rect {
+			.x = m_animation_frames[m_animation_index].index * sprite_width,
+			.y = 0,
+			.width = sprite_width,
+			.height = sprite_height,
+		};
+		const bool is_flipped = m_animation_frames[m_animation_index].flipped;
+
+		/* Draw sprite sheet */
+		RENDERER_LOG(renderer, "Draw sprite sheet");
+		renderer->draw_image(m_sprite_sheet, sprite_sheet_pos);
+		renderer->draw_rect(sprite_clip_rect + sprite_sheet_pos, RGBA::green());
+
+		/* Draw sprite */
+		RENDERER_LOG(renderer, "Draw sprite");
+		const IVec2 sprite_pos = sprite_sheet_pos + IVec2 { 0, sprite_height };
+		renderer->draw_image(m_sprite_sheet, sprite_pos, sprite_clip_rect, { .flip_h = is_flipped });
+
+		/* Draw sprite sheet scaled */
+		RENDERER_LOG(renderer, "Draw sprite sheet (scaled up)");
+		const int scale = 2;
+		const Rect scaled_sprite_sheet_rect = {
+			.x = sprite_sheet_pos.x,
+			.y = sprite_sheet_pos.y + 64,
+			.width = (int32_t)(m_sprite_sheet_size.width * scale),
+			.height = (int32_t)(m_sprite_sheet_size.height * scale),
+		};
+		const Rect scaled_sprite_clip_rect = Rect {
+			.x = m_animation_frames[m_animation_index].index * scale * sprite_width,
+			.y = 0,
+			.width = scale * sprite_width,
+			.height = scale * sprite_height,
+		};
+		renderer->draw_image_scaled(m_sprite_sheet, scaled_sprite_sheet_rect);
+		renderer->draw_rect(scaled_sprite_clip_rect + scaled_sprite_sheet_rect.pos(), RGBA::green());
+
+		/* Draw scaled sprite */
+		RENDERER_LOG(renderer, "Draw sprite (scaled up)");
+		const Rect scaled_sprite_rect = Rect {
+			.x = 0,
+			.y = scaled_sprite_sheet_rect.y + scale * sprite_height,
+			.width = scale * sprite_width,
+			.height = scale * sprite_height,
+		};
+		renderer->draw_image_scaled(m_sprite_sheet, scaled_sprite_rect, sprite_clip_rect, { .flip_h = is_flipped });
 	}
 
 } // namespace engine

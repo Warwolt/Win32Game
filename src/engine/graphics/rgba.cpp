@@ -15,6 +15,16 @@ namespace engine {
 		};
 	}
 
+	RGBA RGBA::tint(RGBA color, RGBA tint) {
+		return RGBA::lerp(color, color * tint, tint.a / 255.0f).with_alpha(color.a);
+	}
+
+	RGBA RGBA::with_alpha(uint8_t alpha) const {
+		RGBA color = *this;
+		color.a = alpha;
+		return color;
+	}
+
 	// A fully transparent color can't be shown, and is thus "falsy"
 	RGBA::operator bool() const {
 		return this->a > 0;

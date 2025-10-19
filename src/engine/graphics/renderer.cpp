@@ -1,11 +1,11 @@
 #include <engine/graphics/renderer.h>
 
 #include <engine/container/match_variant.h>
-#include <engine/debug/logging.h>
 #include <engine/debug/profiling.h>
 #include <engine/file/resource_manager.h>
 #include <engine/graphics/font.h>
 #include <engine/graphics/image.h>
+#include <engine/graphics/rect.h>
 #include <engine/math/math.h>
 
 #include <cmath>
@@ -122,8 +122,12 @@ namespace engine {
 		m_draw_data.push_back(DrawData { DrawTriangle { v1, v2, v3, true }, _take_current_tag() });
 	}
 
-	void Renderer::draw_image(ImageID image_id, Rect rect, Rect clip, RGBA tint) {
-		m_draw_data.push_back(DrawData { DrawImage { image_id, rect, clip, tint }, _take_current_tag() });
+	void Renderer::draw_image(ImageID image_id, IVec2 pos, Rect clip, DrawImageOptions options) {
+		m_draw_data.push_back(DrawData { DrawImage { image_id, Rect { pos.x, pos.y }, clip, options }, _take_current_tag() });
+	}
+
+	void Renderer::draw_image_scaled(ImageID image_id, Rect rect, Rect clip, DrawImageOptions options) {
+		m_draw_data.push_back(DrawData { DrawImage { image_id, rect, clip, options }, _take_current_tag() });
 	}
 
 	void Renderer::draw_text(FontID font_id, int32_t font_size, IVec2 pos, RGBA color, std::string text) {
@@ -173,12 +177,14 @@ namespace engine {
 						_put_triangle(bitmap, v1, v2, v3);
 					}
 				}
-				MATCH_CASE(DrawImage, image_id, rect, clip, tint) {
-					if (!clip.empty()) {
-						_put_image_clipped(bitmap, resources->image(image_id), rect, clip, tint);
+				MATCH_CASE(DrawImage, image_id, rect, maybe_clip, options) {
+					const Image& image = resources->image(image_id);
+					if (rect.empty()) {
+						Rect clip = maybe_clip.empty() ? Rect { 0, 0, image.width, image.height } : maybe_clip;
+						_put_image(bitmap, image, rect.pos(), clip, options);
 					}
 					else {
-						_put_image_full(bitmap, resources->image(image_id), rect, tint);
+						_put_image_scaled(bitmap, image, rect, maybe_clip, options);
 					}
 				}
 				MATCH_CASE(DrawText, font_id, font_size, pos, color, text) {
@@ -191,6 +197,9 @@ namespace engine {
 	}
 
 	std::string Renderer::_take_current_tag() {
+		if (!m_current_tag.empty()) {
+			m_last_tag = m_current_tag;
+		}
 		return std::exchange(m_current_tag, std::string());
 	}
 
@@ -376,30 +385,30 @@ namespace engine {
 		}
 	}
 
-	void Renderer::_put_image_clipped(Bitmap* bitmap, const Image& image, Rect rect, Rect clip, RGBA tint) {
+	void Renderer::_put_image_scaled(Bitmap* bitmap, const Image& image, Rect rect, Rect clip, DrawImageOptions options) {
 		CPUProfilingScope_Render();
 		/* UV coordinates */
 		if (clip.empty()) {
-			// LOG_WARNING("Renderer::_put_image called with empty clip rect!");
 			clip.width = rect.width;
 			clip.height = rect.height;
 		}
 		// bottom left
 		Vec2 uv0 = {
-			.x = engine::clamp((float)clip.x / (float)(rect.width - 1), 0.0f, 1.0f),
-			.y = engine::clamp((float)clip.y / (float)(rect.height), 0.0f, 1.0f),
+			.x = engine::clamp((float)clip.x / (float)(image.width - 1), 0.0f, 1.0f),
+			.y = engine::clamp((float)clip.y / (float)(image.height), 0.0f, 1.0f),
 		};
 		// top right
 		Vec2 uv1 = {
-			.x = engine::clamp((float)(clip.x + clip.width - 1) / (float)(rect.width - 1), 0.0f, 1.0f),
-			.y = engine::clamp((float)(clip.y + clip.height) / (float)(rect.height), 0.0f, 1.0f),
+			.x = engine::clamp((float)(clip.x + clip.width - 1) / (float)(image.width - 1), 0.0f, 1.0f),
+			.y = engine::clamp((float)(clip.y + clip.height) / (float)(image.height), 0.0f, 1.0f),
 		};
 
 		/* Draw image line by line */
+		RGBA color = RGBA::lerp(RGBA::white(), options.tint, options.tint.a / 255.0f).with_alpha((uint8_t)(255.0f * options.alpha));
 		for (int32_t y = 0; y < rect.height; y++) {
 			Vertex left = {
 				.pos = { rect.x, rect.y + y },
-				.color = tint,
+				.color = color,
 				.uv = {
 					uv0.x,
 					engine::lerp(uv0.y, uv1.y, 1.0f - ((float)y / (float)rect.height)),
@@ -407,7 +416,7 @@ namespace engine {
 			};
 			Vertex right = {
 				.pos = { rect.x + rect.width - 1, rect.y + y },
-				.color = tint,
+				.color = color,
 				.uv = {
 					uv1.x,
 					engine::lerp(uv0.y, uv1.y, 1.0f - ((float)y / (float)rect.height)),
@@ -417,16 +426,16 @@ namespace engine {
 		}
 	}
 
-	void Renderer::_put_image_full(Bitmap* bitmap, const Image& image, Rect rect, RGBA tint) {
+	void Renderer::_put_image(Bitmap* bitmap, const Image& image, IVec2 pos, Rect clip, DrawImageOptions options) {
 		CPUProfilingScope_Render();
-		for (int32_t y_offset = 0; y_offset < rect.height; y_offset++) {
-			for (int32_t x_offset = 0; x_offset < rect.width; x_offset++) {
-				Vec2 uv = {
-					x_offset / (float)(rect.width),
-					1.0f - y_offset / (float)(rect.height),
-				};
-				RGBA color = image.sample(uv) * tint;
-				bitmap->put(rect.x + x_offset, rect.y + y_offset, Pixel::from_rgb(color), tint.a / 255.0f);
+		int32_t y_end = engine::min(clip.height, image.height);
+		int32_t x_end = engine::min(clip.width, image.width);
+		for (int32_t y_offset = 0; y_offset < y_end; y_offset++) {
+			for (int32_t x_offset = 0; x_offset < x_end; x_offset++) {
+				RGBA color = RGBA::tint(image.get(clip.x + x_offset, clip.y + y_offset), options.tint);
+				int32_t x = options.flip_h ? pos.x + (clip.width - x_offset) : pos.x + x_offset;
+				int32_t y = options.flip_v ? pos.y + (clip.height - y_offset) : pos.y + y_offset;
+				bitmap->put(x, y, Pixel::from_rgb(color), color.a / 255.0f * options.alpha);
 			}
 		}
 	}

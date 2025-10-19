@@ -30,6 +30,13 @@ namespace engine {
 		bool operator==(const Vertex& rhs) const = default;
 	};
 
+	struct DrawImageOptions {
+		bool flip_h = false;
+		bool flip_v = false;
+		float alpha = 1.0f;
+		RGBA tint = RGBA::white();
+	};
+
 	class Renderer {
 	public:
 		// tags next draw command, shows up in Tracy
@@ -45,7 +52,8 @@ namespace engine {
 		void draw_circle_fill(IVec2 center, int32_t radius, RGBA color);
 		void draw_triangle(Vertex v1, Vertex v2, Vertex v3);
 		void draw_triangle_fill(Vertex v1, Vertex v2, Vertex v3);
-		void draw_image(ImageID image_id, Rect rect, Rect clip = {}, RGBA tint = RGBA::white());
+		void draw_image(ImageID image_id, IVec2 pos, Rect clip = {}, DrawImageOptions options = {});
+		void draw_image_scaled(ImageID image_id, Rect rect, Rect clip = {}, DrawImageOptions options = {});
 		void draw_text(FontID font_id, int32_t font_size, IVec2 pos, RGBA color, std::string text);
 
 		void render(Bitmap* bitmap, ResourceManager* resources);
@@ -82,7 +90,7 @@ namespace engine {
 			ImageID image_id;
 			Rect rect;
 			Rect clip;
-			RGBA tint;
+			DrawImageOptions options;
 		};
 		struct DrawText {
 			FontID font_id;
@@ -104,6 +112,7 @@ namespace engine {
 			DrawCommand command;
 			std::string tag; // meta data for what's being drawn
 		};
+		std::string m_last_tag; // for debuggin
 		std::string m_current_tag;
 		std::vector<DrawData> m_draw_data;
 
@@ -117,8 +126,8 @@ namespace engine {
 		void _put_circle_fill(Bitmap* bitmap, IVec2 center, int32_t radius, RGBA color);
 		void _put_triangle(Bitmap* bitmap, Vertex v1, Vertex v2, Vertex v3);
 		void _put_triangle_fill(Bitmap* bitmap, Vertex v1, Vertex v2, Vertex v3);
-		void _put_image_clipped(Bitmap* bitmap, const Image& image, Rect rect, Rect clip, RGBA tint);
-		void _put_image_full(Bitmap* bitmap, const Image& image, Rect rect, RGBA tint);
+		void _put_image(Bitmap* bitmap, const Image& image, IVec2 pos, Rect clip, DrawImageOptions options);
+		void _put_image_scaled(Bitmap* bitmap, const Image& image, Rect rect, Rect clip, DrawImageOptions options);
 		void _put_text(Bitmap* bitmap, Font* typeface, int32_t font_size, IVec2 pos, RGBA color, const std::string& text);
 	};
 

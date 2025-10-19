@@ -5,19 +5,14 @@
 
 #include <windows.h>
 
-#include <expected>
+#include <optional>
 #include <string>
 
 namespace engine {
 
-	enum class WindowError {
-		FailedToRegisterWindow,
-		FailedToCreateWindow,
-	};
-
 	class Window {
 	public:
-		static std::expected<Window, WindowError> initialize(HINSTANCE instance, WNDPROC wnd_proc, IVec2 window_size, const char* window_title);
+		static std::optional<Window> initialize(HINSTANCE instance, WNDPROC wnd_proc, IVec2 window_size, const char* window_title);
 
 		IVec2 on_resized();
 		void on_focus_changed(bool is_focused);
@@ -40,7 +35,5 @@ namespace engine {
 		IVec2 m_window_size;
 		bool m_is_focused = true;
 	};
-
-	const char* window_error_to_str(WindowError error);
 
 } // namespace engine
