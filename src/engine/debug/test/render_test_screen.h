@@ -23,10 +23,10 @@ namespace engine {
 	public:
 		void initialize(ResourceManager* resources);
 		void update(const InputDevices& input);
-		void draw(Renderer* renderer, FontID debug_font_id, IVec2 screen_resolution) const;
+		void draw(Renderer* renderer, IVec2 screen_resolution) const;
 
 	private:
-		void _draw_general_render_test(Renderer* renderer, FontID debug_font_id, IVec2 screen_resolution) const;
+		void _draw_general_render_test(Renderer* renderer, IVec2 screen_resolution) const;
 		void _draw_sprite_sheet_test(Renderer* renderer) const;
 
 		int m_page = RenderTestPage::GeneralTest;

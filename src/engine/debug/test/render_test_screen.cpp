@@ -37,23 +37,23 @@ namespace engine {
 		}
 	}
 
-	void RenderTestScreen::draw(Renderer* renderer, FontID debug_font_id, IVec2 screen_resolution) const {
+	void RenderTestScreen::draw(Renderer* renderer, IVec2 screen_resolution) const {
 		CPUProfilingScope_Engine();
 		const char* title = "unknown";
 		/* Render page */
 		if (m_page == RenderTestPage::GeneralTest) {
 			title = "general";
-			_draw_general_render_test(renderer, debug_font_id, screen_resolution);
+			_draw_general_render_test(renderer, screen_resolution);
 		}
 		if (m_page == RenderTestPage::SpriteSheetTest) {
 			title = "sprite sheet";
 			_draw_sprite_sheet_test(renderer);
 		}
 		/* Render page title */
-		renderer->draw_text(debug_font_id, FONT_SIZE, { 0, 0 }, RGBA::white(), std::format("page {}/{}: {}", (int)m_page + 1, (int)RenderTestPage::Count, title));
+		renderer->draw_text(DEFAULT_FONT_ID, FONT_SIZE, { 0, 0 }, RGBA::white(), std::format("page {}/{}: {}", (int)m_page + 1, (int)RenderTestPage::Count, title));
 	}
 
-	void RenderTestScreen::_draw_general_render_test(Renderer* renderer, FontID debug_font_id, IVec2 screen_resolution) const {
+	void RenderTestScreen::_draw_general_render_test(Renderer* renderer, IVec2 screen_resolution) const {
 		CPUProfilingScope_Engine();
 		enum class FillMode {
 			Outline,
@@ -108,8 +108,8 @@ namespace engine {
 			RGBA text_color = RGBA::white();
 			text_color.a = m_alpha;
 			RENDERER_LOG(renderer, "Draw text");
-			renderer->draw_text(debug_font_id, FONT_SIZE, pos, text_color, "the quick brown fox jumps over the lazy dog");
-			renderer->draw_text(debug_font_id, FONT_SIZE, pos + IVec2 { 0, FONT_SIZE }, text_color, "sphinx of black quartz, judge my vow!");
+			renderer->draw_text(DEFAULT_FONT_ID, FONT_SIZE, pos, text_color, "the quick brown fox jumps over the lazy dog");
+			renderer->draw_text(DEFAULT_FONT_ID, FONT_SIZE, pos + IVec2 { 0, FONT_SIZE }, text_color, "sphinx of black quartz, judge my vow!");
 		}
 
 		/* Draw line */

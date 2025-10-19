@@ -13,7 +13,6 @@
 namespace engine {
 
 	void initialize_debug(DebugState* debug, ResourceManager* resources) {
-		debug->debug_font_id = resources->load_font("assets/font/ModernDOS8x16.ttf");
 		debug->render_test_screen.initialize(resources);
 	}
 
@@ -40,7 +39,7 @@ namespace engine {
 
 		/* Draw test screens */
 		if (debug.show_render_test_screen) {
-			debug.render_test_screen.draw(renderer, debug.debug_font_id, screen_resolution);
+			debug.render_test_screen.draw(renderer, screen_resolution);
 		}
 	}
 
