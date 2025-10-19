@@ -76,7 +76,7 @@ namespace engine {
 		const char* title = "unknown";
 		/* Render page */
 		if (m_page == RenderTestPage::GeneralTest) {
-			title = "general";
+			title = "geometry";
 			_draw_general_render_test(renderer, screen_resolution);
 		}
 		if (m_page == RenderTestPage::SpriteSheetTest) {
@@ -101,8 +101,8 @@ namespace engine {
 		std::array<ColorMode, 2> color_modes = { ColorMode::Mono, ColorMode::Gradient };
 
 		const engine::RGBA color = { 0, 255, 0, m_alpha };
-		const int32_t grid_size = 64;
-		const int32_t grid_spacing = 16;
+		const int32_t grid_size = 32;
+		const int32_t grid_spacing = 8;
 		IVec2 grid_pos = { -1, 0 };
 
 		auto next_grid_pos = [screen_resolution, grid_size, grid_spacing](IVec2 pos) {
@@ -118,7 +118,7 @@ namespace engine {
 		auto get_pos = [grid_size, grid_spacing](Vec2 ndc_vec, IVec2 grid_pos) -> IVec2 {
 			IVec2 spacing_offset = grid_spacing * IVec2 { grid_pos.x, grid_pos.y + 1 };
 			IVec2 grid_offset = grid_size * grid_pos;
-			int y_offset = 64;
+			int y_offset = 16;
 			return spacing_offset + grid_offset +
 				IVec2::from_vec2(Vec2 {
 					.x = grid_size * (ndc_vec.x + 1.0f) / 2.0f,
@@ -129,22 +129,6 @@ namespace engine {
 		auto get_color = [this](RGBA color, ColorMode mode) {
 			return mode == ColorMode::Mono ? RGBA { 0, 255, 0, m_alpha } : color;
 		};
-
-		/* Draw text */
-#pragma region draw text
-		// note: for simplicity we put this at the top of the file, since we
-		// draw the text at the top of the screen
-		{
-			IVec2 pos {
-				.x = 0,
-				.y = FONT_SIZE + 16,
-			};
-			RGBA text_color = RGBA::white();
-			text_color.a = m_alpha;
-			RENDERER_LOG(renderer, "Draw text");
-			renderer->draw_text(DEFAULT_FONT_ID, FONT_SIZE, pos, text_color, "the quick brown fox jumps over the lazy dog");
-			renderer->draw_text(DEFAULT_FONT_ID, FONT_SIZE, pos + IVec2 { 0, FONT_SIZE }, text_color, "sphinx of black quartz, judge my vow!");
-		}
 
 		/* Draw line */
 #pragma region draw line
@@ -200,22 +184,6 @@ namespace engine {
 				grid_pos = next_grid_pos(grid_pos);
 				Vertex start = { .pos = get_pos({ 0.5f, 1.0f }, grid_pos), .color = get_color({ 255, 0, 0, m_alpha }, color_mode) };
 				Vertex end = { .pos = get_pos({ -0.5f, -1.0f }, grid_pos), .color = get_color({ 0, 0, 255, m_alpha }, color_mode) };
-				renderer->draw_line(start, end);
-			}
-			// slope +1
-			{
-				RENDERER_LOG(renderer, std::format("Draw slope +1 line ({})", color_mode == ColorMode::Gradient ? "Gradient" : "Mono"));
-				grid_pos = next_grid_pos(grid_pos);
-				Vertex start = { .pos = get_pos({ 1.0f, 1.0f }, grid_pos), .color = get_color({ 255, 0, 0, m_alpha }, color_mode) };
-				Vertex end = { .pos = get_pos({ -1.0f, -1.0f }, grid_pos), .color = get_color({ 0, 0, 255, m_alpha }, color_mode) };
-				renderer->draw_line(start, end);
-			}
-			// slope +0.5
-			{
-				RENDERER_LOG(renderer, std::format("Draw slope +0.5 line ({})", color_mode == ColorMode::Gradient ? "Gradient" : "Mono"));
-				grid_pos = next_grid_pos(grid_pos);
-				Vertex start = { .pos = get_pos({ 1.0f, 0.5f }, grid_pos), .color = get_color({ 255, 0, 0, m_alpha }, color_mode) };
-				Vertex end = { .pos = get_pos({ -1.0f, -0.5f }, grid_pos), .color = get_color({ 0, 0, 255, m_alpha }, color_mode) };
 				renderer->draw_line(start, end);
 			}
 		}
@@ -287,122 +255,6 @@ namespace engine {
 				if (mode == FillMode::Outline) renderer->draw_triangle(left, top, right);
 				if (mode == FillMode::Filled) renderer->draw_triangle_fill(left, top, right);
 			}
-		}
-
-		/* Draw image */
-#pragma region draw image
-		// draw missing texture
-		{
-			RENDERER_LOG(renderer, "Draw missing texture");
-			grid_pos = next_grid_pos(grid_pos);
-			IVec2 pos = get_pos(Vec2 { -1.0, 1.0 }, grid_pos);
-			Rect rect = {
-				.x = pos.x,
-				.y = pos.y,
-				.width = grid_size,
-				.height = grid_size,
-			};
-			Rect clip = {};
-			renderer->draw_image_scaled(ImageID(0), rect, clip, { .alpha = m_alpha / 255.0f });
-		}
-
-		// draw test image
-		{
-			RENDERER_LOG(renderer, "Draw test image (full image)");
-			grid_pos = next_grid_pos(grid_pos);
-			IVec2 pos = get_pos(Vec2 { -1.0, 1.0 }, grid_pos);
-			Rect clip = {};
-			renderer->draw_image(m_clipping_image, pos, clip, { .alpha = m_alpha / 255.0f });
-		}
-
-		// draw clipped top left
-		{
-			RENDERER_LOG(renderer, "Draw test image (clipped top left)");
-			grid_pos = next_grid_pos(grid_pos);
-			IVec2 pos = get_pos(Vec2 { -1.0, 1.0 }, grid_pos);
-			Rect rect = {
-				.x = pos.x,
-				.y = pos.y,
-				.width = grid_size,
-				.height = grid_size,
-			};
-			Rect clip = {
-				.x = 0,
-				.y = grid_size / 2,
-				.width = grid_size / 2,
-				.height = grid_size / 2,
-			};
-			renderer->draw_image_scaled(m_clipping_image, rect, clip, { .alpha = m_alpha / 255.0f });
-		}
-
-		// draw clipped centered
-		{
-			RENDERER_LOG(renderer, "Draw test image (clipped center)");
-			grid_pos = next_grid_pos(grid_pos);
-			IVec2 pos = get_pos(Vec2 { -1.0, 1.0 }, grid_pos);
-			Rect rect = {
-				.x = pos.x,
-				.y = pos.y,
-				.width = grid_size,
-				.height = grid_size,
-			};
-			Rect clip = {
-				.x = grid_size / 4,
-				.y = grid_size / 4,
-				.width = grid_size / 2,
-				.height = grid_size / 2,
-			};
-			renderer->draw_image_scaled(m_clipping_image, rect, clip, { .alpha = m_alpha / 255.0f });
-		}
-
-		// draw test image tinted
-		{
-			RENDERER_LOG(renderer, "Draw test image (full image tinted red)");
-			grid_pos = next_grid_pos(grid_pos);
-			IVec2 pos = get_pos(Vec2 { -1.0, 1.0 }, grid_pos);
-			Rect clip = {};
-			RGBA tint = { 255, 0, 0, m_alpha };
-			renderer->draw_image(m_clipping_image, pos, clip, { .tint = tint });
-		}
-
-		// draw clipped top left tinted
-		{
-			RENDERER_LOG(renderer, "Draw test image (clipped top left tinted red)");
-			grid_pos = next_grid_pos(grid_pos);
-			IVec2 pos = get_pos(Vec2 { -1.0, 1.0 }, grid_pos);
-			Rect rect = {
-				.x = pos.x,
-				.y = pos.y,
-				.width = grid_size,
-				.height = grid_size,
-			};
-			Rect clip = {
-				.x = 0,
-				.y = grid_size / 2,
-				.width = grid_size / 2,
-				.height = grid_size / 2,
-			};
-			RGBA tint = { 255, 0, 0, m_alpha };
-			renderer->draw_image_scaled(m_clipping_image, rect, clip, { .tint = tint });
-		}
-
-		// draw transparent image
-		{
-			RENDERER_LOG(renderer, "Draw transparent image");
-			grid_pos = next_grid_pos(grid_pos);
-			IVec2 pos = get_pos(Vec2 { -1.0, 1.0 }, grid_pos);
-			Rect clip = {};
-			renderer->draw_image(m_transparency_image, pos, clip, { .alpha = m_alpha / 255.0f });
-		}
-
-		// draw tinted transparent image
-		{
-			RENDERER_LOG(renderer, "Draw transparent image (tinted red)");
-			grid_pos = next_grid_pos(grid_pos);
-			IVec2 pos = get_pos(Vec2 { -1.0, 1.0 }, grid_pos);
-			Rect clip = {};
-			RGBA tint = { 255, 0, 0, m_alpha };
-			renderer->draw_image(m_transparency_image, pos, clip, { .tint = tint });
 		}
 	}
 
