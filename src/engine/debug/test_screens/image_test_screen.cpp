@@ -53,6 +53,9 @@ namespace engine {
 	}
 
 	void ImageTestScreen::draw(Renderer* renderer) const {
+		const int32_t image_width = 32;
+		const int32_t image_height = 32;
+
 		/* Draw animated sprite */
 		{
 			const IVec2 sprite_sheet_pos = { 0, 20 };
@@ -105,10 +108,8 @@ namespace engine {
 			renderer->draw_image_scaled(m_sprite_sheet, scaled_sprite_rect, { .clip = sprite_clip_rect, .flip_h = is_flipped });
 		}
 
-		/* Draw images */
+		/* draw_image */
 		{
-			const int32_t image_width = 32;
-			const int32_t image_height = 32;
 			int column = 0;
 			int row = 0;
 			auto next_row = [&column, &row]() { column = 0; row++; };
@@ -152,10 +153,24 @@ namespace engine {
 			renderer->draw_image(m_test_image, { column++ * (image_width + 2), 80 + row * (image_height + 2) }, { .tint = RGBA::red().with_alpha(1.0f) });
 
 			RENDERER_LOG(renderer, "Draw image (tint red 100%, opacity 75%)");
-			renderer->draw_image(m_test_image, { column++ * (image_width + 2), 80 + row * (image_height + 2) }, { .alpha = 0.75f, .tint = RGBA::purple().with_alpha(1.0f) });
+			renderer->draw_image(m_test_image, { column++ * (image_width + 2), 80 + row * (image_height + 2) }, { .alpha = 0.75f, .tint = RGBA::red().with_alpha(1.0f) });
 
 			RENDERER_LOG(renderer, "Draw image (tint red 100%, opacity 50%)");
-			renderer->draw_image(m_test_image, { column++ * (image_width + 2), 80 + row * (image_height + 2) }, { .alpha = 0.50f, .tint = RGBA::purple().with_alpha(1.0f) });
+			renderer->draw_image(m_test_image, { column++ * (image_width + 2), 80 + row * (image_height + 2) }, { .alpha = 0.50f, .tint = RGBA::red().with_alpha(1.0f) });
+		}
+
+		/* draw_image_scaled */
+		{
+			int column = 0;
+			RENDERER_LOG(renderer, "Draw image scaled");
+			renderer->draw_image_scaled(m_test_image, { column++ * (2 * image_width + 2), 148, 2 * image_width, 2 * image_height });
+
+			RENDERER_LOG(renderer, "Draw image scaled (flip diagonally, opacity 50%)");
+			renderer->draw_image_scaled(m_test_image, { column++ * (2 * image_width + 2), 148, 2 * image_width, 2 * image_height }, { .flip_h = true, .flip_v = true, .alpha = 0.50f });
+
+
+			RENDERER_LOG(renderer, "Draw image scaled (tint red 100%)");
+			renderer->draw_image_scaled(m_test_image, { column++ * (2 * image_width + 2), 148, 2 * image_width, 2 * image_height }, { .tint = RGBA::red() });
 		}
 	}
 
