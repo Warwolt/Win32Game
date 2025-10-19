@@ -122,12 +122,12 @@ namespace engine {
 		m_draw_data.push_back(DrawData { DrawTriangle { v1, v2, v3, true }, _take_current_tag() });
 	}
 
-	void Renderer::draw_image(ImageID image_id, IVec2 pos, Rect clip, DrawImageOptions options) {
-		m_draw_data.push_back(DrawData { DrawImage { image_id, Rect { pos.x, pos.y }, clip, options }, _take_current_tag() });
+	void Renderer::draw_image(ImageID image_id, IVec2 pos, DrawImageOptions options) {
+		m_draw_data.push_back(DrawData { DrawImage { image_id, Rect { pos.x, pos.y }, options }, _take_current_tag() });
 	}
 
-	void Renderer::draw_image_scaled(ImageID image_id, Rect rect, Rect clip, DrawImageOptions options) {
-		m_draw_data.push_back(DrawData { DrawImage { image_id, rect, clip, options }, _take_current_tag() });
+	void Renderer::draw_image_scaled(ImageID image_id, Rect rect, DrawImageOptions options) {
+		m_draw_data.push_back(DrawData { DrawImage { image_id, rect, options }, _take_current_tag() });
 	}
 
 	void Renderer::draw_text(FontID font_id, int32_t font_size, IVec2 pos, RGBA color, std::string text) {
@@ -177,14 +177,17 @@ namespace engine {
 						_put_triangle(bitmap, v1, v2, v3);
 					}
 				}
-				MATCH_CASE(DrawImage, image_id, rect, maybe_clip, options) {
+				MATCH_CASE(DrawImage, image_id, rect, const_options) {
+					DrawImageOptions options = const_options;
 					const Image& image = resources->image(image_id);
 					if (rect.empty()) {
-						Rect clip = maybe_clip.empty() ? Rect { 0, 0, image.width, image.height } : maybe_clip;
-						_put_image(bitmap, image, rect.pos(), clip, options);
+						if (options.clip.empty()) {
+							options.clip = Rect { 0, 0, image.width, image.height };
+						}
+						_put_image(bitmap, image, rect.pos(), options);
 					}
 					else {
-						_put_image_scaled(bitmap, image, rect, maybe_clip, options);
+						_put_image_scaled(bitmap, image, rect, options);
 					}
 				}
 				MATCH_CASE(DrawText, font_id, font_size, pos, color, text) {
@@ -385,22 +388,22 @@ namespace engine {
 		}
 	}
 
-	void Renderer::_put_image_scaled(Bitmap* bitmap, const Image& image, Rect rect, Rect clip, DrawImageOptions options) {
+	void Renderer::_put_image_scaled(Bitmap* bitmap, const Image& image, Rect rect, DrawImageOptions options) {
 		CPUProfilingScope_Render();
 		/* UV coordinates */
-		if (clip.empty()) {
-			clip.width = rect.width;
-			clip.height = rect.height;
+		if (options.clip.empty()) {
+			options.clip.width = rect.width;
+			options.clip.height = rect.height;
 		}
 		// bottom left
 		Vec2 uv0 = {
-			.x = engine::clamp((float)clip.x / (float)(image.width - 1), 0.0f, 1.0f),
-			.y = engine::clamp((float)clip.y / (float)(image.height), 0.0f, 1.0f),
+			.x = engine::clamp((float)options.clip.x / (float)(image.width - 1), 0.0f, 1.0f),
+			.y = engine::clamp((float)options.clip.y / (float)(image.height), 0.0f, 1.0f),
 		};
 		// top right
 		Vec2 uv1 = {
-			.x = engine::clamp((float)(clip.x + clip.width - 1) / (float)(image.width - 1), 0.0f, 1.0f),
-			.y = engine::clamp((float)(clip.y + clip.height) / (float)(image.height), 0.0f, 1.0f),
+			.x = engine::clamp((float)(options.clip.x + options.clip.width - 1) / (float)(image.width - 1), 0.0f, 1.0f),
+			.y = engine::clamp((float)(options.clip.y + options.clip.height) / (float)(image.height), 0.0f, 1.0f),
 		};
 
 		/* Draw image line by line */
@@ -426,15 +429,15 @@ namespace engine {
 		}
 	}
 
-	void Renderer::_put_image(Bitmap* bitmap, const Image& image, IVec2 pos, Rect clip, DrawImageOptions options) {
+	void Renderer::_put_image(Bitmap* bitmap, const Image& image, IVec2 pos, DrawImageOptions options) {
 		CPUProfilingScope_Render();
-		int32_t y_end = engine::min(clip.height, image.height);
-		int32_t x_end = engine::min(clip.width, image.width);
+		int32_t y_end = engine::min(options.clip.height, image.height);
+		int32_t x_end = engine::min(options.clip.width, image.width);
 		for (int32_t y_offset = 0; y_offset < y_end; y_offset++) {
 			for (int32_t x_offset = 0; x_offset < x_end; x_offset++) {
-				RGBA color = RGBA::tint(image.get(clip.x + x_offset, clip.y + y_offset), options.tint);
-				int32_t x = options.flip_h ? pos.x + (clip.width - x_offset) : pos.x + x_offset;
-				int32_t y = options.flip_v ? pos.y + (clip.height - y_offset) : pos.y + y_offset;
+				RGBA color = RGBA::tint(image.get(options.clip.x + x_offset, options.clip.y + y_offset), options.tint);
+				int32_t x = options.flip_h ? pos.x + (options.clip.width - 1 - x_offset) : pos.x + x_offset;
+				int32_t y = options.flip_v ? pos.y + (options.clip.height - 1 - y_offset) : pos.y + y_offset;
 				bitmap->put(x, y, Pixel::from_rgb(color), color.a / 255.0f * options.alpha);
 			}
 		}

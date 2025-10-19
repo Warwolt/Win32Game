@@ -17,7 +17,7 @@ namespace engine {
 	public:
 		void initialize(ResourceManager* resources);
 		void update(const InputDevices& input);
-		void draw(Renderer* renderer, IVec2 screen_resolution) const;
+		void draw(Renderer* renderer) const;
 
 	private:
 		struct AnimationFrame {

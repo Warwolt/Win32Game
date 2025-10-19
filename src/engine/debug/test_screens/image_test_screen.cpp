@@ -53,7 +53,7 @@ namespace engine {
 		}
 	}
 
-	void ImageTestScreen::draw(Renderer* renderer, IVec2 screen_resolution) const {
+	void ImageTestScreen::draw(Renderer* renderer) const {
 		/* Draw animated sprite */
 		{
 			const IVec2 sprite_sheet_pos = { 0, 20 };
@@ -75,7 +75,7 @@ namespace engine {
 			/* Draw sprite */
 			RENDERER_LOG(renderer, "Draw sprite");
 			const IVec2 sprite_pos = sprite_sheet_pos + IVec2 { m_sprite_sheet_size.width + sprite_width, 0 };
-			renderer->draw_image(m_sprite_sheet, sprite_pos, sprite_clip_rect, { .flip_h = is_flipped });
+			renderer->draw_image(m_sprite_sheet, sprite_pos, { .clip = sprite_clip_rect, .flip_h = is_flipped });
 
 			/* Draw sprite sheet scaled */
 			RENDERER_LOG(renderer, "Draw sprite sheet (scaled up)");
@@ -103,7 +103,22 @@ namespace engine {
 				.width = scale * sprite_width,
 				.height = scale * sprite_height,
 			};
-			renderer->draw_image_scaled(m_sprite_sheet, scaled_sprite_rect, sprite_clip_rect, { .flip_h = is_flipped });
+			renderer->draw_image_scaled(m_sprite_sheet, scaled_sprite_rect, { .clip = sprite_clip_rect, .flip_h = is_flipped });
+		}
+
+		/* Draw images */
+		{
+			const IVec2 image_pos = { 0, 80 };
+			const int32_t image_width = 64;
+
+			RENDERER_LOG(renderer, "Draw image");
+			renderer->draw_image(m_clipping_image, image_pos);
+
+			RENDERER_LOG(renderer, "Draw image (flip horizontally)");
+			renderer->draw_image(m_clipping_image, image_pos + IVec2 { image_width + 2, 0 }, { .flip_h = true });
+
+			RENDERER_LOG(renderer, "Draw image (flip vertically)");
+			renderer->draw_image(m_clipping_image, image_pos + IVec2 { 2 * (image_width + 2), 0 }, { .flip_v = true });
 		}
 	}
 

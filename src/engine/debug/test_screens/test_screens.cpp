@@ -48,7 +48,7 @@ namespace engine {
 		}
 		if (m_page == RenderTestPage::ImageTest) {
 			title = "draw images";
-			m_image_test_screen.draw(renderer, screen_resolution);
+			m_image_test_screen.draw(renderer);
 		}
 		/* Render page title */
 		renderer->draw_text(DEFAULT_FONT_ID, FONT_SIZE, { 0, 0 }, RGBA::white(), std::format("test page {}/{}: {}", (int)m_page + 1, (int)RenderTestPage::Count, title));
