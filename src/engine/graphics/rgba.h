@@ -16,6 +16,7 @@ namespace engine {
 		static constexpr RGBA green() { return { 0, 255, 0, 255 }; }
 		static constexpr RGBA blue() { return { 0, 0, 255, 255 }; }
 		static constexpr RGBA purple() { return { 255, 0, 255, 255 }; }
+		static constexpr RGBA dark_purple() { return { 127, 0, 127, 255 }; }
 
 		static RGBA lerp(RGBA start, RGBA end, float t);
 		static RGBA tint(RGBA color, RGBA tint);
