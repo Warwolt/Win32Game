@@ -28,6 +28,9 @@ namespace engine {
 		if (m_page == RenderTestPage::ImageTest) {
 			m_image_test_screen.update(input);
 		}
+		if (m_page == RenderTestPage::FontTest) {
+			m_font_test_screen.update(input);
+		}
 
 		/* Switch page */
 		if (input.keyboard.key_was_pressed_now(VK_RIGHT)) {
@@ -49,6 +52,10 @@ namespace engine {
 		if (m_page == RenderTestPage::ImageTest) {
 			title = "draw images";
 			m_image_test_screen.draw(renderer);
+		}
+		if (m_page == RenderTestPage::FontTest) {
+			title = "draw text";
+			m_font_test_screen.draw(renderer);
 		}
 		/* Render page title */
 		renderer->draw_text(DEFAULT_FONT_ID, FONT_SIZE, { 0, 0 }, RGBA::white(), std::format("test page {}/{}: {}", (int)m_page + 1, (int)RenderTestPage::Count, title));

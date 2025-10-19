@@ -3,7 +3,6 @@
 #include <engine/graphics/image_id.h>
 #include <engine/graphics/rect.h>
 #include <engine/input/time.h>
-#include <engine/math/ivec2.h>
 
 #include <vector>
 

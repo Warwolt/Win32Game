@@ -1,14 +1,8 @@
 #pragma once
 
-#include <engine/graphics/font_id.h>
-#include <engine/graphics/image_id.h>
-#include <engine/graphics/rect.h>
-#include <engine/input/time.h>
-#include <engine/math/ivec2.h>
 #include <engine/debug/test_screens/geometry_test_screen.h>
 #include <engine/debug/test_screens/image_test_screen.h>
-
-#include <vector>
+#include <engine/debug/test_screens/font_test_screen.h>
 
 namespace engine {
 
@@ -21,6 +15,7 @@ namespace engine {
 		enum {
 			GeometryTest,
 			ImageTest,
+			FontTest,
 			Count,
 		};
 	};
@@ -32,9 +27,10 @@ namespace engine {
 		void draw(Renderer* renderer, IVec2 screen_resolution) const;
 
 	private:
-		int m_page = RenderTestPage::GeometryTest;
+		int m_page = RenderTestPage::FontTest;
 		GeometryTestScreen m_geometry_test_screen;
 		ImageTestScreen m_image_test_screen;
+		FontTestScreen m_font_test_screen;
 	};
 
 } // namespace engine

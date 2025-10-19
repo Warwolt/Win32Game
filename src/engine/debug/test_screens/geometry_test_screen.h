@@ -3,7 +3,6 @@
 #include <engine/math/ivec2.h>
 
 #include <stdint.h>
-#include <vector>
 
 namespace engine {
 
