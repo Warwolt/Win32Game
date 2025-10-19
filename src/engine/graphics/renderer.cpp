@@ -426,9 +426,11 @@ namespace engine {
 
 	void Renderer::_put_image(Bitmap* bitmap, const Image& image, IVec2 pos, Rect clip, float alpha, RGBA tint) {
 		CPUProfilingScope_Render();
-		for (int32_t y_offset = clip.y; y_offset < engine::min(clip.height, image.height); y_offset++) {
-			for (int32_t x_offset = clip.x; x_offset < engine::min(clip.width, image.width); x_offset++) {
-				RGBA color = RGBA::tint(image.get(x_offset, y_offset), tint);
+		int32_t y_end = engine::min(clip.height, image.height);
+		int32_t x_end = engine::min(clip.width, image.width);
+		for (int32_t y_offset = 0; y_offset < y_end; y_offset++) {
+			for (int32_t x_offset = 0; x_offset < x_end; x_offset++) {
+				RGBA color = RGBA::tint(image.get(clip.x + x_offset, clip.y + y_offset), tint);
 				bitmap->put(pos.x + x_offset, pos.y + y_offset, Pixel::from_rgb(color), color.a / 255.0f * alpha);
 			}
 		}
