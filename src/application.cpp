@@ -47,15 +47,12 @@ static void update_input_devices(State* state) {
 
 State* initialize_application(HINSTANCE instance, WNDPROC on_window_event) {
 	State* state = new State {};
-	std::expected<engine::Engine, engine::EngineError> engine_result = engine::initialize(instance, on_window_event);
-	if (!engine_result) {
-		if (auto* window_error = std::get_if<engine::WindowError>(&engine_result.error())) {
-			std::string message = std::format("Couldn't create window: {}", engine::window_error_to_str(*window_error));
-			MessageBoxA(0, message.c_str(), "Error", MB_OK | MB_ICONERROR);
-			exit(1);
-		}
+	std::optional<engine::Engine> engine = engine::initialize(instance, on_window_event);
+	if (!engine) {
+		MessageBoxA(0, "Failed to initialize engine", "Error", MB_OK | MB_ICONERROR);
+		exit(1);
 	}
-	state->engine = std::move(engine_result.value());
+	state->engine = std::move(engine.value());
 	state->game = game::initialize(&state->engine);
 	LOG_INFO("Initialized");
 	LOG_INFO(PROFILING_IS_ENABLED ? "CPU profiling enabled" : "CPU profiling disabled");

@@ -195,6 +195,7 @@ namespace engine {
 	}
 
 	std::string Renderer::_take_current_tag() {
+		m_last_tag = m_current_tag;
 		return std::exchange(m_current_tag, std::string());
 	}
 

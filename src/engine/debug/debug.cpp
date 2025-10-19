@@ -13,7 +13,7 @@
 namespace engine {
 
 	void initialize_debug(DebugState* debug, ResourceManager* resources) {
-		debug->debug_font_id = resources->load_font("assets/font/ModernDOS8x16.ttf").value();
+		debug->debug_font_id = resources->load_font("assets/font/ModernDOS8x16.ttf");
 		debug->render_test_screen.initialize(resources);
 	}
 

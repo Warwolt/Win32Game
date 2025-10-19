@@ -1,11 +1,15 @@
 #include <engine/file/resource_manager.h>
 
 #include <engine/debug/assert.h>
+#include <engine/debug/logging.h>
 
 namespace engine {
 
-	ResourceManager::ResourceManager() {
-		m_images.insert(
+	std::optional<ResourceManager> ResourceManager::initialize(std::filesystem::path default_font_path) {
+		ResourceManager resources;
+
+		/* Load missing image texture */
+		resources.m_images.insert(
 			{
 				INVALID_IMAGE_ID.value,
 				Image {
@@ -20,9 +24,20 @@ namespace engine {
 				},
 			}
 		);
+
+		/* Load default font */
+		if (std::optional<Font> font = Font::from_path(default_font_path)) {
+			resources.m_fonts[DEFAULT_FONT_ID.value] = font.value();
+		}
+		else {
+			LOG_ERROR("Couldn't load default font from path \"%s\"", default_font_path.string().c_str());
+			return {};
+		}
+
+		return resources;
 	}
 
-	std::optional<ImageID> ResourceManager::load_image(std::filesystem::path filepath) {
+	ImageID ResourceManager::load_image(std::filesystem::path filepath) {
 		/* Check if already loaded */
 		if (auto it = m_image_ids.find(filepath); it != m_image_ids.end()) {
 			return ImageID(it->second);
@@ -36,10 +51,10 @@ namespace engine {
 		}
 
 		/* Couldn't load image */
-		return {};
+		return INVALID_IMAGE_ID;
 	}
 
-	std::optional<FontID> ResourceManager::load_font(std::filesystem::path filepath) {
+	FontID ResourceManager::load_font(std::filesystem::path filepath) {
 		/* Check if already loaded */
 		auto same_filepath = [filepath](const std::pair<std::filesystem::path, int>& path_id) { return filepath == path_id.first; };
 		if (auto it = std::find_if(m_font_ids.begin(), m_font_ids.end(), same_filepath); it != m_font_ids.end()) {
@@ -54,7 +69,7 @@ namespace engine {
 		}
 
 		/* Couldn't load font */
-		return {};
+		return INVALID_FONT_ID;
 	}
 
 	const Image& ResourceManager::image(ImageID id) const {

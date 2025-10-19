@@ -9,8 +9,7 @@
 #include <engine/graphics/window.h>
 #include <engine/input/input.h>
 
-#include <expected>
-#include <variant>
+#include <optional>
 
 namespace engine {
 
@@ -36,9 +35,7 @@ namespace engine {
 		DebugState debug;
 	};
 
-	using EngineError = std::variant<WindowError>;
-
-	std::expected<Engine, EngineError> initialize(HINSTANCE instance, WNDPROC wnd_proc);
+	std::optional<Engine> initialize(HINSTANCE instance, WNDPROC wnd_proc);
 	void update(Engine* engine);
 	void draw(Engine* engine);
 

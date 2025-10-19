@@ -17,8 +17,9 @@ namespace engine {
 	constexpr int FONT_SIZE = 16;
 
 	void RenderTestScreen::initialize(ResourceManager* resources) {
-		m_clipping_image = resources->load_image("assets/image/render_test/clipping.png").value_or(INVALID_IMAGE_ID);
-		m_transparency_image = resources->load_image("assets/image/render_test/transparency.png").value_or(INVALID_IMAGE_ID);
+		m_clipping_image = resources->load_image("assets/image/render_test/clipping.png");
+		m_transparency_image = resources->load_image("assets/image/render_test/transparency.png");
+		m_spritesheet = resources->load_image("assets/image/render_test/transparency.png");
 	}
 
 	void RenderTestScreen::update(const InputDevices& input) {
@@ -46,7 +47,7 @@ namespace engine {
 		}
 		if (m_page == RenderTestPage::SpriteSheetTest) {
 			title = "sprite sheet";
-			_draw_sprite_sheet_test(renderer, debug_font_id, screen_resolution);
+			_draw_sprite_sheet_test(renderer);
 		}
 		/* Render page title */
 		renderer->draw_text(debug_font_id, FONT_SIZE, { 0, 0 }, RGBA::white(), std::format("page {}/{}: {}", (int)m_page + 1, (int)RenderTestPage::Count, title));
@@ -371,7 +372,7 @@ namespace engine {
 		}
 	}
 
-	void RenderTestScreen::_draw_sprite_sheet_test(Renderer* /*renderer*/, FontID /*debug_font_id*/, IVec2 /*screen_resolution*/) const {
+	void RenderTestScreen::_draw_sprite_sheet_test(Renderer* /*renderer*/) const {
 		// draw sprite sheet, highlight current sprite
 		// cycle through sprites in sheet
 		// cycle through sprites in sheet, scaled x2

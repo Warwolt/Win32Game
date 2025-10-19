@@ -7,20 +7,13 @@
 #include <engine/debug/profiling.h>
 #include <engine/graphics/rect.h>
 
+#include <engine/debug/logging.h>
+
 #include <algorithm>
 
 namespace engine {
 
-	const char* window_error_to_str(WindowError error) {
-		switch (error) {
-			case WindowError::FailedToRegisterWindow: return "FailedToRegisterWindow";
-			case WindowError::FailedToCreateWindow: return "FailedToCreateWindow";
-		}
-		return "";
-	}
-
-	// Tries to initialize window, returns nullptr if fails
-	std::expected<Window, WindowError> Window::initialize(HINSTANCE instance, WNDPROC wnd_proc, IVec2 window_size, const char* window_title) {
+	std::optional<Window> Window::initialize(HINSTANCE instance, WNDPROC wnd_proc, IVec2 window_size, const char* window_title) {
 		Window window = {};
 		window.m_window_size = window_size;
 
@@ -36,7 +29,8 @@ namespace engine {
 			.lpszClassName = "WindowClass",
 		};
 		if (!RegisterClassA(&window_class)) {
-			return std::unexpected(WindowError::FailedToRegisterWindow);
+			LOG_ERROR("Failed to register window class. RegisterClassA gave error: %d", GetLastError());
+			return {};
 		}
 
 		/* Compute window size */
@@ -71,7 +65,8 @@ namespace engine {
 		);
 
 		if (!window.m_handle) {
-			return std::unexpected(WindowError::FailedToCreateWindow);
+			LOG_ERROR("Failed to create window. CreateWindowExA gave error: %d", GetLastError());
+			return {};
 		}
 
 		return window;

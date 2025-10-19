@@ -106,6 +106,7 @@ namespace engine {
 			DrawCommand command;
 			std::string tag; // meta data for what's being drawn
 		};
+		std::string m_last_tag; // for debuggin
 		std::string m_current_tag;
 		std::vector<DrawData> m_draw_data;
 
