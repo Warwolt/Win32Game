@@ -24,6 +24,28 @@ namespace engine {
 		const Image& sprite_sheet = resources->image(m_sprite_sheet);
 		m_sprite_sheet_size.width = sprite_sheet.width;
 		m_sprite_sheet_size.height = sprite_sheet.height;
+
+		m_animation_frames = {
+			{ 0, false },
+			{ 1, false },
+			{ 0, false },
+			{ 1, false },
+
+			{ 3, false },
+			{ 2, false },
+			{ 3, false },
+			{ 2, false },
+
+			{ 4, false },
+			{ 5, false },
+			{ 4, false },
+			{ 5, false },
+
+			{ 3, true },
+			{ 2, true },
+			{ 3, true },
+			{ 2, true },
+		};
 	}
 
 	void RenderTestScreen::update(const InputDevices& input) {
@@ -33,27 +55,6 @@ namespace engine {
 			m_alpha = (uint8_t)std::clamp((int16_t)m_alpha + 16 * input.mouse.mouse_wheel_delta, 0, 255);
 		}
 		if (m_page == RenderTestPage::SpriteSheetTest) {
-			m_animation_frames = {
-				{ 0, false },
-				{ 1, false },
-				{ 0, false },
-				{ 1, false },
-
-				{ 3, false },
-				{ 2, false },
-				{ 3, false },
-				{ 2, false },
-
-				{ 4, false },
-				{ 5, false },
-				{ 4, false },
-				{ 5, false },
-
-				{ 3, true },
-				{ 2, true },
-				{ 3, true },
-				{ 2, true },
-			};
 			/* Animate */
 			if ((input.time_now - m_last_sprite_sheet_frame).in_milliseconds() >= 430) {
 				m_last_sprite_sheet_frame = input.time_now;

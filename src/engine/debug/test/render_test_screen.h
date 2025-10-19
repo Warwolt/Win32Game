@@ -38,8 +38,7 @@ namespace engine {
 			bool flipped;
 		};
 
-		// int m_page = RenderTestPage::GeneralTest;
-		int m_page = RenderTestPage::SpriteSheetTest; // FIXME: don't merge this to main
+		int m_page = RenderTestPage::GeneralTest;
 		ImageID m_clipping_image;
 		ImageID m_transparency_image;
 		ImageID m_sprite_sheet;
