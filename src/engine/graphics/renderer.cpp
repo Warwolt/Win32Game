@@ -410,7 +410,7 @@ namespace engine {
 				.pos = { rect.x, rect.y + y },
 				.color = color,
 				.uv = {
-					uv0.x,
+					options.flip_h ? uv1.x : uv0.x,
 					engine::lerp(uv0.y, uv1.y, 1.0f - ((float)y / (float)rect.height)),
 				}
 			};
@@ -418,7 +418,7 @@ namespace engine {
 				.pos = { rect.x + rect.width - 1, rect.y + y },
 				.color = color,
 				.uv = {
-					uv1.x,
+					options.flip_h ? uv0.x : uv1.x,
 					engine::lerp(uv0.y, uv1.y, 1.0f - ((float)y / (float)rect.height)),
 				}
 			};
