@@ -40,6 +40,7 @@ set(SRC
     src/engine/input/input.cpp
     src/engine/input/keyboard.cpp
     src/engine/input/mouse.cpp
+    src/engine/input/time.cpp
     src/engine/math/ivec2.cpp
     src/engine/math/moving_average.cpp
     src/engine/math/vec2.cpp

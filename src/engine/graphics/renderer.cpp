@@ -177,12 +177,14 @@ namespace engine {
 						_put_triangle(bitmap, v1, v2, v3);
 					}
 				}
-				MATCH_CASE(DrawImage, image_id, rect, clip, alpha, tint) {
-					if (!rect.empty()) {
-						_put_image_scaled(bitmap, resources->image(image_id), rect, clip, alpha, tint);
+				MATCH_CASE(DrawImage, image_id, rect, maybe_clip, alpha, tint) {
+					const Image& image = resources->image(image_id);
+					Rect clip = maybe_clip.empty() ? Rect { 0, 0, image.width, image.height } : maybe_clip;
+					if (rect.empty()) {
+						_put_image(bitmap, image, rect.pos(), clip, alpha, tint);
 					}
 					else {
-						_put_image(bitmap, resources->image(image_id), rect.pos(), alpha, tint);
+						_put_image_scaled(bitmap, image, rect, clip, alpha, tint);
 					}
 				}
 				MATCH_CASE(DrawText, font_id, font_size, pos, color, text) {
@@ -422,11 +424,11 @@ namespace engine {
 		}
 	}
 
-	void Renderer::_put_image(Bitmap* bitmap, const Image& image, IVec2 pos, float alpha, RGBA tint) {
+	void Renderer::_put_image(Bitmap* bitmap, const Image& image, IVec2 pos, Rect clip, float alpha, RGBA tint) {
 		CPUProfilingScope_Render();
-		for (int32_t y_offset = 0; y_offset < image.height; y_offset++) {
-			for (int32_t x_offset = 0; x_offset < image.width; x_offset++) {
-				RGBA color = RGBA::tint(image.get(x_offset,y_offset), tint);
+		for (int32_t y_offset = clip.y; y_offset < engine::min(clip.height, image.height); y_offset++) {
+			for (int32_t x_offset = clip.x; x_offset < engine::min(clip.width, image.width); x_offset++) {
+				RGBA color = RGBA::tint(image.get(x_offset, y_offset), tint);
 				bitmap->put(pos.x + x_offset, pos.y + y_offset, Pixel::from_rgb(color), color.a / 255.0f * alpha);
 			}
 		}

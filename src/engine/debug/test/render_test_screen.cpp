@@ -19,13 +19,21 @@ namespace engine {
 	void RenderTestScreen::initialize(ResourceManager* resources) {
 		m_clipping_image = resources->load_image("assets/image/render_test/clipping.png");
 		m_transparency_image = resources->load_image("assets/image/render_test/transparency.png");
-		m_spritesheet = resources->load_image("assets/image/render_test/transparency.png");
+		m_sprite_sheet = resources->load_image("assets/image/render_test/sprite_sheet.png");
 	}
 
 	void RenderTestScreen::update(const InputDevices& input) {
-		/* Update alpha */
+		/* Update current page */
 		if (m_page == RenderTestPage::GeneralTest) {
+			/* Update alpha */
 			m_alpha = (uint8_t)std::clamp((int16_t)m_alpha + 16 * input.mouse.mouse_wheel_delta, 0, 255);
+		}
+		if (m_page == RenderTestPage::SpriteSheetTest) {
+			/* Animate */
+			if ((input.time_now - m_last_sprite_sheet_frame).in_milliseconds() >= 700) {
+				m_last_sprite_sheet_frame = input.time_now;
+				m_sprite_sheet_frame = (m_sprite_sheet_frame + 1) % 6;
+			}
 		}
 
 		/* Switch page */
@@ -372,10 +380,24 @@ namespace engine {
 		}
 	}
 
-	void RenderTestScreen::_draw_sprite_sheet_test(Renderer* /*renderer*/) const {
-		// draw sprite sheet, highlight current sprite
-		// cycle through sprites in sheet
-		// cycle through sprites in sheet, scaled x2
+	void RenderTestScreen::_draw_sprite_sheet_test(Renderer* renderer) const {
+		const IVec2 sprite_sheet_pos = { 0, 48 };
+		const int32_t sprite_width = 16;
+		const int32_t sprite_height = 16;
+		const Rect sprite_clip_rect = Rect {
+			.x = m_sprite_sheet_frame * sprite_width,
+			.y = 0,
+			.width = sprite_width,
+			.height = sprite_height,
+		};
+
+		/* Draw sprite sheet and highlight current sprite */
+		renderer->draw_image(m_sprite_sheet, sprite_sheet_pos);
+		renderer->draw_rect(sprite_clip_rect + sprite_sheet_pos, RGBA::green());
+
+		/* Draw current sprite */
+		const IVec2 sprite_pos = sprite_sheet_pos + IVec2 { 0, sprite_height };
+		renderer->draw_image(m_sprite_sheet, sprite_pos, sprite_clip_rect);
 	}
 
 } // namespace engine

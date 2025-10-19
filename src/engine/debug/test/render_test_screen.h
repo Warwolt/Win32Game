@@ -3,6 +3,7 @@
 #include <engine/graphics/font_id.h>
 #include <engine/graphics/image_id.h>
 #include <engine/math/ivec2.h>
+#include <engine/input/time.h>
 
 namespace engine {
 
@@ -29,10 +30,13 @@ namespace engine {
 		void _draw_general_render_test(Renderer* renderer, IVec2 screen_resolution) const;
 		void _draw_sprite_sheet_test(Renderer* renderer) const;
 
-		int m_page = RenderTestPage::GeneralTest;
+		// int m_page = RenderTestPage::GeneralTest;
+		int m_page = RenderTestPage::SpriteSheetTest; // FIXME: don't merge this to main
 		ImageID m_clipping_image;
 		ImageID m_transparency_image;
-		ImageID m_spritesheet;
+		ImageID m_sprite_sheet;
+		int m_sprite_sheet_frame;
+		Time m_last_sprite_sheet_frame;
 		uint8_t m_alpha = 255;
 	};
 

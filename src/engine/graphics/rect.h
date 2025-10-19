@@ -16,6 +16,8 @@ namespace engine {
 		int32_t width;
 		int32_t height;
 
+		friend Rect operator+(Rect lhs, IVec2 rhs);
+
 		bool empty() const;
 		IVec2 pos() const;
 	};

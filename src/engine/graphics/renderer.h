@@ -120,7 +120,7 @@ namespace engine {
 		void _put_circle_fill(Bitmap* bitmap, IVec2 center, int32_t radius, RGBA color);
 		void _put_triangle(Bitmap* bitmap, Vertex v1, Vertex v2, Vertex v3);
 		void _put_triangle_fill(Bitmap* bitmap, Vertex v1, Vertex v2, Vertex v3);
-		void _put_image(Bitmap* bitmap, const Image& image, IVec2 pos, float alpha, RGBA tint);
+		void _put_image(Bitmap* bitmap, const Image& image, IVec2 pos, Rect clip, float alpha, RGBA tint);
 		void _put_image_scaled(Bitmap* bitmap, const Image& image, Rect rect, Rect clip, float alpha, RGBA tint);
 		void _put_text(Bitmap* bitmap, Font* typeface, int32_t font_size, IVec2 pos, RGBA color, const std::string& text);
 	};

@@ -2,6 +2,10 @@
 
 namespace engine {
 
+	Rect operator+(Rect lhs, IVec2 rhs) {
+		return Rect { lhs.x + rhs.x, lhs.y + rhs.y, lhs.width, lhs.height };
+	}
+
 	bool Rect::empty() const {
 		return this->width == 0 && this->height == 0;
 	}
