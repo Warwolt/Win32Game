@@ -20,6 +20,7 @@ namespace engine {
 		static RGBA lerp(RGBA start, RGBA end, float t);
 		static RGBA tint(RGBA color, RGBA tint);
 		RGBA with_alpha(uint8_t alpha) const;
+		RGBA with_alpha(float alpha) const;
 		bool operator==(const RGBA& rhs) const = default;
 		operator bool() const;
 		friend RGBA operator+(const RGBA& lhs, const RGBA& rhs);

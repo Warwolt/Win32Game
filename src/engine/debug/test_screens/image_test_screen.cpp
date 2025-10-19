@@ -15,8 +15,7 @@
 namespace engine {
 
 	void ImageTestScreen::initialize(ResourceManager* resources) {
-		m_clipping_image = resources->load_image("assets/image/render_test/clipping.png");
-		m_transparency_image = resources->load_image("assets/image/render_test/transparency.png");
+		m_test_image = resources->load_image("assets/image/render_test/test_image.png");
 		m_sprite_sheet = resources->load_image("assets/image/render_test/sprite_sheet.png");
 
 		const Image& sprite_sheet = resources->image(m_sprite_sheet);
@@ -98,7 +97,7 @@ namespace engine {
 			/* Draw scaled sprite */
 			RENDERER_LOG(renderer, "Draw sprite (scaled up)");
 			const Rect scaled_sprite_rect = Rect {
-				.x = scaled_sprite_sheet_rect.width + scale * sprite_width,
+				.x = scaled_sprite_sheet_rect.width + 12,
 				.y = scaled_sprite_sheet_rect.y,
 				.width = scale * sprite_width,
 				.height = scale * sprite_height,
@@ -108,17 +107,55 @@ namespace engine {
 
 		/* Draw images */
 		{
-			const IVec2 image_pos = { 0, 80 };
-			const int32_t image_width = 64;
+			const int32_t image_width = 32;
+			const int32_t image_height = 32;
+			int column = 0;
+			int row = 0;
+			auto next_row = [&column, &row]() { column = 0; row++; };
 
 			RENDERER_LOG(renderer, "Draw image");
-			renderer->draw_image(m_clipping_image, image_pos);
+			renderer->draw_image(m_test_image, { column++ * (image_width + 2), 80 + row * (image_height + 2) });
 
 			RENDERER_LOG(renderer, "Draw image (flip horizontally)");
-			renderer->draw_image(m_clipping_image, image_pos + IVec2 { image_width + 2, 0 }, { .flip_h = true });
+			renderer->draw_image(m_test_image, { column++ * (image_width + 2), 80 + row * (image_height + 2) }, { .flip_h = true });
 
 			RENDERER_LOG(renderer, "Draw image (flip vertically)");
-			renderer->draw_image(m_clipping_image, image_pos + IVec2 { 2 * (image_width + 2), 0 }, { .flip_v = true });
+			renderer->draw_image(m_test_image, { column++ * (image_width + 2), 80 + row * (image_height + 2) }, { .flip_v = true });
+
+			RENDERER_LOG(renderer, "Draw image (flip diagonally)");
+			renderer->draw_image(m_test_image, { column++ * (image_width + 2), 80 + row * (image_height + 2) }, { .flip_h = true, .flip_v = true });
+
+			RENDERER_LOG(renderer, "Draw image (opacity 75%)");
+			renderer->draw_image(m_test_image, { column++ * (image_width + 2), 80 + row * (image_height + 2) }, { .alpha = 0.75f });
+
+			RENDERER_LOG(renderer, "Draw image (opacity 50%)");
+			renderer->draw_image(m_test_image, { column++ * (image_width + 2), 80 + row * (image_height + 2) }, { .alpha = 0.50f });
+
+			RENDERER_LOG(renderer, "Draw image (opacity 25%)");
+			renderer->draw_image(m_test_image, { column++ * (image_width + 2), 80 + row * (image_height + 2) }, { .alpha = 0.25f });
+
+			next_row();
+
+			RENDERER_LOG(renderer, "Draw image (tint red 0%)");
+			renderer->draw_image(m_test_image, { column++ * (image_width + 2), 80 + row * (image_height + 2) }, { .tint = RGBA::red().with_alpha(0.0f) });
+
+			RENDERER_LOG(renderer, "Draw image (tint red 25%)");
+			renderer->draw_image(m_test_image, { column++ * (image_width + 2), 80 + row * (image_height + 2) }, { .tint = RGBA::red().with_alpha(0.25f) });
+
+			RENDERER_LOG(renderer, "Draw image (tint red 50%)");
+			renderer->draw_image(m_test_image, { column++ * (image_width + 2), 80 + row * (image_height + 2) }, { .tint = RGBA::red().with_alpha(0.50f) });
+
+			RENDERER_LOG(renderer, "Draw image (tint red 75%)");
+			renderer->draw_image(m_test_image, { column++ * (image_width + 2), 80 + row * (image_height + 2) }, { .tint = RGBA::red().with_alpha(0.75f) });
+
+			RENDERER_LOG(renderer, "Draw image (tint red 100%)");
+			renderer->draw_image(m_test_image, { column++ * (image_width + 2), 80 + row * (image_height + 2) }, { .tint = RGBA::red().with_alpha(1.0f) });
+
+			RENDERER_LOG(renderer, "Draw image (tint red 100%, opacity 75%)");
+			renderer->draw_image(m_test_image, { column++ * (image_width + 2), 80 + row * (image_height + 2) }, { .alpha = 0.75f, .tint = RGBA::purple().with_alpha(1.0f) });
+
+			RENDERER_LOG(renderer, "Draw image (tint red 100%, opacity 50%)");
+			renderer->draw_image(m_test_image, { column++ * (image_width + 2), 80 + row * (image_height + 2) }, { .alpha = 0.50f, .tint = RGBA::purple().with_alpha(1.0f) });
 		}
 	}
 

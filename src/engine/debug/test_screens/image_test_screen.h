@@ -25,8 +25,7 @@ namespace engine {
 			bool flipped;
 		};
 
-		ImageID m_clipping_image;
-		ImageID m_transparency_image;
+		ImageID m_test_image;
 		ImageID m_sprite_sheet;
 		int m_animation_index = 0;
 		Rect m_sprite_sheet_size;
