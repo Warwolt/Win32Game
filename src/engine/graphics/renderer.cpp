@@ -179,12 +179,12 @@ namespace engine {
 				}
 				MATCH_CASE(DrawImage, image_id, rect, maybe_clip, options) {
 					const Image& image = resources->image(image_id);
-					Rect clip = maybe_clip.empty() ? Rect { 0, 0, image.width, image.height } : maybe_clip;
 					if (rect.empty()) {
+						Rect clip = maybe_clip.empty() ? Rect { 0, 0, image.width, image.height } : maybe_clip;
 						_put_image(bitmap, image, rect.pos(), clip, options);
 					}
 					else {
-						_put_image_scaled(bitmap, image, rect, clip, options);
+						_put_image_scaled(bitmap, image, rect, maybe_clip, options);
 					}
 				}
 				MATCH_CASE(DrawText, font_id, font_size, pos, color, text) {
@@ -197,7 +197,9 @@ namespace engine {
 	}
 
 	std::string Renderer::_take_current_tag() {
-		m_last_tag = m_current_tag;
+		if (!m_current_tag.empty()) {
+			m_last_tag = m_current_tag;
+		}
 		return std::exchange(m_current_tag, std::string());
 	}
 
@@ -392,13 +394,13 @@ namespace engine {
 		}
 		// bottom left
 		Vec2 uv0 = {
-			.x = engine::clamp((float)clip.x / (float)(rect.width - 1), 0.0f, 1.0f),
-			.y = engine::clamp((float)clip.y / (float)(rect.height), 0.0f, 1.0f),
+			.x = engine::clamp((float)clip.x / (float)(image.width - 1), 0.0f, 1.0f),
+			.y = engine::clamp((float)clip.y / (float)(image.height), 0.0f, 1.0f),
 		};
 		// top right
 		Vec2 uv1 = {
-			.x = engine::clamp((float)(clip.x + clip.width - 1) / (float)(rect.width - 1), 0.0f, 1.0f),
-			.y = engine::clamp((float)(clip.y + clip.height) / (float)(rect.height), 0.0f, 1.0f),
+			.x = engine::clamp((float)(clip.x + clip.width - 1) / (float)(image.width - 1), 0.0f, 1.0f),
+			.y = engine::clamp((float)(clip.y + clip.height) / (float)(image.height), 0.0f, 1.0f),
 		};
 
 		/* Draw image line by line */

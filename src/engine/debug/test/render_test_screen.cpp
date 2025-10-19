@@ -20,6 +20,10 @@ namespace engine {
 		m_clipping_image = resources->load_image("assets/image/render_test/clipping.png");
 		m_transparency_image = resources->load_image("assets/image/render_test/transparency.png");
 		m_sprite_sheet = resources->load_image("assets/image/render_test/sprite_sheet.png");
+
+		const Image& sprite_sheet = resources->image(m_sprite_sheet);
+		m_sprite_sheet_size.width = sprite_sheet.width;
+		m_sprite_sheet_size.height = sprite_sheet.height;
 	}
 
 	void RenderTestScreen::update(const InputDevices& input) {
@@ -413,13 +417,43 @@ namespace engine {
 		};
 		const bool is_flipped = m_animation_frames[m_animation_index].flipped;
 
-		/* Draw sprite sheet and highlight current sprite */
+		/* Draw sprite sheet */
+		RENDERER_LOG(renderer, "Draw sprite sheet");
 		renderer->draw_image(m_sprite_sheet, sprite_sheet_pos);
 		renderer->draw_rect(sprite_clip_rect + sprite_sheet_pos, RGBA::green());
 
-		/* Draw current sprite */
+		/* Draw sprite */
+		RENDERER_LOG(renderer, "Draw sprite");
 		const IVec2 sprite_pos = sprite_sheet_pos + IVec2 { 0, sprite_height };
 		renderer->draw_image(m_sprite_sheet, sprite_pos, sprite_clip_rect, { .flip_h = is_flipped });
+
+		/* Draw sprite sheet scaled */
+		RENDERER_LOG(renderer, "Draw sprite sheet (scaled up)");
+		const int scale = 2;
+		const Rect scaled_sprite_sheet_rect = {
+			.x = sprite_sheet_pos.x,
+			.y = sprite_sheet_pos.y + 64,
+			.width = (int32_t)(m_sprite_sheet_size.width * scale),
+			.height = (int32_t)(m_sprite_sheet_size.height * scale),
+		};
+		const Rect scaled_sprite_clip_rect = Rect {
+			.x = m_animation_frames[m_animation_index].index * scale * sprite_width,
+			.y = 0,
+			.width = scale * sprite_width,
+			.height = scale * sprite_height,
+		};
+		renderer->draw_image_scaled(m_sprite_sheet, scaled_sprite_sheet_rect);
+		renderer->draw_rect(scaled_sprite_clip_rect + scaled_sprite_sheet_rect.pos(), RGBA::green());
+
+		/* Draw scaled sprite */
+		RENDERER_LOG(renderer, "Draw sprite (scaled up)");
+		const Rect scaled_sprite_rect = Rect {
+			.x = 0,
+			.y = scaled_sprite_sheet_rect.y + scale * sprite_height,
+			.width = scale * sprite_width,
+			.height = scale * sprite_height,
+		};
+		renderer->draw_image_scaled(m_sprite_sheet, scaled_sprite_rect, sprite_clip_rect, { .flip_h = is_flipped });
 	}
 
 } // namespace engine

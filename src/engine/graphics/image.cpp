@@ -13,8 +13,8 @@ namespace engine {
 	}
 
 	RGBA Image::get(int x, int y) const {
-		int32_t clamped_x = engine::clamp(x, 0, this->width);
-		int32_t clamped_y = engine::clamp(y, 0, this->height);
+		int32_t clamped_x = engine::clamp(x, 0, this->width - 1);
+		int32_t clamped_y = engine::clamp(y, 0, this->height - 1);
 		return this->data[clamped_x + clamped_y * this->width];
 	}
 

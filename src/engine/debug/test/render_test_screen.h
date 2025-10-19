@@ -2,8 +2,9 @@
 
 #include <engine/graphics/font_id.h>
 #include <engine/graphics/image_id.h>
-#include <engine/math/ivec2.h>
+#include <engine/graphics/rect.h>
 #include <engine/input/time.h>
+#include <engine/math/ivec2.h>
 
 #include <vector>
 
@@ -43,6 +44,7 @@ namespace engine {
 		ImageID m_transparency_image;
 		ImageID m_sprite_sheet;
 		int m_animation_index = 0;
+		Rect m_sprite_sheet_size;
 		std::vector<AnimationFrame> m_animation_frames;
 		Time m_last_sprite_sheet_frame;
 		uint8_t m_alpha = 255;
