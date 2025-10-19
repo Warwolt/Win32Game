@@ -55,7 +55,7 @@ State* initialize_application(HINSTANCE instance, WNDPROC on_window_event) {
 	state->engine = std::move(engine.value());
 	state->game = game::initialize(&state->engine);
 	LOG_INFO("Initialized");
-	LOG_INFO(PROFILING_IS_ENABLED ? "CPU profiling enabled" : "CPU profiling disabled");
+	LOG_INFO(PROFILING_IS_ENABLED ? "CPU profiling is enabled" : "CPU profiling is disabled");
 	return state;
 }
 

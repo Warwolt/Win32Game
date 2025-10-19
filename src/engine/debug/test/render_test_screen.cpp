@@ -30,25 +30,25 @@ namespace engine {
 		}
 		if (m_page == RenderTestPage::SpriteSheetTest) {
 			m_animation_frames = {
-				{0, false},
-				{1, false},
-				{0, false},
-				{1, false},
+				{ 0, false },
+				{ 1, false },
+				{ 0, false },
+				{ 1, false },
 
-				{3, false},
-				{2, false},
-				{3, false},
-				{2, false},
+				{ 3, false },
+				{ 2, false },
+				{ 3, false },
+				{ 2, false },
 
-				{4, false},
-				{5, false},
-				{4, false},
-				{5, false},
+				{ 4, false },
+				{ 5, false },
+				{ 4, false },
+				{ 5, false },
 
-				{3, true},
-				{2, true},
-				{3, true},
-				{2, true},
+				{ 3, true },
+				{ 2, true },
+				{ 3, true },
+				{ 2, true },
 			};
 			/* Animate */
 			if ((input.time_now - m_last_sprite_sheet_frame).in_milliseconds() >= 430) {
@@ -298,7 +298,7 @@ namespace engine {
 				.height = grid_size,
 			};
 			Rect clip = {};
-			renderer->draw_image_scaled(ImageID(0), rect, clip, m_alpha / 255.0f);
+			renderer->draw_image_scaled(ImageID(0), rect, clip, { .alpha = m_alpha / 255.0f });
 		}
 
 		// draw test image
@@ -307,7 +307,7 @@ namespace engine {
 			grid_pos = next_grid_pos(grid_pos);
 			IVec2 pos = get_pos(Vec2 { -1.0, 1.0 }, grid_pos);
 			Rect clip = {};
-			renderer->draw_image(m_clipping_image, pos, clip, m_alpha / 255.0f);
+			renderer->draw_image(m_clipping_image, pos, clip, { .alpha = m_alpha / 255.0f });
 		}
 
 		// draw clipped top left
@@ -327,7 +327,7 @@ namespace engine {
 				.width = grid_size / 2,
 				.height = grid_size / 2,
 			};
-			renderer->draw_image_scaled(m_clipping_image, rect, clip, m_alpha / 255.0f);
+			renderer->draw_image_scaled(m_clipping_image, rect, clip, { .alpha = m_alpha / 255.0f });
 		}
 
 		// draw clipped centered
@@ -347,7 +347,7 @@ namespace engine {
 				.width = grid_size / 2,
 				.height = grid_size / 2,
 			};
-			renderer->draw_image_scaled(m_clipping_image, rect, clip, m_alpha / 255.0f);
+			renderer->draw_image_scaled(m_clipping_image, rect, clip, { .alpha = m_alpha / 255.0f });
 		}
 
 		// draw test image tinted
@@ -357,7 +357,7 @@ namespace engine {
 			IVec2 pos = get_pos(Vec2 { -1.0, 1.0 }, grid_pos);
 			Rect clip = {};
 			RGBA tint = { 255, 0, 0, m_alpha };
-			renderer->draw_image(m_clipping_image, pos, clip, 1.0f, tint);
+			renderer->draw_image(m_clipping_image, pos, clip, { .tint = tint });
 		}
 
 		// draw clipped top left tinted
@@ -378,7 +378,7 @@ namespace engine {
 				.height = grid_size / 2,
 			};
 			RGBA tint = { 255, 0, 0, m_alpha };
-			renderer->draw_image_scaled(m_clipping_image, rect, clip, 1.0f, tint);
+			renderer->draw_image_scaled(m_clipping_image, rect, clip, { .tint = tint });
 		}
 
 		// draw transparent image
@@ -387,7 +387,7 @@ namespace engine {
 			grid_pos = next_grid_pos(grid_pos);
 			IVec2 pos = get_pos(Vec2 { -1.0, 1.0 }, grid_pos);
 			Rect clip = {};
-			renderer->draw_image(m_transparency_image, pos, clip, m_alpha / 255.0f);
+			renderer->draw_image(m_transparency_image, pos, clip, { .alpha = m_alpha / 255.0f });
 		}
 
 		// draw tinted transparent image
@@ -397,7 +397,7 @@ namespace engine {
 			IVec2 pos = get_pos(Vec2 { -1.0, 1.0 }, grid_pos);
 			Rect clip = {};
 			RGBA tint = { 255, 0, 0, m_alpha };
-			renderer->draw_image(m_transparency_image, pos, clip, 1.0f, tint);
+			renderer->draw_image(m_transparency_image, pos, clip, { .tint = tint });
 		}
 	}
 
@@ -406,11 +406,12 @@ namespace engine {
 		const int32_t sprite_width = 16;
 		const int32_t sprite_height = 16;
 		const Rect sprite_clip_rect = Rect {
-			 .x = m_animation_frames[m_animation_index].index * sprite_width,
+			.x = m_animation_frames[m_animation_index].index * sprite_width,
 			.y = 0,
 			.width = sprite_width,
 			.height = sprite_height,
 		};
+		const bool is_flipped = m_animation_frames[m_animation_index].flipped;
 
 		/* Draw sprite sheet and highlight current sprite */
 		renderer->draw_image(m_sprite_sheet, sprite_sheet_pos);
@@ -418,7 +419,7 @@ namespace engine {
 
 		/* Draw current sprite */
 		const IVec2 sprite_pos = sprite_sheet_pos + IVec2 { 0, sprite_height };
-		renderer->draw_image(m_sprite_sheet, sprite_pos, sprite_clip_rect);
+		renderer->draw_image(m_sprite_sheet, sprite_pos, sprite_clip_rect, { .flip_h = is_flipped });
 	}
 
 } // namespace engine
