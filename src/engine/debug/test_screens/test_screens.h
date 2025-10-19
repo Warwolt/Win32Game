@@ -5,6 +5,7 @@
 #include <engine/graphics/rect.h>
 #include <engine/input/time.h>
 #include <engine/math/ivec2.h>
+#include <engine/debug/test_screens/geometry_test_screen.h>
 
 #include <vector>
 
@@ -21,15 +22,6 @@ namespace engine {
 			ImageTest,
 			Count,
 		};
-	};
-
-	class GeometryTestScreen {
-	public:
-		void update(const InputDevices& input);
-		void draw(Renderer* renderer, IVec2 screen_resolution) const;
-
-	private:
-		uint8_t m_alpha = 255;
 	};
 
 	class ImageTestScreen {
