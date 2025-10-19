@@ -13,7 +13,7 @@
 namespace engine {
 
 	void initialize_debug(DebugState* debug, ResourceManager* resources) {
-		debug->render_test_screen.initialize(resources);
+		debug->test_screens.initialize(resources);
 	}
 
 	void update_debug(DebugState* debug, const InputDevices& input, std::vector<Command>* commands) {
@@ -21,10 +21,10 @@ namespace engine {
 
 		/* Update test screens */
 		if (input.keyboard.key_was_pressed_now(VK_F3)) {
-			debug->show_render_test_screen = !debug->show_render_test_screen;
+			debug->show_test_screens = !debug->show_test_screens;
 		}
-		if (debug->show_render_test_screen) {
-			debug->render_test_screen.update(input);
+		if (debug->show_test_screens) {
+			debug->test_screens.update(input);
 		}
 
 		/* Show CPU profiling information in window title */
@@ -38,8 +38,8 @@ namespace engine {
 		CPUProfilingScope_Engine();
 
 		/* Draw test screens */
-		if (debug.show_render_test_screen) {
-			debug.render_test_screen.draw(renderer, screen_resolution);
+		if (debug.show_test_screens) {
+			debug.test_screens.draw(renderer, screen_resolution);
 		}
 	}
 

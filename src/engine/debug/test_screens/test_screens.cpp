@@ -1,4 +1,4 @@
-#include <engine/debug/test/render_test_screen.h>
+#include <engine/debug/test_screens/test_screens.h>
 
 #include <engine/debug/profiling.h>
 #include <engine/file/resource_manager.h>
@@ -8,7 +8,6 @@
 
 #include <windows.h>
 
-#include "render_test_screen.h"
 #include <algorithm>
 #include <array>
 #include <format>
@@ -17,17 +16,17 @@ namespace engine {
 
 	constexpr int FONT_SIZE = 16;
 
-	void RenderTestScreen::initialize(ResourceManager* resources) {
-		m_image_test_page.initialize(resources);
+	void TestScreens::initialize(ResourceManager* resources) {
+		m_image_test_screen.initialize(resources);
 	}
 
-	void RenderTestScreen::update(const InputDevices& input) {
+	void TestScreens::update(const InputDevices& input) {
 		/* Update current page */
 		if (m_page == RenderTestPage::GeometryTest) {
-			m_geometry_test_page.update(input);
+			m_geometry_test_screen.update(input);
 		}
 		if (m_page == RenderTestPage::ImageTest) {
-			m_image_test_page.update(input);
+			m_image_test_screen.update(input);
 		}
 
 		/* Switch page */
@@ -39,27 +38,27 @@ namespace engine {
 		}
 	}
 
-	void RenderTestScreen::draw(Renderer* renderer, IVec2 screen_resolution) const {
+	void TestScreens::draw(Renderer* renderer, IVec2 screen_resolution) const {
 		CPUProfilingScope_Engine();
 		const char* title = "unknown";
 		/* Render page */
 		if (m_page == RenderTestPage::GeometryTest) {
 			title = "geometry";
-			m_geometry_test_page.draw(renderer, screen_resolution);
+			m_geometry_test_screen.draw(renderer, screen_resolution);
 		}
 		if (m_page == RenderTestPage::ImageTest) {
 			title = "image";
-			m_image_test_page.draw(renderer, screen_resolution);
+			m_image_test_screen.draw(renderer, screen_resolution);
 		}
 		/* Render page title */
 		renderer->draw_text(DEFAULT_FONT_ID, FONT_SIZE, { 0, 0 }, RGBA::white(), std::format("page {}/{}: {}", (int)m_page + 1, (int)RenderTestPage::Count, title));
 	}
 
-	void GeometryTestPage::update(const InputDevices& input) {
+	void GeometryTestScreen::update(const InputDevices& input) {
 		m_alpha = (uint8_t)std::clamp(m_alpha + 16 * input.mouse.mouse_wheel_delta, 0, 255);
 	}
 
-	void GeometryTestPage::draw(Renderer* renderer, IVec2 screen_resolution) const {
+	void GeometryTestScreen::draw(Renderer* renderer, IVec2 screen_resolution) const {
 		CPUProfilingScope_Engine();
 		enum class FillMode {
 			Outline,
@@ -226,7 +225,7 @@ namespace engine {
 		}
 	}
 
-	void ImageTestPage::initialize(ResourceManager* resources) {
+	void ImageTestScreen::initialize(ResourceManager* resources) {
 		m_clipping_image = resources->load_image("assets/image/render_test/clipping.png");
 		m_transparency_image = resources->load_image("assets/image/render_test/transparency.png");
 		m_sprite_sheet = resources->load_image("assets/image/render_test/sprite_sheet.png");
@@ -258,14 +257,14 @@ namespace engine {
 		};
 	}
 
-	void ImageTestPage::update(const InputDevices& input) {
+	void ImageTestScreen::update(const InputDevices& input) {
 		if ((input.time_now - m_last_sprite_sheet_frame).in_milliseconds() >= 430) {
 			m_last_sprite_sheet_frame = input.time_now;
 			m_animation_index = (m_animation_index + 1) % m_animation_frames.size();
 		}
 	}
 
-	void ImageTestPage::draw(Renderer* renderer, IVec2 screen_resolution) const {
+	void ImageTestScreen::draw(Renderer* renderer, IVec2 screen_resolution) const {
 		const IVec2 sprite_sheet_pos = { 0, 20 };
 		const int32_t sprite_width = 16;
 		const int32_t sprite_height = 16;

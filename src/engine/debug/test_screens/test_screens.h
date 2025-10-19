@@ -23,7 +23,7 @@ namespace engine {
 		};
 	};
 
-	class GeometryTestPage {
+	class GeometryTestScreen {
 	public:
 		void update(const InputDevices& input);
 		void draw(Renderer* renderer, IVec2 screen_resolution) const;
@@ -32,7 +32,7 @@ namespace engine {
 		uint8_t m_alpha = 255;
 	};
 
-	class ImageTestPage {
+	class ImageTestScreen {
 	public:
 		void initialize(ResourceManager* resources);
 		void update(const InputDevices& input);
@@ -54,7 +54,7 @@ namespace engine {
 		Time m_last_sprite_sheet_frame;
 	};
 
-	class RenderTestScreen {
+	class TestScreens {
 	public:
 		void initialize(ResourceManager* resources);
 		void update(const InputDevices& input);
@@ -62,8 +62,8 @@ namespace engine {
 
 	private:
 		int m_page = RenderTestPage::GeometryTest;
-		GeometryTestPage m_geometry_test_page;
-		ImageTestPage m_image_test_page;
+		GeometryTestScreen m_geometry_test_screen;
+		ImageTestScreen m_image_test_screen;
 	};
 
 } // namespace engine
