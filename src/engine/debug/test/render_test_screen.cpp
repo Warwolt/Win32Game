@@ -29,10 +29,31 @@ namespace engine {
 			m_alpha = (uint8_t)std::clamp((int16_t)m_alpha + 16 * input.mouse.mouse_wheel_delta, 0, 255);
 		}
 		if (m_page == RenderTestPage::SpriteSheetTest) {
+			m_animation_frames = {
+				{0, false},
+				{1, false},
+				{0, false},
+				{1, false},
+
+				{3, false},
+				{2, false},
+				{3, false},
+				{2, false},
+
+				{4, false},
+				{5, false},
+				{4, false},
+				{5, false},
+
+				{3, true},
+				{2, true},
+				{3, true},
+				{2, true},
+			};
 			/* Animate */
-			if ((input.time_now - m_last_sprite_sheet_frame).in_milliseconds() >= 700) {
+			if ((input.time_now - m_last_sprite_sheet_frame).in_milliseconds() >= 430) {
 				m_last_sprite_sheet_frame = input.time_now;
-				m_sprite_sheet_frame = (m_sprite_sheet_frame + 1) % 6;
+				m_animation_index = (m_animation_index + 1) % m_animation_frames.size();
 			}
 		}
 
@@ -385,7 +406,7 @@ namespace engine {
 		const int32_t sprite_width = 16;
 		const int32_t sprite_height = 16;
 		const Rect sprite_clip_rect = Rect {
-			.x = m_sprite_sheet_frame * sprite_width,
+			 .x = m_animation_frames[m_animation_index].index * sprite_width,
 			.y = 0,
 			.width = sprite_width,
 			.height = sprite_height,
