@@ -25,6 +25,7 @@ set(SRC
     src/engine/debug/debug.cpp
     src/engine/debug/delta_timer.cpp
     src/engine/debug/logging.cpp
+    src/engine/debug/test_screens/image_test_screen.cpp
     src/engine/debug/test_screens/geometry_test_screen.cpp
     src/engine/debug/test_screens/test_screens.cpp
     src/engine/engine.cpp
