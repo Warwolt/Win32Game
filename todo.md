@@ -5,6 +5,7 @@ Overall goal:
 
 # Todo
 - Add way to specify which test screen page to open from command line
+- Add basic animation system, apply it in the test screens
 - Add render test screen with lots of images to stress test, get a sense of budget
 - Add a little Link sprite that can walk around with keyboard
 - Try out LDtk Level Editor (https://ldtk.io/)

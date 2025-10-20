@@ -11,7 +11,7 @@ namespace engine {
 			m_animation_index = 0;
 		}
 
-		if (input.time_now - m_last_animation_frame >= 2000ms) {
+		if (input.time_now - m_last_animation_frame >= 1500ms) {
 			m_last_animation_frame = input.time_now;
 			m_animation_index = (m_animation_index + 1) % 2;
 		}

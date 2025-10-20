@@ -27,7 +27,7 @@ namespace engine {
 		void draw(Renderer* renderer, IVec2 screen_resolution) const;
 
 	private:
-		int m_page = RenderTestPage::FontTest;
+		int m_page = 0;
 		bool m_just_changed_page = true;
 		GeometryTestScreen m_geometry_test_screen;
 		ImageTestScreen m_image_test_screen;
