@@ -10,9 +10,9 @@ Overall goal:
 - Try out LDtk Level Editor (https://ldtk.io/)
 
 # Doing
-- Add test screen
 
 # Done
+- Add test screens for rendering geomtry, sprites, and text
 - Integrate Tracy profiler
 - DLL based hot reloading
 - Text Mode UI prototype
