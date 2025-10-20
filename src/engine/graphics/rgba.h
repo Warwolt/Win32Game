@@ -25,6 +25,7 @@ namespace engine {
 		bool operator==(const RGBA& rhs) const = default;
 		operator bool() const;
 		friend RGBA operator+(const RGBA& lhs, const RGBA& rhs);
+		friend RGBA operator*(const RGBA& lhs, float t);
 		friend RGBA operator*(float t, const RGBA& rhs);
 		friend RGBA operator*(RGBA lhs, const RGBA& rhs);
 	};

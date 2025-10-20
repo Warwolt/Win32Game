@@ -9,20 +9,32 @@ namespace engine {
 
 	void FontTestScreen::draw(Renderer* renderer, IVec2 screen_resolution) const {
 		const int32_t font_size = 16;
-		Rect text_rect = { 0, 18, screen_resolution.x / 2, font_size };
-		renderer->draw_text(DEFAULT_FONT_ID, font_size, text_rect, RGBA::white(), "THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG.");
-		renderer->draw_rect(text_rect, RGBA::green());
+		const int32_t font_ascent = 12;
 
-		renderer->draw_text(DEFAULT_FONT_ID, font_size, { 0, 58 }, RGBA::white(), "the quick brown fox jumps over");
-		renderer->draw_text(DEFAULT_FONT_ID, font_size, { 0, 58 + 16 }, RGBA::white(), "the lazy dog.");
+		/* Uppercase */
+		{
+			RENDERER_LOG(renderer, "Uppercase quick brown fox");
+			Rect text_rect = { 0, 18, screen_resolution.x / 2, font_ascent * 3 + 8 };
+			renderer->draw_text(DEFAULT_FONT_ID, font_size, text_rect, RGBA::white(), "THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG.");
+			renderer->draw_rect(text_rect, RGBA::green());
+		}
 
-		// FIXME: can we add some kind of support for drawing "shaded" text?
-		renderer->draw_text(DEFAULT_FONT_ID, 2 * font_size, { 0 + 2, 98 + 2 }, RGBA::dark_purple(), "Sphinx of black");
-		renderer->draw_text(DEFAULT_FONT_ID, 2 * font_size, { 0, 98 }, RGBA::purple(), "Sphinx of black");
-		renderer->draw_text(DEFAULT_FONT_ID, 2 * font_size, { 0 + 2, 98 + 32 + 2 }, RGBA::dark_purple(), "quartz, judge");
-		renderer->draw_text(DEFAULT_FONT_ID, 2 * font_size, { 0, 98 + 32 }, RGBA::purple(), "quartz, judge");
-		renderer->draw_text(DEFAULT_FONT_ID, 2 * font_size, { 0 + 2, 98 + 64 + 2 }, RGBA::dark_purple(), "my vow!");
-		renderer->draw_text(DEFAULT_FONT_ID, 2 * font_size, { 0, 98 + 64 }, RGBA::purple(), "my vow!");
+		/* Lowercase */
+		{
+			RENDERER_LOG(renderer, "Lowercase quick brown fox");
+			Rect text_rect = { screen_resolution.x / 2, 18, screen_resolution.x / 2, font_ascent * 3 + 8 };
+			renderer->draw_text(DEFAULT_FONT_ID, font_size, text_rect, RGBA::white(), "the quick brown fox jumps over the lazy dog.");
+			renderer->draw_rect(text_rect, RGBA::green());
+		}
+
+		/* Big shaded font */
+		{
+			RENDERER_LOG(renderer, "Big shaded sphinx of black quartz");
+			Rect text_rect = { 0, 98, screen_resolution.x - 10, screen_resolution.y };
+			renderer->draw_text(DEFAULT_FONT_ID, 2 * font_size, text_rect + IVec2 { 2, 2 }, RGBA::dark_purple(), "Sphinx of black quartz, judge my vow!");
+			renderer->draw_text(DEFAULT_FONT_ID, 2 * font_size, text_rect + IVec2 { 1, 1 }, RGBA::dark_purple(), "Sphinx of black quartz, judge my vow!");
+			renderer->draw_text(DEFAULT_FONT_ID, 2 * font_size, text_rect + IVec2 { 0, 0 }, RGBA::purple(), "Sphinx of black quartz, judge my vow!");
+		}
 	}
 
 } // namespace engine

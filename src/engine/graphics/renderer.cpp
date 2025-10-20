@@ -446,31 +446,34 @@ namespace engine {
 
 	void Renderer::_put_text(Bitmap* bitmap, Font* font, int32_t font_size, Rect rect, RGBA color, const std::string& text) {
 		CPUProfilingScope_Render();
-		int32_t ascent = font->ascent(font_size);
+		const int32_t ascent = font->ascent(font_size);
 		int32_t cursor_x = 0;
 		int32_t cursor_y = ascent;
 
-		if (rect.empty()) {
+		if (rect.width == 0) {
 			rect.width = font->text_width(font_size, text);
+		}
+		if (rect.height == 0) {
+			rect.height = std::numeric_limits<std::int32_t>::max();
 		}
 
 		for (const std::string& word : split_string_into_words(text)) {
-			int32_t word_width = font->text_width(font_size, word);
-			int32_t horizontal_remainder = rect.width - cursor_x;
+			/* Check horizontal space */
+			const int32_t word_width = font->text_width(font_size, word);
+			const int32_t horizontal_remainder = rect.width - cursor_x;
 			if (word_width > horizontal_remainder) {
+				/* Go to next row */
 				cursor_x = 0;
 				cursor_y += ascent;
-			}
-			//     calculate substring width in pixels
-			//     if (width is greater than remaining horizontal space) {
-			//         move cursor to next row
-			//     }
-			//
-			//    if (height is greater than remaining vertical space ) {
-			//       stop
-			//    }
 
-			// draw current word
+				/* Check vertical space */
+				const int32_t vertical_remainder = rect.height - cursor_y;
+				if (vertical_remainder < 0) {
+					 break;
+				}
+			}
+
+			/* Draw word */
 			for (char character : word) {
 				/* Render character */
 				const engine::Glyph& glyph = font->glyph(font_size, character);
@@ -484,11 +487,11 @@ namespace engine {
 					}
 				}
 
-				/* Advance position */
+				/* Go to next column */
 				cursor_x += glyph.advance_width;
 			}
 
-			/* Add space */
+			/* Add space character */
 			cursor_x += font->glyph(font_size, ' ').advance_width;
 		}
 	}
