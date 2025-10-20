@@ -6,11 +6,7 @@
 namespace engine {
 
 	void FontTestScreen::update(const InputDevices& input) {
-		// FIXME: add support for "ms" operator for Time and a comparison operator
-		// Maybe we can just re-use std::chrono stuff here?
-		// if (input.time_now - m_last_animation_frame >= 1000ms) {
-
-		if ((input.time_now - m_last_animation_frame).in_milliseconds() >= 2000) {
+		if (input.time_now - m_last_animation_frame >= 2000ms) {
 			m_last_animation_frame = input.time_now;
 			m_animation_index = (m_animation_index + 1) % 2;
 		}
