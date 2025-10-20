@@ -13,9 +13,9 @@ Overall goal:
 - Try out LDtk Level Editor (https://ldtk.io/)
 
 # Doing
-- Add way to specify which test screen page to open from command line
 
 # Done
+- Add way to specify which test screen page to open from command line
 - Add test screens for rendering geomtry, sprites, and text
 - Integrate Tracy profiler
 - DLL based hot reloading

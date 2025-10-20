@@ -3,6 +3,7 @@
 #include <engine/debug/logging.h>
 #include <engine/debug/profiling.h>
 #include <engine/input/input.h>
+#include <engine/utility/string_utility.h>
 
 namespace engine {
 
@@ -11,20 +12,6 @@ namespace engine {
 	struct EngineArgs {
 		int test_screen_page = 0;
 	};
-
-	bool string_starts_with(const std::string& string, const std::string& prefix) {
-		return strncmp(prefix.c_str(), string.c_str(), prefix.length()) == 0;
-	}
-
-	std::optional<int64_t> parse_number(const std::string& string) {
-		errno = 0;
-		char* end = nullptr;
-		int64_t number = strtol(string.c_str(), &end, 10);
-		if (errno == ERANGE || end == string.c_str() || *end != '\0') {
-			return {};
-		}
-		return number;
-	}
 
 	std::optional<int64_t> parse_numeric_arg(const std::string& string, const std::string& arg_string) {
 		if (string_starts_with(string, arg_string)) {
