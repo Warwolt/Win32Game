@@ -7,26 +7,10 @@
 #include <engine/graphics/image.h>
 #include <engine/graphics/rect.h>
 #include <engine/math/math.h>
+#include <engine/utility/string_utility.h>
 
 #include <cmath>
 #include <utility>
-
-// FIXME: move this to a utility/string_utility.h header
-#include <iterator>
-#include <sstream>
-#include <string>
-#include <vector>
-
-namespace engine {
-
-	std::vector<std::string> split_string_into_words(const std::string& text) {
-		std::stringstream ss(text);
-		std::istream_iterator<std::string> begin(ss);
-		std::istream_iterator<std::string> end;
-		return std::vector<std::string>(begin, end);
-	}
-
-} // namespace engine
 
 namespace engine {
 
@@ -466,8 +450,17 @@ namespace engine {
 		int32_t cursor_x = 0;
 		int32_t cursor_y = ascent;
 
+		if (rect.empty()) {
+			rect.width = font->text_width(font_size, text);
+		}
+
 		for (const std::string& word : split_string_into_words(text)) {
 			int32_t word_width = font->text_width(font_size, word);
+			int32_t horizontal_remainder = rect.width - cursor_x;
+			if (word_width > horizontal_remainder) {
+				cursor_x = 0;
+				cursor_y += ascent;
+			}
 			//     calculate substring width in pixels
 			//     if (width is greater than remaining horizontal space) {
 			//         move cursor to next row

@@ -55,7 +55,7 @@ namespace engine {
 		}
 		if (m_page == RenderTestPage::FontTest) {
 			title = "draw text";
-			m_font_test_screen.draw(renderer);
+			m_font_test_screen.draw(renderer, screen_resolution);
 		}
 		/* Render page title */
 		renderer->draw_text(DEFAULT_FONT_ID, FONT_SIZE, { 0, 0 }, RGBA::white(), std::format("test page {}/{}: {}", (int)m_page + 1, (int)RenderTestPage::Count, title));
