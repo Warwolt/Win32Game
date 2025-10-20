@@ -10,7 +10,7 @@ namespace engine {
 	struct InputDevices;
 	struct DebugState;
 
-	void initialize_debug(DebugState* debug, ResourceManager* resources);
+	void initialize_debug(DebugState* debug, ResourceManager* resources, int initial_test_screen_page);
 	void update_debug(DebugState* debug, const InputDevices& input, std::vector<Command>* commands);
 	void draw_debug(Renderer* renderer, const DebugState& debug, IVec2 screen_resolution);
 

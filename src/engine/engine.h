@@ -10,6 +10,8 @@
 #include <engine/input/input.h>
 
 #include <optional>
+#include <string>
+#include <vector>
 
 namespace engine {
 
@@ -35,7 +37,7 @@ namespace engine {
 		DebugState debug;
 	};
 
-	std::optional<Engine> initialize(HINSTANCE instance, WNDPROC wnd_proc);
+	std::optional<Engine> initialize(const std::vector<std::string>& args, HINSTANCE instance, WNDPROC wnd_proc);
 	void update(Engine* engine);
 	void draw(Engine* engine);
 

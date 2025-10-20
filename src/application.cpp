@@ -45,9 +45,10 @@ static void update_input_devices(State* state) {
 	}
 }
 
-State* initialize_application(HINSTANCE instance, WNDPROC on_window_event) {
+State* initialize_application(int argc, char** argv, HINSTANCE instance, WNDPROC on_window_event) {
 	State* state = new State {};
-	std::optional<engine::Engine> engine = engine::initialize(instance, on_window_event);
+	std::vector<std::string> args = std::vector<std::string>(argv, argv + argc);
+	std::optional<engine::Engine> engine = engine::initialize(args, instance, on_window_event);
 	if (!engine) {
 		MessageBoxA(0, "Failed to initialize engine", "Error", MB_OK | MB_ICONERROR);
 		exit(1);
@@ -56,6 +57,7 @@ State* initialize_application(HINSTANCE instance, WNDPROC on_window_event) {
 	state->game = game::initialize(&state->engine);
 	LOG_INFO("Initialized");
 	LOG_INFO(PROFILING_IS_ENABLED ? "CPU profiling is enabled" : "CPU profiling is disabled");
+
 	return state;
 }
 

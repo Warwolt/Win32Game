@@ -19,7 +19,7 @@
 
 struct ApplicationLibrary : public library::Library {
 	LRESULT (*on_window_event)(State* state, HWND window, UINT message, WPARAM w_param, LPARAM l_param);
-	State* (*initialize_application)(HINSTANCE instance, WNDPROC on_window_event);
+	State* (*initialize_application)(int argc, char** argv, HINSTANCE instance, WNDPROC on_window_event);
 	bool (*update_application)(State*);
 	void (*shutdown_application)(State*);
 
@@ -35,7 +35,7 @@ struct ApplicationLibrary : public library::Library {
 static library::LibraryLoader g_loader = library::LibraryLoader(LIBRARY_NAME, "cmake --build build --target Library");
 static ApplicationLibrary g_library;
 
-State* initialize_application(HINSTANCE instance, WNDPROC on_window_event) {
+State* initialize_application(int argc, char** argv, HINSTANCE instance, WNDPROC on_window_event) {
 	/* Load library */
 	std::expected<void, std::string> load_result = g_loader.load_library(&g_library);
 	if (!load_result) {
@@ -45,7 +45,7 @@ State* initialize_application(HINSTANCE instance, WNDPROC on_window_event) {
 
 	/* Initialize app */
 	printf("Hot reloading enabled, hot reload with F5 key\n");
-	return g_library.initialize_application(instance, on_window_event);
+	return g_library.initialize_application(argc, argv, instance, on_window_event);
 }
 
 LRESULT CALLBACK on_window_event(State* state, HWND window, UINT message, WPARAM w_param, LPARAM l_param) {

@@ -1,19 +1,15 @@
 #include <engine/debug/assert.h>
 #include <engine/debug/debug.h>
 #include <engine/debug/debug_state.h>
-#include <engine/debug/logging.h>
 #include <engine/debug/profiling.h>
 #include <engine/file/resource_manager.h>
 #include <engine/graphics/renderer.h>
-#include <engine/graphics/window.h>
 #include <engine/input/input.h>
-
-#include <optional>
 
 namespace engine {
 
-	void initialize_debug(DebugState* debug, ResourceManager* resources) {
-		debug->test_screens.initialize(resources);
+	void initialize_debug(DebugState* debug, ResourceManager* resources, int initial_test_screen_page) {
+		debug->test_screens.initialize(resources, initial_test_screen_page);
 	}
 
 	void update_debug(DebugState* debug, const InputDevices& input, std::vector<Command>* commands) {
