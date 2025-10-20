@@ -42,7 +42,7 @@ int WINAPI WinMain(
 	/* Init */
 	SetProcessDPIAware();
 	enable_printf();
-	g_state = initialize_application(instance, on_window_event);
+	g_state = initialize_application(__argc, __argv, instance, on_window_event);
 
 	/* Run */
 	bool quit = false;

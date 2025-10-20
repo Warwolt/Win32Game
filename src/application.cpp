@@ -45,7 +45,7 @@ static void update_input_devices(State* state) {
 	}
 }
 
-State* initialize_application(HINSTANCE instance, WNDPROC on_window_event) {
+State* initialize_application(int argc, char** argv, HINSTANCE instance, WNDPROC on_window_event) {
 	State* state = new State {};
 	std::optional<engine::Engine> engine = engine::initialize(instance, on_window_event);
 	if (!engine) {
@@ -56,6 +56,11 @@ State* initialize_application(HINSTANCE instance, WNDPROC on_window_event) {
 	state->game = game::initialize(&state->engine);
 	LOG_INFO("Initialized");
 	LOG_INFO(PROFILING_IS_ENABLED ? "CPU profiling is enabled" : "CPU profiling is disabled");
+
+	for (size_t i = 0; i < argc; i++) {
+		LOG_DEBUG("%s", argv[i]);
+	}
+
 	return state;
 }
 
