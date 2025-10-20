@@ -44,7 +44,7 @@ namespace engine {
 			return IVec2 { pos.x + 1, pos.y };
 		};
 
-		// helper that maps a normalized device coorinate vector into screen
+		// helper that maps a normalized device coordinate vector into screen
 		// coordinates aligned on a grid for nice display.
 		auto get_pos = [grid_size, grid_spacing](Vec2 ndc_vec, IVec2 grid_pos) -> IVec2 {
 			IVec2 spacing_offset = grid_spacing * IVec2 { grid_pos.x, grid_pos.y + 1 };
