@@ -8,8 +8,46 @@ namespace engine {
 
 	constexpr IVec2 NES_RESOLUTION = IVec2 { 256, 240 };
 
-	std::optional<Engine> initialize(HINSTANCE instance, WNDPROC wnd_proc) {
+	struct EngineArgs {
+		int test_screen_page = 0;
+	};
+
+	bool string_starts_with(const std::string& string, const std::string& prefix) {
+		return strncmp(prefix.c_str(), string.c_str(), prefix.length()) == 0;
+	}
+
+	std::optional<int64_t> parse_number(const std::string& string) {
+		errno = 0;
+		char* end = nullptr;
+		int64_t number = strtol(string.c_str(), &end, 10);
+		if (errno == ERANGE || end == string.c_str() || *end != '\0') {
+			return {};
+		}
+		return number;
+	}
+
+	std::optional<int64_t> parse_numeric_arg(const std::string& string, const std::string& arg_string) {
+		if (string_starts_with(string, arg_string)) {
+			return parse_number(string.substr(arg_string.length()));
+		}
+		return {};
+	}
+
+	static EngineArgs parse_args(const std::vector<std::string>& args) {
+		EngineArgs engine_args;
+
+		for (const std::string& arg : args) {
+			if (std::optional<int64_t> test_screen_page = parse_numeric_arg(arg, "--test-screen-page=")) {
+				engine_args.test_screen_page = (int32_t)test_screen_page.value() - 1;
+			}
+		}
+
+		return engine_args;
+	}
+
+	std::optional<Engine> initialize(const std::vector<std::string>& args, HINSTANCE instance, WNDPROC wnd_proc) {
 		Engine engine = {};
+		EngineArgs engine_args = parse_args(args);
 		initialize_logging();
 
 		/* Create window */
@@ -33,7 +71,7 @@ namespace engine {
 		engine.bitmap = Bitmap::with_size(engine.screen_resolution.x, engine.screen_resolution.y);
 		engine.audio = initialize_audio_player();
 		initialize_gamepad_support();
-		initialize_debug(&engine.debug, &engine.resources);
+		initialize_debug(&engine.debug, &engine.resources, engine_args.test_screen_page);
 
 		return engine;
 	}

@@ -11,7 +11,7 @@ namespace engine {
 	class ResourceManager;
 	class Window;
 
-	struct RenderTestPage {
+	struct TestScreenPage {
 		enum {
 			GeometryTest,
 			ImageTest,
@@ -22,7 +22,7 @@ namespace engine {
 
 	class TestScreens {
 	public:
-		void initialize(ResourceManager* resources);
+		void initialize(ResourceManager* resources, int initial_page);
 		void update(const InputDevices& input);
 		void draw(Renderer* renderer, IVec2 screen_resolution) const;
 
