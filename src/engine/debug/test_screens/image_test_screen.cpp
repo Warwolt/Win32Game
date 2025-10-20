@@ -45,7 +45,12 @@ namespace engine {
 		};
 	}
 
-	void ImageTestScreen::update(const InputDevices& input) {
+	void ImageTestScreen::update(bool opened_now, const InputDevices& input) {
+		if (opened_now) {
+			m_last_sprite_sheet_frame = input.time_now;
+			m_animation_index = 0;
+		}
+
 		if (input.time_now - m_last_sprite_sheet_frame >= 430ms) {
 			m_last_sprite_sheet_frame = input.time_now;
 			m_animation_index = (m_animation_index + 1) % m_animation_frames.size();

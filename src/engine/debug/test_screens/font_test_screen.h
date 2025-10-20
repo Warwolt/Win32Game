@@ -10,7 +10,7 @@ namespace engine {
 
 	class FontTestScreen {
 	public:
-		void update(const InputDevices& input);
+		void update(bool opened_now, const InputDevices& input);
 		void draw(Renderer* renderer, IVec2 screen_resolution) const;
 
 	private:

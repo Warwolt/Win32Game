@@ -26,18 +26,21 @@ namespace engine {
 			m_geometry_test_screen.update(input);
 		}
 		if (m_page == RenderTestPage::ImageTest) {
-			m_image_test_screen.update(input);
+			m_image_test_screen.update(m_just_changed_page, input);
 		}
 		if (m_page == RenderTestPage::FontTest) {
-			m_font_test_screen.update(input);
+			m_font_test_screen.update(m_just_changed_page, input);
 		}
 
 		/* Switch page */
+		m_just_changed_page = false;
 		if (input.keyboard.key_was_pressed_now(VK_RIGHT)) {
 			m_page = (RenderTestPage::Count + m_page + 1) % RenderTestPage::Count;
+			m_just_changed_page = true;
 		}
 		if (input.keyboard.key_was_pressed_now(VK_LEFT)) {
 			m_page = (RenderTestPage::Count + m_page - 1) % RenderTestPage::Count;
+			m_just_changed_page = true;
 		}
 	}
 

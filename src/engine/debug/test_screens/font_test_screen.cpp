@@ -5,7 +5,12 @@
 
 namespace engine {
 
-	void FontTestScreen::update(const InputDevices& input) {
+	void FontTestScreen::update(bool opened_now, const InputDevices& input) {
+		if (opened_now) {
+			m_last_animation_frame = input.time_now;
+			m_animation_index = 0;
+		}
+
 		if (input.time_now - m_last_animation_frame >= 2000ms) {
 			m_last_animation_frame = input.time_now;
 			m_animation_index = (m_animation_index + 1) % 2;

@@ -15,7 +15,7 @@ namespace engine {
 	class ImageTestScreen {
 	public:
 		void initialize(ResourceManager* resources);
-		void update(const InputDevices& input);
+		void update(bool opened_now, const InputDevices& input);
 		void draw(Renderer* renderer) const;
 
 	private:

@@ -28,6 +28,7 @@ namespace engine {
 
 	private:
 		int m_page = RenderTestPage::FontTest;
+		bool m_just_changed_page = true;
 		GeometryTestScreen m_geometry_test_screen;
 		ImageTestScreen m_image_test_screen;
 		FontTestScreen m_font_test_screen;
