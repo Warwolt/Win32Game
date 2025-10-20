@@ -11,6 +11,23 @@
 #include <cmath>
 #include <utility>
 
+// FIXME: move this to a utility/string_utility.h header
+#include <iterator>
+#include <sstream>
+#include <string>
+#include <vector>
+
+namespace engine {
+
+	std::vector<std::string> split_string_into_words(const std::string& text) {
+		std::stringstream ss(text);
+		std::istream_iterator<std::string> begin(ss);
+		std::istream_iterator<std::string> end;
+		return std::vector<std::string>(begin, end);
+	}
+
+} // namespace engine
+
 namespace engine {
 
 	static std::vector<IVec2> circle_octant_points(int32_t radius) {
@@ -130,8 +147,8 @@ namespace engine {
 		m_draw_data.push_back(DrawData { DrawImage { image_id, rect, options }, _take_current_tag() });
 	}
 
-	void Renderer::draw_text(FontID font_id, int32_t font_size, IVec2 pos, RGBA color, std::string text) {
-		m_draw_data.push_back(DrawData { DrawText { font_id, font_size, pos, color, text }, _take_current_tag() });
+	void Renderer::draw_text(FontID font_id, int32_t font_size, Rect rect, RGBA color, std::string text) {
+		m_draw_data.push_back(DrawData { DrawText { font_id, font_size, rect, color, text }, _take_current_tag() });
 	}
 
 	void Renderer::render(Bitmap* bitmap, ResourceManager* resources) {
@@ -190,9 +207,9 @@ namespace engine {
 						_put_image_scaled(bitmap, image, rect, options);
 					}
 				}
-				MATCH_CASE(DrawText, font_id, font_size, pos, color, text) {
+				MATCH_CASE(DrawText, font_id, font_size, rect, color, text) {
 					Font& font = resources->font(font_id);
-					_put_text(bitmap, &font, font_size, pos, color, text);
+					_put_text(bitmap, &font, font_size, rect, color, text);
 				}
 			}
 		}
@@ -443,24 +460,43 @@ namespace engine {
 		}
 	}
 
-	void Renderer::_put_text(Bitmap* bitmap, Font* font, int32_t font_size, IVec2 pos, RGBA color, const std::string& text) {
+	void Renderer::_put_text(Bitmap* bitmap, Font* font, int32_t font_size, Rect rect, RGBA color, const std::string& text) {
 		CPUProfilingScope_Render();
 		int32_t ascent = font->ascent(font_size);
-		int32_t cursor_x = pos.x;
-		int32_t cursor_y = pos.y + ascent;
-		for (char character : text) {
-			/* Render character */
-			const engine::Glyph& glyph = font->glyph(font_size, character);
-			for (int32_t y = 0; y < glyph.height; y++) {
-				for (int32_t x = 0; x < glyph.width; x++) {
-					engine::Pixel pixel = engine::Pixel::from_rgb(color);
-					float alpha = (glyph.get(x, y) / 255.0f) * (color.a / 255.0f);
-					bitmap->put(cursor_x + glyph.left_side_bearing + x, cursor_y + y + glyph.y_offset, pixel, alpha);
+		int32_t cursor_x = 0;
+		int32_t cursor_y = ascent;
+
+		for (const std::string& word : split_string_into_words(text)) {
+			int32_t word_width = font->text_width(font_size, word);
+			//     calculate substring width in pixels
+			//     if (width is greater than remaining horizontal space) {
+			//         move cursor to next row
+			//     }
+			//
+			//    if (height is greater than remaining vertical space ) {
+			//       stop
+			//    }
+
+			// draw current word
+			for (char character : word) {
+				/* Render character */
+				const engine::Glyph& glyph = font->glyph(font_size, character);
+				for (int32_t y = 0; y < glyph.height; y++) {
+					for (int32_t x = 0; x < glyph.width; x++) {
+						engine::Pixel pixel = engine::Pixel::from_rgb(color);
+						float alpha = (glyph.get(x, y) / 255.0f) * (color.a / 255.0f);
+						int32_t pixel_x = rect.x + cursor_x + glyph.left_side_bearing + x;
+						int32_t pixel_y = rect.y + cursor_y + y + glyph.y_offset;
+						bitmap->put(pixel_x, pixel_y, pixel, alpha);
+					}
 				}
+
+				/* Advance position */
+				cursor_x += glyph.advance_width;
 			}
 
-			/* Advance position */
-			cursor_x += glyph.advance_width;
+			/* Add space */
+			cursor_x += font->glyph(font_size, ' ').advance_width;
 		}
 	}
 

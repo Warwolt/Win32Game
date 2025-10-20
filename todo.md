@@ -4,11 +4,13 @@ Overall goal:
 - Simple Win32 level editor (create content for the games)
 
 # Todo
+- Add way to specify which test screen page to open from command line
 - Add render test screen with lots of images to stress test, get a sense of budget
 - Add a little Link sprite that can walk around with keyboard
 - Try out LDtk Level Editor (https://ldtk.io/)
 
 # Doing
+- Add test screen
 
 # Done
 - Integrate Tracy profiler
