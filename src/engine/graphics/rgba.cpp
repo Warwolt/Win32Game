@@ -25,6 +25,12 @@ namespace engine {
 		return color;
 	}
 
+	RGBA RGBA::with_alpha(float alpha) const {
+		RGBA color = *this;
+		color.a = (uint8_t)(255.0f * alpha);
+		return color;
+	}
+
 	// A fully transparent color can't be shown, and is thus "falsy"
 	RGBA::operator bool() const {
 		return this->a > 0;
@@ -47,6 +53,10 @@ namespace engine {
 			.b = (uint8_t)std::round(t * rhs.b),
 			.a = (uint8_t)std::round(t * rhs.a),
 		};
+	}
+
+	RGBA operator*(const RGBA& lhs, float t) {
+		return t * lhs;
 	}
 
 	RGBA operator*(RGBA lhs, const RGBA& rhs) {

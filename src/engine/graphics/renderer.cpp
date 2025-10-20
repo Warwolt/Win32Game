@@ -7,6 +7,7 @@
 #include <engine/graphics/image.h>
 #include <engine/graphics/rect.h>
 #include <engine/math/math.h>
+#include <engine/utility/string_utility.h>
 
 #include <cmath>
 #include <utility>
@@ -122,16 +123,16 @@ namespace engine {
 		m_draw_data.push_back(DrawData { DrawTriangle { v1, v2, v3, true }, _take_current_tag() });
 	}
 
-	void Renderer::draw_image(ImageID image_id, IVec2 pos, Rect clip, DrawImageOptions options) {
-		m_draw_data.push_back(DrawData { DrawImage { image_id, Rect { pos.x, pos.y }, clip, options }, _take_current_tag() });
+	void Renderer::draw_image(ImageID image_id, IVec2 pos, DrawImageOptions options) {
+		m_draw_data.push_back(DrawData { DrawImage { image_id, Rect { pos.x, pos.y }, options }, _take_current_tag() });
 	}
 
-	void Renderer::draw_image_scaled(ImageID image_id, Rect rect, Rect clip, DrawImageOptions options) {
-		m_draw_data.push_back(DrawData { DrawImage { image_id, rect, clip, options }, _take_current_tag() });
+	void Renderer::draw_image_scaled(ImageID image_id, Rect rect, DrawImageOptions options) {
+		m_draw_data.push_back(DrawData { DrawImage { image_id, rect, options }, _take_current_tag() });
 	}
 
-	void Renderer::draw_text(FontID font_id, int32_t font_size, IVec2 pos, RGBA color, std::string text) {
-		m_draw_data.push_back(DrawData { DrawText { font_id, font_size, pos, color, text }, _take_current_tag() });
+	void Renderer::draw_text(FontID font_id, int32_t font_size, Rect rect, RGBA color, std::string text) {
+		m_draw_data.push_back(DrawData { DrawText { font_id, font_size, rect, color, text }, _take_current_tag() });
 	}
 
 	void Renderer::render(Bitmap* bitmap, ResourceManager* resources) {
@@ -177,19 +178,22 @@ namespace engine {
 						_put_triangle(bitmap, v1, v2, v3);
 					}
 				}
-				MATCH_CASE(DrawImage, image_id, rect, maybe_clip, options) {
+				MATCH_CASE(DrawImage, image_id, rect, const_options) {
+					DrawImageOptions options = const_options;
 					const Image& image = resources->image(image_id);
 					if (rect.empty()) {
-						Rect clip = maybe_clip.empty() ? Rect { 0, 0, image.width, image.height } : maybe_clip;
-						_put_image(bitmap, image, rect.pos(), clip, options);
+						if (options.clip.empty()) {
+							options.clip = Rect { 0, 0, image.width, image.height };
+						}
+						_put_image(bitmap, image, rect.pos(), options);
 					}
 					else {
-						_put_image_scaled(bitmap, image, rect, maybe_clip, options);
+						_put_image_scaled(bitmap, image, rect, options);
 					}
 				}
-				MATCH_CASE(DrawText, font_id, font_size, pos, color, text) {
+				MATCH_CASE(DrawText, font_id, font_size, rect, color, text) {
 					Font& font = resources->font(font_id);
-					_put_text(bitmap, &font, font_size, pos, color, text);
+					_put_text(bitmap, &font, font_size, rect, color, text);
 				}
 			}
 		}
@@ -385,22 +389,22 @@ namespace engine {
 		}
 	}
 
-	void Renderer::_put_image_scaled(Bitmap* bitmap, const Image& image, Rect rect, Rect clip, DrawImageOptions options) {
+	void Renderer::_put_image_scaled(Bitmap* bitmap, const Image& image, Rect rect, DrawImageOptions options) {
 		CPUProfilingScope_Render();
 		/* UV coordinates */
-		if (clip.empty()) {
-			clip.width = rect.width;
-			clip.height = rect.height;
+		if (options.clip.empty()) {
+			options.clip.width = rect.width;
+			options.clip.height = rect.height;
 		}
 		// bottom left
 		Vec2 uv0 = {
-			.x = engine::clamp((float)clip.x / (float)(image.width - 1), 0.0f, 1.0f),
-			.y = engine::clamp((float)clip.y / (float)(image.height), 0.0f, 1.0f),
+			.x = engine::clamp((float)options.clip.x / (float)(image.width - 1), 0.0f, 1.0f),
+			.y = engine::clamp((float)options.clip.y / (float)(image.height), 0.0f, 1.0f),
 		};
 		// top right
 		Vec2 uv1 = {
-			.x = engine::clamp((float)(clip.x + clip.width - 1) / (float)(image.width - 1), 0.0f, 1.0f),
-			.y = engine::clamp((float)(clip.y + clip.height) / (float)(image.height), 0.0f, 1.0f),
+			.x = engine::clamp((float)(options.clip.x + options.clip.width - 1) / (float)(image.width - 1), 0.0f, 1.0f),
+			.y = engine::clamp((float)(options.clip.y + options.clip.height) / (float)(image.height), 0.0f, 1.0f),
 		};
 
 		/* Draw image line by line */
@@ -410,7 +414,7 @@ namespace engine {
 				.pos = { rect.x, rect.y + y },
 				.color = color,
 				.uv = {
-					uv0.x,
+					options.flip_h ? uv1.x : uv0.x,
 					engine::lerp(uv0.y, uv1.y, 1.0f - ((float)y / (float)rect.height)),
 				}
 			};
@@ -418,7 +422,7 @@ namespace engine {
 				.pos = { rect.x + rect.width - 1, rect.y + y },
 				.color = color,
 				.uv = {
-					uv1.x,
+					options.flip_h ? uv0.x : uv1.x,
 					engine::lerp(uv0.y, uv1.y, 1.0f - ((float)y / (float)rect.height)),
 				}
 			};
@@ -426,38 +430,69 @@ namespace engine {
 		}
 	}
 
-	void Renderer::_put_image(Bitmap* bitmap, const Image& image, IVec2 pos, Rect clip, DrawImageOptions options) {
+	void Renderer::_put_image(Bitmap* bitmap, const Image& image, IVec2 pos, DrawImageOptions options) {
 		CPUProfilingScope_Render();
-		int32_t y_end = engine::min(clip.height, image.height);
-		int32_t x_end = engine::min(clip.width, image.width);
+		int32_t y_end = engine::min(options.clip.height, image.height);
+		int32_t x_end = engine::min(options.clip.width, image.width);
 		for (int32_t y_offset = 0; y_offset < y_end; y_offset++) {
 			for (int32_t x_offset = 0; x_offset < x_end; x_offset++) {
-				RGBA color = RGBA::tint(image.get(clip.x + x_offset, clip.y + y_offset), options.tint);
-				int32_t x = options.flip_h ? pos.x + (clip.width - x_offset) : pos.x + x_offset;
-				int32_t y = options.flip_v ? pos.y + (clip.height - y_offset) : pos.y + y_offset;
+				RGBA color = RGBA::tint(image.get(options.clip.x + x_offset, options.clip.y + y_offset), options.tint);
+				int32_t x = options.flip_h ? pos.x + (options.clip.width - 1 - x_offset) : pos.x + x_offset;
+				int32_t y = options.flip_v ? pos.y + (options.clip.height - 1 - y_offset) : pos.y + y_offset;
 				bitmap->put(x, y, Pixel::from_rgb(color), color.a / 255.0f * options.alpha);
 			}
 		}
 	}
 
-	void Renderer::_put_text(Bitmap* bitmap, Font* font, int32_t font_size, IVec2 pos, RGBA color, const std::string& text) {
+	void Renderer::_put_text(Bitmap* bitmap, Font* font, int32_t font_size, Rect rect, RGBA color, const std::string& text) {
 		CPUProfilingScope_Render();
-		int32_t ascent = font->ascent(font_size);
-		int32_t cursor_x = pos.x;
-		int32_t cursor_y = pos.y + ascent;
-		for (char character : text) {
-			/* Render character */
-			const engine::Glyph& glyph = font->glyph(font_size, character);
-			for (int32_t y = 0; y < glyph.height; y++) {
-				for (int32_t x = 0; x < glyph.width; x++) {
-					engine::Pixel pixel = engine::Pixel::from_rgb(color);
-					float alpha = (glyph.get(x, y) / 255.0f) * (color.a / 255.0f);
-					bitmap->put(cursor_x + glyph.left_side_bearing + x, cursor_y + y + glyph.y_offset, pixel, alpha);
+		const int32_t ascent = font->ascent(font_size);
+		int32_t cursor_x = 0;
+		int32_t cursor_y = ascent;
+
+		if (rect.width == 0) {
+			rect.width = font->text_width(font_size, text);
+		}
+		if (rect.height == 0) {
+			rect.height = std::numeric_limits<std::int32_t>::max();
+		}
+
+		for (const std::string& word : split_string_into_words(text)) {
+			/* Check horizontal space */
+			const int32_t word_width = font->text_width(font_size, word);
+			const int32_t horizontal_remainder = rect.width - cursor_x;
+			if (word_width > horizontal_remainder) {
+				/* Go to next row */
+				cursor_x = 0;
+				cursor_y += ascent;
+
+				/* Check vertical space */
+				const int32_t vertical_remainder = rect.height - cursor_y;
+				if (vertical_remainder < 0) {
+					 break;
 				}
 			}
 
-			/* Advance position */
-			cursor_x += glyph.advance_width;
+			/* Draw word */
+			for (char character : word) {
+				/* Render character */
+				const engine::Glyph& glyph = font->glyph(font_size, character);
+				for (int32_t y = 0; y < glyph.height; y++) {
+					for (int32_t x = 0; x < glyph.width; x++) {
+						engine::Pixel pixel = engine::Pixel::from_rgb(color);
+						float alpha = (glyph.get(x, y) / 255.0f) * (color.a / 255.0f);
+						int32_t pixel_x = rect.x + cursor_x + glyph.left_side_bearing + x;
+						int32_t pixel_y = rect.y + cursor_y + y + glyph.y_offset;
+						bitmap->put(pixel_x, pixel_y, pixel, alpha);
+					}
+				}
+
+				/* Go to next column */
+				cursor_x += glyph.advance_width;
+			}
+
+			/* Add space character */
+			cursor_x += font->glyph(font_size, ' ').advance_width;
 		}
 	}
 

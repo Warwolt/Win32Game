@@ -146,6 +146,9 @@ bool update_application(State* state) {
 		/* Render */
 		state->engine.renderer.render(&state->engine.bitmap, &state->engine.resources);
 		state->engine.window.render(state->engine.bitmap);
+
+		/* Yield CPU to not stall OS */
+		Sleep(1);
 	}
 	state->engine.debug.frame_timer.end();
 	CPUProfilingEndFrame();

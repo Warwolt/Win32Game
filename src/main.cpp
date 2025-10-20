@@ -50,5 +50,7 @@ int WINAPI WinMain(
 		quit = update_application(g_state);
 	}
 
+	/* Quit */
 	shutdown_application(g_state);
+	return 0;
 }

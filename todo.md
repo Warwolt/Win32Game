@@ -4,13 +4,19 @@ Overall goal:
 - Simple Win32 level editor (create content for the games)
 
 # Todo
+- Add way to specify which test screen page to open from command line
+- Add basic animation system, apply it in the test screens
 - Add render test screen with lots of images to stress test, get a sense of budget
+- Add keyboard & mouse input test screen, display stream of events and data like e.g. mouse position
+- Add audio test screen, display volume of current played sample as a little bar
+  - maybe relevant: https://stackoverflow.com/questions/35438815/how-do-i-retrieve-the-current-sample-play-position-from-an-xaudio2-source-voice
 - Add a little Link sprite that can walk around with keyboard
 - Try out LDtk Level Editor (https://ldtk.io/)
 
 # Doing
 
 # Done
+- Add test screens for rendering geomtry, sprites, and text
 - Integrate Tracy profiler
 - DLL based hot reloading
 - Text Mode UI prototype

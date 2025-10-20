@@ -31,6 +31,7 @@ namespace engine {
 	};
 
 	struct DrawImageOptions {
+		Rect clip = {};
 		bool flip_h = false;
 		bool flip_v = false;
 		float alpha = 1.0f;
@@ -52,9 +53,9 @@ namespace engine {
 		void draw_circle_fill(IVec2 center, int32_t radius, RGBA color);
 		void draw_triangle(Vertex v1, Vertex v2, Vertex v3);
 		void draw_triangle_fill(Vertex v1, Vertex v2, Vertex v3);
-		void draw_image(ImageID image_id, IVec2 pos, Rect clip = {}, DrawImageOptions options = {});
-		void draw_image_scaled(ImageID image_id, Rect rect, Rect clip = {}, DrawImageOptions options = {});
-		void draw_text(FontID font_id, int32_t font_size, IVec2 pos, RGBA color, std::string text);
+		void draw_image(ImageID image_id, IVec2 pos, DrawImageOptions options = {});
+		void draw_image_scaled(ImageID image_id, Rect rect, DrawImageOptions options = {});
+		void draw_text(FontID font_id, int32_t font_size, Rect rect, RGBA color, std::string text);
 
 		void render(Bitmap* bitmap, ResourceManager* resources);
 
@@ -89,13 +90,12 @@ namespace engine {
 		struct DrawImage {
 			ImageID image_id;
 			Rect rect;
-			Rect clip;
 			DrawImageOptions options;
 		};
 		struct DrawText {
 			FontID font_id;
 			int32_t font_size;
-			IVec2 pos;
+			Rect rect;
 			RGBA color;
 			std::string text;
 		};
@@ -126,9 +126,9 @@ namespace engine {
 		void _put_circle_fill(Bitmap* bitmap, IVec2 center, int32_t radius, RGBA color);
 		void _put_triangle(Bitmap* bitmap, Vertex v1, Vertex v2, Vertex v3);
 		void _put_triangle_fill(Bitmap* bitmap, Vertex v1, Vertex v2, Vertex v3);
-		void _put_image(Bitmap* bitmap, const Image& image, IVec2 pos, Rect clip, DrawImageOptions options);
-		void _put_image_scaled(Bitmap* bitmap, const Image& image, Rect rect, Rect clip, DrawImageOptions options);
-		void _put_text(Bitmap* bitmap, Font* typeface, int32_t font_size, IVec2 pos, RGBA color, const std::string& text);
+		void _put_image(Bitmap* bitmap, const Image& image, IVec2 pos, DrawImageOptions options);
+		void _put_image_scaled(Bitmap* bitmap, const Image& image, Rect rect, DrawImageOptions options);
+		void _put_text(Bitmap* bitmap, Font* typeface, int32_t font_size, Rect rect, RGBA color, const std::string& text);
 	};
 
 } // namespace engine

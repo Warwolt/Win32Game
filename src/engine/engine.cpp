@@ -6,13 +6,15 @@
 
 namespace engine {
 
+	constexpr IVec2 NES_RESOLUTION = IVec2 { 256, 240 };
+
 	std::optional<Engine> initialize(HINSTANCE instance, WNDPROC wnd_proc) {
 		Engine engine = {};
 		initialize_logging();
 
 		/* Create window */
 		constexpr int zoom = 2;
-		IVec2 screen_resolution = IVec2 { 640, 480 };
+		IVec2 screen_resolution = NES_RESOLUTION;
 		const char* window_title = "Win32Game";
 		std::optional<Window> window = Window::initialize(instance, wnd_proc, zoom * screen_resolution, window_title);
 		if (!window) {
