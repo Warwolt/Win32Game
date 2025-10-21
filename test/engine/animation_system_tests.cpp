@@ -71,7 +71,17 @@ TEST(AnimationSystemTests, AnimationPlayback_Wait0ms_PlayingFirstFrame) {
 	EXPECT_EQ(current_frame, 111);
 }
 
-// wait 50ms -> still first frame
+TEST(AnimationSystemTests, AnimationPlayback_Wait50ms_PlayingFirstFrame) {
+	AnimationSystem<int> animation_system;
+	AnimationID animation_id = animation_system.add_animation(test_animation());
+	AnimationEntityID entity_id = AnimationEntityID(1);
+
+	std::expected<void, AnimationError> result = animation_system.start_animation(animation_id, entity_id, 50ms);
+	int current_frame = animation_system.current_frame(entity_id);
+
+	EXPECT_TRUE(result.has_value());
+	EXPECT_EQ(current_frame, 111);
+}
 
 TEST(AnimationSystemTests, AnimationPlayback_Wait100ms_PlayingSecondFrame) {
 	AnimationSystem<int> animation_system;
