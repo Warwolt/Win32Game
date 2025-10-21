@@ -59,7 +59,7 @@ TEST(AnimationSystemTests, StartAnimation_InvalidAnimationEntityID_GivesError) {
 	EXPECT_EQ(result.error(), AnimationError::InvalidAnimationEntityID);
 }
 
-TEST(AnimationSystemTests, StartAnimation_CurrentFrame_IsFirstFrame) {
+TEST(AnimationSystemTests, AnimationPlayback_Wait0ms_PlayingFirstFrame) {
 	AnimationSystem<int> animation_system;
 	AnimationID animation_id = animation_system.add_animation(test_animation());
 	AnimationEntityID entity_id = AnimationEntityID(1);
@@ -71,4 +71,17 @@ TEST(AnimationSystemTests, StartAnimation_CurrentFrame_IsFirstFrame) {
 	EXPECT_EQ(current_frame, 111);
 }
 
-// start animation; update into future; get current frame => second frame
+// wait 50ms -> still first frame
+
+TEST(AnimationSystemTests, AnimationPlayback_Wait100ms_PlayingSecondFrame) {
+	AnimationSystem<int> animation_system;
+	AnimationID animation_id = animation_system.add_animation(test_animation());
+	AnimationEntityID entity_id = AnimationEntityID(1);
+
+	std::expected<void, AnimationError> result = animation_system.start_animation(animation_id, entity_id, 0ms);
+	animation_system.update(100ms);
+	int current_frame = animation_system.current_frame(entity_id);
+
+	EXPECT_TRUE(result.has_value());
+	EXPECT_EQ(current_frame, 222);
+}
