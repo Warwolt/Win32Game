@@ -60,6 +60,7 @@ set(TEST_SRC
 
 set(INC
     src
+    test
     libs/stb
     libs/tracy/public
 )
