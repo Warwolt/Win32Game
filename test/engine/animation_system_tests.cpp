@@ -12,6 +12,8 @@ std::vector<AnimationFrame<int>> test_animation() {
 	};
 }
 
+class AnimationSystemTests : public testing::Test {};
+
 TEST(AnimationSystemTests, AddAnimation_NoFrames_GivesInvalidAnimationID) {
 	AnimationSystem<int> animation_system;
 
@@ -95,3 +97,13 @@ TEST(AnimationSystemTests, AnimationPlayback_Wait100ms_PlayingSecondFrame) {
 	EXPECT_TRUE(result.has_value());
 	EXPECT_EQ(current_frame, 222);
 }
+
+class AnimationPlayback : public AnimationSystemTests
+	, public testing::WithParamInterface<int> {
+};
+
+TEST_P(AnimationPlayback, AnimationPlayback) {
+	EXPECT_FALSE(true) << GetParam();
+}
+
+INSTANTIATE_TEST_SUITE_P(AnimationSystemTests, AnimationPlayback, testing::Values(1, 2, 3));
