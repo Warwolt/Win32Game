@@ -109,16 +109,16 @@ std::vector<PlaybackTestCase> my_test_data = {
 	{ 3, "100ms_GivesSecondFrame" }
 };
 
-class AnimationPlayback : public AnimationSystemTests
-	, public testing::WithParamInterface<PlaybackTestCase> {
-};
-#pragma warning(push)
-#pragma warning(disable: 4003)
-INSTANTIATE_TEST_SUITE_P(AnimationSystemTests, AnimationPlayback, testing::ValuesIn(my_test_data), [](testing::TestParamInfo<AnimationPlayback::ParamType> param) {
-	return param.param.name;
-});
-TEST_P(AnimationPlayback)
-#pragma warning(pop)
-{
+#define PARAMETERIZED_TEST_EMPTY_NAME()
+#define PARAMETERIZED_TEST(test_fixture_name, test_case_name, parameter_type, parameters)                                                                    \
+	class test_case_name : public test_fixture_name                                                                                                          \
+		, public testing::WithParamInterface<parameter_type> {                                                                                               \
+	};                                                                                                                                                       \
+	INSTANTIATE_TEST_SUITE_P(test_fixture_name, test_case_name, testing::ValuesIn(parameters), [](testing::TestParamInfo<test_case_name::ParamType> param) { \
+		return param.param.name;                                                                                                                             \
+	});                                                                                                                                                      \
+	TEST_P(test_case_name, PARAMETERIZED_TEST_EMPTY_NAME())
+
+PARAMETERIZED_TEST(AnimationSystemTests, AnimationPlayback, PlaybackTestCase, my_test_data) {
 	printf("%d\n", GetParam().x);
 }
