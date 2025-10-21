@@ -98,12 +98,21 @@ TEST(AnimationSystemTests, AnimationPlayback_Wait100ms_PlayingSecondFrame) {
 	EXPECT_EQ(current_frame, 222);
 }
 
-class AnimationPlayback : public AnimationSystemTests
-	, public testing::WithParamInterface<int> {
+struct Point {
+	int x;
+	const char* name;
 };
 
-TEST_P(AnimationPlayback, AnimationPlayback) {
-	EXPECT_FALSE(true) << GetParam();
+std::vector<Point> my_test_data = { { 1, "One" }, { 2, "Two" }, { 3, "Three" } };
+
+class AnimationPlayback : public AnimationSystemTests
+	, public testing::WithParamInterface<Point> {
+};
+
+TEST_P(AnimationPlayback, my_test_data) {
+	//
 }
 
-INSTANTIATE_TEST_SUITE_P(AnimationSystemTests, AnimationPlayback, testing::Values(1, 2, 3));
+INSTANTIATE_TEST_SUITE_P(AnimationSystemTests, AnimationPlayback, testing::ValuesIn(my_test_data), [](testing::TestParamInfo<AnimationPlayback::ParamType> param) {
+	return param.param.name;
+});
