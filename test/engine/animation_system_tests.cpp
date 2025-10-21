@@ -112,16 +112,13 @@ std::vector<PlaybackTestCase> my_test_data = {
 class AnimationPlayback : public AnimationSystemTests
 	, public testing::WithParamInterface<PlaybackTestCase> {
 };
-
 #pragma warning(push)
 #pragma warning(disable: 4003)
-
-TEST_P(AnimationPlayback) {
-	//
-}
-
-#pragma warning(pop)
-
 INSTANTIATE_TEST_SUITE_P(AnimationSystemTests, AnimationPlayback, testing::ValuesIn(my_test_data), [](testing::TestParamInfo<AnimationPlayback::ParamType> param) {
 	return param.param.name;
 });
+TEST_P(AnimationPlayback)
+#pragma warning(pop)
+{
+	printf("%d\n", GetParam().x);
+}
