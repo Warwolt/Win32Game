@@ -77,14 +77,16 @@ namespace engine {
 				/* Determine current frame */
 				const Animation& animation = m_animations[playback.animation_id.value];
 				const Time elapsed_time = now - playback.start;
-				Time prev_durations = 0ms;
+				Time duration_sum = 0ms;
 				for (int i = 0; i < animation.frames.size(); i++) {
 					const AnimationFrame<T>& frame = animation.frames[i];
-					if (elapsed_time < prev_durations + frame.duration) {
+                    const bool is_current_frame = elapsed_time < duration_sum + frame.duration;
+                    const bool has_passed_last_frame = i == (int)animation.frames.size() - 1;
+					if (is_current_frame || has_passed_last_frame) {
 						playback.current_frame = i;
 						break;
 					}
-					prev_durations += frame.duration;
+					duration_sum += frame.duration;
 				}
 			}
 		}

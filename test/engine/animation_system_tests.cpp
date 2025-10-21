@@ -6,11 +6,14 @@
 
 using namespace engine;
 
+constexpr int FRAME_ONE = 111;
+constexpr int FRAME_TWO = 222;
+constexpr int FRAME_THREE = 333;
 std::vector<AnimationFrame<int>> test_animation() {
 	return {
-		{ 111, 100ms },
-		{ 222, 100ms },
-		{ 333, 100ms },
+		{ FRAME_ONE, 100ms },
+		{ FRAME_TWO, 100ms },
+		{ FRAME_THREE, 100ms },
 	};
 }
 
@@ -63,54 +66,28 @@ TEST(AnimationSystemTests, StartAnimation_InvalidAnimationEntityID_GivesError) {
 	EXPECT_EQ(result.error(), AnimationError::InvalidAnimationEntityID);
 }
 
-TEST(AnimationSystemTests, AnimationPlayback_Wait0ms_PlayingFirstFrame) {
-	AnimationSystem<int> animation_system;
-	AnimationID animation_id = animation_system.add_animation(test_animation());
-	AnimationEntityID entity_id = AnimationEntityID(1);
-
-	std::expected<void, AnimationError> result = animation_system.start_animation(animation_id, entity_id, 0ms);
-	int current_frame = animation_system.current_frame(entity_id);
-
-	EXPECT_TRUE(result.has_value());
-	EXPECT_EQ(current_frame, 111);
-}
-
-TEST(AnimationSystemTests, AnimationPlayback_Wait50ms_PlayingFirstFrame) {
-	AnimationSystem<int> animation_system;
-	AnimationID animation_id = animation_system.add_animation(test_animation());
-	AnimationEntityID entity_id = AnimationEntityID(1);
-
-	std::expected<void, AnimationError> result = animation_system.start_animation(animation_id, entity_id, 50ms);
-	int current_frame = animation_system.current_frame(entity_id);
-
-	EXPECT_TRUE(result.has_value());
-	EXPECT_EQ(current_frame, 111);
-}
-
-TEST(AnimationSystemTests, AnimationPlayback_Wait100ms_PlayingSecondFrame) {
-	AnimationSystem<int> animation_system;
-	AnimationID animation_id = animation_system.add_animation(test_animation());
-	AnimationEntityID entity_id = AnimationEntityID(1);
-
-	std::expected<void, AnimationError> result = animation_system.start_animation(animation_id, entity_id, 0ms);
-	animation_system.update(100ms);
-	int current_frame = animation_system.current_frame(entity_id);
-
-	EXPECT_TRUE(result.has_value());
-	EXPECT_EQ(current_frame, 222);
-}
-
-struct PlaybackTestCase {
-	int x;
+struct AnimationPlaybackTestData {
+	Time time_now;
+	int expected_frame;
 	const char* name;
 };
-
-std::vector<PlaybackTestCase> my_test_data = {
-	{ 1, "0ms_GivesFirstFrame" },
-	{ 2, "50ms_GivesFirstFrame" },
-	{ 3, "100ms_GivesSecondFrame" }
+AnimationPlaybackTestData test_data[] = {
+	{ 0ms, FRAME_ONE, "0ms_GivesFirstFrame" },
+	{ 50ms, FRAME_ONE, "50ms_GivesFirstFrame" },
+	{ 100ms, FRAME_TWO, "100ms_GivesSecondFrame" },
+	{ 150ms, FRAME_TWO, "150ms_GivesSecondFrame" },
+	{ 200ms, FRAME_THREE, "200ms_GivesThirdFrame" },
+	{ 300ms, FRAME_THREE, "300ms_GivesThirdFrame" },
 };
+PARAMETERIZED_TEST(AnimationSystemTests, AnimationPlayback, AnimationPlaybackTestData, testing::ValuesIn(test_data)) {
+	AnimationSystem<int> animation_system;
+	AnimationID animation_id = animation_system.add_animation(test_animation());
+	AnimationEntityID entity_id = AnimationEntityID(1);
 
-PARAMETERIZED_TEST(AnimationSystemTests, AnimationPlayback, PlaybackTestCase, my_test_data) {
-	printf("%d\n", GetParam().x);
+	std::expected<void, AnimationError> result = animation_system.start_animation(animation_id, entity_id, 0ms);
+	animation_system.update(GetParam().time_now);
+	int current_frame = animation_system.current_frame(entity_id);
+
+	EXPECT_TRUE(result.has_value());
+	EXPECT_EQ(current_frame, GetParam().expected_frame);
 }
