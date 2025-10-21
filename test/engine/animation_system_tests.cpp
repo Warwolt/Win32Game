@@ -17,8 +17,6 @@ std::vector<AnimationFrame<int>> test_animation() {
 	};
 }
 
-class AnimationSystemTests : public testing::Test {};
-
 TEST(AnimationSystemTests, AddAnimation_NoFrames_GivesInvalidAnimationID) {
 	AnimationSystem<int> animation_system;
 
