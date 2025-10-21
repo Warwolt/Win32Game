@@ -72,21 +72,20 @@ namespace engine {
 		}
 
 		void update(Time now) {
-			/* For each playing animation */
+			/* Determine current frame of each playing animation */
 			for (auto& [entity_id, playback] : m_playback) {
-				/* Determine current frame */
 				const Animation& animation = m_animations[playback.animation_id.value];
-				const Time elapsed_time = now - playback.start;
-				Time duration_sum = 0ms;
+				const Time playback_position = now - playback.start;
+				Time elapsed_frames = 0ms;
 				for (int i = 0; i < animation.frames.size(); i++) {
 					const AnimationFrame<T>& frame = animation.frames[i];
-                    const bool is_current_frame = elapsed_time < duration_sum + frame.duration;
-                    const bool has_passed_last_frame = i == (int)animation.frames.size() - 1;
+                    const bool is_current_frame = playback_position < elapsed_frames + frame.duration;
+                    const bool has_passed_last_frame = i + 1 == (int)animation.frames.size();
 					if (is_current_frame || has_passed_last_frame) {
 						playback.current_frame = i;
 						break;
 					}
-					duration_sum += frame.duration;
+					elapsed_frames += frame.duration;
 				}
 			}
 		}

@@ -72,12 +72,15 @@ struct AnimationPlaybackTestData {
 	const char* name;
 };
 AnimationPlaybackTestData test_data[] = {
-	{ 0ms, FRAME_ONE, "0ms_GivesFirstFrame" },
-	{ 50ms, FRAME_ONE, "50ms_GivesFirstFrame" },
-	{ 100ms, FRAME_TWO, "100ms_GivesSecondFrame" },
-	{ 150ms, FRAME_TWO, "150ms_GivesSecondFrame" },
+	// clang-format off
+	{ -1ms,  FRAME_ONE,   "negative_1ms_GivesFirstFrame" },
+	{ 0ms,   FRAME_ONE,   "0ms_GivesFirstFrame" },
+	{ 50ms,  FRAME_ONE,   "50ms_GivesFirstFrame" },
+	{ 100ms, FRAME_TWO,   "100ms_GivesSecondFrame" },
+	{ 150ms, FRAME_TWO,   "150ms_GivesSecondFrame" },
 	{ 200ms, FRAME_THREE, "200ms_GivesThirdFrame" },
 	{ 300ms, FRAME_THREE, "300ms_GivesThirdFrame" },
+	// clang-format on
 };
 PARAMETERIZED_TEST(AnimationSystemTests, AnimationPlayback, AnimationPlaybackTestData, testing::ValuesIn(test_data)) {
 	AnimationSystem<int> animation_system;
