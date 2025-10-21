@@ -98,20 +98,29 @@ TEST(AnimationSystemTests, AnimationPlayback_Wait100ms_PlayingSecondFrame) {
 	EXPECT_EQ(current_frame, 222);
 }
 
-struct Point {
+struct PlaybackTestCase {
 	int x;
 	const char* name;
 };
 
-std::vector<Point> my_test_data = { { 1, "One" }, { 2, "Two" }, { 3, "Three" } };
-
-class AnimationPlayback : public AnimationSystemTests
-	, public testing::WithParamInterface<Point> {
+std::vector<PlaybackTestCase> my_test_data = {
+	{ 1, "0ms_GivesFirstFrame" },
+	{ 2, "50ms_GivesFirstFrame" },
+	{ 3, "100ms_GivesSecondFrame" }
 };
 
-TEST_P(AnimationPlayback, my_test_data) {
+class AnimationPlayback : public AnimationSystemTests
+	, public testing::WithParamInterface<PlaybackTestCase> {
+};
+
+#pragma warning(push)
+#pragma warning(disable: 4003)
+
+TEST_P(AnimationPlayback) {
 	//
 }
+
+#pragma warning(pop)
 
 INSTANTIATE_TEST_SUITE_P(AnimationSystemTests, AnimationPlayback, testing::ValuesIn(my_test_data), [](testing::TestParamInfo<AnimationPlayback::ParamType> param) {
 	return param.param.name;
