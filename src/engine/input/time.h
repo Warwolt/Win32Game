@@ -15,7 +15,13 @@ namespace engine {
 		Time(std::chrono::nanoseconds ns) : value(ns) {}
 		Time(std::chrono::milliseconds ms) : value(std::chrono::duration_cast<std::chrono::nanoseconds>(ms)) {}
 		Time(std::chrono::seconds ms) : value(std::chrono::duration_cast<std::chrono::nanoseconds>(ms)) {}
-		friend std::chrono::nanoseconds operator-(Time lhs, const Time& rhs);
+
+		auto operator<=>(const Time&) const = default;
+		Time& operator+=(const Time& rhs);
+		Time& operator-=(const Time& rhs);
+		friend Time operator+(Time lhs, const Time& rhs);
+		friend Time operator-(Time lhs, const Time& rhs);
+		friend int64_t operator/(Time lhs, const Time& rhs);
 	};
 
 } // namespace engine

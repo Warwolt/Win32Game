@@ -1,6 +1,4 @@
-#include "time.h"
 #include <engine/input/time.h>
-
 
 namespace engine {
 
@@ -8,8 +6,26 @@ namespace engine {
 		return Time { std::chrono::high_resolution_clock::now().time_since_epoch() };
 	}
 
-	std::chrono::nanoseconds operator-(Time lhs, const Time& rhs) {
+	Time& Time::operator+=(const Time& rhs) {
+		this->value += rhs.value;
+		return *this;
+	}
+
+	Time& Time::operator-=(const Time& rhs) {
+		this->value -= rhs.value;
+		return *this;
+	}
+
+	Time operator+(Time lhs, const Time& rhs) {
+		return lhs.value + rhs.value;
+	}
+
+	Time operator-(Time lhs, const Time& rhs) {
 		return lhs.value - rhs.value;
+	}
+
+	int64_t operator/(Time lhs, const Time& rhs) {
+		return lhs.value / rhs.value;
 	}
 
 } // namespace engine

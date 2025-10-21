@@ -1,16 +1,8 @@
 #include <engine/debug/test_screens/image_test_screen.h>
 
-#include <engine/debug/profiling.h>
 #include <engine/file/resource_manager.h>
 #include <engine/graphics/renderer.h>
 #include <engine/input/input.h>
-#include <engine/input/keyboard.h>
-
-#include <windows.h>
-
-#include <algorithm>
-#include <array>
-#include <format>
 
 namespace engine {
 
