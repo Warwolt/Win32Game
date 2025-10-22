@@ -22,6 +22,7 @@ namespace engine {
 		friend Time operator+(Time lhs, const Time& rhs);
 		friend Time operator-(Time lhs, const Time& rhs);
 		friend int64_t operator/(Time lhs, const Time& rhs);
+		friend Time operator%(Time lhs, const Time& rhs);
 	};
 
 } // namespace engine

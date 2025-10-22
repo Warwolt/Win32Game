@@ -40,4 +40,8 @@ namespace engine {
 		return lhs.value / rhs.value;
 	}
 
+	Time operator%(Time lhs, const Time& rhs) {
+		return lhs.value % rhs.value;
+	}
+
 } // namespace engine
