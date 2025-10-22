@@ -42,8 +42,7 @@ namespace engine {
 
 	void ImageTestScreen::update(bool opened_now, const InputDevices& input) {
 		if (opened_now) {
-			std::expected<void, AnimationError> result = m_animation_system.start_animation(m_animation_entity_id, m_animation_id, 0ms);
-			DEBUG_ASSERT(result.has_value(), "Couldn't start animation");
+			DEBUG_ASSERT(m_animation_system.restart_animation(m_animation_entity_id, m_animation_id, input.time_now), "Couldn't start animation");
 		}
 
 		m_animation_system.update(input.time_now);

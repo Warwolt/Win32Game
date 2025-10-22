@@ -73,7 +73,6 @@ namespace engine {
 			playback.animation_id = animation_id;
 			playback.start = now;
 			playback.is_running = true;
-			playback.current_frame = 0;
 
 			return {};
 		}
@@ -82,6 +81,16 @@ namespace engine {
 			if (auto it = m_playback.find(entity_id.value); it != m_playback.end()) {
 				it->second.is_running = false;
 			}
+		}
+
+		[[nodiscard]] std::expected<void, AnimationError> restart_animation(AnimationEntityID entity_id, AnimationID animation_id, Time now) {
+            stop_animation(entity_id);
+			std::expected<void, AnimationError> result = start_animation(entity_id, animation_id, now);
+			if (result) {
+				Playback& playback = m_playback[entity_id.value];
+				playback.current_frame = 0;
+			}
+			return result;
 		}
 
 		void update(Time now) {

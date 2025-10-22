@@ -100,6 +100,24 @@ TEST(AnimationSystemTests, StopAnimation_StaysAtLastFrame) {
 	EXPECT_EQ(current_frame, FRAME_TWO);
 }
 
+TEST(AnimationSystemTests, RestartAnimation_GoesBackToFirstFrame) {
+	AnimationSystem<int> animation_system;
+	AnimationID animation_id = animation_system.add_animation(test_animation());
+	AnimationEntityID entity_id = AnimationEntityID(1);
+
+	std::expected<void, AnimationError> start_result = animation_system.start_animation(entity_id, animation_id, 0ms);
+	animation_system.update(100ms);
+	animation_system.stop_animation(entity_id);
+	int stopped_frame = animation_system.current_frame(entity_id);
+	std::expected<void, AnimationError> restart_result = animation_system.restart_animation(entity_id, animation_id, 100ms);
+	int restarted_frame = animation_system.current_frame(entity_id);
+
+	EXPECT_TRUE(start_result.has_value());
+	EXPECT_TRUE(restart_result.has_value());
+	EXPECT_EQ(stopped_frame, FRAME_TWO);
+	EXPECT_EQ(restarted_frame, FRAME_ONE);
+}
+
 AnimationPlaybackTestData animation_playback_tests[] = {
 	{ -1ms, FRAME_ONE, "negative_1ms_GivesFirstFrame" },
 	{ 0ms, FRAME_ONE, "0ms_GivesFirstFrame" },
