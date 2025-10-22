@@ -5,7 +5,6 @@
 #include <expected>
 #include <unordered_map>
 #include <vector>
-#include <numeric>
 
 namespace engine {
 
@@ -70,26 +69,28 @@ namespace engine {
 			}
 
 			/* Add playback */
-			m_playback[entity_id.value] = Playback {
-				.animation_id = animation_id,
-				.start = now,
-				.is_running = true,
-				.current_frame = 0,
-			};
+			Playback& playback = m_playback[entity_id.value];
+			playback.animation_id = animation_id;
+			playback.start = now;
+			playback.is_running = true;
+			playback.current_frame = 0;
 
 			return {};
 		}
 
-        void stop_animation(AnimationEntityID entity_id) {
+		void stop_animation(AnimationEntityID entity_id) {
 			if (auto it = m_playback.find(entity_id.value); it != m_playback.end()) {
 				it->second.is_running = false;
 			}
-        }
+		}
 
 		void update(Time now) {
 			/* Determine current frame of each playing animation */
 			for (auto& [entity_id, playback] : m_playback) {
 				const Animation& animation = m_animations[playback.animation_id.value];
+				if (!playback.is_running) {
+					continue;
+				}
 				const Time playback_position = animation.options.looping ? (now - playback.start) % animation.total_length : now - playback.start;
 				Time elapsed_frames = 0ms;
 				for (int i = 0; i < animation.frames.size(); i++) {
@@ -119,7 +120,7 @@ namespace engine {
 		struct Animation {
 			std::vector<AnimationFrame<T>> frames;
 			AnimationOptions options;
-            Time total_length;
+			Time total_length;
 		};
 		struct Playback {
 			AnimationID animation_id;

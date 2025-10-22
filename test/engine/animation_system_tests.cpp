@@ -93,6 +93,7 @@ TEST(AnimationSystemTests, StopAnimation_StaysAtLastFrame) {
 	std::expected<void, AnimationError> result = animation_system.start_animation(entity_id, animation_id, 0ms);
 	animation_system.update(100ms);
 	animation_system.stop_animation(entity_id);
+	animation_system.update(200ms);
 	int current_frame = animation_system.current_frame(entity_id);
 
 	EXPECT_TRUE(result.has_value());
@@ -100,15 +101,13 @@ TEST(AnimationSystemTests, StopAnimation_StaysAtLastFrame) {
 }
 
 AnimationPlaybackTestData animation_playback_tests[] = {
-	// clang-format off
-	{ -1ms,  FRAME_ONE,   "negative_1ms_GivesFirstFrame" },
-	{ 0ms,   FRAME_ONE,   "0ms_GivesFirstFrame" },
-	{ 50ms,  FRAME_ONE,   "50ms_GivesFirstFrame" },
-	{ 100ms, FRAME_TWO,   "100ms_GivesSecondFrame" },
-	{ 150ms, FRAME_TWO,   "150ms_GivesSecondFrame" },
+	{ -1ms, FRAME_ONE, "negative_1ms_GivesFirstFrame" },
+	{ 0ms, FRAME_ONE, "0ms_GivesFirstFrame" },
+	{ 50ms, FRAME_ONE, "50ms_GivesFirstFrame" },
+	{ 100ms, FRAME_TWO, "100ms_GivesSecondFrame" },
+	{ 150ms, FRAME_TWO, "150ms_GivesSecondFrame" },
 	{ 200ms, FRAME_THREE, "200ms_GivesThirdFrame" },
 	{ 300ms, FRAME_THREE, "300ms_GivesThirdFrame" },
-	// clang-format on
 };
 PARAMETERIZED_TEST(AnimationSystemTests, AnimationPlayback, AnimationPlaybackTestData, testing::ValuesIn(animation_playback_tests)) {
 	AnimationSystem<int> animation_system;
@@ -124,14 +123,12 @@ PARAMETERIZED_TEST(AnimationSystemTests, AnimationPlayback, AnimationPlaybackTes
 }
 
 AnimationPlaybackTestData looping_animation_playback_tests[] = {
-	// clang-format off
-	{ 0ms,   FRAME_ONE,   "0ms_GivesFirstFrame" },
-	{ 100ms, FRAME_TWO,   "100ms_GivesSecondFrame" },
+	{ 0ms, FRAME_ONE, "0ms_GivesFirstFrame" },
+	{ 100ms, FRAME_TWO, "100ms_GivesSecondFrame" },
 	{ 200ms, FRAME_THREE, "200ms_GivesThirdFrame" },
-	{ 300ms, FRAME_ONE,   "300ms_LoopsAndGivesFirstFrame" },
-	{ 400ms, FRAME_TWO,   "400ms_LoopsAndGivesSecondFrame" },
+	{ 300ms, FRAME_ONE, "300ms_LoopsAndGivesFirstFrame" },
+	{ 400ms, FRAME_TWO, "400ms_LoopsAndGivesSecondFrame" },
 	{ 500ms, FRAME_THREE, "500ms_LoopsAndGivesThirdFrame" },
-	// clang-format on
 };
 PARAMETERIZED_TEST(AnimationSystemTests, LoopedAnimationPlayback, AnimationPlaybackTestData, testing::ValuesIn(looping_animation_playback_tests)) {
 	AnimationSystem<int> animation_system;

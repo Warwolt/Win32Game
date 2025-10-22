@@ -1,5 +1,6 @@
 #include <engine/debug/test_screens/image_test_screen.h>
 
+#include <engine/debug/assert.h>
 #include <engine/file/resource_manager.h>
 #include <engine/graphics/renderer.h>
 #include <engine/input/input.h>
@@ -14,39 +15,38 @@ namespace engine {
 		m_sprite_sheet_size.width = sprite_sheet.width;
 		m_sprite_sheet_size.height = sprite_sheet.height;
 
-		m_animation_frames = {
-			{ 0, false },
-			{ 1, false },
-			{ 0, false },
-			{ 1, false },
+		std::vector<AnimationFrame<SpriteData>> sprite_animation = {
+			{ { 0, false }, 430ms },
+			{ { 1, false }, 430ms },
+			{ { 0, false }, 430ms },
+			{ { 1, false }, 430ms },
 
-			{ 3, false },
-			{ 2, false },
-			{ 3, false },
-			{ 2, false },
+			{ { 3, false }, 430ms },
+			{ { 2, false }, 430ms },
+			{ { 3, false }, 430ms },
+			{ { 2, false }, 430ms },
 
-			{ 4, false },
-			{ 5, false },
-			{ 4, false },
-			{ 5, false },
+			{ { 4, false }, 430ms },
+			{ { 5, false }, 430ms },
+			{ { 4, false }, 430ms },
+			{ { 5, false }, 430ms },
 
-			{ 3, true },
-			{ 2, true },
-			{ 3, true },
-			{ 2, true },
+			{ { 3, true }, 430ms },
+			{ { 2, true }, 430ms },
+			{ { 3, true }, 430ms },
+			{ { 2, true }, 430ms },
 		};
+		m_animation_entity_id = AnimationEntityID(1);
+		m_animation_id = m_animation_system.add_animation(sprite_animation, { .looping = true });
 	}
 
 	void ImageTestScreen::update(bool opened_now, const InputDevices& input) {
 		if (opened_now) {
-			m_last_sprite_sheet_frame = input.time_now;
-			m_animation_index = 0;
+			std::expected<void, AnimationError> result = m_animation_system.start_animation(m_animation_entity_id, m_animation_id, 0ms);
+			DEBUG_ASSERT(result.has_value(), "Couldn't start animation");
 		}
 
-		if (input.time_now - m_last_sprite_sheet_frame >= 430ms) {
-			m_last_sprite_sheet_frame = input.time_now;
-			m_animation_index = (m_animation_index + 1) % m_animation_frames.size();
-		}
+		m_animation_system.update(input.time_now);
 	}
 
 	void ImageTestScreen::draw(Renderer* renderer) const {
@@ -55,16 +55,17 @@ namespace engine {
 
 		/* Draw animated sprite */
 		{
+			const SpriteData& sprite = m_animation_system.current_frame(m_animation_entity_id);
+
 			const IVec2 sprite_sheet_pos = { 0, 20 };
 			const int32_t sprite_width = 16;
 			const int32_t sprite_height = 16;
 			const Rect sprite_clip_rect = Rect {
-				.x = m_animation_frames[m_animation_index].index * sprite_width,
+				.x = sprite.index * sprite_width,
 				.y = 0,
 				.width = sprite_width,
 				.height = sprite_height,
 			};
-			const bool is_flipped = m_animation_frames[m_animation_index].flipped;
 
 			/* Draw sprite sheet */
 			RENDERER_LOG(renderer, "Draw sprite sheet");
@@ -74,7 +75,7 @@ namespace engine {
 			/* Draw sprite */
 			RENDERER_LOG(renderer, "Draw sprite");
 			const IVec2 sprite_pos = sprite_sheet_pos + IVec2 { m_sprite_sheet_size.width + sprite_width, 0 };
-			renderer->draw_image(m_sprite_sheet, sprite_pos, { .clip = sprite_clip_rect, .flip_h = is_flipped });
+			renderer->draw_image(m_sprite_sheet, sprite_pos, { .clip = sprite_clip_rect, .flip_h = sprite.is_flipped });
 
 			/* Draw sprite sheet scaled */
 			RENDERER_LOG(renderer, "Draw sprite sheet (scaled up)");
@@ -86,7 +87,7 @@ namespace engine {
 				.height = (int32_t)(m_sprite_sheet_size.height * scale),
 			};
 			const Rect scaled_sprite_clip_rect = Rect {
-				.x = m_animation_frames[m_animation_index].index * scale * sprite_width,
+				.x = sprite.index * scale * sprite_width,
 				.y = 0,
 				.width = scale * sprite_width,
 				.height = scale * sprite_height,
@@ -102,7 +103,7 @@ namespace engine {
 				.width = scale * sprite_width,
 				.height = scale * sprite_height,
 			};
-			renderer->draw_image_scaled(m_sprite_sheet, scaled_sprite_rect, { .clip = sprite_clip_rect, .flip_h = is_flipped });
+			renderer->draw_image_scaled(m_sprite_sheet, scaled_sprite_rect, { .clip = sprite_clip_rect, .flip_h = sprite.is_flipped });
 		}
 
 		/* draw_image */
@@ -164,7 +165,6 @@ namespace engine {
 
 			RENDERER_LOG(renderer, "Draw image scaled (flip diagonally, opacity 50%)");
 			renderer->draw_image_scaled(m_test_image, { column++ * (2 * image_width + 2), 148, 2 * image_width, 2 * image_height }, { .flip_h = true, .flip_v = true, .alpha = 0.50f });
-
 
 			RENDERER_LOG(renderer, "Draw image scaled (tint red 100%)");
 			renderer->draw_image_scaled(m_test_image, { column++ * (2 * image_width + 2), 148, 2 * image_width, 2 * image_height }, { .tint = RGBA::red() });
