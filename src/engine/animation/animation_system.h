@@ -54,11 +54,15 @@ namespace engine {
 		[[nodiscard]] std::expected<void, AnimationError> start_animation(AnimationID animation_id, AnimationEntityID entity_id, Time now) {
 			/* Check arguments */
 			const bool is_missing_animation = m_animations.find(animation_id.value) == m_animations.end();
+			const bool animation_already_started = m_playback.find(entity_id.value) != m_playback.end();
 			if (animation_id == INVALID_ANIMATION_ID || is_missing_animation) {
 				return std::unexpected(AnimationError::InvalidAnimationID);
 			}
 			if (entity_id == INVALID_ANIMATION_ENTITY_ID) {
 				return std::unexpected(AnimationError::InvalidAnimationEntityID);
+			}
+			if (animation_already_started) {
+				return {};
 			}
 
 			/* Add playback */
@@ -79,8 +83,8 @@ namespace engine {
 				Time elapsed_frames = 0ms;
 				for (int i = 0; i < animation.frames.size(); i++) {
 					const AnimationFrame<T>& frame = animation.frames[i];
-                    const bool is_current_frame = playback_position < elapsed_frames + frame.duration;
-                    const bool has_passed_last_frame = i + 1 == (int)animation.frames.size();
+					const bool is_current_frame = playback_position < elapsed_frames + frame.duration;
+					const bool has_passed_last_frame = i + 1 == (int)animation.frames.size();
 					if (is_current_frame || has_passed_last_frame) {
 						playback.current_frame = i;
 						break;

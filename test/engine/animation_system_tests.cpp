@@ -92,3 +92,18 @@ PARAMETERIZED_TEST(AnimationSystemTests, AnimationPlayback, AnimationPlaybackTes
 	EXPECT_TRUE(result.has_value());
 	EXPECT_EQ(current_frame, GetParam().expected_frame);
 }
+
+TEST(AnimationSystemTests, StartAnimation_AlreadyStarted_DoesNothing) {
+	AnimationSystem<int> animation_system;
+	AnimationID animation_id = animation_system.add_animation(test_animation());
+	AnimationEntityID entity_id = AnimationEntityID(1);
+
+	std::expected<void, AnimationError> first_result = animation_system.start_animation(animation_id, entity_id, 0ms);
+	std::expected<void, AnimationError> second_result = animation_system.start_animation(animation_id, entity_id, 50ms);
+	animation_system.update(100ms);
+	int current_frame = animation_system.current_frame(entity_id);
+
+	EXPECT_TRUE(first_result.has_value());
+	EXPECT_TRUE(second_result.has_value());
+	EXPECT_EQ(current_frame, FRAME_TWO);
+}
