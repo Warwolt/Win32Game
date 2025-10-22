@@ -19,6 +19,7 @@ namespace engine {
 	void TestScreens::initialize(ResourceManager* resources, int initial_page) {
 		m_page = std::clamp(initial_page, 0, (int)TestScreenPage::Count);
 		m_image_test_screen.initialize(resources);
+		m_font_test_screen.initialize();
 	}
 
 	void TestScreens::update(const InputDevices& input) {

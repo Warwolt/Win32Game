@@ -26,8 +26,6 @@ namespace engine {
 		};
 
 		AnimationSystem<SpriteData> m_animation_system;
-		AnimationID m_animation_id;
-		AnimationEntityID m_animation_entity_id;
 
 		ImageID m_test_image;
 		ImageID m_sprite_sheet;

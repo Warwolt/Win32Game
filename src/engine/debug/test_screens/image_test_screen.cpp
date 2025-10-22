@@ -36,13 +36,12 @@ namespace engine {
 			{ { 3, true }, 430ms },
 			{ { 2, true }, 430ms },
 		};
-		m_animation_entity_id = AnimationEntityID(1);
-		m_animation_id = m_animation_system.add_animation(sprite_animation, { .looping = true });
+		m_animation_system.add_animation(sprite_animation, { .looping = true });
 	}
 
 	void ImageTestScreen::update(bool opened_now, const InputDevices& input) {
 		if (opened_now) {
-			DEBUG_ASSERT(m_animation_system.restart_animation(m_animation_entity_id, m_animation_id, input.time_now), "Couldn't start animation");
+			DEBUG_ASSERT(m_animation_system.restart_animation(AnimationEntityID(1), AnimationID(1), input.time_now), "Couldn't start animation");
 		}
 
 		m_animation_system.update(input.time_now);
@@ -54,7 +53,7 @@ namespace engine {
 
 		/* Draw animated sprite */
 		{
-			const SpriteData& sprite = m_animation_system.current_frame(m_animation_entity_id);
+			const SpriteData& sprite = m_animation_system.current_frame(AnimationEntityID(1));
 
 			const IVec2 sprite_sheet_pos = { 0, 20 };
 			const int32_t sprite_width = 16;
