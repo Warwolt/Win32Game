@@ -57,7 +57,7 @@ namespace engine {
 		[[nodiscard]] std::expected<void, AnimationError> start_animation(AnimationEntityID entity_id, AnimationID animation_id, Time now) {
 			/* Check arguments */
 			const bool is_missing_animation = m_animations.find(animation_id.value) == m_animations.end();
-			const bool animation_already_started = m_playback.find(entity_id.value) != m_playback.end() && m_playback.at(entity_id.value).is_running;
+			const bool animation_already_started = m_playing_animations.contains(entity_id.value);
 			if (animation_id == INVALID_ANIMATION_ID || is_missing_animation) {
 				return std::unexpected(AnimationError::InvalidAnimationID);
 			}
@@ -69,25 +69,26 @@ namespace engine {
 			}
 
 			/* Add playback */
-			Playback& playback = m_playback[entity_id.value];
+			Playback& playback = m_playing_animations[entity_id.value];
 			playback.animation_id = animation_id;
 			playback.start = now;
-			playback.is_running = true;
+			m_stopped_animations.erase(entity_id.value);
 
 			return {};
 		}
 
 		void stop_animation(AnimationEntityID entity_id) {
-			if (auto it = m_playback.find(entity_id.value); it != m_playback.end()) {
-				it->second.is_running = false;
+			if (auto it = m_playing_animations.find(entity_id.value); it != m_playing_animations.end()) {
+				m_stopped_animations[it->first] = it->second;
+				m_playing_animations.erase(it);
 			}
 		}
 
 		[[nodiscard]] std::expected<void, AnimationError> restart_animation(AnimationEntityID entity_id, AnimationID animation_id, Time now) {
-            stop_animation(entity_id);
+			stop_animation(entity_id);
 			std::expected<void, AnimationError> result = start_animation(entity_id, animation_id, now);
 			if (result) {
-				Playback& playback = m_playback[entity_id.value];
+				Playback& playback = m_playing_animations[entity_id.value];
 				playback.current_frame = 0;
 			}
 			return result;
@@ -95,11 +96,8 @@ namespace engine {
 
 		void update(Time now) {
 			/* Determine current frame of each playing animation */
-			for (auto& [entity_id, playback] : m_playback) {
+			for (auto& [entity_id, playback] : m_playing_animations) {
 				const Animation& animation = m_animations[playback.animation_id.value];
-				if (!playback.is_running) {
-					continue;
-				}
 				const Time playback_position = animation.options.looping ? (now - playback.start) % animation.total_length : now - playback.start;
 				Time elapsed_frames = 0ms;
 				for (int i = 0; i < animation.frames.size(); i++) {
@@ -116,13 +114,22 @@ namespace engine {
 		}
 
 		const T& current_frame(AnimationEntityID entity_id) const {
-			auto it = m_playback.find(entity_id.value);
-			if (it == m_playback.end()) {
-				return m_default;
+			/* Try find frame of playing animation */
+			if (auto it = m_playing_animations.find(entity_id.value); it != m_playing_animations.end()) {
+				const Playback& playback = it->second;
+				const Animation& animation = m_animations.at(playback.animation_id.value);
+				return animation.frames[playback.current_frame].value;
 			}
-			const Playback& playback = it->second;
-			const Animation& animation = m_animations.at(playback.animation_id.value);
-			return animation.frames[playback.current_frame].value;
+
+			/* Try find frame of stopped animation */
+			if (auto it = m_stopped_animations.find(entity_id.value); it != m_stopped_animations.end()) {
+				const Playback& playback = it->second;
+				const Animation& animation = m_animations.at(playback.animation_id.value);
+				return animation.frames[playback.current_frame].value;
+			}
+
+			/* Fall back to default value*/
+			return m_default;
 		}
 
 	private:
@@ -134,14 +141,14 @@ namespace engine {
 		struct Playback {
 			AnimationID animation_id;
 			Time start;
-			bool is_running;
 			int current_frame;
 		};
 
 		int m_next_id = 1;
 		T m_default = {};
-		std::unordered_map<int, Animation> m_animations; // AnimationID -> Animation
-		std::unordered_map<int, Playback> m_playback;    // AnimationEntityID -> Playback
+		std::unordered_map<int, Animation> m_animations;        // AnimationID -> Animation
+		std::unordered_map<int, Playback> m_playing_animations; // AnimationEntityID -> Playback
+		std::unordered_map<int, Playback> m_stopped_animations; // AnimationEntityID -> Playback
 	};
 
 } // namespace engine
