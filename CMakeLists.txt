@@ -52,6 +52,7 @@ set(SRC
 )
 
 set(TEST_SRC
+    test/engine/animation_system_tests.cpp
     test/engine/button_tests.cpp
     test/engine/keyboard_tests.cpp
     test/engine/moving_average_tests.cpp
@@ -59,6 +60,7 @@ set(TEST_SRC
 
 set(INC
     src
+    test
     libs/stb
     libs/tracy/public
 )

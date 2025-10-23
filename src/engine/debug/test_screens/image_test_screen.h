@@ -3,6 +3,7 @@
 #include <engine/graphics/image_id.h>
 #include <engine/graphics/rect.h>
 #include <engine/input/time.h>
+#include <engine/animation/animation_system.h>
 
 #include <vector>
 
@@ -19,17 +20,16 @@ namespace engine {
 		void draw(Renderer* renderer) const;
 
 	private:
-		struct AnimationFrame {
+		struct SpriteData {
 			int index;
-			bool flipped;
+			bool is_flipped;
 		};
+
+		AnimationSystem<SpriteData> m_animation_system;
 
 		ImageID m_test_image;
 		ImageID m_sprite_sheet;
-		int m_animation_index = 0;
 		Rect m_sprite_sheet_size;
-		std::vector<AnimationFrame> m_animation_frames;
-		Time m_last_sprite_sheet_frame;
 	};
 
 } // namespace engine

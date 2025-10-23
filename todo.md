@@ -4,7 +4,6 @@ Overall goal:
 - Simple Win32 level editor (create content for the games)
 
 # Todo
-- Add basic animation system, apply it in the test screens
 - Add render test screen with lots of images to stress test, get a sense of budget
 - Add keyboard & mouse input test screen, display stream of events and data like e.g. mouse position
 - Add audio test screen, display volume of current played sample as a little bar
@@ -15,6 +14,7 @@ Overall goal:
 # Doing
 
 # Done
+- Add basic animation system, apply it in the test screens
 - Add way to specify which test screen page to open from command line
 - Add test screens for rendering geomtry, sprites, and text
 - Integrate Tracy profiler
