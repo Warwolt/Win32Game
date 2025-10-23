@@ -12,9 +12,9 @@ Overall goal:
 - Try out LDtk Level Editor (https://ldtk.io/)
 
 # Doing
-- Add basic animation system, apply it in the test screens
 
 # Done
+- Add basic animation system, apply it in the test screens
 - Add way to specify which test screen page to open from command line
 - Add test screens for rendering geomtry, sprites, and text
 - Integrate Tracy profiler
