@@ -21,13 +21,12 @@ namespace engine {
 		};
 	};
 
-	// FIXME: class TestScreen : public Scene {
-	class TestScreen {
+	class TestScreen : public Scene {
 	public:
 		TestScreen() = default;
 		TestScreen(ResourceManager* resources, int initial_page);
-		void update(const Input& input);
-		void draw(Renderer* renderer, IVec2 screen_resolution) const;
+		void update(const Input& input) override;
+		void draw(Renderer* renderer) const override;
 
 	private:
 		int m_page = 0;

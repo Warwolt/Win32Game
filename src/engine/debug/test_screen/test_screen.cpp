@@ -45,13 +45,13 @@ namespace engine {
 		}
 	}
 
-	void TestScreen::draw(Renderer* renderer, IVec2 screen_resolution) const {
+	void TestScreen::draw(Renderer* renderer) const {
 		CPUProfilingScope_Engine();
 		const char* title = "unknown";
 		/* Render page */
 		if (m_page == TestScreenPage::GeometryTest) {
 			title = "draw geometry";
-			m_geometry_test_page.draw(renderer, screen_resolution);
+			m_geometry_test_page.draw(renderer, renderer->screen_resolution());
 		}
 		if (m_page == TestScreenPage::ImageTest) {
 			title = "draw images";
@@ -59,7 +59,7 @@ namespace engine {
 		}
 		if (m_page == TestScreenPage::FontTest) {
 			title = "draw text";
-			m_font_test_page.draw(renderer, screen_resolution);
+			m_font_test_page.draw(renderer, renderer->screen_resolution());
 		}
 		/* Render page title */
 		renderer->draw_text(DEFAULT_FONT_ID, FONT_SIZE, { 0, 0 }, RGBA::white(), std::format("test page {}/{}: {}", (int)m_page + 1, (int)TestScreenPage::Count, title));

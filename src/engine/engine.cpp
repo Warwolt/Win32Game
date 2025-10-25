@@ -86,7 +86,7 @@ namespace engine {
 
 	void draw(Engine* engine) {
 		CPUProfilingScope_Engine();
-		engine->test_screen.draw(&engine->renderer, engine->renderer.screen_resolution());
+		engine->test_screen.draw(&engine->renderer);
 	}
 
 } // namespace engine

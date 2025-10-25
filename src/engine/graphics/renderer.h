@@ -42,6 +42,9 @@ namespace engine {
 	public:
 		// tags next draw command, shows up in Tracy
 		void add_tag(std::string tag);
+		// FIXME: screen resolution doesn't actually do anything
+		// Should we maybe just store the Bitmap directly?
+		// Then we could return the `screen_resolution` based on the bitmap size.
 		void set_screen_resolution(IVec2 screen_resolution);
 		IVec2 screen_resolution();
 

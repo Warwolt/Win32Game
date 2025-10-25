@@ -15,16 +15,16 @@ struct TestScene : public Scene {
 	static int num_instances;
 	TestScene() { num_instances++; }
 	~TestScene() { num_instances--; }
-	void update(const Input&) {}
-	void draw(Renderer*) {}
+	void update(const Input&) override {}
+	void draw(Renderer*) const override {}
 };
 
 struct TestScene2 : public Scene {
 	static int num_instances;
 	TestScene2() { num_instances++; }
 	~TestScene2() { num_instances--; }
-	void update(const Input&) {}
-	void draw(Renderer*) {}
+	void update(const Input&) override {}
+	void draw(Renderer*) const override {}
 };
 
 int TestScene::num_instances = 0;

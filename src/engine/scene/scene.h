@@ -9,7 +9,7 @@ namespace engine {
 	public:
 		virtual ~Scene() {};
 		virtual void update(const Input& input) = 0;
-		virtual void draw(Renderer* renderer) = 0;
+		virtual void draw(Renderer* renderer) const = 0;
 	};
 
 } // namespace engine
