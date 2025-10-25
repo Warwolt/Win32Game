@@ -7,7 +7,7 @@
 
 namespace engine {
 	struct Engine;
-	struct InputDevices;
+	struct Input;
 	class Renderer;
 } // namespace engine
 
@@ -22,7 +22,7 @@ namespace game {
 	};
 
 	Game initialize(engine::Engine* engine);
-	void update(Game* game, std::vector<engine::Command>* commands, const engine::InputDevices& input);
+	void update(Game* game, std::vector<engine::Command>* commands, const engine::Input& input);
 	void draw(engine::Renderer* renderer, const Game& game);
 
 } // namespace game

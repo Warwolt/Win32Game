@@ -6,13 +6,13 @@
 
 namespace engine {
 
-	struct InputDevices;
+	struct Input;
 	class Renderer;
 
 	class FontTestScreen {
 	public:
 		void initialize();
-		void update(bool opened_now, const InputDevices& input);
+		void update(bool opened_now, const Input& input);
 		void draw(Renderer* renderer, IVec2 screen_resolution) const;
 
 	private:

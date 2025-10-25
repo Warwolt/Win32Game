@@ -14,7 +14,7 @@ namespace engine {
 		m_animation_system.add_animation(frames, { .looping = true });
 	}
 
-	void FontTestScreen::update(bool opened_now, const InputDevices& input) {
+	void FontTestScreen::update(bool opened_now, const Input& input) {
 		if (opened_now) {
 			DEBUG_ASSERT(m_animation_system.restart_animation(AnimationEntityID(1), AnimationID(1), input.time_now), "Couldn't start animation");
 		}

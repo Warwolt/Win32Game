@@ -14,7 +14,7 @@
 
 namespace engine {
 
-	void GeometryTestScreen::update(const InputDevices& input) {
+	void GeometryTestScreen::update(const Input& input) {
 		m_alpha = (uint8_t)std::clamp(m_alpha + 16 * input.mouse.mouse_wheel_delta, 0, 255);
 	}
 

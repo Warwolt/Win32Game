@@ -15,7 +15,7 @@
 
 namespace engine {
 
-	struct InputDevices;
+	struct Input;
 	class Renderer;
 
 	struct Engine {
@@ -25,7 +25,7 @@ namespace engine {
 		std::vector<Command> commands;
 		// input/output
 		InputEvents input_events;
-		InputDevices input;
+		Input input;
 		AudioPlayer audio;
 		// file
 		ResourceManager resources;

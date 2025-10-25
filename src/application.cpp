@@ -33,9 +33,9 @@ static void pump_window_messages(State* state) {
 	}
 }
 
-static void update_input_devices(State* state) {
+static void update_input(State* state) {
 	CPUProfilingScope_Application();
-	engine::update_input_devices(&state->engine.input, state->engine.input_events, state->engine.window);
+	engine::update_input(&state->engine.input, state->engine.input_events, state->engine.window);
 	state->engine.input_events = {};
 
 	// HACK: we're not forwarding key events to DefWindowProc, so we have to handle ALT+F4 manually
@@ -114,7 +114,7 @@ LRESULT CALLBACK on_window_event(
 
 		case WM_PAINT: {
 			/* Input */
-			update_input_devices(state);
+			update_input(state);
 
 			/* Update */
 			game::update(&state->game, &state->engine.commands, state->engine.input);
@@ -135,7 +135,7 @@ bool update_application(State* state) {
 	{
 		/* Input */
 		pump_window_messages(state);
-		update_input_devices(state);
+		update_input(state);
 
 		/* Update */
 		game::update(&state->game, &state->engine.commands, state->engine.input);

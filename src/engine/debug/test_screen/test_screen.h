@@ -6,7 +6,7 @@
 
 namespace engine {
 
-	struct InputDevices;
+	struct Input;
 	class Renderer;
 	class ResourceManager;
 	class Window;
@@ -23,7 +23,7 @@ namespace engine {
 	class TestScreen {
 	public:
 		void initialize(ResourceManager* resources, int initial_page);
-		void update(const InputDevices& input);
+		void update(const Input& input);
 		void draw(Renderer* renderer, IVec2 screen_resolution) const;
 
 	private:

@@ -22,7 +22,7 @@ namespace engine {
 		m_font_test_page.initialize();
 	}
 
-	void TestScreen::update(const InputDevices& input) {
+	void TestScreen::update(const Input& input) {
 		/* Update current page */
 		if (m_page == TestScreenPage::GeometryTest) {
 			m_geometry_test_page.update(input);

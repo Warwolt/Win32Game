@@ -39,7 +39,7 @@ namespace engine {
 		m_animation_system.add_animation(sprite_animation, { .looping = true });
 	}
 
-	void ImageTestScreen::update(bool opened_now, const InputDevices& input) {
+	void ImageTestScreen::update(bool opened_now, const Input& input) {
 		if (opened_now) {
 			DEBUG_ASSERT(m_animation_system.restart_animation(AnimationEntityID(1), AnimationID(1), input.time_now), "Couldn't start animation");
 		}

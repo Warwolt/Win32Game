@@ -9,14 +9,14 @@
 
 namespace engine {
 
-	struct InputDevices;
+	struct Input;
 	class Renderer;
 	class ResourceManager;
 
 	class ImageTestScreen {
 	public:
 		void initialize(ResourceManager* resources);
-		void update(bool opened_now, const InputDevices& input);
+		void update(bool opened_now, const Input& input);
 		void draw(Renderer* renderer) const;
 
 	private:

@@ -6,12 +6,12 @@
 
 namespace engine {
 
-	struct InputDevices;
+	struct Input;
 	class Renderer;
 
 	class GeometryTestScreen {
 	public:
-		void update(const InputDevices& input);
+		void update(const Input& input);
 		void draw(Renderer* renderer, IVec2 screen_resolution) const;
 
 	private:
