@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <test_helpers/parameterized_tests.h>
+#include <test/helpers/parameterized_tests.h>
 
 #include <engine/animation/animation_system.h>
 

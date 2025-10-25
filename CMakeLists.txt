@@ -58,8 +58,8 @@ set(TEST_SRC
 )
 
 set(INC
+    ${CMAKE_CURRENT_SOURCE_DIR}
     src
-    test
     libs/stb
     libs/tracy/public
 )
