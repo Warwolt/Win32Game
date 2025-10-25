@@ -46,6 +46,7 @@ set(SRC
     src/engine/math/ivec2.cpp
     src/engine/math/moving_average.cpp
     src/engine/math/vec2.cpp
+    src/engine/scene/scene_manager.cpp
     src/engine/utility/string_utility.cpp
     src/game/game.cpp
 )
