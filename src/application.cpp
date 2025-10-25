@@ -131,7 +131,7 @@ LRESULT CALLBACK on_window_event(
 }
 
 bool update_application(State* state) {
-	state->engine.debug.frame_timer.start();
+	state->engine.frame_timer.start();
 	{
 		/* Input */
 		pump_window_messages(state);
@@ -152,7 +152,7 @@ bool update_application(State* state) {
 		/* Yield CPU to not stall OS */
 		Sleep(1);
 	}
-	state->engine.debug.frame_timer.end();
+	state->engine.frame_timer.end();
 	CPUProfilingEndFrame();
 
 	return state->engine.should_quit;

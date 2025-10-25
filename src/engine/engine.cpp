@@ -57,8 +57,8 @@ namespace engine {
 		engine.screen_resolution = screen_resolution;
 		engine.bitmap = Bitmap::with_size(engine.screen_resolution.x, engine.screen_resolution.y);
 		engine.audio = initialize_audio_player();
+		engine.test_screen.initialize(&engine.resources, engine_args.test_screen_page);
 		initialize_gamepad_support();
-		initialize_debug(&engine.debug, &engine.resources, engine_args.test_screen_page);
 
 		return engine;
 	}
@@ -66,8 +66,14 @@ namespace engine {
 	void update(Engine* engine) {
 		CPUProfilingScope_Engine();
 
-		/* Update engine */
-		update_debug(&engine->debug, engine->input, &engine->commands);
+		/* Update test screens */
+		engine->test_screen.update(engine->input);
+
+		/* Show CPU profiling information in window title */
+		float avg_fps = 1.0f / engine->frame_timer.average_delta();
+		const char* window_title = "Game";
+		std::string window_title_with_fps = std::format("{} ({:.1f} fps)", window_title, avg_fps);
+		engine->commands.push_back(AppCommand_SetWindowTitle { window_title_with_fps });
 
 		/* Process commands */
 		run_commands(engine->commands, &engine->should_quit, &engine->window, &engine->audio);
@@ -76,7 +82,7 @@ namespace engine {
 
 	void draw(Engine* engine) {
 		CPUProfilingScope_Engine();
-		draw_debug(&engine->renderer, engine->debug, engine->screen_resolution);
+		engine->test_screen.draw(&engine->renderer, engine->screen_resolution);
 	}
 
 } // namespace engine

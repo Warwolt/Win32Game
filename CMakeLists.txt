@@ -22,7 +22,6 @@ set(SRC
     src/engine/audio/audio_player.cpp
     src/engine/commands.cpp
     src/engine/debug/assert.cpp
-    src/engine/debug/debug.cpp
     src/engine/debug/delta_timer.cpp
     src/engine/debug/logging.cpp
     src/engine/debug/test_screen/font_test_page.cpp
