@@ -2,7 +2,7 @@
 
 #include <gtest/gtest.h>
 
-#define PARAMETERIZED_TEST_EMPTY_NAME()
+#define TEST_PARAMETERIZED_EMPTY_NAME()
 
 // Defines a parameterized GoogleTest test case in a lightweight way
 //
@@ -12,7 +12,7 @@
 // parameters: any argument to TEST_P, e.g. testing::Values(x1, x2, x3) or testing::ValuesIn(vector)
 //
 // NOTE: if `parameter_type` contains a `name` member then that will be used as test case name
-#define PARAMETERIZED_TEST(test_fixture_name, test_case_name, parameter_type, parameters)                                                \
+#define TEST_PARAMETERIZED(test_fixture_name, test_case_name, parameter_type, parameters)                                                \
 	class test_case_name : public testing::Test                                                                                          \
 		, public testing::WithParamInterface<parameter_type> {                                                                           \
 	};                                                                                                                                   \
@@ -24,4 +24,4 @@
 			return testing::PrintToString(info.param);                                                                                   \
 		}                                                                                                                                \
 	});                                                                                                                                  \
-	TEST_P(test_case_name, PARAMETERIZED_TEST_EMPTY_NAME())
+	TEST_P(test_case_name, TEST_PARAMETERIZED_EMPTY_NAME())

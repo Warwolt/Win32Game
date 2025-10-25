@@ -46,7 +46,7 @@ namespace engine {
 			}
 			auto& scene_constructor = it->second;
 			m_active_scene = scene_constructor();
-            return {};
+			return {};
 		}
 
 		Scene* current_scene() {
@@ -85,7 +85,16 @@ TEST(SceneManagerTests, InitiallyHoldsNoScene) {
 	EXPECT_EQ(current_scene, nullptr);
 }
 
-TEST(SceneManagerTests, RegisteredSceneCanBeLoaded) {
+TEST_PARAMETERIZED(SceneManagerTests, LoadScene_LoadingWithBadID_GivesError, int, testing::Values(0, 1)) {
+	SceneManager scene_manager;
+	SceneID scene_id = SceneID(GetParam());
+
+	std::expected<void, SceneManagerError> result = scene_manager.load_scene(scene_id);
+
+	ASSERT_FALSE(result.has_value());
+	EXPECT_EQ(result.error(), SceneManagerError::InvalidSceneId);
+}
+TEST(SceneManagerTests, LoadScene_RegisteredScene_SceneGetsLoaded) {
 	SceneManager scene_manager;
 
 	SceneID scene_id = scene_manager.register_scene([]() {
@@ -94,19 +103,7 @@ TEST(SceneManagerTests, RegisteredSceneCanBeLoaded) {
 	EXPECT_EQ(TestScene::num_instances, 0);
 
 	std::expected<void, SceneManagerError> result = scene_manager.load_scene(scene_id);
-    EXPECT_TRUE(result.has_value());
+	EXPECT_TRUE(result.has_value());
 	EXPECT_EQ(TestScene::num_instances, 1);
 	EXPECT_NE(scene_manager.current_scene(), nullptr);
 }
-
-PARAMETERIZED_TEST(SceneManagerTests, LoadSceneWithBadID_GivesError, int, testing::Values(0,1)) {
-	SceneManager scene_manager;
-    SceneID scene_id = SceneID(GetParam());
-
-	std::expected<void, SceneManagerError> result = scene_manager.load_scene(scene_id);
-
-	ASSERT_FALSE(result.has_value());
-    EXPECT_EQ(result.error(), SceneManagerError::InvalidSceneId);
-}
-
-// switch between 2 scenes
