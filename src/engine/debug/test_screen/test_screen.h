@@ -1,5 +1,6 @@
 #pragma once
 
+#include <engine/scene/scene.h>
 #include <engine/debug/test_screen/font_test_page.h>
 #include <engine/debug/test_screen/geometry_test_page.h>
 #include <engine/debug/test_screen/image_test_page.h>
@@ -20,6 +21,7 @@ namespace engine {
 		};
 	};
 
+	// FIXME: class TestScreen : public Scene {
 	class TestScreen {
 	public:
 		TestScreen() = default;

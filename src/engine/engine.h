@@ -21,7 +21,6 @@ namespace engine {
 	struct Engine {
 		// application
 		bool should_quit = false;
-		IVec2 screen_resolution;
 		std::vector<Command> commands;
 		// input/output
 		InputEvents input_events;

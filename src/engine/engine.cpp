@@ -54,11 +54,15 @@ namespace engine {
 			return {};
 		}
 		engine.resources = resources.value();
-		engine.screen_resolution = screen_resolution;
-		engine.bitmap = Bitmap::with_size(engine.screen_resolution.x, engine.screen_resolution.y);
+		engine.bitmap = Bitmap::with_size(screen_resolution.x, screen_resolution.y);
 		engine.audio = initialize_audio_player();
 		engine.test_screen = TestScreen(&engine.resources, engine_args.test_screen_page);
 		initialize_gamepad_support();
+
+		// NOTE: We're storing the resolution value inside the renderer just so
+		// that it's always accessible to functions that wants to draw stuff.
+		// I'm not sure it really should be there, but it's simple enough for now.
+		engine.renderer.set_screen_resolution(screen_resolution);
 
 		return engine;
 	}
@@ -82,7 +86,7 @@ namespace engine {
 
 	void draw(Engine* engine) {
 		CPUProfilingScope_Engine();
-		engine->test_screen.draw(&engine->renderer, engine->screen_resolution);
+		engine->test_screen.draw(&engine->renderer, engine->renderer.screen_resolution());
 	}
 
 } // namespace engine

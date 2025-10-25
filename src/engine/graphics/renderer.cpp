@@ -83,6 +83,14 @@ namespace engine {
 		m_current_tag = tag;
 	}
 
+	void Renderer::set_screen_resolution(IVec2 screen_resolution) {
+		m_screen_resolution = screen_resolution;
+	}
+
+	IVec2 Renderer::screen_resolution() {
+		return m_screen_resolution;
+	}
+
 	void Renderer::clear_screen(RGBA color) {
 		m_draw_data.push_back(DrawData { ClearScreen { color }, _take_current_tag() });
 	}
@@ -469,7 +477,7 @@ namespace engine {
 				/* Check vertical space */
 				const int32_t vertical_remainder = rect.height - cursor_y;
 				if (vertical_remainder < 0) {
-					 break;
+					break;
 				}
 			}
 

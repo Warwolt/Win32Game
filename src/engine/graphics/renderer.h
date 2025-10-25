@@ -42,6 +42,8 @@ namespace engine {
 	public:
 		// tags next draw command, shows up in Tracy
 		void add_tag(std::string tag);
+		void set_screen_resolution(IVec2 screen_resolution);
+		IVec2 screen_resolution();
 
 		void clear_screen(RGBA color = { 0, 0, 0, 255 });
 		void draw_point(Vertex v1);
@@ -114,6 +116,7 @@ namespace engine {
 		};
 		std::string m_last_tag; // for debuggin
 		std::string m_current_tag;
+		IVec2 m_screen_resolution;
 		std::vector<DrawData> m_draw_data;
 
 		std::string _take_current_tag();
