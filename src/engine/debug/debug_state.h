@@ -8,7 +8,6 @@
 namespace engine {
 
 	struct DebugState {
-		FontID debug_font_id;
 		bool show_test_screens = true;
 		TestScreens test_screens;
 		DeltaTimer frame_timer;
