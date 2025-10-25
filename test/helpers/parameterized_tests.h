@@ -11,13 +11,17 @@
 // parameter_type: Name of parameter type that will be grabbed with GetParam()
 // parameters: any argument to TEST_P, e.g. testing::Values(x1, x2, x3) or testing::ValuesIn(vector)
 //
-// NOTE: `parameter_type` must contain a public field `const char* name`
-// The `name` field should be the name for that specific parameter case
+// NOTE: if `parameter_type` contains a `name` member then that will be used as test case name
 #define PARAMETERIZED_TEST(test_fixture_name, test_case_name, parameter_type, parameters)                                                \
 	class test_case_name : public testing::Test                                                                                          \
 		, public testing::WithParamInterface<parameter_type> {                                                                           \
 	};                                                                                                                                   \
 	INSTANTIATE_TEST_SUITE_P(test_fixture_name, test_case_name, parameters, [](testing::TestParamInfo<test_case_name::ParamType> info) { \
-		return info.param.name;                                                                                                          \
+		if constexpr (requires { info.param.name; }) {                                                                                   \
+			return std::string(info.param.name);                                                                                         \
+		}                                                                                                                                \
+		else {                                                                                                                           \
+			return testing::PrintToString(info.param);                                                                                   \
+		}                                                                                                                                \
 	});                                                                                                                                  \
 	TEST_P(test_case_name, PARAMETERIZED_TEST_EMPTY_NAME())

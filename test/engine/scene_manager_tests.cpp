@@ -1,8 +1,11 @@
 #include <gtest/gtest.h>
 
+#include <test/helpers/parameterized_tests.h>
+
+#include <expected>
 #include <functional>
-#include <unordered_map>
 #include <memory>
+#include <unordered_map>
 
 namespace engine {
 
@@ -17,39 +20,43 @@ namespace engine {
 	};
 
 	struct SceneID {
-        using value_type = int;
-        value_type value;
+		using value_type = int;
+		value_type value;
 		bool operator==(const SceneID& other) const = default;
 	};
 
-    constexpr SceneID INVALID_SCENE_ID = SceneID(0);
+	constexpr SceneID INVALID_SCENE_ID = SceneID(0);
+
+	enum class SceneManagerError {
+		InvalidSceneId,
+	};
 
 	class SceneManager {
 	public:
-		using ScenePtr = std::unique_ptr<Scene>;
+		SceneID register_scene(std::function<std::unique_ptr<Scene>()> scene_constructor) {
+			SceneID id = SceneID(m_next_id++);
+			m_scene_constructors[id.value] = scene_constructor;
+			return id;
+		}
 
-        SceneID register_scene(std::function<ScenePtr()> scene_constructor) {
-            SceneID id = SceneID(m_next_id++);
-            m_scene_constructors[id.value] = scene_constructor;
-            return id;
-        }
-
-        void load_scene(SceneID scene_id) {
-            if (auto it = m_scene_constructors.find(scene_id.value); it != m_scene_constructors.end()) {
-                auto& scene_constructor = it->second;
-                m_active_scene = scene_constructor();
-            }
-            // else return error
-        }
+		std::expected<void, SceneManagerError> load_scene(SceneID scene_id) {
+			auto it = m_scene_constructors.find(scene_id.value);
+			if (it == m_scene_constructors.end()) {
+				return std::unexpected(SceneManagerError::InvalidSceneId);
+			}
+			auto& scene_constructor = it->second;
+			m_active_scene = scene_constructor();
+            return {};
+		}
 
 		Scene* current_scene() {
-			return nullptr;
+			return m_active_scene.get();
 		}
 
 	private:
-        int m_next_id = 1;
-		ScenePtr m_active_scene;
-		std::unordered_map<SceneID::value_type, std::function<ScenePtr()>> m_scene_constructors;
+		int m_next_id = 1;
+		std::unique_ptr<Scene> m_active_scene;
+		std::unordered_map<SceneID::value_type, std::function<std::unique_ptr<Scene>()>> m_scene_constructors;
 	};
 
 } // namespace engine
@@ -86,10 +93,20 @@ TEST(SceneManagerTests, RegisteredSceneCanBeLoaded) {
 	});
 	EXPECT_EQ(TestScene::num_instances, 0);
 
-	scene_manager.load_scene(scene_id);
+	std::expected<void, SceneManagerError> result = scene_manager.load_scene(scene_id);
+    EXPECT_TRUE(result.has_value());
 	EXPECT_EQ(TestScene::num_instances, 1);
+	EXPECT_NE(scene_manager.current_scene(), nullptr);
 }
 
-// trying to load non-registered scene gives error
+PARAMETERIZED_TEST(SceneManagerTests, LoadSceneWithBadID_GivesError, int, testing::Values(0,1)) {
+	SceneManager scene_manager;
+    SceneID scene_id = SceneID(GetParam());
+
+	std::expected<void, SceneManagerError> result = scene_manager.load_scene(scene_id);
+
+	ASSERT_FALSE(result.has_value());
+    EXPECT_EQ(result.error(), SceneManagerError::InvalidSceneId);
+}
 
 // switch between 2 scenes
