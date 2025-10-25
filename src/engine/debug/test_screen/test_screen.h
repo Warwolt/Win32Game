@@ -1,8 +1,8 @@
 #pragma once
 
+#include <engine/debug/test_screen/font_test_page.h>
 #include <engine/debug/test_screen/geometry_test_page.h>
 #include <engine/debug/test_screen/image_test_page.h>
-#include <engine/debug/test_screen/font_test_page.h>
 
 namespace engine {
 
@@ -22,7 +22,8 @@ namespace engine {
 
 	class TestScreen {
 	public:
-		void initialize(ResourceManager* resources, int initial_page);
+		TestScreen() = default;
+		TestScreen(ResourceManager* resources, int initial_page);
 		void update(const Input& input);
 		void draw(Renderer* renderer, IVec2 screen_resolution) const;
 

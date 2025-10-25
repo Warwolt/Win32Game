@@ -9,14 +9,13 @@
 #include <windows.h>
 
 #include <algorithm>
-#include <array>
 #include <format>
 
 namespace engine {
 
 	constexpr int FONT_SIZE = 16;
 
-	void TestScreen::initialize(ResourceManager* resources, int initial_page) {
+	TestScreen::TestScreen(ResourceManager* resources, int initial_page) {
 		m_page = std::clamp(initial_page, 0, (int)TestScreenPage::Count);
 		m_image_test_page.initialize(resources);
 		m_font_test_page.initialize();

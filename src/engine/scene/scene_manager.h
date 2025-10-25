@@ -23,14 +23,16 @@ namespace engine {
 
 	class SceneManager {
 	public:
-		SceneID register_scene(std::function<std::unique_ptr<Scene>()> scene_constructor);
+		using SceneConstructor = std::function<std::unique_ptr<Scene>()>;
+
+		SceneID register_scene(SceneConstructor scene_constructor);
 		std::expected<void, SceneManagerError> load_scene(SceneID scene_id);
 		Scene* current_scene();
 
 	private:
 		int m_next_id = 1;
 		std::unique_ptr<Scene> m_active_scene;
-		std::unordered_map<SceneID::value_type, std::function<std::unique_ptr<Scene>()>> m_scene_constructors;
+		std::unordered_map<SceneID::value_type, SceneConstructor> m_scene_constructors;
 	};
 
 } // namespace engine

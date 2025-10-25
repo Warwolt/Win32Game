@@ -57,7 +57,7 @@ namespace engine {
 		engine.screen_resolution = screen_resolution;
 		engine.bitmap = Bitmap::with_size(engine.screen_resolution.x, engine.screen_resolution.y);
 		engine.audio = initialize_audio_player();
-		engine.test_screen.initialize(&engine.resources, engine_args.test_screen_page);
+		engine.test_screen = TestScreen(&engine.resources, engine_args.test_screen_page);
 		initialize_gamepad_support();
 
 		return engine;

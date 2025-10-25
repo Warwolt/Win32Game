@@ -2,7 +2,7 @@
 
 namespace engine {
 
-	SceneID SceneManager::register_scene(std::function<std::unique_ptr<Scene>()> scene_constructor) {
+	SceneID SceneManager::register_scene(SceneConstructor scene_constructor) {
 		SceneID id = SceneID(m_next_id++);
 		m_scene_constructors[id.value] = scene_constructor;
 		return id;
