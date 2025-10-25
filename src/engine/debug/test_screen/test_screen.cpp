@@ -1,4 +1,4 @@
-#include <engine/debug/test_screens/test_screens.h>
+#include <engine/debug/test_screen/test_screen.h>
 
 #include <engine/debug/profiling.h>
 #include <engine/file/resource_manager.h>
@@ -16,22 +16,22 @@ namespace engine {
 
 	constexpr int FONT_SIZE = 16;
 
-	void TestScreens::initialize(ResourceManager* resources, int initial_page) {
+	void TestScreen::initialize(ResourceManager* resources, int initial_page) {
 		m_page = std::clamp(initial_page, 0, (int)TestScreenPage::Count);
-		m_image_test_screen.initialize(resources);
-		m_font_test_screen.initialize();
+		m_image_test_page.initialize(resources);
+		m_font_test_page.initialize();
 	}
 
-	void TestScreens::update(const InputDevices& input) {
+	void TestScreen::update(const InputDevices& input) {
 		/* Update current page */
 		if (m_page == TestScreenPage::GeometryTest) {
-			m_geometry_test_screen.update(input);
+			m_geometry_test_page.update(input);
 		}
 		if (m_page == TestScreenPage::ImageTest) {
-			m_image_test_screen.update(m_just_changed_page, input);
+			m_image_test_page.update(m_just_changed_page, input);
 		}
 		if (m_page == TestScreenPage::FontTest) {
-			m_font_test_screen.update(m_just_changed_page, input);
+			m_font_test_page.update(m_just_changed_page, input);
 		}
 
 		/* Switch page */
@@ -46,21 +46,21 @@ namespace engine {
 		}
 	}
 
-	void TestScreens::draw(Renderer* renderer, IVec2 screen_resolution) const {
+	void TestScreen::draw(Renderer* renderer, IVec2 screen_resolution) const {
 		CPUProfilingScope_Engine();
 		const char* title = "unknown";
 		/* Render page */
 		if (m_page == TestScreenPage::GeometryTest) {
 			title = "draw geometry";
-			m_geometry_test_screen.draw(renderer, screen_resolution);
+			m_geometry_test_page.draw(renderer, screen_resolution);
 		}
 		if (m_page == TestScreenPage::ImageTest) {
 			title = "draw images";
-			m_image_test_screen.draw(renderer);
+			m_image_test_page.draw(renderer);
 		}
 		if (m_page == TestScreenPage::FontTest) {
 			title = "draw text";
-			m_font_test_screen.draw(renderer, screen_resolution);
+			m_font_test_page.draw(renderer, screen_resolution);
 		}
 		/* Render page title */
 		renderer->draw_text(DEFAULT_FONT_ID, FONT_SIZE, { 0, 0 }, RGBA::white(), std::format("test page {}/{}: {}", (int)m_page + 1, (int)TestScreenPage::Count, title));

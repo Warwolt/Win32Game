@@ -1,4 +1,4 @@
-#include <engine/debug/test_screens/font_test_screen.h>
+#include <engine/debug/test_screen/font_test_page.h>
 
 #include <engine/debug/assert.h>
 #include <engine/graphics/renderer.h>

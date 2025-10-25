@@ -1,4 +1,4 @@
-#include <engine/debug/test_screens/geometry_test_screen.h>
+#include <engine/debug/test_screen/geometry_test_page.h>
 
 #include <engine/debug/profiling.h>
 #include <engine/file/resource_manager.h>

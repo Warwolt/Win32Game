@@ -1,4 +1,4 @@
-#include <engine/debug/test_screens/image_test_screen.h>
+#include <engine/debug/test_screen/image_test_page.h>
 
 #include <engine/debug/assert.h>
 #include <engine/file/resource_manager.h>

@@ -25,10 +25,10 @@ set(SRC
     src/engine/debug/debug.cpp
     src/engine/debug/delta_timer.cpp
     src/engine/debug/logging.cpp
-    src/engine/debug/test_screens/font_test_screen.cpp
-    src/engine/debug/test_screens/geometry_test_screen.cpp
-    src/engine/debug/test_screens/image_test_screen.cpp
-    src/engine/debug/test_screens/test_screens.cpp
+    src/engine/debug/test_screen/font_test_page.cpp
+    src/engine/debug/test_screen/geometry_test_page.cpp
+    src/engine/debug/test_screen/image_test_page.cpp
+    src/engine/debug/test_screen/test_screen.cpp
     src/engine/engine.cpp
     src/engine/file/resource_manager.cpp
     src/engine/graphics/bitmap.cpp
