@@ -55,6 +55,7 @@ set(TEST_SRC
     test/engine/button_tests.cpp
     test/engine/keyboard_tests.cpp
     test/engine/moving_average_tests.cpp
+    test/engine/scene_manager_tests.cpp
 )
 
 set(INC

@@ -12,6 +12,7 @@ Overall goal:
 - Try out LDtk Level Editor (https://ldtk.io/)
 
 # Doing
+- Basic scene system, to support both the debug screens and basic gameplay scene
 
 # Done
 - Add basic animation system, apply it in the test screens
