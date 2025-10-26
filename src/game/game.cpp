@@ -10,12 +10,12 @@
 
 namespace game {
 
-	Game initialize(engine::Engine* engine) {
+	Game initialize(engine::Engine* /*engine*/) {
 		Game game = {};
 		return game;
 	}
 
-	void update(Game* game, std::vector<engine::Command>* commands, const engine::InputDevices& input) {
+	void update(Game* /*game*/, std::vector<engine::Command>* commands, const engine::InputDevices& input) {
 		CPUProfilingScope_Game();
 		if (input.keyboard.key_was_pressed_now(VK_ESCAPE)) {
 			commands->push_back(engine::AppCommand_Quit());
