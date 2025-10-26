@@ -23,13 +23,14 @@ namespace game {
 		void draw(engine::Renderer* renderer) const override;
 	};
 
-	void MenuScene::update(const engine::Input&, engine::CommandList*) {
-		// TODO:
-		// How do we switch between scenes?
-		// Individual scenes can't know about SceneID values since those are run time dependent
-		// So, we some other kind of identifier. Probably a named scene, like a string.
-		// So, we'd want some way of associating a name when registering a scene.
-		// Then, we could have commands->load_scene("scene name");
+	void MenuScene::update(const engine::Input& input, engine::CommandList* commands) {
+		if (input.keyboard.key_was_pressed_now(VK_ESCAPE)) {
+			commands->quit();
+		}
+
+		if (input.keyboard.key_was_pressed_now(VK_F11)) {
+			commands->toggle_fullscreen();
+		}
 	}
 
 	void MenuScene::draw(engine::Renderer* renderer) const {

@@ -13,15 +13,8 @@ namespace game {
 		return game;
 	}
 
-	void update(Game* /*game*/, engine::CommandList* commands, const engine::Input& input) {
+	void update(Game* /*game*/, engine::CommandList* /*commands*/, const engine::Input& /*input*/) {
 		CPUProfilingScope_Game();
-		if (input.keyboard.key_was_pressed_now(VK_ESCAPE)) {
-			commands->quit();
-		}
-
-		if (input.keyboard.key_was_pressed_now(VK_F11)) {
-			commands->toggle_fullscreen();
-		}
 	}
 
 	void draw(engine::Renderer* renderer, const Game& /*game*/) {
