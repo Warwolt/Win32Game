@@ -10,11 +10,12 @@ Overall goal:
   - maybe relevant: https://stackoverflow.com/questions/35438815/how-do-i-retrieve-the-current-sample-play-position-from-an-xaudio2-source-voice
 - Add a little Link sprite that can walk around with keyboard
 - Try out LDtk Level Editor (https://ldtk.io/)
+- Try out FMOD as audio player
 
 # Doing
-- Remove audio player, raw pointer stuff too annoying, need modern C++ audio lib
 
 # Done
+- Remove XAudio2 audio player, raw pointer stuff too annoying, need modern C++ audio lib
 - Add basic animation system, apply it in the test screens
 - Add way to specify which test screen page to open from command line
 - Add test screens for rendering geomtry, sprites, and text
