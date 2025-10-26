@@ -1,6 +1,5 @@
 #pragma once
 
-#include <engine/audio/audio_player.h>
 #include <engine/commands.h>
 #include <engine/debug/delta_timer.h>
 #include <engine/debug/test_screen/test_screen.h>
@@ -22,11 +21,10 @@ namespace engine {
 	struct Engine {
 		// application
 		bool should_quit = false;
-		std::vector<Command> commands;
+		IVec2 screen_resolution;
 		// input/output
 		InputEvents input_events;
 		Input input;
-		AudioPlayer audio;
 		// file
 		ResourceManager resources;
 		// graphics
@@ -41,7 +39,7 @@ namespace engine {
 	};
 
 	std::optional<Engine> initialize(const std::vector<std::string>& args, HINSTANCE instance, WNDPROC wnd_proc);
-	void update(Engine* engine);
+	void update(Engine* engine, CommandList* commands);
 	void draw(Engine* engine);
 
 } // namespace engine

@@ -2,12 +2,11 @@
 
 #include <engine/container/match_variant.h>
 #include <engine/graphics/window.h>
-#include <engine/audio/audio_player.h>
 
 namespace engine {
 
-	void run_commands(const std::vector<Command>& commands, bool* should_quit, Window* window, AudioPlayer* audio) {
-		for (const Command& command : commands) {
+	void CommandList::run(bool* should_quit, Window* window) {
+		for (const Command& command : m_commands) {
 			/* App commands */
 			MATCH_VARIANT_IF(command, AppCommand) {
 				MATCH_UNIT_CASE(AppCommand_Quit) {
@@ -20,13 +19,20 @@ namespace engine {
 					window->set_title(window_title);
 				}
 			}
-			/* Audio commands */
-			MATCH_VARIANT_IF(command, AudioCommand) {
-				MATCH_CASE(AudioCommand_PlaySound, sound_id) {
-					audio->play(sound_id);
-				}
-			}
 		}
+		m_commands.clear();
+	}
+
+	void CommandList::quit() {
+		m_commands.push_back(AppCommand_Quit {});
+	}
+
+	void CommandList::toggle_fullscreen() {
+		m_commands.push_back(AppCommand_ToggleFullscreen {});
+	}
+
+	void CommandList::set_window_title(std::string window_title) {
+		m_commands.push_back(AppCommand_SetWindowTitle { window_title });
 	}
 
 } // namespace engine

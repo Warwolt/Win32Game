@@ -117,8 +117,9 @@ LRESULT CALLBACK on_window_event(
 			update_input(state);
 
 			/* Update */
-			game::update(&state->game, &state->engine.commands, state->engine.input);
-			engine::update(&state->engine);
+			engine::CommandList commands;
+			game::update(&state->game, &commands, state->engine.input);
+			engine::update(&state->engine, &commands);
 
 			/* Render*/
 			game::draw(&state->engine.renderer, state->game);
@@ -138,8 +139,9 @@ bool update_application(State* state) {
 		update_input(state);
 
 		/* Update */
-		game::update(&state->game, &state->engine.commands, state->engine.input);
-		engine::update(&state->engine);
+		engine::CommandList commands;
+		game::update(&state->game, &commands, state->engine.input);
+		engine::update(&state->engine, &commands);
 
 		/* Draw */
 		game::draw(&state->engine.renderer, state->game);

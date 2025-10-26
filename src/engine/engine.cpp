@@ -54,8 +54,7 @@ namespace engine {
 			return {};
 		}
 		engine.resources = resources.value();
-		engine.bitmap = Bitmap::with_size(screen_resolution.x, screen_resolution.y);
-		engine.audio = initialize_audio_player();
+		engine.bitmap = Bitmap::with_size(engine.screen_resolution.x, engine.screen_resolution.y);
 		initialize_gamepad_support();
 
 		// NOTE: We're storing the resolution value inside the renderer just so
@@ -86,7 +85,7 @@ namespace engine {
 	// Pressing "test" should show the Test Screen.
 	// Pressing "play" should change current scene to the Game Scene.
 
-	void update(Engine* engine) {
+	void update(Engine* engine, CommandList* commands) {
 		CPUProfilingScope_Engine();
 
 		/* Update scene */
@@ -98,11 +97,10 @@ namespace engine {
 		float avg_fps = 1.0f / engine->frame_timer.average_delta();
 		const char* window_title = "Game";
 		std::string window_title_with_fps = std::format("{} ({:.1f} fps)", window_title, avg_fps);
-		engine->commands.push_back(AppCommand_SetWindowTitle { window_title_with_fps });
+		commands->set_window_title(window_title_with_fps);
 
 		/* Process commands */
-		run_commands(engine->commands, &engine->should_quit, &engine->window, &engine->audio);
-		engine->commands.clear();
+		commands->run(&engine->should_quit, &engine->window);
 	}
 
 	void draw(Engine* engine) {
