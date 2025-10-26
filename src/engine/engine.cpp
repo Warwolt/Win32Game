@@ -7,6 +7,14 @@
 
 namespace engine {
 
+	// class MenuScene : public Scene {
+
+	// };
+
+} // namespace engine
+
+namespace engine {
+
 	constexpr IVec2 NES_RESOLUTION = IVec2 { 256, 240 };
 
 	struct EngineArgs {
@@ -84,7 +92,7 @@ namespace engine {
 
 		/* Update scene */
 		if (Scene* current_scene = engine->scene_manager.current_scene()) {
-			current_scene->update(engine->input);
+			current_scene->update(engine->input, commands);
 		}
 
 		/* Show CPU profiling information in window title */

@@ -17,7 +17,7 @@ struct TestScene : public Scene {
 	static int num_instances;
 	TestScene() { num_instances++; }
 	~TestScene() { num_instances--; }
-	void update(const Input&) override {}
+	void update(const Input&, CommandList*) override {}
 	void draw(Renderer*) const override {}
 };
 
@@ -25,7 +25,7 @@ struct TestScene2 : public Scene {
 	static int num_instances;
 	TestScene2() { num_instances++; }
 	~TestScene2() { num_instances--; }
-	void update(const Input&) override {}
+	void update(const Input&, CommandList*) override {}
 	void draw(Renderer*) const override {}
 };
 

@@ -25,7 +25,7 @@ namespace engine {
 	public:
 		TestScreen() = default;
 		TestScreen(ResourceManager* resources, int initial_page);
-		void update(const Input& input) override;
+		void update(const Input& input, CommandList* commands) override;
 		void draw(Renderer* renderer) const override;
 
 	private:
