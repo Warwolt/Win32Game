@@ -53,7 +53,7 @@ State* initialize_application(int argc, char** argv, HINSTANCE instance, WNDPROC
 		MessageBoxA(0, "Failed to initialize engine", "Error", MB_OK | MB_ICONERROR);
 		exit(1);
 	}
-	state->engine = std::move(engine.value());
+	state->engine = engine.value();
 	state->game = game::initialize(&state->engine);
 	LOG_INFO("Initialized");
 	LOG_INFO(PROFILING_IS_ENABLED ? "CPU profiling is enabled" : "CPU profiling is disabled");
