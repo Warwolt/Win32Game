@@ -8,6 +8,7 @@
 #include <engine/graphics/renderer.h>
 #include <engine/graphics/window.h>
 #include <engine/input/input.h>
+#include <engine/scene/scene_manager.h>
 
 #include <optional>
 #include <string>
@@ -32,8 +33,10 @@ namespace engine {
 		Renderer renderer;
 		Window window;
 		Bitmap bitmap;
+		// scene
+		SceneManager scene_manager;
+		SceneID test_scene_id;
 		// debug
-		TestScreen test_screen;
 		DeltaTimer frame_timer;
 	};
 

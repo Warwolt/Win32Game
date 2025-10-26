@@ -8,13 +8,13 @@ namespace engine {
 		return id;
 	}
 
-	std::expected<void, SceneManagerError> SceneManager::load_scene(SceneID scene_id) {
+	std::expected<void, SceneManagerError> SceneManager::load_scene(SceneID scene_id, ResourceManager* resources) {
 		auto it = m_scene_constructors.find(scene_id.value);
 		if (it == m_scene_constructors.end()) {
 			return std::unexpected(SceneManagerError::InvalidSceneId);
 		}
 		auto& scene_constructor = it->second;
-		m_active_scene = scene_constructor();
+		m_active_scene = scene_constructor(resources);
 		return {};
 	}
 

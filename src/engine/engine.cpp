@@ -56,7 +56,6 @@ namespace engine {
 		engine.resources = resources.value();
 		engine.bitmap = Bitmap::with_size(screen_resolution.x, screen_resolution.y);
 		engine.audio = initialize_audio_player();
-		engine.test_screen = TestScreen(&engine.resources, engine_args.test_screen_page);
 		initialize_gamepad_support();
 
 		// NOTE: We're storing the resolution value inside the renderer just so
@@ -64,14 +63,25 @@ namespace engine {
 		// I'm not sure it really should be there, but it's simple enough for now.
 		engine.renderer.set_screen_resolution(screen_resolution);
 
+		engine.test_scene_id = engine.scene_manager.register_scene([test_screen_page = engine_args.test_screen_page](ResourceManager* resources) {
+			return std::make_unique<TestScreen>(resources, test_screen_page);
+		});
+		std::expected<void, SceneManagerError> load_result = engine.scene_manager.load_scene(engine.test_scene_id, &engine.resources);
+		if (!load_result) {
+			LOG_FATAL("Failed to load initial scene");
+			return {};
+		}
+
 		return engine;
 	}
 
 	void update(Engine* engine) {
 		CPUProfilingScope_Engine();
 
-		/* Update test screens */
-		engine->test_screen.update(engine->input);
+		/* Update scene */
+		if (Scene* current_scene = engine->scene_manager.current_scene()) {
+			current_scene->update(engine->input);
+		}
 
 		/* Show CPU profiling information in window title */
 		float avg_fps = 1.0f / engine->frame_timer.average_delta();
@@ -86,7 +96,9 @@ namespace engine {
 
 	void draw(Engine* engine) {
 		CPUProfilingScope_Engine();
-		engine->test_screen.draw(&engine->renderer);
+		if (Scene* current_scene = engine->scene_manager.current_scene()) {
+			current_scene->draw(&engine->renderer);
+		}
 	}
 
 } // namespace engine

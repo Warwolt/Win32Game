@@ -9,6 +9,8 @@
 
 namespace engine {
 
+	class ResourceManager;
+
 	struct SceneID {
 		using value_type = int;
 		value_type value;
@@ -23,10 +25,10 @@ namespace engine {
 
 	class SceneManager {
 	public:
-		using SceneConstructor = std::function<std::unique_ptr<Scene>()>;
+		using SceneConstructor = std::function<std::unique_ptr<Scene>(ResourceManager*)>;
 
 		SceneID register_scene(SceneConstructor scene_constructor);
-		std::expected<void, SceneManagerError> load_scene(SceneID scene_id);
+		std::expected<void, SceneManagerError> load_scene(SceneID scene_id, ResourceManager* resources);
 		Scene* current_scene();
 
 	private:
