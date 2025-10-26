@@ -71,6 +71,10 @@ namespace engine {
 		return m_height;
 	}
 
+	IVec2 Bitmap::size() const {
+		return { m_width, m_height };
+	}
+
 	const Pixel* Bitmap::data() const {
 		return m_data.data();
 	}

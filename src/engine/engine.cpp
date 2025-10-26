@@ -54,8 +54,7 @@ namespace engine {
 			return {};
 		}
 		engine.resources = resources.value();
-		engine.screen_resolution = screen_resolution;
-		engine.bitmap = Bitmap::with_size(engine.screen_resolution.x, engine.screen_resolution.y);
+		engine.renderer = Renderer::with_bitmap(screen_resolution.x, screen_resolution.y);
 		initialize_gamepad_support();
 		initialize_debug(&engine.debug, &engine.resources, engine_args.test_screen_page);
 
@@ -74,7 +73,7 @@ namespace engine {
 
 	void draw(Engine* engine) {
 		CPUProfilingScope_Engine();
-		draw_debug(&engine->renderer, engine->debug, engine->screen_resolution);
+		draw_debug(&engine->renderer, engine->debug);
 	}
 
 } // namespace engine

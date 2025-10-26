@@ -124,8 +124,8 @@ LRESULT CALLBACK on_window_event(
 			/* Render*/
 			game::draw(&state->engine.renderer, state->game);
 			engine::draw(&state->engine);
-			state->engine.renderer.render(&state->engine.bitmap, &state->engine.resources);
-			state->engine.window.render_wm_paint(state->engine.bitmap);
+			state->engine.renderer.render(&state->engine.resources);
+			state->engine.window.render_wm_paint(state->engine.renderer.bitmap());
 		} break;
 	}
 	return DefWindowProc(window, message, w_param, l_param);
@@ -148,8 +148,8 @@ bool update_application(State* state) {
 		engine::draw(&state->engine);
 
 		/* Render */
-		state->engine.renderer.render(&state->engine.bitmap, &state->engine.resources);
-		state->engine.window.render(state->engine.bitmap);
+		state->engine.renderer.render(&state->engine.resources);
+		state->engine.window.render(state->engine.renderer.bitmap());
 
 		/* Yield CPU to not stall OS */
 		Sleep(1);
