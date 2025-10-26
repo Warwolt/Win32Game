@@ -30,12 +30,12 @@ namespace engine {
 		commands->set_window_title(window_title_with_fps);
 	}
 
-	void draw_debug(Renderer* renderer, const DebugState& debug, IVec2 screen_resolution) {
+	void draw_debug(Renderer* renderer, const DebugState& debug) {
 		CPUProfilingScope_Engine();
 
 		/* Draw test screens */
 		if (debug.show_test_screens) {
-			debug.test_screens.draw(renderer, screen_resolution);
+			debug.test_screens.draw(renderer, renderer->screen_resolution());
 		}
 	}
 

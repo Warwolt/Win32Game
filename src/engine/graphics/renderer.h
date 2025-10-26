@@ -40,6 +40,9 @@ namespace engine {
 
 	class Renderer {
 	public:
+		Renderer() = default;
+		static Renderer with_bitmap(int32_t width, int32_t height);
+
 		// tags next draw command, shows up in Tracy
 		void add_tag(std::string tag);
 
@@ -57,7 +60,10 @@ namespace engine {
 		void draw_image_scaled(ImageID image_id, Rect rect, DrawImageOptions options = {});
 		void draw_text(FontID font_id, int32_t font_size, Rect rect, RGBA color, std::string text);
 
-		void render(Bitmap* bitmap, ResourceManager* resources);
+		const Bitmap& bitmap();
+		IVec2 screen_resolution();
+
+		void render(ResourceManager* resources);
 
 	private:
 		struct ClearScreen {
@@ -108,10 +114,13 @@ namespace engine {
 			DrawTriangle,
 			DrawImage,
 			DrawText>;
+
 		struct DrawData {
 			DrawCommand command;
 			std::string tag; // meta data for what's being drawn
 		};
+
+		Bitmap m_bitmap;
 		std::string m_last_tag; // for debuggin
 		std::string m_current_tag;
 		std::vector<DrawData> m_draw_data;

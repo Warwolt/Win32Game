@@ -20,7 +20,6 @@ namespace engine {
 	struct Engine {
 		// application
 		bool should_quit = false;
-		IVec2 screen_resolution;
 		// input/output
 		InputEvents input_events;
 		InputDevices input;
@@ -29,7 +28,6 @@ namespace engine {
 		// graphics
 		Renderer renderer;
 		Window window;
-		Bitmap bitmap;
 		// debug
 		DebugState debug;
 	};
