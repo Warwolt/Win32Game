@@ -54,14 +54,8 @@ namespace engine {
 			return {};
 		}
 		engine.resources = resources.value();
-		engine.bitmap = Bitmap::with_size(engine.screen_resolution.x, engine.screen_resolution.y);
+		engine.renderer = Renderer::with_bitmap(screen_resolution.x, screen_resolution.y);
 		initialize_gamepad_support();
-
-		// NOTE: We're storing the resolution value inside the renderer just so
-		// that it's always accessible to functions that wants to draw stuff.
-		// I'm not sure it really should be there, but it's simple enough for now.
-		engine.renderer.set_screen_resolution(screen_resolution);
-
 		engine.test_scene_id = engine.scene_manager.register_scene([test_screen_page = engine_args.test_screen_page](ResourceManager* resources) {
 			return std::make_unique<TestScreen>(resources, test_screen_page);
 		});

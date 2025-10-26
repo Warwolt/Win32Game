@@ -40,13 +40,11 @@ namespace engine {
 
 	class Renderer {
 	public:
+		Renderer() = default;
+		static Renderer with_bitmap(int32_t width, int32_t height);
+
 		// tags next draw command, shows up in Tracy
 		void add_tag(std::string tag);
-		// FIXME: screen resolution doesn't actually do anything
-		// Should we maybe just store the Bitmap directly?
-		// Then we could return the `screen_resolution` based on the bitmap size.
-		void set_screen_resolution(IVec2 screen_resolution);
-		IVec2 screen_resolution();
 
 		void clear_screen(RGBA color = { 0, 0, 0, 255 });
 		void draw_point(Vertex v1);
@@ -62,7 +60,10 @@ namespace engine {
 		void draw_image_scaled(ImageID image_id, Rect rect, DrawImageOptions options = {});
 		void draw_text(FontID font_id, int32_t font_size, Rect rect, RGBA color, std::string text);
 
-		void render(Bitmap* bitmap, ResourceManager* resources);
+		const Bitmap& bitmap();
+		IVec2 screen_resolution() const;
+
+		void render(ResourceManager* resources);
 
 	private:
 		struct ClearScreen {
@@ -113,13 +114,15 @@ namespace engine {
 			DrawTriangle,
 			DrawImage,
 			DrawText>;
+
 		struct DrawData {
 			DrawCommand command;
 			std::string tag; // meta data for what's being drawn
 		};
+
+		Bitmap m_bitmap;
 		std::string m_last_tag; // for debuggin
 		std::string m_current_tag;
-		IVec2 m_screen_resolution;
 		std::vector<DrawData> m_draw_data;
 
 		std::string _take_current_tag();

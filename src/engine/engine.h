@@ -21,7 +21,6 @@ namespace engine {
 	struct Engine {
 		// application
 		bool should_quit = false;
-		IVec2 screen_resolution;
 		// input/output
 		InputEvents input_events;
 		Input input;
@@ -30,7 +29,6 @@ namespace engine {
 		// graphics
 		Renderer renderer;
 		Window window;
-		Bitmap bitmap;
 		// scene
 		SceneManager scene_manager;
 		SceneID test_scene_id;

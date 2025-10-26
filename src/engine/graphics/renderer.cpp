@@ -79,16 +79,14 @@ namespace engine {
 		return half_circle_points;
 	}
 
+	Renderer Renderer::with_bitmap(int32_t width, int32_t height) {
+		Renderer renderer;
+		renderer.m_bitmap = Bitmap::with_size(width, height);
+		return renderer;
+	}
+
 	void Renderer::add_tag(std::string tag) {
 		m_current_tag = tag;
-	}
-
-	void Renderer::set_screen_resolution(IVec2 screen_resolution) {
-		m_screen_resolution = screen_resolution;
-	}
-
-	IVec2 Renderer::screen_resolution() {
-		return m_screen_resolution;
 	}
 
 	void Renderer::clear_screen(RGBA color) {
@@ -143,7 +141,15 @@ namespace engine {
 		m_draw_data.push_back(DrawData { DrawText { font_id, font_size, rect, color, text }, _take_current_tag() });
 	}
 
-	void Renderer::render(Bitmap* bitmap, ResourceManager* resources) {
+	const Bitmap& Renderer::bitmap() {
+		return m_bitmap;
+	}
+
+	IVec2 Renderer::screen_resolution() const {
+		return m_bitmap.size();
+	}
+
+	void Renderer::render(ResourceManager* resources) {
 		CPUProfilingScope_Render();
 		TracyPlot("DrawCommands", (int64_t)m_draw_data.size());
 
@@ -154,36 +160,36 @@ namespace engine {
 			}
 			MATCH_VARIANT(command) {
 				MATCH_CASE(ClearScreen, color) {
-					_clear_screen(bitmap, color);
+					_clear_screen(&m_bitmap, color);
 				}
 				MATCH_CASE(DrawPoint, v1) {
-					_put_point(bitmap, v1);
+					_put_point(&m_bitmap, v1);
 				}
 				MATCH_CASE(DrawLine, v1, v2) {
-					_put_line(bitmap, v1, v2, nullptr);
+					_put_line(&m_bitmap, v1, v2, nullptr);
 				}
 				MATCH_CASE(DrawRect, rect, color, filled) {
 					if (filled) {
-						_put_rect_fill(bitmap, rect, color);
+						_put_rect_fill(&m_bitmap, rect, color);
 					}
 					else {
-						_put_rect(bitmap, rect, color);
+						_put_rect(&m_bitmap, rect, color);
 					}
 				}
 				MATCH_CASE(DrawCircle, center, radius, color, filled) {
 					if (filled) {
-						_put_circle_fill(bitmap, center, radius, color);
+						_put_circle_fill(&m_bitmap, center, radius, color);
 					}
 					else {
-						_put_circle(bitmap, center, radius, color);
+						_put_circle(&m_bitmap, center, radius, color);
 					}
 				}
 				MATCH_CASE(DrawTriangle, v1, v2, v3, filled) {
 					if (filled) {
-						_put_triangle_fill(bitmap, v1, v2, v3);
+						_put_triangle_fill(&m_bitmap, v1, v2, v3);
 					}
 					else {
-						_put_triangle(bitmap, v1, v2, v3);
+						_put_triangle(&m_bitmap, v1, v2, v3);
 					}
 				}
 				MATCH_CASE(DrawImage, image_id, rect, const_options) {
@@ -193,15 +199,15 @@ namespace engine {
 						if (options.clip.empty()) {
 							options.clip = Rect { 0, 0, image.width, image.height };
 						}
-						_put_image(bitmap, image, rect.pos(), options);
+						_put_image(&m_bitmap, image, rect.pos(), options);
 					}
 					else {
-						_put_image_scaled(bitmap, image, rect, options);
+						_put_image_scaled(&m_bitmap, image, rect, options);
 					}
 				}
 				MATCH_CASE(DrawText, font_id, font_size, rect, color, text) {
 					Font& font = resources->font(font_id);
-					_put_text(bitmap, &font, font_size, rect, color, text);
+					_put_text(&m_bitmap, &font, font_size, rect, color, text);
 				}
 			}
 		}

@@ -34,6 +34,7 @@ namespace engine {
 		bool empty() const;
 		int32_t width() const;
 		int32_t height() const;
+		IVec2 size() const;
 		const Pixel* data() const;
 
 	private:

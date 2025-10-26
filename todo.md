@@ -18,6 +18,7 @@ Overall goal:
 - Basic scene system, to support both the debug screens and basic gameplay scene
 
 # Done
+- Store Bitmap inside renderer so we can easily access its dimensions when drawing
 - CommandList class, replace std::vector<Command>
 - Remove XAudio2 audio player, raw pointer stuff too annoying, need modern C++ audio lib
 - Add basic animation system, apply it in the test screens
