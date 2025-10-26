@@ -21,7 +21,6 @@ namespace engine {
 		// application
 		bool should_quit = false;
 		IVec2 screen_resolution;
-		std::vector<Command> commands;
 		// input/output
 		InputEvents input_events;
 		InputDevices input;
@@ -36,7 +35,7 @@ namespace engine {
 	};
 
 	std::optional<Engine> initialize(const std::vector<std::string>& args, HINSTANCE instance, WNDPROC wnd_proc);
-	void update(Engine* engine);
+	void update(Engine* engine, CommandList* commands);
 	void draw(Engine* engine);
 
 } // namespace engine

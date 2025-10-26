@@ -12,7 +12,7 @@ namespace engine {
 		debug->test_screens.initialize(resources, initial_test_screen_page);
 	}
 
-	void update_debug(DebugState* debug, const InputDevices& input, std::vector<Command>* commands) {
+	void update_debug(DebugState* debug, const InputDevices& input, CommandList* commands) {
 		CPUProfilingScope_Engine();
 
 		/* Update test screens */
@@ -27,7 +27,7 @@ namespace engine {
 		float avg_fps = 1.0f / debug->frame_timer.average_delta();
 		const char* window_title = "Game";
 		std::string window_title_with_fps = std::format("{} ({:.1f} fps)", window_title, avg_fps);
-		commands->push_back(AppCommand_SetWindowTitle { window_title_with_fps });
+		commands->set_window_title(window_title_with_fps);
 	}
 
 	void draw_debug(Renderer* renderer, const DebugState& debug, IVec2 screen_resolution) {

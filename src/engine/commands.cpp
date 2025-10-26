@@ -5,8 +5,8 @@
 
 namespace engine {
 
-	void run_commands(const std::vector<Command>& commands, bool* should_quit, Window* window) {
-		for (const Command& command : commands) {
+	void CommandList::run(bool* should_quit, Window* window) {
+		for (const Command& command : m_commands) {
 			/* App commands */
 			MATCH_VARIANT_IF(command, AppCommand) {
 				MATCH_UNIT_CASE(AppCommand_Quit) {
@@ -20,6 +20,19 @@ namespace engine {
 				}
 			}
 		}
+		m_commands.clear();
+	}
+
+	void CommandList::quit() {
+		m_commands.push_back(AppCommand_Quit {});
+	}
+
+	void CommandList::toggle_fullscreen() {
+		m_commands.push_back(AppCommand_ToggleFullscreen {});
+	}
+
+	void CommandList::set_window_title(std::string window_title) {
+		m_commands.push_back(AppCommand_SetWindowTitle { window_title });
 	}
 
 } // namespace engine
