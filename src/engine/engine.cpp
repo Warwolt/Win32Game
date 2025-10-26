@@ -7,6 +7,17 @@
 
 namespace game {
 
+	// TODO
+	// Two scenes: "Menu Scene" and "Game Scene"
+	// Menu scene has two screens: Main menu, Test screen
+	//
+	// At some point we might want some basic UI framework but for now we can
+	// probably roll a very simple Menu Scene with a simple two element list for
+	// "play" and "test" that you select with arrow keys + enter.
+	//
+	// Pressing "test" should show the Test Screen.
+	// Pressing "play" should change current scene to the Game Scene.
+
 	class MenuScene : public engine::Scene {
 		void update(const engine::Input& input, engine::CommandList* commands) override;
 		void draw(engine::Renderer* renderer) const override;
@@ -87,13 +98,10 @@ namespace engine {
 		initialize_gamepad_support();
 
 		/* Setup scenes */
-		// engine.test_scene_id = engine.scene_manager.register_scene([test_screen_page = engine_args.test_screen_page](ResourceManager* resources) {
-		// 	return std::make_unique<TestScreen>(resources, test_screen_page);
-		// });
-		SceneID menu_scene_id = engine.scene_manager.register_scene([](ResourceManager* /*resources*/) {
+		engine.scene_manager.register_scene("MenuScene", [](ResourceManager* /*resources*/) {
 			return std::make_unique<game::MenuScene>();
 		});
-		std::expected<void, SceneManagerError> load_result = engine.scene_manager.load_scene(menu_scene_id, &engine.resources);
+		std::expected<void, SceneManagerError> load_result = engine.scene_manager.load_scene("MenuScene", &engine.resources);
 		if (!load_result) {
 			LOG_FATAL("Failed to load initial scene");
 			return {};
@@ -101,17 +109,6 @@ namespace engine {
 
 		return engine;
 	}
-
-	// TODO
-	// Two scenes: "Menu Scene" and "Game Scene"
-	// Menu scene has two screens: Main menu, Test screen
-	//
-	// At some point we might want some basic UI framework but for now we can
-	// probably roll a very simple Menu Scene with a simple two element list for
-	// "play" and "test" that you select with arrow keys + enter.
-	//
-	// Pressing "test" should show the Test Screen.
-	// Pressing "play" should change current scene to the Game Scene.
 
 	void update(Engine* engine, CommandList* commands) {
 		CPUProfilingScope_Engine();

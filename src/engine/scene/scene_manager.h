@@ -6,35 +6,27 @@
 #include <functional>
 #include <memory>
 #include <unordered_map>
+#include <string>
 
 namespace engine {
 
 	class ResourceManager;
 
-	struct SceneID {
-		using value_type = int;
-		value_type value;
-		bool operator==(const SceneID& other) const = default;
-	};
-
-	constexpr SceneID INVALID_SCENE_ID = SceneID(0);
-
 	enum class SceneManagerError {
-		InvalidSceneId,
+		InvalidSceneName,
 	};
 
 	class SceneManager {
 	public:
 		using SceneConstructor = std::function<std::unique_ptr<Scene>(ResourceManager*)>;
 
-		SceneID register_scene(SceneConstructor scene_constructor);
-		std::expected<void, SceneManagerError> load_scene(SceneID scene_id, ResourceManager* resources);
+		void register_scene(std::string scene_name, SceneConstructor scene_constructor);
+		std::expected<void, SceneManagerError> load_scene(const std::string& scene_name, ResourceManager* resources);
 		Scene* current_scene();
 
 	private:
-		int m_next_id = 1;
 		std::unique_ptr<Scene> m_active_scene;
-		std::unordered_map<SceneID::value_type, SceneConstructor> m_scene_constructors;
+		std::unordered_map<std::string, SceneConstructor> m_scene_constructors;
 	};
 
 } // namespace engine

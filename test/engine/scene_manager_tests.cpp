@@ -5,7 +5,6 @@
 #include <engine/file/resource_manager.h>
 #include <engine/scene/scene_manager.h>
 
-
 #include <expected>
 #include <functional>
 #include <memory>
@@ -40,15 +39,14 @@ TEST(SceneManagerTests, InitiallyHoldsNoScene) {
 	EXPECT_EQ(current_scene, nullptr);
 }
 
-TEST_PARAMETERIZED(SceneManagerTests, LoadScene_LoadingWithBadID_GivesError, int, testing::Values(0, 1)) {
+TEST(SceneManagerTests, LoadScene_NonRegisteredScene_GivesError) {
 	SceneManager scene_manager;
 	ResourceManager resource_manager;
-	SceneID scene_id = SceneID(GetParam());
 
-	std::expected<void, SceneManagerError> result = scene_manager.load_scene(scene_id, &resource_manager);
+	std::expected<void, SceneManagerError> result = scene_manager.load_scene("bad scene name", &resource_manager);
 
 	ASSERT_FALSE(result.has_value());
-	EXPECT_EQ(result.error(), SceneManagerError::InvalidSceneId);
+	EXPECT_EQ(result.error(), SceneManagerError::InvalidSceneName);
 }
 
 TEST(SceneManagerTests, LoadScene_RegisteredScene_SceneGetsLoaded) {
@@ -56,13 +54,13 @@ TEST(SceneManagerTests, LoadScene_RegisteredScene_SceneGetsLoaded) {
 	ResourceManager resource_manager;
 
 	/* Register scene */
-	SceneID scene_id = scene_manager.register_scene([](ResourceManager*) {
+	scene_manager.register_scene("my scene", [](ResourceManager*) {
 		return std::make_unique<TestScene>();
 	});
 	EXPECT_EQ(TestScene::num_instances, 0);
 
 	/* Load scene */
-	std::expected<void, SceneManagerError> result = scene_manager.load_scene(scene_id, &resource_manager);
+	std::expected<void, SceneManagerError> result = scene_manager.load_scene("my scene", &resource_manager);
 	EXPECT_TRUE(result.has_value());
 	EXPECT_EQ(TestScene::num_instances, 1);
 	EXPECT_NE(scene_manager.current_scene(), nullptr);
@@ -73,23 +71,23 @@ TEST(SceneManagerTests, LoadScene_TwoRegisteredScenes_CanSwapBetweenThem) {
 	ResourceManager resource_manager;
 
 	/* Register two scenes */
-	SceneID scene_id = scene_manager.register_scene([](ResourceManager*) {
+	scene_manager.register_scene("first scene", [](ResourceManager*) {
 		return std::make_unique<TestScene>();
 	});
-	SceneID scene_id2 = scene_manager.register_scene([](ResourceManager*) {
+	scene_manager.register_scene("second scene", [](ResourceManager*) {
 		return std::make_unique<TestScene2>();
 	});
 	EXPECT_EQ(TestScene::num_instances, 0);
 	EXPECT_EQ(TestScene2::num_instances, 0);
 
 	/* Load first scene */
-	std::expected<void, SceneManagerError> result = scene_manager.load_scene(scene_id, &resource_manager);
+	std::expected<void, SceneManagerError> result = scene_manager.load_scene("first scene", &resource_manager);
 	EXPECT_TRUE(result.has_value());
 	EXPECT_EQ(TestScene::num_instances, 1);
 	EXPECT_EQ(TestScene2::num_instances, 0);
 
 	/* Load second scene */
-	std::expected<void, SceneManagerError> result2 = scene_manager.load_scene(scene_id2, &resource_manager);
+	std::expected<void, SceneManagerError> result2 = scene_manager.load_scene("second scene", &resource_manager);
 	EXPECT_TRUE(result2.has_value());
 	EXPECT_EQ(TestScene::num_instances, 0);
 	EXPECT_EQ(TestScene2::num_instances, 1);
