@@ -90,10 +90,10 @@ namespace engine {
 		// engine.test_scene_id = engine.scene_manager.register_scene([test_screen_page = engine_args.test_screen_page](ResourceManager* resources) {
 		// 	return std::make_unique<TestScreen>(resources, test_screen_page);
 		// });
-		engine.menu_scene_id = engine.scene_manager.register_scene([](ResourceManager* /*resources*/) {
+		SceneID menu_scene_id = engine.scene_manager.register_scene([](ResourceManager* /*resources*/) {
 			return std::make_unique<game::MenuScene>();
 		});
-		std::expected<void, SceneManagerError> load_result = engine.scene_manager.load_scene(engine.menu_scene_id, &engine.resources);
+		std::expected<void, SceneManagerError> load_result = engine.scene_manager.load_scene(menu_scene_id, &engine.resources);
 		if (!load_result) {
 			LOG_FATAL("Failed to load initial scene");
 			return {};
