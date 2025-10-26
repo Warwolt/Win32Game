@@ -1,6 +1,5 @@
 #pragma once
 
-#include <engine/audio/audio_id.h>
 #include <engine/commands.h>
 
 #include <vector>
@@ -14,11 +13,6 @@ namespace engine {
 namespace game {
 
 	struct Game {
-		struct Assets {
-			struct Audio {
-				engine::AudioID cowbell;
-			} audio;
-		} assets;
 	};
 
 	Game initialize(engine::Engine* engine);

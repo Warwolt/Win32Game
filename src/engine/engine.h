@@ -1,6 +1,5 @@
 #pragma once
 
-#include <engine/audio/audio_player.h>
 #include <engine/commands.h>
 #include <engine/debug/debug.h>
 #include <engine/debug/debug_state.h>
@@ -26,7 +25,6 @@ namespace engine {
 		// input/output
 		InputEvents input_events;
 		InputDevices input;
-		AudioPlayer audio;
 		// file
 		ResourceManager resources;
 		// graphics
