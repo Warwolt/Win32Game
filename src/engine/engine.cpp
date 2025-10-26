@@ -34,6 +34,11 @@ namespace game {
 	}
 
 	void MenuScene::draw(engine::Renderer* renderer) const {
+		// TODO: main menu and test menu
+		// - We want a main menu with "play" and "debug"
+		// - "play" navigates to GameScene
+		// - "debug" navigates to TestScreen
+
 		engine::IVec2 screen_resolution = renderer->screen_resolution();
 		engine::Rect text_box = {
 			.x = screen_resolution.x / 2 - 36,
