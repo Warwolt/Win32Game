@@ -62,15 +62,14 @@ namespace engine {
 		return engine;
 	}
 
-	void update(Engine* engine) {
+	void update(Engine* engine, CommandList* commands) {
 		CPUProfilingScope_Engine();
 
 		/* Update engine */
-		update_debug(&engine->debug, engine->input, &engine->commands);
+		update_debug(&engine->debug, engine->input, commands);
 
 		/* Process commands */
-		run_commands(engine->commands, &engine->should_quit, &engine->window);
-		engine->commands.clear();
+		commands->run(&engine->should_quit, &engine->window);
 	}
 
 	void draw(Engine* engine) {

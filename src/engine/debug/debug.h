@@ -11,7 +11,7 @@ namespace engine {
 	struct DebugState;
 
 	void initialize_debug(DebugState* debug, ResourceManager* resources, int initial_test_screen_page);
-	void update_debug(DebugState* debug, const InputDevices& input, std::vector<Command>* commands);
+	void update_debug(DebugState* debug, const InputDevices& input, CommandList* commands);
 	void draw_debug(Renderer* renderer, const DebugState& debug, IVec2 screen_resolution);
 
 } // namespace engine

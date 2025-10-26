@@ -8,19 +8,27 @@ namespace engine {
 
 	class Window;
 
-	// clang-format off
-	struct AppCommand_Quit {};
-	struct AppCommand_ToggleFullscreen {};
-	struct AppCommand_SetWindowTitle { std::string window_title; };
-	// clang-format on
+	class CommandList {
+	public:
+		void run(bool* should_quit, Window* window);
 
-	using AppCommand = std::variant<
-		AppCommand_Quit,
-		AppCommand_ToggleFullscreen,
-		AppCommand_SetWindowTitle>;
+		void quit();
+		void toggle_fullscreen();
+		void set_window_title(std::string window_title);
 
-	using Command = std::variant<AppCommand>;
+	private:
+		struct AppCommand_Quit {};
+		struct AppCommand_ToggleFullscreen {};
+		struct AppCommand_SetWindowTitle {
+			std::string window_title;
+		};
+		using AppCommand = std::variant<
+			AppCommand_Quit,
+			AppCommand_ToggleFullscreen,
+			AppCommand_SetWindowTitle>;
+		using Command = std::variant<AppCommand>;
 
-	void run_commands(const std::vector<Command>& commands, bool* should_quit, Window* window);
+		std::vector<Command> m_commands;
+	};
 
 } // namespace engine

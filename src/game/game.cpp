@@ -15,14 +15,14 @@ namespace game {
 		return game;
 	}
 
-	void update(Game* /*game*/, std::vector<engine::Command>* commands, const engine::InputDevices& input) {
+	void update(Game* /*game*/, engine::CommandList* commands, const engine::InputDevices& input) {
 		CPUProfilingScope_Game();
 		if (input.keyboard.key_was_pressed_now(VK_ESCAPE)) {
-			commands->push_back(engine::AppCommand_Quit());
+			commands->quit();
 		}
 
 		if (input.keyboard.key_was_pressed_now(VK_F11)) {
-			commands->push_back(engine::AppCommand_ToggleFullscreen());
+			commands->toggle_fullscreen();
 		}
 	}
 
