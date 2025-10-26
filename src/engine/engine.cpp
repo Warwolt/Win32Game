@@ -56,7 +56,6 @@ namespace engine {
 		engine.resources = resources.value();
 		engine.screen_resolution = screen_resolution;
 		engine.bitmap = Bitmap::with_size(engine.screen_resolution.x, engine.screen_resolution.y);
-		engine.audio = initialize_audio_player();
 		initialize_gamepad_support();
 		initialize_debug(&engine.debug, &engine.resources, engine_args.test_screen_page);
 
@@ -70,7 +69,7 @@ namespace engine {
 		update_debug(&engine->debug, engine->input, &engine->commands);
 
 		/* Process commands */
-		run_commands(engine->commands, &engine->should_quit, &engine->window, &engine->audio);
+		run_commands(engine->commands, &engine->should_quit, &engine->window);
 		engine->commands.clear();
 	}
 

@@ -12,6 +12,7 @@ Overall goal:
 - Try out LDtk Level Editor (https://ldtk.io/)
 
 # Doing
+- Remove audio player, raw pointer stuff too annoying, need modern C++ audio lib
 
 # Done
 - Add basic animation system, apply it in the test screens
