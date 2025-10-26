@@ -4,8 +4,8 @@ Overall goal:
 - Simple Win32 level editor (create content for the games)
 
 # Todo
-- Store bitmap directly in renderer
 - Tidy up engine::initialize, try to make things more uniform (e.g. everything uses constructors)
+- Draw API: Support for drawing text centered in a box
 - Add render test screen with lots of images to stress test, get a sense of budget
 - Add keyboard & mouse input test screen, display stream of events and data like e.g. mouse position
 - Add audio test screen, display volume of current played sample as a little bar

@@ -17,10 +17,11 @@ namespace engine {
 	}
 
 	void MenuScene::draw(Renderer* renderer) const {
+		// FIXME: need proper way of rendering text centered in a box
 		IVec2 screen_resolution = renderer->screen_resolution();
 		Rect text_box = {
-			.x = screen_resolution.x / 2,
-			.y = screen_resolution.y / 2,
+			.x = screen_resolution.x / 2 - 36,
+			.y = screen_resolution.y / 2 - 8,
 		};
 		renderer->draw_text(DEFAULT_FONT_ID, 16, text_box, RGBA::white(), "Menu Scene");
 	}
@@ -84,7 +85,7 @@ namespace engine {
 		// engine.test_scene_id = engine.scene_manager.register_scene([test_screen_page = engine_args.test_screen_page](ResourceManager* resources) {
 		// 	return std::make_unique<TestScreen>(resources, test_screen_page);
 		// });
-		engine.menu_scene_id = engine.scene_manager.register_scene([](ResourceManager* /*resources*/){
+		engine.menu_scene_id = engine.scene_manager.register_scene([](ResourceManager* /*resources*/) {
 			return std::make_unique<MenuScene>();
 		});
 		std::expected<void, SceneManagerError> load_result = engine.scene_manager.load_scene(engine.menu_scene_id, &engine.resources);
