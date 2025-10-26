@@ -15,6 +15,7 @@ Overall goal:
 # Doing
 
 # Done
+- CommandList class, replace std::vector<Command>
 - Remove XAudio2 audio player, raw pointer stuff too annoying, need modern C++ audio lib
 - Add basic animation system, apply it in the test screens
 - Add way to specify which test screen page to open from command line
