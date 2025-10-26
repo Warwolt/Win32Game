@@ -7,9 +7,23 @@
 
 namespace engine {
 
-	// class MenuScene : public Scene {
+	class MenuScene : public Scene {
+		void update(const Input& input, CommandList* commands) override;
+		void draw(Renderer* renderer) const override;
+	};
 
-	// };
+	void MenuScene::update(const Input&, CommandList*) {
+		//
+	}
+
+	void MenuScene::draw(Renderer* renderer) const {
+		IVec2 screen_resolution = renderer->screen_resolution();
+		Rect text_box = {
+			.x = screen_resolution.x / 2,
+			.y = screen_resolution.y / 2,
+		};
+		renderer->draw_text(DEFAULT_FONT_ID, 16, text_box, RGBA::white(), "Menu Scene");
+	}
 
 } // namespace engine
 
@@ -55,6 +69,7 @@ namespace engine {
 			return {};
 		}
 
+		/* Initialize subsystems */
 		engine.window = window.value();
 		std::optional<ResourceManager> resources = ResourceManager::initialize("assets/font/ModernDOS8x16.ttf");
 		if (!resources) {
@@ -64,10 +79,15 @@ namespace engine {
 		engine.resources = resources.value();
 		engine.renderer = Renderer::with_bitmap(screen_resolution.x, screen_resolution.y);
 		initialize_gamepad_support();
-		engine.test_scene_id = engine.scene_manager.register_scene([test_screen_page = engine_args.test_screen_page](ResourceManager* resources) {
-			return std::make_unique<TestScreen>(resources, test_screen_page);
+
+		/* Setup scenes */
+		// engine.test_scene_id = engine.scene_manager.register_scene([test_screen_page = engine_args.test_screen_page](ResourceManager* resources) {
+		// 	return std::make_unique<TestScreen>(resources, test_screen_page);
+		// });
+		engine.menu_scene_id = engine.scene_manager.register_scene([](ResourceManager* /*resources*/){
+			return std::make_unique<MenuScene>();
 		});
-		std::expected<void, SceneManagerError> load_result = engine.scene_manager.load_scene(engine.test_scene_id, &engine.resources);
+		std::expected<void, SceneManagerError> load_result = engine.scene_manager.load_scene(engine.menu_scene_id, &engine.resources);
 		if (!load_result) {
 			LOG_FATAL("Failed to load initial scene");
 			return {};

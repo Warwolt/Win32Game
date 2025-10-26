@@ -31,7 +31,7 @@ namespace engine {
 		Window window;
 		// scene
 		SceneManager scene_manager;
-		SceneID test_scene_id;
+		SceneID menu_scene_id;
 		// debug
 		DeltaTimer frame_timer;
 	};
