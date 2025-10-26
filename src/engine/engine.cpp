@@ -28,19 +28,38 @@ namespace game {
 			commands->quit();
 		}
 
-		if (input.keyboard.key_was_pressed_now(VK_F11)) {
-			commands->toggle_fullscreen();
+		if (input.keyboard.key_was_pressed_now(VK_RETURN)) {
+			commands->load_scene("GameScene");
 		}
 	}
 
 	void MenuScene::draw(engine::Renderer* renderer) const {
-		// FIXME: need proper way of rendering text centered in a box
 		engine::IVec2 screen_resolution = renderer->screen_resolution();
 		engine::Rect text_box = {
 			.x = screen_resolution.x / 2 - 36,
 			.y = screen_resolution.y / 2 - 8,
 		};
 		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, text_box, engine::RGBA::white(), "Menu Scene");
+	}
+
+	class GameScene : public engine::Scene {
+		void update(const engine::Input& input, engine::CommandList* commands) override;
+		void draw(engine::Renderer* renderer) const override;
+	};
+
+	void GameScene::update(const engine::Input& input, engine::CommandList* commands) {
+		if (input.keyboard.key_was_pressed_now(VK_ESCAPE)) {
+			commands->load_scene("MenuScene");
+		}
+	}
+
+	void GameScene::draw(engine::Renderer* renderer) const {
+		engine::IVec2 screen_resolution = renderer->screen_resolution();
+		engine::Rect text_box = {
+			.x = screen_resolution.x / 2 - 36,
+			.y = screen_resolution.y / 2 - 8,
+		};
+		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, text_box, engine::RGBA::white(), "Game Scene");
 	}
 
 } // namespace game
@@ -99,8 +118,11 @@ namespace engine {
 		initialize_gamepad_support();
 
 		/* Setup scenes */
-		engine.scene_manager.register_scene("MenuScene", [](ResourceManager* /*resources*/) {
+		engine.scene_manager.register_scene("MenuScene", [](ResourceManager*) {
 			return std::make_unique<game::MenuScene>();
+		});
+		engine.scene_manager.register_scene("GameScene", [](ResourceManager*) {
+			return std::make_unique<game::GameScene>();
 		});
 		std::expected<void, SceneManagerError> load_result = engine.scene_manager.load_scene("MenuScene", &engine.resources);
 		if (!load_result) {
@@ -125,8 +147,13 @@ namespace engine {
 		std::string window_title_with_fps = std::format("{} ({:.1f} fps)", window_title, avg_fps);
 		commands->set_window_title(window_title_with_fps);
 
+		/* Toggle fullscreen */
+		if (engine->input.keyboard.key_was_pressed_now(VK_F11)) {
+			commands->toggle_fullscreen();
+		}
+
 		/* Process commands */
-		commands->run(&engine->should_quit, &engine->window);
+		commands->run(&engine->should_quit, &engine->window, &engine->resources, &engine->scene_manager);
 	}
 
 	void draw(Engine* engine) {

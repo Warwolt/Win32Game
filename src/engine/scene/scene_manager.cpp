@@ -1,5 +1,7 @@
 #include <engine/scene/scene_manager.h>
 
+#include <engine/debug/logging.h>
+
 namespace engine {
 
 	void SceneManager::register_scene(std::string scene_name, SceneConstructor scene_constructor) {
