@@ -33,7 +33,9 @@ namespace game {
 		}
 
 		if (input.keyboard.key_was_pressed_now(VK_RETURN)) {
-			commands->load_scene("GameScene");
+			if (m_cursor == 0) {
+				commands->load_scene("GameScene");
+			}
 		}
 
 		if (input.keyboard.key_was_pressed_now(VK_DOWN)) {
@@ -75,7 +77,7 @@ namespace game {
 		engine::IVec2 screen_resolution = renderer->screen_resolution();
 		engine::Rect text_box = {
 			.x = screen_resolution.x / 2 - 36,
-			.y = screen_resolution.y / 2 - 8,
+			.y = screen_resolution.y / 4,
 		};
 		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, text_box, engine::RGBA::white(), "Game Scene");
 	}
