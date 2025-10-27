@@ -19,8 +19,12 @@ namespace game {
 	// Pressing "play" should change current scene to the Game Scene.
 
 	class MenuScene : public engine::Scene {
+	public:
 		void update(const engine::Input& input, engine::CommandList* commands) override;
 		void draw(engine::Renderer* renderer) const override;
+
+	private:
+		int m_cursor = 0;
 	};
 
 	void MenuScene::update(const engine::Input& input, engine::CommandList* commands) {
@@ -31,20 +35,29 @@ namespace game {
 		if (input.keyboard.key_was_pressed_now(VK_RETURN)) {
 			commands->load_scene("GameScene");
 		}
+
+		if (input.keyboard.key_was_pressed_now(VK_DOWN)) {
+			m_cursor = (m_cursor + 1) % 2;
+		}
+
+		if (input.keyboard.key_was_pressed_now(VK_UP)) {
+			m_cursor = (2 + m_cursor - 1) % 2;
+		}
 	}
 
 	void MenuScene::draw(engine::Renderer* renderer) const {
-		// TODO: main menu and test menu
-		// - We want a main menu with "play" and "debug"
-		// - "play" navigates to GameScene
-		// - "debug" navigates to TestScreen
-
 		engine::IVec2 screen_resolution = renderer->screen_resolution();
-		engine::Rect text_box = {
-			.x = screen_resolution.x / 2 - 36,
-			.y = screen_resolution.y / 2 - 8,
-		};
-		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, text_box, engine::RGBA::white(), "Menu Scene");
+		engine::Rect header_box = { .x = screen_resolution.x / 2 - 36, .y = screen_resolution.y / 4 };
+
+		/* Header */
+		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, header_box, engine::RGBA::white(), "Main Menu");
+
+		/* Menu items */
+		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, header_box + engine::IVec2 { 16, screen_resolution.y / 4 }, engine::RGBA::white(), "Play");
+		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, header_box + engine::IVec2 { 16, screen_resolution.y / 4 + 16 }, engine::RGBA::white(), "Debug");
+
+		/* Cursor */
+		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, header_box + engine::IVec2 { 0, screen_resolution.y / 4 + m_cursor * 16 }, engine::RGBA::white(), ">");
 	}
 
 	class GameScene : public engine::Scene {
