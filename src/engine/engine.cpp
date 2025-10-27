@@ -5,50 +5,96 @@
 #include <engine/input/input.h>
 #include <engine/utility/string_utility.h>
 
+#include <engine/ui/debug_screen/debug_screen.h>
+
 namespace game {
 
+	struct Screen {
+		enum {
+			MAIN_MENU = 0,
+			DEBUG_SCREEN = 1,
+		};
+	};
+
+	// TODO:
+	// - MainMenuScreen
+	// - Screen interface, ScreenStack
 	class MenuScene : public engine::Scene {
 	public:
+		MenuScene(engine::ResourceManager* resources);
 		void update(const engine::Input& input, engine::CommandList* commands) override;
 		void draw(engine::Renderer* renderer) const override;
 
 	private:
+		engine::DebugScreen m_debug_screen;
 		int m_cursor = 0;
+		int m_screen = Screen::MAIN_MENU;
 	};
 
-	void MenuScene::update(const engine::Input& input, engine::CommandList* commands) {
-		if (input.keyboard.key_was_pressed_now(VK_ESCAPE)) {
-			commands->quit();
-		}
+	MenuScene::MenuScene(engine::ResourceManager* resources)
+		: m_debug_screen(resources, 0) {
+	}
 
-		if (input.keyboard.key_was_pressed_now(VK_RETURN)) {
-			if (m_cursor == 0) {
-				commands->load_scene("GameScene");
+	void MenuScene::update(const engine::Input& input, engine::CommandList* commands) {
+		/* Main menu screen */
+		if (m_screen == Screen::MAIN_MENU) {
+			if (input.keyboard.key_was_pressed_now(VK_ESCAPE)) {
+				commands->quit();
+			}
+
+			if (input.keyboard.key_was_pressed_now(VK_RETURN)) {
+				if (m_cursor == 0) {
+					commands->load_scene("GameScene");
+				}
+				if (m_cursor == 1) {
+					m_screen = Screen::DEBUG_SCREEN;
+				}
+				if (m_cursor == 2) {
+					commands->quit();
+				}
+			}
+
+			if (input.keyboard.key_was_pressed_now(VK_DOWN)) {
+				m_cursor = (m_cursor + 1) % 3;
+			}
+
+			if (input.keyboard.key_was_pressed_now(VK_UP)) {
+				m_cursor = (3 + m_cursor - 1) % 3;
 			}
 		}
 
-		if (input.keyboard.key_was_pressed_now(VK_DOWN)) {
-			m_cursor = (m_cursor + 1) % 2;
-		}
+		/* Debug screen */
+		if (m_screen == Screen::DEBUG_SCREEN) {
+			m_debug_screen.update(input, commands);
 
-		if (input.keyboard.key_was_pressed_now(VK_UP)) {
-			m_cursor = (2 + m_cursor - 1) % 2;
+			if (input.keyboard.key_was_pressed_now(VK_ESCAPE)) {
+				m_screen = Screen::MAIN_MENU;
+			}
 		}
 	}
 
 	void MenuScene::draw(engine::Renderer* renderer) const {
-		engine::IVec2 screen_resolution = renderer->screen_resolution();
-		engine::Rect header_box = { .x = screen_resolution.x / 2 - 36, .y = screen_resolution.y / 4 };
+		/* Main menu screen */
+		if (m_screen == Screen::MAIN_MENU) {
+			engine::IVec2 screen_resolution = renderer->screen_resolution();
+			engine::Rect header_box = { .x = screen_resolution.x / 2 - 36, .y = screen_resolution.y / 4 };
 
-		/* Header */
-		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, header_box, engine::RGBA::white(), "Main Menu");
+			/* Header */
+			renderer->draw_text(engine::DEFAULT_FONT_ID, 16, header_box, engine::RGBA::white(), "Main Menu");
 
-		/* Menu items */
-		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, header_box + engine::IVec2 { 16, screen_resolution.y / 4 }, engine::RGBA::white(), "Play");
-		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, header_box + engine::IVec2 { 16, screen_resolution.y / 4 + 16 }, engine::RGBA::white(), "Debug");
+			/* Menu items */
+			renderer->draw_text(engine::DEFAULT_FONT_ID, 16, header_box + engine::IVec2 { 16, screen_resolution.y / 4 }, engine::RGBA::white(), "Play");
+			renderer->draw_text(engine::DEFAULT_FONT_ID, 16, header_box + engine::IVec2 { 16, screen_resolution.y / 4 + 16 }, engine::RGBA::white(), "Debug");
+			renderer->draw_text(engine::DEFAULT_FONT_ID, 16, header_box + engine::IVec2 { 16, screen_resolution.y / 4 + 32 }, engine::RGBA::white(), "Quit");
 
-		/* Cursor */
-		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, header_box + engine::IVec2 { 0, screen_resolution.y / 4 + m_cursor * 16 }, engine::RGBA::white(), ">");
+			/* Cursor */
+			renderer->draw_text(engine::DEFAULT_FONT_ID, 16, header_box + engine::IVec2 { 0, screen_resolution.y / 4 + m_cursor * 16 }, engine::RGBA::white(), ">");
+		}
+
+		/* Debug screen */
+		if (m_screen == Screen::DEBUG_SCREEN) {
+			m_debug_screen.draw(renderer);
+		}
 	}
 
 	class GameScene : public engine::Scene {
@@ -127,8 +173,8 @@ namespace engine {
 		initialize_gamepad_support();
 
 		/* Setup scenes */
-		engine.scene_manager.register_scene("MenuScene", [](ResourceManager*) {
-			return std::make_unique<game::MenuScene>();
+		engine.scene_manager.register_scene("MenuScene", [](ResourceManager* resources) {
+			return std::make_unique<game::MenuScene>(resources);
 		});
 		engine.scene_manager.register_scene("GameScene", [](ResourceManager*) {
 			return std::make_unique<game::GameScene>();
