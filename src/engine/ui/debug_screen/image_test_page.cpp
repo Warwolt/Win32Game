@@ -1,4 +1,4 @@
-#include <engine/debug/test_screen/image_test_page.h>
+#include <engine/ui/debug_screen/image_test_page.h>
 
 #include <engine/debug/assert.h>
 #include <engine/file/resource_manager.h>
@@ -7,7 +7,7 @@
 
 namespace engine {
 
-	void ImageTestScreen::initialize(ResourceManager* resources) {
+	void ImageDebugPage::initialize(ResourceManager* resources) {
 		m_test_image = resources->load_image("assets/image/render_test/test_image.png");
 		m_sprite_sheet = resources->load_image("assets/image/render_test/sprite_sheet.png");
 
@@ -39,7 +39,7 @@ namespace engine {
 		m_animation_system.add_animation(sprite_animation, { .looping = true });
 	}
 
-	void ImageTestScreen::update(bool opened_now, const Input& input) {
+	void ImageDebugPage::update(bool opened_now, const Input& input) {
 		if (opened_now) {
 			DEBUG_ASSERT(m_animation_system.restart_animation(AnimationEntityID(1), AnimationID(1), input.time_now), "Couldn't start animation");
 		}
@@ -47,7 +47,7 @@ namespace engine {
 		m_animation_system.update(input.time_now);
 	}
 
-	void ImageTestScreen::draw(Renderer* renderer) const {
+	void ImageDebugPage::draw(Renderer* renderer) const {
 		const int32_t image_width = 32;
 		const int32_t image_height = 32;
 

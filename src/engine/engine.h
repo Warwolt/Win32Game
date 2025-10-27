@@ -2,7 +2,6 @@
 
 #include <engine/commands.h>
 #include <engine/debug/delta_timer.h>
-#include <engine/debug/test_screen/test_screen.h>
 #include <engine/file/resource_manager.h>
 #include <engine/graphics/renderer.h>
 #include <engine/graphics/window.h>

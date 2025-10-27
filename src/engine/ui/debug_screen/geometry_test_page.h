@@ -9,7 +9,7 @@ namespace engine {
 	struct Input;
 	class Renderer;
 
-	class GeometryTestScreen {
+	class GeometryTestPage {
 	public:
 		void update(const Input& input);
 		void draw(Renderer* renderer, IVec2 screen_resolution) const;

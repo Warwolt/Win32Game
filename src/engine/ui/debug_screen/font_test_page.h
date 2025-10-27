@@ -9,7 +9,7 @@ namespace engine {
 	struct Input;
 	class Renderer;
 
-	class FontTestScreen {
+	class FontDebugPage {
 	public:
 		void initialize();
 		void update(bool opened_now, const Input& input);

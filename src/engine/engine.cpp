@@ -7,17 +7,6 @@
 
 namespace game {
 
-	// TODO
-	// Two scenes: "Menu Scene" and "Game Scene"
-	// Menu scene has two screens: Main menu, Test screen
-	//
-	// At some point we might want some basic UI framework but for now we can
-	// probably roll a very simple Menu Scene with a simple two element list for
-	// "play" and "test" that you select with arrow keys + enter.
-	//
-	// Pressing "test" should show the Test Screen.
-	// Pressing "play" should change current scene to the Game Scene.
-
 	class MenuScene : public engine::Scene {
 	public:
 		void update(const engine::Input& input, engine::CommandList* commands) override;

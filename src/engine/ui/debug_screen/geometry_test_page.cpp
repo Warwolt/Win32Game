@@ -1,4 +1,4 @@
-#include <engine/debug/test_screen/geometry_test_page.h>
+#include <engine/ui/debug_screen/geometry_test_page.h>
 
 #include <engine/debug/profiling.h>
 #include <engine/file/resource_manager.h>
@@ -14,11 +14,11 @@
 
 namespace engine {
 
-	void GeometryTestScreen::update(const Input& input) {
+	void GeometryTestPage::update(const Input& input) {
 		m_alpha = (uint8_t)std::clamp(m_alpha + 16 * input.mouse.mouse_wheel_delta, 0, 255);
 	}
 
-	void GeometryTestScreen::draw(Renderer* renderer, IVec2 screen_resolution) const {
+	void GeometryTestPage::draw(Renderer* renderer, IVec2 screen_resolution) const {
 		CPUProfilingScope_Engine();
 		enum class FillMode {
 			Outline,

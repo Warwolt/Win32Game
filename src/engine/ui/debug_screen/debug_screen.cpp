@@ -1,4 +1,4 @@
-#include <engine/debug/test_screen/test_screen.h>
+#include <engine/ui/debug_screen/debug_screen.h>
 
 #include <engine/debug/profiling.h>
 #include <engine/file/resource_manager.h>
@@ -15,54 +15,54 @@ namespace engine {
 
 	constexpr int FONT_SIZE = 16;
 
-	TestScreen::TestScreen(ResourceManager* resources, int initial_page) {
-		m_page = std::clamp(initial_page, 0, (int)TestScreenPage::Count);
+	DebugScreen::DebugScreen(ResourceManager* resources, int initial_page) {
+		m_page = std::clamp(initial_page, 0, (int)DebugScreenPage::Count);
 		m_image_test_page.initialize(resources);
 		m_font_test_page.initialize();
 	}
 
-	void TestScreen::update(const Input& input, CommandList* /*commands*/) {
+	void DebugScreen::update(const Input& input, CommandList* /*commands*/) {
 		/* Update current page */
-		if (m_page == TestScreenPage::GeometryTest) {
+		if (m_page == DebugScreenPage::GeometryTest) {
 			m_geometry_test_page.update(input);
 		}
-		if (m_page == TestScreenPage::ImageTest) {
+		if (m_page == DebugScreenPage::ImageTest) {
 			m_image_test_page.update(m_just_changed_page, input);
 		}
-		if (m_page == TestScreenPage::FontTest) {
+		if (m_page == DebugScreenPage::FontTest) {
 			m_font_test_page.update(m_just_changed_page, input);
 		}
 
 		/* Switch page */
 		m_just_changed_page = false;
 		if (input.keyboard.key_was_pressed_now(VK_RIGHT)) {
-			m_page = (TestScreenPage::Count + m_page + 1) % TestScreenPage::Count;
+			m_page = (DebugScreenPage::Count + m_page + 1) % DebugScreenPage::Count;
 			m_just_changed_page = true;
 		}
 		if (input.keyboard.key_was_pressed_now(VK_LEFT)) {
-			m_page = (TestScreenPage::Count + m_page - 1) % TestScreenPage::Count;
+			m_page = (DebugScreenPage::Count + m_page - 1) % DebugScreenPage::Count;
 			m_just_changed_page = true;
 		}
 	}
 
-	void TestScreen::draw(Renderer* renderer) const {
+	void DebugScreen::draw(Renderer* renderer) const {
 		CPUProfilingScope_Engine();
 		const char* title = "unknown";
 		/* Render page */
-		if (m_page == TestScreenPage::GeometryTest) {
+		if (m_page == DebugScreenPage::GeometryTest) {
 			title = "draw geometry";
 			m_geometry_test_page.draw(renderer, renderer->screen_resolution());
 		}
-		if (m_page == TestScreenPage::ImageTest) {
+		if (m_page == DebugScreenPage::ImageTest) {
 			title = "draw images";
 			m_image_test_page.draw(renderer);
 		}
-		if (m_page == TestScreenPage::FontTest) {
+		if (m_page == DebugScreenPage::FontTest) {
 			title = "draw text";
 			m_font_test_page.draw(renderer, renderer->screen_resolution());
 		}
 		/* Render page title */
-		renderer->draw_text(DEFAULT_FONT_ID, FONT_SIZE, { 0, 0 }, RGBA::white(), std::format("test page {}/{}: {}", (int)m_page + 1, (int)TestScreenPage::Count, title));
+		renderer->draw_text(DEFAULT_FONT_ID, FONT_SIZE, { 0, 0 }, RGBA::white(), std::format("test page {}/{}: {}", (int)m_page + 1, (int)DebugScreenPage::Count, title));
 	}
 
 } // namespace engine

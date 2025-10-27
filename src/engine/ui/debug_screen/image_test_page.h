@@ -13,7 +13,7 @@ namespace engine {
 	class Renderer;
 	class ResourceManager;
 
-	class ImageTestScreen {
+	class ImageDebugPage {
 	public:
 		void initialize(ResourceManager* resources);
 		void update(bool opened_now, const Input& input);
