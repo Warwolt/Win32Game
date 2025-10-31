@@ -13,16 +13,18 @@
 using namespace engine;
 
 struct TestScreen_A : public Screen {
+	static constexpr char NAME[] = "TestScreen A";
 	static int num_instances;
-	TestScreen_A() { num_instances++; }
+	TestScreen_A(ResourceManager*) { num_instances++; }
 	~TestScreen_A() { num_instances--; }
 	void update(const Input&, CommandList*) override {}
 	void draw(Renderer*) const override {}
 };
 
 struct TestScreen_B : public Screen {
+	static constexpr char NAME[] = "TestScreen B";
 	static int num_instances;
-	TestScreen_B() { num_instances++; }
+	TestScreen_B(ResourceManager*) { num_instances++; }
 	~TestScreen_B() { num_instances--; }
 	void update(const Input&, CommandList*) override {}
 	void draw(Renderer*) const override {}
@@ -54,13 +56,11 @@ TEST(ScreenStackTests, PushScreen_RegisteredScreen_ScreenGetsShown) {
 	ResourceManager resource_manager;
 
 	/* Register screen */
-	screen_stack.register_screen("my screen", [](ResourceManager*) {
-		return std::make_unique<TestScreen_A>();
-	});
+	screen_stack.register_screen<TestScreen_A>();
 	EXPECT_EQ(TestScreen_A::num_instances, 0);
 
 	/* Push screen */
-	std::expected<void, ScreenStackError> result = screen_stack.push_screen("my screen", &resource_manager);
+	std::expected<void, ScreenStackError> result = screen_stack.push_screen(TestScreen_A::NAME, &resource_manager);
 	EXPECT_TRUE(result.has_value());
 	EXPECT_EQ(TestScreen_A::num_instances, 1);
 	EXPECT_NE(screen_stack.current_screen(), nullptr);
@@ -71,18 +71,16 @@ TEST(ScreenStackTests, PushScreen_SameScreenAlreadyShown_DoesNothing) {
 	ResourceManager resource_manager;
 
 	/* Register screen */
-	screen_stack.register_screen("my screen", [](ResourceManager*) {
-		return std::make_unique<TestScreen_A>();
-	});
+	screen_stack.register_screen<TestScreen_A>();
 	EXPECT_EQ(TestScreen_A::num_instances, 0);
 
 	/* Push screen */
-	std::expected<void, ScreenStackError> result = screen_stack.push_screen("my screen", &resource_manager);
+	std::expected<void, ScreenStackError> result = screen_stack.push_screen(TestScreen_A::NAME, &resource_manager);
 	EXPECT_TRUE(result.has_value());
 	EXPECT_EQ(TestScreen_A::num_instances, 1);
 
 	/* Try to show same screen again */
-	std::expected<void, ScreenStackError> result2 = screen_stack.push_screen("my screen", &resource_manager);
+	std::expected<void, ScreenStackError> result2 = screen_stack.push_screen(TestScreen_A::NAME, &resource_manager);
 	EXPECT_TRUE(result2.has_value());
 	EXPECT_EQ(TestScreen_A::num_instances, 1);
 }
@@ -92,29 +90,25 @@ TEST(SceneManagerTests, PushScreen_InterleaveScreens) {
 	ResourceManager resource_manager;
 
 	/* Register two screens */
-	screen_stack.register_screen("screen A", [](ResourceManager*) {
-		return std::make_unique<TestScreen_A>();
-	});
-	screen_stack.register_screen("screen B", [](ResourceManager*) {
-		return std::make_unique<TestScreen_B>();
-	});
+	screen_stack.register_screen<TestScreen_A>();
+	screen_stack.register_screen<TestScreen_B>();
 	EXPECT_EQ(TestScreen_A::num_instances, 0);
 	EXPECT_EQ(TestScreen_B::num_instances, 0);
 
 	/* Push screen A */
-	std::expected<void, ScreenStackError> result = screen_stack.push_screen("screen A", &resource_manager);
+	std::expected<void, ScreenStackError> result = screen_stack.push_screen(TestScreen_A::NAME, &resource_manager);
 	EXPECT_TRUE(result.has_value());
 	EXPECT_EQ(TestScreen_A::num_instances, 1);
 	EXPECT_EQ(TestScreen_B::num_instances, 0);
 
 	/* Push screen B */
-	std::expected<void, ScreenStackError> result2 = screen_stack.push_screen("screen B", &resource_manager);
+	std::expected<void, ScreenStackError> result2 = screen_stack.push_screen(TestScreen_B::NAME, &resource_manager);
 	EXPECT_TRUE(result2.has_value());
 	EXPECT_EQ(TestScreen_A::num_instances, 1);
 	EXPECT_EQ(TestScreen_B::num_instances, 1);
 
 	/* Push screen A again */
-	std::expected<void, ScreenStackError> result3 = screen_stack.push_screen("screen A", &resource_manager);
+	std::expected<void, ScreenStackError> result3 = screen_stack.push_screen(TestScreen_A::NAME, &resource_manager);
 	EXPECT_TRUE(result3.has_value());
 	EXPECT_EQ(TestScreen_A::num_instances, 2);
 	EXPECT_EQ(TestScreen_B::num_instances, 1);
@@ -125,13 +119,11 @@ TEST(ScreenManagerTests, PushScreen_PopScreen) {
 	ResourceManager resource_manager;
 
 	/* Register screen */
-	screen_stack.register_screen("my screen", [](ResourceManager*) {
-		return std::make_unique<TestScreen_A>();
-	});
+	screen_stack.register_screen<TestScreen_A>();
 	EXPECT_EQ(TestScreen_A::num_instances, 0);
 
 	/* Push screen */
-	std::expected<void, ScreenStackError> result = screen_stack.push_screen("my screen", &resource_manager);
+	std::expected<void, ScreenStackError> result = screen_stack.push_screen(TestScreen_A::NAME, &resource_manager);
 	EXPECT_TRUE(result.has_value());
 	EXPECT_EQ(TestScreen_A::num_instances, 1);
 
