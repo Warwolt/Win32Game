@@ -20,7 +20,12 @@ namespace engine {
 	public:
 		using SceneConstructor = std::function<std::unique_ptr<Scene>(ResourceManager*)>;
 
-		void register_scene(std::string scene_name, SceneConstructor scene_constructor);
+		template <typename SceneType>
+		void register_scene() {
+			static_assert(std::constructible_from<SceneType, ResourceManager*>, "Scene must have a constructor that accepts a ResourceManager, but none was found.");
+			m_scene_constructors[SceneType::NAME] = [](ResourceManager* resources) { return std::make_unique<SceneType>(resources); };
+		}
+
 		std::expected<void, SceneManagerError> load_scene(const std::string& scene_name, ResourceManager* resources);
 		Scene* current_scene();
 

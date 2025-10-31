@@ -13,16 +13,18 @@
 using namespace engine;
 
 struct TestScene : public Scene {
+	static constexpr char NAME[] = "TestScene";
 	static int num_instances;
-	TestScene() { num_instances++; }
+	TestScene(ResourceManager*) { num_instances++; }
 	~TestScene() { num_instances--; }
 	void update(const Input&, CommandList*) override {}
 	void draw(Renderer*) const override {}
 };
 
 struct TestScene2 : public Scene {
+	static constexpr char NAME[] = "TestScene2";
 	static int num_instances;
-	TestScene2() { num_instances++; }
+	TestScene2(ResourceManager*) { num_instances++; }
 	~TestScene2() { num_instances--; }
 	void update(const Input&, CommandList*) override {}
 	void draw(Renderer*) const override {}
@@ -54,13 +56,11 @@ TEST(SceneManagerTests, LoadScene_RegisteredScene_SceneGetsLoaded) {
 	ResourceManager resource_manager;
 
 	/* Register scene */
-	scene_manager.register_scene("my scene", [](ResourceManager*) {
-		return std::make_unique<TestScene>();
-	});
+	scene_manager.register_scene<TestScene>();
 	EXPECT_EQ(TestScene::num_instances, 0);
 
 	/* Load scene */
-	std::expected<void, SceneManagerError> result = scene_manager.load_scene("my scene", &resource_manager);
+	std::expected<void, SceneManagerError> result = scene_manager.load_scene(TestScene::NAME, &resource_manager);
 	EXPECT_TRUE(result.has_value());
 	EXPECT_EQ(TestScene::num_instances, 1);
 	EXPECT_NE(scene_manager.current_scene(), nullptr);
@@ -71,23 +71,19 @@ TEST(SceneManagerTests, LoadScene_TwoRegisteredScenes_CanSwapBetweenThem) {
 	ResourceManager resource_manager;
 
 	/* Register two scenes */
-	scene_manager.register_scene("first scene", [](ResourceManager*) {
-		return std::make_unique<TestScene>();
-	});
-	scene_manager.register_scene("second scene", [](ResourceManager*) {
-		return std::make_unique<TestScene2>();
-	});
+	scene_manager.register_scene<TestScene>();
+	scene_manager.register_scene<TestScene2>();
 	EXPECT_EQ(TestScene::num_instances, 0);
 	EXPECT_EQ(TestScene2::num_instances, 0);
 
 	/* Load first scene */
-	std::expected<void, SceneManagerError> result = scene_manager.load_scene("first scene", &resource_manager);
+	std::expected<void, SceneManagerError> result = scene_manager.load_scene(TestScene::NAME, &resource_manager);
 	EXPECT_TRUE(result.has_value());
 	EXPECT_EQ(TestScene::num_instances, 1);
 	EXPECT_EQ(TestScene2::num_instances, 0);
 
 	/* Load second scene */
-	std::expected<void, SceneManagerError> result2 = scene_manager.load_scene("second scene", &resource_manager);
+	std::expected<void, SceneManagerError> result2 = scene_manager.load_scene(TestScene2::NAME, &resource_manager);
 	EXPECT_TRUE(result2.has_value());
 	EXPECT_EQ(TestScene::num_instances, 0);
 	EXPECT_EQ(TestScene2::num_instances, 1);

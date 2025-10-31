@@ -23,10 +23,10 @@ namespace engine {
 	public:
 		using ScreenConstructor = std::function<std::unique_ptr<Screen>(ResourceManager*)>;
 
-		template <typename SceneType>
+		template <typename ScreenType>
 		void register_screen() {
-			static_assert(std::constructible_from<SceneType, ResourceManager*>, "Scene must have a constructor that accepts a ResourceManager, but none was found.");
-			m_screen_constructors[SceneType::NAME] = [](ResourceManager* resources) { return std::make_unique<SceneType>(resources); };
+			static_assert(std::constructible_from<ScreenType, ResourceManager*>, "Screen must have a constructor that accepts a ResourceManager, but none was found.");
+			m_screen_constructors[ScreenType::NAME] = [](ResourceManager* resources) { return std::make_unique<ScreenType>(resources); };
 		}
 
 		std::expected<void, ScreenStackError> push_screen(const std::string& screen_name, ResourceManager* resources);
