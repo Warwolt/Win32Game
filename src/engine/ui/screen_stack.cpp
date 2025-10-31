@@ -7,7 +7,7 @@ namespace engine {
 		m_screen_constructors[screen_name] = screen_constructor;
 	}
 
-	std::expected<void, ScreenStackError> ScreenStack::show_screen(const std::string& screen_name, ResourceManager* resources) {
+	std::expected<void, ScreenStackError> ScreenStack::push_screen(const std::string& screen_name, ResourceManager* resources) {
 		/* Check screen registered */
 		auto it = m_screen_constructors.find(screen_name);
 		if (it == m_screen_constructors.end()) {

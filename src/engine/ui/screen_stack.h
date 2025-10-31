@@ -22,7 +22,7 @@ namespace engine {
 		using ScreenConstructor = std::function<std::unique_ptr<Screen>(ResourceManager*)>;
 
 		void register_screen(std::string screen_name, ScreenConstructor screen_constructor);
-		std::expected<void, ScreenStackError> show_screen(const std::string& screen_name, ResourceManager* resources);
+		std::expected<void, ScreenStackError> push_screen(const std::string& screen_name, ResourceManager* resources);
 		Screen* current_screen();
 
 	private:

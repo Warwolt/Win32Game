@@ -43,7 +43,7 @@ TEST(ScreenStackTests, ShowScreen_NonRegisteredScreen_GivesError) {
 	ScreenStack screen_stack;
 	ResourceManager resource_manager;
 
-	std::expected<void, ScreenStackError> result = screen_stack.show_screen("bad screen name", &resource_manager);
+	std::expected<void, ScreenStackError> result = screen_stack.push_screen("bad screen name", &resource_manager);
 
 	ASSERT_FALSE(result.has_value());
 	EXPECT_EQ(result.error(), ScreenStackError::InvalidSceeenName);
@@ -60,7 +60,7 @@ TEST(ScreenStackTests, ShowScreen_RegisteredScreen_ScreenGetsShown) {
 	EXPECT_EQ(TestScreen_A::num_instances, 0);
 
 	/* Show screen */
-	std::expected<void, ScreenStackError> result = screen_stack.show_screen("my screen", &resource_manager);
+	std::expected<void, ScreenStackError> result = screen_stack.push_screen("my screen", &resource_manager);
 	EXPECT_TRUE(result.has_value());
 	EXPECT_EQ(TestScreen_A::num_instances, 1);
 	EXPECT_NE(screen_stack.current_screen(), nullptr);
@@ -77,12 +77,12 @@ TEST(ScreenStackTests, ShowScreen_SameScreenAlreadyShown_DoesNothing) {
 	EXPECT_EQ(TestScreen_A::num_instances, 0);
 
 	/* Show screen */
-	std::expected<void, ScreenStackError> result = screen_stack.show_screen("my screen", &resource_manager);
+	std::expected<void, ScreenStackError> result = screen_stack.push_screen("my screen", &resource_manager);
 	EXPECT_TRUE(result.has_value());
 	EXPECT_EQ(TestScreen_A::num_instances, 1);
 
 	/* Try to show same screen again */
-	std::expected<void, ScreenStackError> result2 = screen_stack.show_screen("my screen", &resource_manager);
+	std::expected<void, ScreenStackError> result2 = screen_stack.push_screen("my screen", &resource_manager);
 	EXPECT_TRUE(result2.has_value());
 	EXPECT_EQ(TestScreen_A::num_instances, 1);
 }
@@ -102,19 +102,19 @@ TEST(SceneManagerTests, ShowScreen_ShowScreenA_ShowScreenB_ShowScreenA) {
 	EXPECT_EQ(TestScreen_B::num_instances, 0);
 
 	/* Show screen A */
-	std::expected<void, ScreenStackError> result = screen_stack.show_screen("screen A", &resource_manager);
+	std::expected<void, ScreenStackError> result = screen_stack.push_screen("screen A", &resource_manager);
 	EXPECT_TRUE(result.has_value());
 	EXPECT_EQ(TestScreen_A::num_instances, 1);
 	EXPECT_EQ(TestScreen_B::num_instances, 0);
 
 	/* Show screen B */
-	std::expected<void, ScreenStackError> result2 = screen_stack.show_screen("screen B", &resource_manager);
+	std::expected<void, ScreenStackError> result2 = screen_stack.push_screen("screen B", &resource_manager);
 	EXPECT_TRUE(result2.has_value());
 	EXPECT_EQ(TestScreen_A::num_instances, 1);
 	EXPECT_EQ(TestScreen_B::num_instances, 1);
 
 	/* Show screen A again */
-	std::expected<void, ScreenStackError> result3 = screen_stack.show_screen("screen A", &resource_manager);
+	std::expected<void, ScreenStackError> result3 = screen_stack.push_screen("screen A", &resource_manager);
 	EXPECT_TRUE(result3.has_value());
 	EXPECT_EQ(TestScreen_A::num_instances, 2);
 	EXPECT_EQ(TestScreen_B::num_instances, 1);
