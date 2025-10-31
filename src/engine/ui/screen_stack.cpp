@@ -14,7 +14,7 @@ namespace engine {
 			return std::unexpected(ScreenStackError::InvalidSceeenName);
 		}
 
-		/* Show screen if it's not already shown */
+		/* Show screen if it's not already currently shown */
 		if (m_screens.empty() || m_screens.back().screen_name != screen_name) {
 			auto& screen_constructor = it->second;
 			m_screens.push_back({ screen_name, screen_constructor(resources) });

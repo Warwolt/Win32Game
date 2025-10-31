@@ -12,24 +12,24 @@
 
 using namespace engine;
 
-struct TestScreen : public Screen {
+struct TestScreen_A : public Screen {
 	static int num_instances;
-	TestScreen() { num_instances++; }
-	~TestScreen() { num_instances--; }
+	TestScreen_A() { num_instances++; }
+	~TestScreen_A() { num_instances--; }
 	void update(const Input&, CommandList*) override {}
 	void draw(Renderer*) const override {}
 };
 
-struct TestScreen2 : public Screen {
+struct TestScreen_B : public Screen {
 	static int num_instances;
-	TestScreen2() { num_instances++; }
-	~TestScreen2() { num_instances--; }
+	TestScreen_B() { num_instances++; }
+	~TestScreen_B() { num_instances--; }
 	void update(const Input&, CommandList*) override {}
 	void draw(Renderer*) const override {}
 };
 
-int TestScreen::num_instances = 0;
-int TestScreen2::num_instances = 0;
+int TestScreen_A::num_instances = 0;
+int TestScreen_B::num_instances = 0;
 
 TEST(ScreenStackTests, InitiallyHoldsNoScreen) {
 	ScreenStack screen_stack;
@@ -55,59 +55,67 @@ TEST(ScreenStackTests, ShowScreen_RegisteredScreen_ScreenGetsShown) {
 
 	/* Register screen */
 	screen_stack.register_screen("my screen", [](ResourceManager*) {
-		return std::make_unique<TestScreen>();
+		return std::make_unique<TestScreen_A>();
 	});
-	EXPECT_EQ(TestScreen::num_instances, 0);
+	EXPECT_EQ(TestScreen_A::num_instances, 0);
 
-	/* Load screen */
+	/* Show screen */
 	std::expected<void, ScreenStackError> result = screen_stack.show_screen("my screen", &resource_manager);
 	EXPECT_TRUE(result.has_value());
-	EXPECT_EQ(TestScreen::num_instances, 1);
+	EXPECT_EQ(TestScreen_A::num_instances, 1);
 	EXPECT_NE(screen_stack.current_screen(), nullptr);
 }
 
-TEST(ScreenStackTests, ShowScreen_ScreenAlreadyShown_DoesNothing) {
+TEST(ScreenStackTests, ShowScreen_SameScreenAlreadyShown_DoesNothing) {
 	ScreenStack screen_stack;
 	ResourceManager resource_manager;
 
 	/* Register screen */
 	screen_stack.register_screen("my screen", [](ResourceManager*) {
-		return std::make_unique<TestScreen>();
+		return std::make_unique<TestScreen_A>();
 	});
-	EXPECT_EQ(TestScreen::num_instances, 0);
+	EXPECT_EQ(TestScreen_A::num_instances, 0);
 
-	/* Load screen */
+	/* Show screen */
 	std::expected<void, ScreenStackError> result = screen_stack.show_screen("my screen", &resource_manager);
-    std::expected<void, ScreenStackError> result2 = screen_stack.show_screen("my screen", &resource_manager);
 	EXPECT_TRUE(result.has_value());
+	EXPECT_EQ(TestScreen_A::num_instances, 1);
+
+	/* Try to show same screen again */
+	std::expected<void, ScreenStackError> result2 = screen_stack.show_screen("my screen", &resource_manager);
 	EXPECT_TRUE(result2.has_value());
-	EXPECT_EQ(TestScreen::num_instances, 1);
-	EXPECT_NE(screen_stack.current_screen(), nullptr);
+	EXPECT_EQ(TestScreen_A::num_instances, 1);
 }
 
-// TEST(SceneManagerTests, LoadScene_TwoRegisteredScenes_CanSwapBetweenThem) {
-// 	SceneManager scene_manager;
-// 	ResourceManager resource_manager;
+TEST(SceneManagerTests, ShowScreen_ShowScreenA_ShowScreenB_ShowScreenA) {
+	ScreenStack screen_stack;
+	ResourceManager resource_manager;
 
-// 	/* Register two scenes */
-// 	scene_manager.register_scene("first scene", [](ResourceManager*) {
-// 		return std::make_unique<TestScene>();
-// 	});
-// 	scene_manager.register_scene("second scene", [](ResourceManager*) {
-// 		return std::make_unique<TestScene2>();
-// 	});
-// 	EXPECT_EQ(TestScene::num_instances, 0);
-// 	EXPECT_EQ(TestScene2::num_instances, 0);
+	/* Register two screens */
+	screen_stack.register_screen("screen A", [](ResourceManager*) {
+		return std::make_unique<TestScreen_A>();
+	});
+	screen_stack.register_screen("screen B", [](ResourceManager*) {
+		return std::make_unique<TestScreen_B>();
+	});
+	EXPECT_EQ(TestScreen_A::num_instances, 0);
+	EXPECT_EQ(TestScreen_B::num_instances, 0);
 
-// 	/* Load first scene */
-// 	std::expected<void, SceneManagerError> result = scene_manager.load_scene("first scene", &resource_manager);
-// 	EXPECT_TRUE(result.has_value());
-// 	EXPECT_EQ(TestScene::num_instances, 1);
-// 	EXPECT_EQ(TestScene2::num_instances, 0);
+	/* Show screen A */
+	std::expected<void, ScreenStackError> result = screen_stack.show_screen("screen A", &resource_manager);
+	EXPECT_TRUE(result.has_value());
+	EXPECT_EQ(TestScreen_A::num_instances, 1);
+	EXPECT_EQ(TestScreen_B::num_instances, 0);
 
-// 	/* Load second scene */
-// 	std::expected<void, SceneManagerError> result2 = scene_manager.load_scene("second scene", &resource_manager);
-// 	EXPECT_TRUE(result2.has_value());
-// 	EXPECT_EQ(TestScene::num_instances, 0);
-// 	EXPECT_EQ(TestScene2::num_instances, 1);
-// }
+	/* Show screen B */
+	std::expected<void, ScreenStackError> result2 = screen_stack.show_screen("screen B", &resource_manager);
+	EXPECT_TRUE(result2.has_value());
+	EXPECT_EQ(TestScreen_A::num_instances, 1);
+	EXPECT_EQ(TestScreen_B::num_instances, 1);
+
+	/* Show screen A again */
+	std::expected<void, ScreenStackError> result3 = screen_stack.show_screen("screen A", &resource_manager);
+	EXPECT_TRUE(result3.has_value());
+	EXPECT_EQ(TestScreen_A::num_instances, 2);
+	EXPECT_EQ(TestScreen_B::num_instances, 1);
+}
