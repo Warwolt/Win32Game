@@ -9,7 +9,7 @@
 
 namespace game {
 
-	struct Screen {
+	struct ScreenEnum {
 		enum {
 			MAIN_MENU = 0,
 			DEBUG_SCREEN = 1,
@@ -17,8 +17,8 @@ namespace game {
 	};
 
 	// TODO:
-	// - MainMenuScreen
 	// - Screen interface, ScreenStack
+	// - MainMenuScreen
 	class MenuScene : public engine::Scene {
 	public:
 		MenuScene(engine::ResourceManager* resources);
@@ -28,7 +28,7 @@ namespace game {
 	private:
 		engine::DebugScreen m_debug_screen;
 		int m_cursor = 0;
-		int m_screen = Screen::MAIN_MENU;
+		int m_screen = ScreenEnum::MAIN_MENU;
 	};
 
 	MenuScene::MenuScene(engine::ResourceManager* resources)
@@ -37,7 +37,7 @@ namespace game {
 
 	void MenuScene::update(const engine::Input& input, engine::CommandList* commands) {
 		/* Main menu screen */
-		if (m_screen == Screen::MAIN_MENU) {
+		if (m_screen == ScreenEnum::MAIN_MENU) {
 			if (input.keyboard.key_was_pressed_now(VK_ESCAPE)) {
 				commands->quit();
 			}
@@ -47,7 +47,8 @@ namespace game {
 					commands->load_scene("GameScene");
 				}
 				if (m_cursor == 1) {
-					m_screen = Screen::DEBUG_SCREEN;
+					// commands->show_screen("debug screen");
+					m_screen = ScreenEnum::DEBUG_SCREEN;
 				}
 				if (m_cursor == 2) {
 					commands->quit();
@@ -64,18 +65,19 @@ namespace game {
 		}
 
 		/* Debug screen */
-		if (m_screen == Screen::DEBUG_SCREEN) {
+		if (m_screen == ScreenEnum::DEBUG_SCREEN) {
 			m_debug_screen.update(input, commands);
 
 			if (input.keyboard.key_was_pressed_now(VK_ESCAPE)) {
-				m_screen = Screen::MAIN_MENU;
+				// commands->close_current_screen();
+				m_screen = ScreenEnum::MAIN_MENU;
 			}
 		}
 	}
 
 	void MenuScene::draw(engine::Renderer* renderer) const {
 		/* Main menu screen */
-		if (m_screen == Screen::MAIN_MENU) {
+		if (m_screen == ScreenEnum::MAIN_MENU) {
 			engine::IVec2 screen_resolution = renderer->screen_resolution();
 			engine::Rect header_box = { .x = screen_resolution.x / 2 - 36, .y = screen_resolution.y / 4 };
 
@@ -92,7 +94,7 @@ namespace game {
 		}
 
 		/* Debug screen */
-		if (m_screen == Screen::DEBUG_SCREEN) {
+		if (m_screen == ScreenEnum::DEBUG_SCREEN) {
 			m_debug_screen.draw(renderer);
 		}
 	}

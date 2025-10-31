@@ -23,10 +23,6 @@ set(SRC
     src/engine/debug/assert.cpp
     src/engine/debug/delta_timer.cpp
     src/engine/debug/logging.cpp
-    src/engine/ui/debug_screen/font_test_page.cpp
-    src/engine/ui/debug_screen/geometry_test_page.cpp
-    src/engine/ui/debug_screen/image_test_page.cpp
-    src/engine/ui/debug_screen/debug_screen.cpp
     src/engine/engine.cpp
     src/engine/file/resource_manager.cpp
     src/engine/graphics/bitmap.cpp
@@ -46,6 +42,11 @@ set(SRC
     src/engine/math/moving_average.cpp
     src/engine/math/vec2.cpp
     src/engine/scene/scene_manager.cpp
+    src/engine/ui/debug_screen/debug_screen.cpp
+    src/engine/ui/debug_screen/font_test_page.cpp
+    src/engine/ui/debug_screen/geometry_test_page.cpp
+    src/engine/ui/debug_screen/image_test_page.cpp
+    src/engine/ui/screen_stack.cpp
     src/engine/utility/string_utility.cpp
     src/game/game.cpp
 )
@@ -56,6 +57,7 @@ set(TEST_SRC
     test/engine/keyboard_tests.cpp
     test/engine/moving_average_tests.cpp
     test/engine/scene_manager_tests.cpp
+    test/engine/screen_stack_tests.cpp
 )
 
 set(INC
