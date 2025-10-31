@@ -6,6 +6,7 @@
 #include <engine/utility/string_utility.h>
 
 #include <engine/ui/debug_screen/debug_screen.h>
+#include <engine/ui/screen.h>
 
 namespace game {
 
@@ -14,6 +15,24 @@ namespace game {
 			MAIN_MENU = 0,
 			DEBUG_SCREEN = 1,
 		};
+	};
+
+	class MainMenu : public engine::Screen {
+	public:
+		static constexpr char NAME[] = "MainMenu";
+
+		MainMenu(engine::ResourceManager*) {
+		}
+
+		void update(const engine::Input& input, engine::CommandList* commands) {
+			//
+		}
+
+		void draw(engine::Renderer* renderer) const {
+			//
+		}
+
+	private:
 	};
 
 	// TODO:
@@ -186,6 +205,9 @@ namespace engine {
 			LOG_FATAL("Failed to load initial scene");
 			return {};
 		}
+
+		/* Register screens */
+		engine.screen_stack.register_screen<game::MainMenu>();
 
 		return engine;
 	}

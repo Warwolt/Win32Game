@@ -7,6 +7,7 @@
 #include <engine/graphics/window.h>
 #include <engine/input/input.h>
 #include <engine/scene/scene_manager.h>
+#include <engine/ui/screen_stack.h>
 
 #include <optional>
 #include <string>
@@ -20,16 +21,24 @@ namespace engine {
 	struct Engine {
 		// application
 		bool should_quit = false;
+
 		// input/output
 		InputEvents input_events;
 		Input input;
+
 		// file
 		ResourceManager resources;
+
 		// graphics
 		Renderer renderer;
 		Window window;
+
 		// scene
 		SceneManager scene_manager;
+
+		// user interface
+		ScreenStack screen_stack;
+
 		// debug
 		DeltaTimer frame_timer;
 	};

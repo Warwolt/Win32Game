@@ -6,8 +6,10 @@
 #include <functional>
 #include <memory>
 #include <string>
+#include <type_traits>
 #include <unordered_map>
 #include <vector>
+
 
 namespace engine {
 
@@ -21,9 +23,10 @@ namespace engine {
 	public:
 		using ScreenConstructor = std::function<std::unique_ptr<Screen>(ResourceManager*)>;
 
-		template <typename T>
+		template <typename SceneType>
 		void register_screen() {
-			m_screen_constructors[T::NAME] = [](ResourceManager* resources) { return std::make_unique<T>(resources); };
+			static_assert(std::constructible_from<SceneType, ResourceManager*>, "Scene must have a constructor that accepts a ResourceManager, but none was found.");
+			m_screen_constructors[SceneType::NAME] = [](ResourceManager* resources) { return std::make_unique<SceneType>(resources); };
 		}
 
 		std::expected<void, ScreenStackError> push_screen(const std::string& screen_name, ResourceManager* resources);
