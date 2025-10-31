@@ -23,6 +23,7 @@ namespace engine {
 
 		void register_screen(std::string screen_name, ScreenConstructor screen_constructor);
 		std::expected<void, ScreenStackError> push_screen(const std::string& screen_name, ResourceManager* resources);
+		void pop_screen();
 		Screen* current_screen();
 
 	private:

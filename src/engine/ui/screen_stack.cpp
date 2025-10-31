@@ -23,6 +23,10 @@ namespace engine {
 		return {};
 	}
 
+	void ScreenStack::pop_screen() {
+		m_screens.pop_back();
+	}
+
 	Screen* ScreenStack::current_screen() {
 		if (m_screens.empty()) {
 			return nullptr;
