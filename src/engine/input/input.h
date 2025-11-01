@@ -15,13 +15,13 @@ namespace engine {
 		MouseEvents mouse;
 	};
 
-	struct InputDevices {
+	struct Input {
 		Gamepad gamepad;
 		Keyboard keyboard;
 		Mouse mouse;
 		Time time_now;
 	};
 
-	void update_input_devices(InputDevices* input, const InputEvents& events, const Window& window);
+	void update_input(Input* input, const InputEvents& events, const Window& window);
 
 } // namespace engine

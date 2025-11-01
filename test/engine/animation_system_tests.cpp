@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <test_helpers/parameterized_tests.h>
+#include <test/helpers/parameterized_tests.h>
 
 #include <engine/animation/animation_system.h>
 
@@ -127,7 +127,7 @@ AnimationPlaybackTestData animation_playback_tests[] = {
 	{ 200ms, FRAME_THREE, "200ms_GivesThirdFrame" },
 	{ 300ms, FRAME_THREE, "300ms_GivesThirdFrame" },
 };
-PARAMETERIZED_TEST(AnimationSystemTests, AnimationPlayback, AnimationPlaybackTestData, testing::ValuesIn(animation_playback_tests)) {
+TEST_PARAMETERIZED(AnimationSystemTests, AnimationPlayback, AnimationPlaybackTestData, testing::ValuesIn(animation_playback_tests)) {
 	AnimationSystem<int> animation_system;
 	AnimationID animation_id = animation_system.add_animation(test_animation());
 	AnimationEntityID entity_id = AnimationEntityID(1);
@@ -148,7 +148,7 @@ AnimationPlaybackTestData looping_animation_playback_tests[] = {
 	{ 400ms, FRAME_TWO, "400ms_LoopsAndGivesSecondFrame" },
 	{ 500ms, FRAME_THREE, "500ms_LoopsAndGivesThirdFrame" },
 };
-PARAMETERIZED_TEST(AnimationSystemTests, LoopedAnimationPlayback, AnimationPlaybackTestData, testing::ValuesIn(looping_animation_playback_tests)) {
+TEST_PARAMETERIZED(AnimationSystemTests, LoopedAnimationPlayback, AnimationPlaybackTestData, testing::ValuesIn(looping_animation_playback_tests)) {
 	AnimationSystem<int> animation_system;
 	AnimationID animation_id = animation_system.add_animation(test_animation(), { .looping = true });
 	AnimationEntityID entity_id = AnimationEntityID(1);

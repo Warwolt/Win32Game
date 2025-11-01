@@ -21,13 +21,8 @@ set(SRC
     libs/stb/stb_truetype/stb_truetype.c
     src/engine/commands.cpp
     src/engine/debug/assert.cpp
-    src/engine/debug/debug.cpp
     src/engine/debug/delta_timer.cpp
     src/engine/debug/logging.cpp
-    src/engine/debug/test_screens/font_test_screen.cpp
-    src/engine/debug/test_screens/geometry_test_screen.cpp
-    src/engine/debug/test_screens/image_test_screen.cpp
-    src/engine/debug/test_screens/test_screens.cpp
     src/engine/engine.cpp
     src/engine/file/resource_manager.cpp
     src/engine/graphics/bitmap.cpp
@@ -46,8 +41,17 @@ set(SRC
     src/engine/math/ivec2.cpp
     src/engine/math/moving_average.cpp
     src/engine/math/vec2.cpp
+    src/engine/scene/scene_manager.cpp
+    src/engine/ui/debug_screen/debug_screen.cpp
+    src/engine/ui/debug_screen/font_test_page.cpp
+    src/engine/ui/debug_screen/geometry_test_page.cpp
+    src/engine/ui/debug_screen/image_test_page.cpp
+    src/engine/ui/screen_stack.cpp
     src/engine/utility/string_utility.cpp
     src/game/game.cpp
+    src/game/scene/gameplay_scene.cpp
+    src/game/scene/menu_scene.cpp
+    src/game/ui/main_menu.cpp
 )
 
 set(TEST_SRC
@@ -55,11 +59,13 @@ set(TEST_SRC
     test/engine/button_tests.cpp
     test/engine/keyboard_tests.cpp
     test/engine/moving_average_tests.cpp
+    test/engine/scene_manager_tests.cpp
+    test/engine/screen_stack_tests.cpp
 )
 
 set(INC
+    ${CMAKE_CURRENT_SOURCE_DIR}
     src
-    test
     libs/stb
     libs/tracy/public
 )

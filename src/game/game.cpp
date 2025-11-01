@@ -1,26 +1,39 @@
 #include <game/game.h>
 
+#include <game/scene/gameplay_scene.h>
+#include <game/scene/menu_scene.h>
+#include <game/ui/main_menu.h>
+
 #include <engine/commands.h>
 #include <engine/debug/profiling.h>
 #include <engine/engine.h>
 #include <engine/graphics/renderer.h>
 #include <engine/input/input.h>
-
-#include <string>
+#include <engine/ui/debug_screen/debug_screen.h>
 
 namespace game {
 
-	Game initialize(engine::Engine* /*engine*/) {
+	Game initialize(engine::CommandList* commands) {
 		Game game = {};
+
+		/* Register scenes */
+		commands->register_scene<MenuScene>();
+		commands->register_scene<GameplayScene>();
+
+		/* Register screens */
+		commands->register_screen<MainMenu>();
+		commands->register_screen<engine::DebugScreen>();
+
+		/* Load first scene */
+		commands->load_scene(MenuScene::NAME);
+
 		return game;
 	}
 
-	void update(Game* /*game*/, engine::CommandList* commands, const engine::InputDevices& input) {
+	void update(Game* /*game*/, const engine::Input& input, engine::CommandList* commands) {
 		CPUProfilingScope_Game();
-		if (input.keyboard.key_was_pressed_now(VK_ESCAPE)) {
-			commands->quit();
-		}
 
+		/* Toggle fullscreen */
 		if (input.keyboard.key_was_pressed_now(VK_F11)) {
 			commands->toggle_fullscreen();
 		}

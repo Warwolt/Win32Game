@@ -2,11 +2,9 @@
 
 #include <engine/commands.h>
 
-#include <vector>
-
 namespace engine {
 	struct Engine;
-	struct InputDevices;
+	struct Input;
 	class Renderer;
 } // namespace engine
 
@@ -15,8 +13,8 @@ namespace game {
 	struct Game {
 	};
 
-	Game initialize(engine::Engine* engine);
-	void update(Game* game, engine::CommandList* commands, const engine::InputDevices& input);
+	Game initialize(engine::CommandList* commands);
+	void update(Game* game, const engine::Input& input, engine::CommandList* commands);
 	void draw(engine::Renderer* renderer, const Game& game);
 
 } // namespace game

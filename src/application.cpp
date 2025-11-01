@@ -33,9 +33,9 @@ static void pump_window_messages(State* state) {
 	}
 }
 
-static void update_input_devices(State* state) {
+static void update_input(State* state) {
 	CPUProfilingScope_Application();
-	engine::update_input_devices(&state->engine.input, state->engine.input_events, state->engine.window);
+	engine::update_input(&state->engine.input, state->engine.input_events, state->engine.window);
 	state->engine.input_events = {};
 
 	// HACK: we're not forwarding key events to DefWindowProc, so we have to handle ALT+F4 manually
@@ -47,14 +47,27 @@ static void update_input_devices(State* state) {
 
 State* initialize_application(int argc, char** argv, HINSTANCE instance, WNDPROC on_window_event) {
 	State* state = new State {};
+
+	/* Initialize engine */
 	std::vector<std::string> args = std::vector<std::string>(argv, argv + argc);
 	std::optional<engine::Engine> engine = engine::initialize(args, instance, on_window_event);
 	if (!engine) {
 		MessageBoxA(0, "Failed to initialize engine", "Error", MB_OK | MB_ICONERROR);
 		exit(1);
 	}
-	state->engine = engine.value();
-	state->game = game::initialize(&state->engine);
+	state->engine = std::move(engine.value());
+
+	/* Initialize game */
+	engine::CommandList commands;
+	state->game = game::initialize(&commands);
+	commands.run_commands(
+		&state->engine.should_quit,
+		&state->engine.window,
+		&state->engine.resources,
+		&state->engine.scene_manager,
+		&state->engine.screen_stack
+	);
+
 	LOG_INFO("Initialized");
 	LOG_INFO(PROFILING_IS_ENABLED ? "CPU profiling is enabled" : "CPU profiling is disabled");
 
@@ -114,11 +127,11 @@ LRESULT CALLBACK on_window_event(
 
 		case WM_PAINT: {
 			/* Input */
-			update_input_devices(state);
+			update_input(state);
 
 			/* Update */
 			engine::CommandList commands;
-			game::update(&state->game, &commands, state->engine.input);
+			game::update(&state->game, state->engine.input, &commands);
 			engine::update(&state->engine, &commands);
 
 			/* Render*/
@@ -132,15 +145,15 @@ LRESULT CALLBACK on_window_event(
 }
 
 bool update_application(State* state) {
-	state->engine.debug.frame_timer.start();
+	state->engine.frame_timer.start();
 	{
 		/* Input */
 		pump_window_messages(state);
-		update_input_devices(state);
+		update_input(state);
 
 		/* Update */
 		engine::CommandList commands;
-		game::update(&state->game, &commands, state->engine.input);
+		game::update(&state->game, state->engine.input, &commands);
 		engine::update(&state->engine, &commands);
 
 		/* Draw */
@@ -154,7 +167,7 @@ bool update_application(State* state) {
 		/* Yield CPU to not stall OS */
 		Sleep(1);
 	}
-	state->engine.debug.frame_timer.end();
+	state->engine.frame_timer.end();
 	CPUProfilingEndFrame();
 
 	return state->engine.should_quit;

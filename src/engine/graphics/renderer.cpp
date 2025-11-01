@@ -145,7 +145,7 @@ namespace engine {
 		return m_bitmap;
 	}
 
-	IVec2 Renderer::screen_resolution() {
+	IVec2 Renderer::screen_resolution() const {
 		return m_bitmap.size();
 	}
 

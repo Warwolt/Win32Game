@@ -61,7 +61,7 @@ namespace engine {
 		void draw_text(FontID font_id, int32_t font_size, Rect rect, RGBA color, std::string text);
 
 		const Bitmap& bitmap();
-		IVec2 screen_resolution();
+		IVec2 screen_resolution() const;
 
 		void render(ResourceManager* resources);
 

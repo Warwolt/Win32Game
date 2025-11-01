@@ -1,4 +1,4 @@
-#include <engine/debug/test_screens/font_test_screen.h>
+#include <engine/ui/debug_screen/font_test_page.h>
 
 #include <engine/debug/assert.h>
 #include <engine/graphics/renderer.h>
@@ -6,7 +6,7 @@
 
 namespace engine {
 
-	void FontTestScreen::initialize() {
+	void FontDebugPage::initialize() {
 		std::vector<AnimationFrame<int>> frames = {
 			{ 0, 1500ms },
 			{ 1, 1500ms },
@@ -14,14 +14,14 @@ namespace engine {
 		m_animation_system.add_animation(frames, { .looping = true });
 	}
 
-	void FontTestScreen::update(bool opened_now, const InputDevices& input) {
+	void FontDebugPage::update(bool opened_now, const Input& input) {
 		if (opened_now) {
 			DEBUG_ASSERT(m_animation_system.restart_animation(AnimationEntityID(1), AnimationID(1), input.time_now), "Couldn't start animation");
 		}
 		m_animation_system.update(input.time_now);
 	}
 
-	void FontTestScreen::draw(Renderer* renderer, IVec2 screen_resolution) const {
+	void FontDebugPage::draw(Renderer* renderer, IVec2 screen_resolution) const {
 		const int animation_index = m_animation_system.current_frame(AnimationEntityID(1));
 		const int32_t font_size = 16;
 		const int32_t font_ascent = 12;

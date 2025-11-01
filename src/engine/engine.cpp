@@ -1,5 +1,6 @@
 #include <engine/engine.h>
 
+#include <engine/debug/assert.h>
 #include <engine/debug/logging.h>
 #include <engine/debug/profiling.h>
 #include <engine/input/input.h>
@@ -47,6 +48,7 @@ namespace engine {
 			return {};
 		}
 
+		/* Initialize subsystems */
 		engine.window = window.value();
 		std::optional<ResourceManager> resources = ResourceManager::initialize("assets/font/ModernDOS8x16.ttf");
 		if (!resources) {
@@ -56,7 +58,6 @@ namespace engine {
 		engine.resources = resources.value();
 		engine.renderer = Renderer::with_bitmap(screen_resolution.x, screen_resolution.y);
 		initialize_gamepad_support();
-		initialize_debug(&engine.debug, &engine.resources, engine_args.test_screen_page);
 
 		return engine;
 	}
@@ -64,16 +65,44 @@ namespace engine {
 	void update(Engine* engine, CommandList* commands) {
 		CPUProfilingScope_Engine();
 
-		/* Update engine */
-		update_debug(&engine->debug, engine->input, commands);
+		/* Update current scene */
+		if (Scene* current_scene = engine->scene_manager.current_scene()) {
+			current_scene->update(engine->input, commands);
+		}
+
+		/* Update topmost screen */
+		if (Screen* top_screen = engine->screen_stack.top_screen()) {
+			top_screen->update(engine->input, commands);
+		}
+
+		/* Show CPU profiling information in window title */
+		float avg_fps = 1.0f / engine->frame_timer.average_delta();
+		const char* window_title = "Game";
+		std::string window_title_with_fps = std::format("{} ({:.1f} fps)", window_title, avg_fps);
+		commands->set_window_title(window_title_with_fps);
 
 		/* Process commands */
-		commands->run(&engine->should_quit, &engine->window);
+		commands->run_commands(
+			&engine->should_quit,
+			&engine->window,
+			&engine->resources,
+			&engine->scene_manager,
+			&engine->screen_stack
+		);
 	}
 
 	void draw(Engine* engine) {
 		CPUProfilingScope_Engine();
-		draw_debug(&engine->renderer, engine->debug);
+
+		/* Draw current scene */
+		if (Scene* current_scene = engine->scene_manager.current_scene()) {
+			current_scene->draw(&engine->renderer);
+		}
+
+		/* Draw current ui screen */
+		if (Screen* top_screen = engine->screen_stack.top_screen()) {
+			top_screen->draw(&engine->renderer);
+		}
 	}
 
 } // namespace engine
