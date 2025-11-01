@@ -14,12 +14,16 @@ namespace game {
 	public:
 		static constexpr char NAME[] = "MainMenu";
 
+		void initialize(engine::ResourceManager*, engine::CommandList*) {
+			LOG_DEBUG("MainMenu::initialize");
+		}
+
 		void update(const engine::Input& input, engine::CommandList* commands) {
 			//
 		}
 
 		void draw(engine::Renderer* renderer) const {
-			//
+			renderer->draw_text(engine::DEFAULT_FONT_ID, 16, { 0, 0 }, engine::RGBA::white(), "MainMenu");
 		}
 
 	private:
@@ -49,6 +53,7 @@ namespace game {
 	}
 
 	void MenuScene::draw(engine::Renderer* renderer) const {
+		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, { 0, 16 }, engine::RGBA::white(), "MenuScene");
 	}
 
 	class GameScene : public engine::Scene {
@@ -145,15 +150,28 @@ namespace engine {
 		static bool initialized = false;
 		if (!initialized) {
 			initialized = true;
+			/* Push menu scene */
 			if (auto result = engine->scene_manager.load_scene(game::MenuScene::NAME); !result) {
 				DEBUG_FAIL("Failed to load MenuScene, got error %d:", (int)result.error())
 			}
 			engine->scene_manager.current_scene()->initialize(&engine->resources, commands);
+
+			// FIXME: this should be pushed by the MenuScene
+			/* Push main menu */
+			if (auto result = engine->screen_stack.push_screen(game::MainMenu::NAME); !result) {
+				DEBUG_FAIL("Failed to push MainMenu, got error %d:", (int)result.error())
+			}
+			engine->screen_stack.current_screen()->initialize(&engine->resources, commands);
 		}
 
-		/* Update scene */
+		/* Update current scene */
 		if (Scene* current_scene = engine->scene_manager.current_scene()) {
 			current_scene->update(engine->input, commands);
+		}
+
+		/* Update current screen */
+		if (Screen* current_screen = engine->screen_stack.current_screen()) {
+			current_screen->update(engine->input, commands);
 		}
 
 		/* Show CPU profiling information in window title */
@@ -173,8 +191,15 @@ namespace engine {
 
 	void draw(Engine* engine) {
 		CPUProfilingScope_Engine();
+
+		/* Draw current scene */
 		if (Scene* current_scene = engine->scene_manager.current_scene()) {
 			current_scene->draw(&engine->renderer);
+		}
+
+		/* Draw current ui screen */
+		if (Screen* current_screen = engine->screen_stack.current_screen()) {
+			current_screen->draw(&engine->renderer);
 		}
 	}
 
