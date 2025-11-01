@@ -49,7 +49,10 @@ namespace game {
 		LOG_DEBUG("MenuScene::initialize");
 	}
 
-	void MenuScene::update(const engine::Input& /*input*/, engine::CommandList* /*commands*/) {
+	void MenuScene::update(const engine::Input& input, engine::CommandList* commands) {
+		if (input.keyboard.key_was_pressed_now(VK_ESCAPE)) {
+			commands->quit();
+		}
 	}
 
 	void MenuScene::draw(engine::Renderer* renderer) const {
@@ -186,7 +189,7 @@ namespace engine {
 		}
 
 		/* Process commands */
-		commands->run(&engine->should_quit, &engine->window, &engine->resources, &engine->scene_manager);
+		commands->run_commands(&engine->should_quit, &engine->window, &engine->resources, &engine->scene_manager);
 	}
 
 	void draw(Engine* engine) {

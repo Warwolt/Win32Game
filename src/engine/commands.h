@@ -12,7 +12,7 @@ namespace engine {
 
 	class CommandList {
 	public:
-		void run(bool* should_quit, Window* window, ResourceManager* resources, SceneManager* scene_manager);
+		void run_commands(bool* should_quit, Window* window, ResourceManager* resources, SceneManager* scene_manager);
 
 		void quit();
 		void toggle_fullscreen();
@@ -20,20 +20,19 @@ namespace engine {
 		void load_scene(std::string scene_name);
 
 	private:
-		struct AppCommand_Quit {};
-		struct AppCommand_ToggleFullscreen {};
-		struct AppCommand_SetWindowTitle {
+		struct Command_Quit {};
+		struct Command_ToggleFullscreen {};
+		struct Command_SetWindowTitle {
 			std::string window_title;
 		};
-		struct AppCommand_LoadScene {
+		struct Command_LoadScene {
 			std::string scene_name;
 		};
-		using AppCommand = std::variant<
-			AppCommand_Quit,
-			AppCommand_ToggleFullscreen,
-			AppCommand_SetWindowTitle,
-			AppCommand_LoadScene>;
-		using Command = std::variant<AppCommand>;
+		using Command = std::variant<
+			Command_Quit,
+			Command_ToggleFullscreen,
+			Command_SetWindowTitle,
+			Command_LoadScene>;
 
 		std::vector<Command> m_commands;
 	};
