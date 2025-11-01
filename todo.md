@@ -15,9 +15,9 @@ Overall goal:
 - Try out FMOD as audio player
 
 # Doing
-- Add support to generate crash dump (https://learn.microsoft.com/en-us/windows/win32/api/minidumpapiset/nf-minidumpapiset-minidumpwritedump) (We're getting segfaults when hot reloading, and we can't hot reload with debugger attached, so we need to post mortem debug issue)
 
 # Done
+- Add support to generate crash dump (https://learn.microsoft.com/en-us/windows/win32/api/minidumpapiset/nf-minidumpapiset-minidumpwritedump)
 - Add PR check for formatting
 - Basic scene system, to support both the debug screens and basic gameplay scene
 - Store Bitmap inside renderer so we can easily access its dimensions when drawing
