@@ -30,8 +30,13 @@ namespace game {
 		return game;
 	}
 
-	void update(Game* /*game*/, const engine::Input& /*input*/, engine::CommandList* /*commands*/) {
+	void update(Game* /*game*/, const engine::Input& input, engine::CommandList* commands) {
 		CPUProfilingScope_Game();
+
+		/* Toggle fullscreen */
+		if (input.keyboard.key_was_pressed_now(VK_F11)) {
+			commands->toggle_fullscreen();
+		}
 	}
 
 	void draw(engine::Renderer* renderer, const Game& /*game*/) {

@@ -6,8 +6,6 @@
 #include <engine/input/input.h>
 #include <engine/utility/string_utility.h>
 
-#include <engine/ui/screen.h>
-
 namespace engine {
 
 	constexpr IVec2 NES_RESOLUTION = IVec2 { 256, 240 };
@@ -72,7 +70,7 @@ namespace engine {
 			current_scene->update(engine->input, commands);
 		}
 
-		/* Update current screen */
+		/* Update topmost screen */
 		if (Screen* top_screen = engine->screen_stack.top_screen()) {
 			top_screen->update(engine->input, commands);
 		}
@@ -82,11 +80,6 @@ namespace engine {
 		const char* window_title = "Game";
 		std::string window_title_with_fps = std::format("{} ({:.1f} fps)", window_title, avg_fps);
 		commands->set_window_title(window_title_with_fps);
-
-		/* Toggle fullscreen */
-		if (engine->input.keyboard.key_was_pressed_now(VK_F11)) {
-			commands->toggle_fullscreen();
-		}
 
 		/* Process commands */
 		commands->run_commands(
