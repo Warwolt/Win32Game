@@ -3,7 +3,7 @@
 namespace engine {
 
 	void Keyboard::on_key_event(uint32_t key_id, bool pressed) {
-		m_key_events.insert({ key_id, pressed });
+		m_key_events.insert_or_assign(key_id, pressed );
 		m_active_keys.insert(key_id);
 	}
 
