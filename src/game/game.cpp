@@ -8,8 +8,8 @@
 #include <engine/scene/scene_manager.h>
 #include <engine/ui/screen_stack.h>
 
-#include <game/scene/menu_scene.h>
 #include <game/scene/gameplay_scene.h>
+#include <game/scene/menu_scene.h>
 #include <game/ui/main_menu.h>
 
 namespace game {
@@ -22,11 +22,11 @@ namespace game {
 		// So, we should NOT pass in engine internals here.
 
 		/* Register scenes */
-		scene_manager->register_scene<MenuScene>();
-		scene_manager->register_scene<GameplayScene>();
+		scene_manager->register_scene(MenuScene::NAME, []() { return std::make_unique<MenuScene>(); });
+		scene_manager->register_scene(GameplayScene::NAME, []() { return std::make_unique<GameplayScene>(); });
 
 		/* Register screens */
-		screen_stack->register_screen<MainMenu>();
+		screen_stack->register_screen(MainMenu::NAME, []() { return std::make_unique<MainMenu>(); });
 
 		/* Load first scene */
 		// scene_manager->load_scene(MenuScene::NAME);

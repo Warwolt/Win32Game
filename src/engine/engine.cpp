@@ -8,30 +8,6 @@
 
 #include <engine/ui/screen.h>
 
-namespace game {
-
-	// TODO: start moving this to own files in game directory
-	class MainMenu : public engine::Screen {
-	public:
-		static constexpr char NAME[] = "MainMenu";
-
-		void initialize(engine::ResourceManager* /*resources*/, engine::CommandList* /*commands*/) {
-			LOG_DEBUG("MainMenu::initialize");
-		}
-
-		void update(const engine::Input& /*input*/, engine::CommandList* /*commands*/) {
-			//
-		}
-
-		void draw(engine::Renderer* renderer) const {
-			renderer->draw_text(engine::DEFAULT_FONT_ID, 16, { 0, 0 }, engine::RGBA::white(), "MainMenu");
-		}
-
-	private:
-	};
-
-} // namespace game
-
 namespace engine {
 
 	constexpr IVec2 NES_RESOLUTION = IVec2 { 256, 240 };

@@ -18,11 +18,7 @@ namespace engine {
 	public:
 		using SceneConstructor = std::function<std::unique_ptr<Scene>()>;
 
-		template <typename SceneType>
-		void register_scene() {
-			static_assert(std::is_default_constructible<SceneType>::value, "SceneType must be default constructible");
-			m_scene_constructors[SceneType::NAME] = []() { return std::make_unique<SceneType>(); };
-		}
+		void register_scene(std::string name, SceneConstructor constructor);
 		std::expected<void, SceneManagerError> load_scene(const std::string& scene_name);
 		Scene* current_scene();
 

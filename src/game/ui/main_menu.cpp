@@ -12,7 +12,6 @@
 namespace game {
 
 	void MainMenu::initialize(engine::ResourceManager* /*resources*/, engine::CommandList* /*commands*/) {
-		LOG_DEBUG("MainMenu initialized");
 	}
 
 	void MainMenu::update(const engine::Input& input, engine::CommandList* commands) {

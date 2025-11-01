@@ -2,6 +2,10 @@
 
 namespace engine {
 
+	void SceneManager::register_scene(std::string name, SceneConstructor constructor) {
+		m_scene_constructors[name] = constructor;
+	}
+
 	std::expected<void, SceneManagerError> SceneManager::load_scene(const std::string& scene_name) {
 		auto it = m_scene_constructors.find(scene_name);
 		if (it == m_scene_constructors.end()) {

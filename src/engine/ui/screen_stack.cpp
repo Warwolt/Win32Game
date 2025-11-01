@@ -2,6 +2,10 @@
 
 namespace engine {
 
+	void ScreenStack::register_screen(std::string name, ScreenConstructor constructor) {
+		m_screen_constructors[name] = constructor;
+	}
+
 	Screen* ScreenStack::top_screen() {
 		if (m_screens.empty()) {
 			return nullptr;
