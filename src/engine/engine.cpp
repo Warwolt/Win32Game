@@ -10,6 +10,7 @@
 
 namespace game {
 
+	// TODO: start moving this to own files in game directory
 	class MainMenu : public engine::Screen {
 	public:
 		static constexpr char NAME[] = "MainMenu";
@@ -28,33 +29,6 @@ namespace game {
 
 	private:
 	};
-
-	// TODO:
-	// - Screen interface, ScreenStack
-	// - MainMenuScreen
-	class MenuScene : public engine::Scene {
-	public:
-		static constexpr char NAME[] = "MenuScene";
-		void initialize(engine::ResourceManager* resources, engine::CommandList* commands) override;
-		void update(const engine::Input& input, engine::CommandList* commands) override;
-		void draw(engine::Renderer* renderer) const override;
-
-	private:
-	};
-
-	void MenuScene::initialize(engine::ResourceManager* /*resources*/, engine::CommandList* commands) {
-		commands->push_screen(MainMenu::NAME);
-	}
-
-	void MenuScene::update(const engine::Input& input, engine::CommandList* commands) {
-		if (input.keyboard.key_was_pressed_now(VK_ESCAPE)) {
-			commands->quit();
-		}
-	}
-
-	void MenuScene::draw(engine::Renderer* renderer) const {
-		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, { 0, 16 }, engine::RGBA::white(), "MenuScene");
-	}
 
 	class GameScene : public engine::Scene {
 	public:
@@ -133,29 +107,11 @@ namespace engine {
 		engine.renderer = Renderer::with_bitmap(screen_resolution.x, screen_resolution.y);
 		initialize_gamepad_support();
 
-		/* Register scenes */
-		engine.scene_manager.register_scene<game::MenuScene>();
-		engine.scene_manager.register_scene<game::GameScene>();
-
-		/* Register screens */
-		engine.screen_stack.register_screen<game::MainMenu>();
-
 		return engine;
 	}
 
 	void update(Engine* engine, CommandList* commands) {
 		CPUProfilingScope_Engine();
-
-		// FIXME: initialize first scene, need better solution once we're moving scene stuff to own files
-		static bool initialized = false;
-		if (!initialized) {
-			initialized = true;
-			/* Push menu scene */
-			if (auto result = engine->scene_manager.load_scene(game::MenuScene::NAME); !result) {
-				DEBUG_FAIL("Failed to load MenuScene, got error %d:", (int)result.error())
-			}
-			engine->scene_manager.current_scene()->initialize(&engine->resources, commands);
-		}
 
 		/* Update current scene */
 		if (Scene* current_scene = engine->scene_manager.current_scene()) {

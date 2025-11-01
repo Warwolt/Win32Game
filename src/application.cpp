@@ -47,6 +47,8 @@ static void update_input(State* state) {
 
 State* initialize_application(int argc, char** argv, HINSTANCE instance, WNDPROC on_window_event) {
 	State* state = new State {};
+
+	/* Initialize engine */
 	std::vector<std::string> args = std::vector<std::string>(argv, argv + argc);
 	std::optional<engine::Engine> engine = engine::initialize(args, instance, on_window_event);
 	if (!engine) {
@@ -54,7 +56,18 @@ State* initialize_application(int argc, char** argv, HINSTANCE instance, WNDPROC
 		exit(1);
 	}
 	state->engine = std::move(engine.value());
-	state->game = game::initialize(&state->engine);
+
+	/* Initialize game */
+	engine::CommandList commands;
+	state->game = game::initialize(&state->engine.scene_manager, &state->engine.screen_stack, &commands);
+	commands.run_commands(
+		&state->engine.should_quit,
+		&state->engine.window,
+		&state->engine.resources,
+		&state->engine.scene_manager,
+		&state->engine.screen_stack
+	);
+
 	LOG_INFO("Initialized");
 	LOG_INFO(PROFILING_IS_ENABLED ? "CPU profiling is enabled" : "CPU profiling is disabled");
 
@@ -118,7 +131,7 @@ LRESULT CALLBACK on_window_event(
 
 			/* Update */
 			engine::CommandList commands;
-			game::update(&state->game, &commands, state->engine.input);
+			game::update(&state->game, state->engine.input, &commands);
 			engine::update(&state->engine, &commands);
 
 			/* Render*/
@@ -140,7 +153,7 @@ bool update_application(State* state) {
 
 		/* Update */
 		engine::CommandList commands;
-		game::update(&state->game, &commands, state->engine.input);
+		game::update(&state->game, state->engine.input, &commands);
 		engine::update(&state->engine, &commands);
 
 		/* Draw */

@@ -5,15 +5,23 @@
 #include <engine/engine.h>
 #include <engine/graphics/renderer.h>
 #include <engine/input/input.h>
+#include <engine/scene/scene_manager.h>
+#include <engine/ui/screen_stack.h>
+
+#include <game/scene/menu_scene.h>
 
 namespace game {
 
-	Game initialize(engine::Engine* /*engine*/) {
+	Game initialize(engine::SceneManager* scene_manager, engine::ScreenStack* screen_stack, engine::CommandList* commands) {
 		Game game = {};
+
+		scene_manager->register_scene<MenuScene>();
+		scene_manager->load_scene(MenuScene::NAME);
+
 		return game;
 	}
 
-	void update(Game* /*game*/, engine::CommandList* /*commands*/, const engine::Input& /*input*/) {
+	void update(Game* /*game*/, const engine::Input& /*input*/, engine::CommandList* /*commands*/) {
 		CPUProfilingScope_Game();
 	}
 

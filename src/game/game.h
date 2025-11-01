@@ -2,6 +2,7 @@
 
 #include <engine/commands.h>
 
+#include <optional>
 #include <vector>
 
 namespace engine {
@@ -15,8 +16,8 @@ namespace game {
 	struct Game {
 	};
 
-	Game initialize(engine::Engine* engine);
-	void update(Game* game, engine::CommandList* commands, const engine::Input& input);
+	Game initialize(engine::SceneManager* scene_manager, engine::ScreenStack* screen_stack, engine::CommandList* commands);
+	void update(Game* game, const engine::Input& input, engine::CommandList* commands);
 	void draw(engine::Renderer* renderer, const Game& game);
 
 } // namespace game
