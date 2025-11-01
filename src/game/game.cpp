@@ -14,7 +14,7 @@
 
 namespace game {
 
-	Game initialize(engine::SceneManager* scene_manager, engine::ScreenStack* screen_stack, engine::CommandList* commands) {
+	Game initialize(engine::ScreenStack* screen_stack, engine::CommandList* commands) {
 		Game game = {};
 
 		// FIXME: We should register scenes and screens using the CommandList, I think.
@@ -22,8 +22,11 @@ namespace game {
 		// So, we should NOT pass in engine internals here.
 
 		/* Register scenes */
-		scene_manager->register_scene(MenuScene::NAME, []() { return std::make_unique<MenuScene>(); });
-		scene_manager->register_scene(GameplayScene::NAME, []() { return std::make_unique<GameplayScene>(); });
+		commands->register_scene<MenuScene>();
+		commands->register_scene<GameplayScene>();
+
+		// scene_manager->register_scene(MenuScene::NAME, []() { return std::make_unique<MenuScene>(); });
+		// scene_manager->register_scene(GameplayScene::NAME, []() { return std::make_unique<GameplayScene>(); });
 
 		/* Register screens */
 		screen_stack->register_screen(MainMenu::NAME, []() { return std::make_unique<MainMenu>(); });

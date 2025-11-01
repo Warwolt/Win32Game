@@ -59,7 +59,7 @@ State* initialize_application(int argc, char** argv, HINSTANCE instance, WNDPROC
 
 	/* Initialize game */
 	engine::CommandList commands;
-	state->game = game::initialize(&state->engine.scene_manager, &state->engine.screen_stack, &commands);
+	state->game = game::initialize(&state->engine.screen_stack, &commands);
 	commands.run_commands(
 		&state->engine.should_quit,
 		&state->engine.window,

@@ -22,17 +22,26 @@ namespace engine {
 				MATCH_CASE0(Command_Quit) {
 					*should_quit = true;
 				}
+
+				/* Window */
 				MATCH_CASE0(Command_ToggleFullscreen) {
 					window->toggle_fullscreen();
 				}
 				MATCH_CASE(Command_SetWindowTitle, window_title) {
 					window->set_title(window_title);
 				}
+
+				/* SceneManager */
+				MATCH_CASE(Command_RegisterScene, scene_name, scene_constructor) {
+					scene_manager->register_scene(scene_name, scene_constructor);
+				}
 				MATCH_CASE(Command_LoadScene, scene_name) {
 					DEBUG_ASSERT(scene_manager->load_scene(scene_name).has_value(), "Failed to load scene \"%s\". Is it registered?", scene_name.c_str());
 					scene_manager->current_scene()->initialize(resources, this);
 					screen_stack->clear();
 				}
+
+				/* ScreenStack */
 				MATCH_CASE(Command_PushScreen, screen_name) {
 					DEBUG_ASSERT(screen_stack->push_screen(screen_name).has_value(), "Failed to push screen \"%s\". Is it registered?", screen_name.c_str());
 					screen_stack->top_screen()->initialize(resources, this);
