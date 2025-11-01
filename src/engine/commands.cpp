@@ -42,6 +42,9 @@ namespace engine {
 				}
 
 				/* ScreenStack */
+				MATCH_CASE(Command_RegisterScreen, screen_name, screen_constructor) {
+					screen_stack->register_screen(screen_name, screen_constructor);
+				}
 				MATCH_CASE(Command_PushScreen, screen_name) {
 					DEBUG_ASSERT(screen_stack->push_screen(screen_name).has_value(), "Failed to push screen \"%s\". Is it registered?", screen_name.c_str());
 					screen_stack->top_screen()->initialize(resources, this);

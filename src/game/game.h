@@ -13,7 +13,7 @@ namespace game {
 	struct Game {
 	};
 
-	Game initialize(engine::ScreenStack* screen_stack, engine::CommandList* commands);
+	Game initialize(engine::CommandList* commands);
 	void update(Game* game, const engine::Input& input, engine::CommandList* commands);
 	void draw(engine::Renderer* renderer, const Game& game);
 
