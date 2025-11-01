@@ -5,8 +5,6 @@
 #include <engine/engine.h>
 #include <engine/graphics/renderer.h>
 #include <engine/input/input.h>
-#include <engine/scene/scene_manager.h>
-#include <engine/ui/screen_stack.h>
 
 #include <game/scene/gameplay_scene.h>
 #include <game/scene/menu_scene.h>

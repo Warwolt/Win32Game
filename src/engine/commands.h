@@ -36,7 +36,8 @@ namespace engine {
 		template <typename SceenType>
 		void register_scene() {
 			static_assert(std::is_default_constructible<SceenType>::value, "SceenType must be default constructible");
-			m_commands.push_back(Command_RegisterScene { SceenType::NAME, []() { return std::make_unique<SceenType>(); } });
+			auto constructor = +[]() { return std::make_unique<SceenType>(); };
+			m_commands.push_back(Command_RegisterScene { SceenType::NAME, constructor });
 		}
 		void load_scene(std::string scene_name);
 
@@ -44,7 +45,8 @@ namespace engine {
 		template <typename ScreenType>
 		void register_screen() {
 			static_assert(std::is_default_constructible<ScreenType>::value, "ScreenType must be default constructible");
-			m_commands.push_back(Command_RegisterScreen { ScreenType::NAME, []() { return std::make_unique<ScreenType>(); } });
+			auto constructor = +[]() { return std::make_unique<ScreenType>(); };
+			m_commands.push_back(Command_RegisterScreen { ScreenType::NAME, constructor });
 		}
 		void push_screen(std::string screen_name);
 		void pop_screen();
