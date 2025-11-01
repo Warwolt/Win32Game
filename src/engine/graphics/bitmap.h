@@ -1,7 +1,7 @@
 #pragma once
 
-#include <engine/graphics/rgba.h>
 #include <engine/graphics/rect.h>
+#include <engine/graphics/rgba.h>
 
 #include <cmath>
 #include <stdint.h>

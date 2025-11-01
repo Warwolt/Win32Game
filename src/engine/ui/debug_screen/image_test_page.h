@@ -1,9 +1,9 @@
 #pragma once
 
+#include <engine/animation/animation_system.h>
 #include <engine/graphics/image_id.h>
 #include <engine/graphics/rect.h>
 #include <engine/input/time.h>
-#include <engine/animation/animation_system.h>
 
 #include <vector>
 
