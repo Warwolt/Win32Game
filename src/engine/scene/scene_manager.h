@@ -5,12 +5,10 @@
 #include <expected>
 #include <functional>
 #include <memory>
-#include <unordered_map>
 #include <string>
+#include <unordered_map>
 
 namespace engine {
-
-	class ResourceManager;
 
 	enum class SceneManagerError {
 		InvalidSceneName,
@@ -18,15 +16,14 @@ namespace engine {
 
 	class SceneManager {
 	public:
-		using SceneConstructor = std::function<std::unique_ptr<Scene>(ResourceManager*)>;
+		using SceneConstructor = std::function<std::unique_ptr<Scene>()>;
 
 		template <typename SceneType>
 		void register_scene() {
-			static_assert(std::constructible_from<SceneType, ResourceManager*>, "Scene must have a constructor that accepts a ResourceManager, but none was found.");
-			m_scene_constructors[SceneType::NAME] = [](ResourceManager* resources) { return std::make_unique<SceneType>(resources); };
+			static_assert(std::is_default_constructible<SceneType>::value, "SceneType must be default constructible");
+			m_scene_constructors[SceneType::NAME] = []() { return std::make_unique<SceneType>(); };
 		}
-
-		std::expected<void, SceneManagerError> load_scene(const std::string& scene_name, ResourceManager* resources);
+		std::expected<void, SceneManagerError> load_scene(const std::string& scene_name);
 		Scene* current_scene();
 
 	private:

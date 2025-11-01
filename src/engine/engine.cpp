@@ -14,9 +14,6 @@ namespace game {
 	public:
 		static constexpr char NAME[] = "MainMenu";
 
-		MainMenu(engine::ResourceManager*) {
-		}
-
 		void update(const engine::Input& input, engine::CommandList* commands) {
 			//
 		}
@@ -34,17 +31,14 @@ namespace game {
 	class MenuScene : public engine::Scene {
 	public:
 		static constexpr char NAME[] = "MenuScene";
-		// FIXME: move ResourceManager parameter to `initialize` instead?
-		MenuScene(engine::ResourceManager*) {
-		}
-		void initialize(engine::CommandList* commands) override;
+		void initialize(engine::ResourceManager* resources, engine::CommandList* commands) override;
 		void update(const engine::Input& input, engine::CommandList* commands) override;
 		void draw(engine::Renderer* renderer) const override;
 
 	private:
 	};
 
-	void MenuScene::initialize(engine::CommandList* commands) {
+	void MenuScene::initialize(engine::ResourceManager* /*resources*/, engine::CommandList* commands) {
 		// TODO:
 		// - implement a "show scene" command
 		// commands->show_scene("MainMenu");
@@ -60,8 +54,6 @@ namespace game {
 	class GameScene : public engine::Scene {
 	public:
 		static constexpr char NAME[] = "GameScene";
-		GameScene(engine::ResourceManager*) {
-		}
 		void update(const engine::Input& input, engine::CommandList* commands) override;
 		void draw(engine::Renderer* renderer) const override;
 	};
@@ -153,10 +145,10 @@ namespace engine {
 		static bool initialized = false;
 		if (!initialized) {
 			initialized = true;
-			if (auto result = engine->scene_manager.load_scene(game::MenuScene::NAME, &engine->resources); !result) {
+			if (auto result = engine->scene_manager.load_scene(game::MenuScene::NAME); !result) {
 				DEBUG_FAIL("Failed to load MenuScene, got error %d:", (int)result.error())
 			}
-			engine->scene_manager.current_scene()->initialize(commands);
+			engine->scene_manager.current_scene()->initialize(&engine->resources, commands);
 		}
 
 		/* Update scene */

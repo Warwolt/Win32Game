@@ -1,9 +1,8 @@
-#include "screen_stack.h"
 #include <engine/ui/screen_stack.h>
 
 namespace engine {
 
-	std::expected<void, ScreenStackError> ScreenStack::push_screen(const std::string& screen_name, ResourceManager* resources) {
+	std::expected<void, ScreenStackError> ScreenStack::push_screen(const std::string& screen_name) {
 		/* Check screen registered */
 		auto it = m_screen_constructors.find(screen_name);
 		if (it == m_screen_constructors.end()) {
@@ -13,7 +12,7 @@ namespace engine {
 		/* Show screen if it's not already currently shown */
 		if (m_screens.empty() || m_screens.back().screen_name != screen_name) {
 			auto& screen_constructor = it->second;
-			m_screens.push_back({ screen_name, screen_constructor(resources) });
+			m_screens.push_back({ screen_name, screen_constructor() });
 		}
 
 		return {};

@@ -22,7 +22,7 @@ namespace engine {
 					window->set_title(window_title);
 				}
 				MATCH_CASE(AppCommand_LoadScene, scene_name) {
-					std::expected<void, SceneManagerError> load_scene_result = scene_manager->load_scene(scene_name, resources);
+					std::expected<void, SceneManagerError> load_scene_result = scene_manager->load_scene(scene_name);
 					DEBUG_ASSERT(load_scene_result.has_value(), "Failed to load scene \"%s\"", scene_name.c_str());
 				}
 			}
