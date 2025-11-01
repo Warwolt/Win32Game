@@ -1,11 +1,11 @@
 #include <engine/engine.h>
 
+#include <engine/debug/assert.h>
 #include <engine/debug/logging.h>
 #include <engine/debug/profiling.h>
 #include <engine/input/input.h>
 #include <engine/utility/string_utility.h>
 
-#include <engine/ui/debug_screen/debug_screen.h>
 #include <engine/ui/screen.h>
 
 namespace game {
@@ -34,13 +34,22 @@ namespace game {
 	class MenuScene : public engine::Scene {
 	public:
 		static constexpr char NAME[] = "MenuScene";
+		// FIXME: move ResourceManager parameter to `initialize` instead?
 		MenuScene(engine::ResourceManager*) {
 		}
+		void initialize(engine::CommandList* commands) override;
 		void update(const engine::Input& input, engine::CommandList* commands) override;
 		void draw(engine::Renderer* renderer) const override;
 
 	private:
 	};
+
+	void MenuScene::initialize(engine::CommandList* commands) {
+		// TODO:
+		// - implement a "show scene" command
+		// commands->show_scene("MainMenu");
+		LOG_DEBUG("MenuScene::initialize");
+	}
 
 	void MenuScene::update(const engine::Input& input, engine::CommandList* commands) {
 	}
@@ -131,12 +140,6 @@ namespace engine {
 		engine.scene_manager.register_scene<game::MenuScene>();
 		engine.scene_manager.register_scene<game::GameScene>();
 
-		std::expected<void, SceneManagerError> load_result = engine.scene_manager.load_scene("MenuScene", &engine.resources);
-		if (!load_result) {
-			LOG_FATAL("Failed to load initial scene");
-			return {};
-		}
-
 		/* Register screens */
 		engine.screen_stack.register_screen<game::MainMenu>();
 
@@ -145,6 +148,16 @@ namespace engine {
 
 	void update(Engine* engine, CommandList* commands) {
 		CPUProfilingScope_Engine();
+
+		// FIXME: initialize first scene, need better solution once we're moving scene stuff to own files
+		static bool initialized = false;
+		if (!initialized) {
+			initialized = true;
+			if (auto result = engine->scene_manager.load_scene(game::MenuScene::NAME, &engine->resources); !result) {
+				DEBUG_FAIL("Failed to load MenuScene, got error %d:", (int)result.error())
+			}
+			engine->scene_manager.current_scene()->initialize(commands);
+		}
 
 		/* Update scene */
 		if (Scene* current_scene = engine->scene_manager.current_scene()) {
