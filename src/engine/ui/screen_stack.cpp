@@ -22,7 +22,7 @@ namespace engine {
 		m_screens.pop_back();
 	}
 
-	Screen* ScreenStack::current_screen() {
+	Screen* ScreenStack::top_screen() {
 		if (m_screens.empty()) {
 			return nullptr;
 		}

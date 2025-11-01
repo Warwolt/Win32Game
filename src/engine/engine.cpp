@@ -14,11 +14,11 @@ namespace game {
 	public:
 		static constexpr char NAME[] = "MainMenu";
 
-		void initialize(engine::ResourceManager*, engine::CommandList*) {
+		void initialize(engine::ResourceManager* /*resources*/, engine::CommandList* /*commands*/) {
 			LOG_DEBUG("MainMenu::initialize");
 		}
 
-		void update(const engine::Input& input, engine::CommandList* commands) {
+		void update(const engine::Input& /*input*/, engine::CommandList* /*commands*/) {
 			//
 		}
 
@@ -42,14 +42,14 @@ namespace game {
 	private:
 	};
 
-	void MenuScene::initialize(engine::ResourceManager* /*resources*/, engine::CommandList* commands) {
+	void MenuScene::initialize(engine::ResourceManager* /*resources*/, engine::CommandList* /*commands*/) {
 		// TODO:
 		// - implement a "show scene" command
 		// commands->show_scene("MainMenu");
 		LOG_DEBUG("MenuScene::initialize");
 	}
 
-	void MenuScene::update(const engine::Input& input, engine::CommandList* commands) {
+	void MenuScene::update(const engine::Input& /*input*/, engine::CommandList* /*commands*/) {
 	}
 
 	void MenuScene::draw(engine::Renderer* renderer) const {
@@ -161,7 +161,7 @@ namespace engine {
 			if (auto result = engine->screen_stack.push_screen(game::MainMenu::NAME); !result) {
 				DEBUG_FAIL("Failed to push MainMenu, got error %d:", (int)result.error())
 			}
-			engine->screen_stack.current_screen()->initialize(&engine->resources, commands);
+			engine->screen_stack.top_screen()->initialize(&engine->resources, commands);
 		}
 
 		/* Update current scene */
@@ -170,8 +170,8 @@ namespace engine {
 		}
 
 		/* Update current screen */
-		if (Screen* current_screen = engine->screen_stack.current_screen()) {
-			current_screen->update(engine->input, commands);
+		if (Screen* top_screen = engine->screen_stack.top_screen()) {
+			top_screen->update(engine->input, commands);
 		}
 
 		/* Show CPU profiling information in window title */
@@ -198,8 +198,8 @@ namespace engine {
 		}
 
 		/* Draw current ui screen */
-		if (Screen* current_screen = engine->screen_stack.current_screen()) {
-			current_screen->draw(&engine->renderer);
+		if (Screen* top_screen = engine->screen_stack.top_screen()) {
+			top_screen->draw(&engine->renderer);
 		}
 	}
 

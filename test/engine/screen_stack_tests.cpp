@@ -28,9 +28,9 @@ int TestScreen_B::num_instances = 0;
 TEST(ScreenStackTests, InitiallyHoldsNoScreen) {
 	ScreenStack screen_stack;
 
-	Screen* current_screen = screen_stack.current_screen();
+	Screen* top_screen = screen_stack.top_screen();
 
-	EXPECT_EQ(current_screen, nullptr);
+	EXPECT_EQ(top_screen, nullptr);
 }
 
 TEST(ScreenStackTests, PushScreen_NonRegisteredScreen_GivesError) {
@@ -53,7 +53,7 @@ TEST(ScreenStackTests, PushScreen_RegisteredScreen_ScreenGetsShown) {
 	std::expected<void, ScreenStackError> result = screen_stack.push_screen(TestScreen_A::NAME);
 	EXPECT_TRUE(result.has_value());
 	EXPECT_EQ(TestScreen_A::num_instances, 1);
-	EXPECT_NE(screen_stack.current_screen(), nullptr);
+	EXPECT_NE(screen_stack.top_screen(), nullptr);
 }
 
 TEST(ScreenStackTests, PushScreen_SameScreenAlreadyShown_DoesNothing) {

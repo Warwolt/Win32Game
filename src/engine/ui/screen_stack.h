@@ -29,7 +29,7 @@ namespace engine {
 
 		std::expected<void, ScreenStackError> push_screen(const std::string& screen_name);
 		void pop_screen();
-		Screen* current_screen();
+		Screen* top_screen();
 
 	private:
 		struct ScreenStackItem {
