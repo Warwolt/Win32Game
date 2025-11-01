@@ -49,12 +49,18 @@ namespace game {
 	}
 
 	void MainMenu::draw(engine::Renderer* renderer) const {
-		renderer->draw_text(engine::DEFAULT_FONT_ID, 32, { 68, 59 + 0 }, engine::RGBA::white(), "Main Menu");
+		/* Title */
+		renderer->draw_text(engine::DEFAULT_FONT_ID, 32, { 56 + 2, 59 + 2 }, engine::RGBA::dark_purple(), "Main Menu");
+		renderer->draw_text(engine::DEFAULT_FONT_ID, 32, { 56 + 1, 59 + 1 }, engine::RGBA::dark_purple(), "Main Menu");
+		renderer->draw_text(engine::DEFAULT_FONT_ID, 32, { 56 + 0, 59 + 0 }, engine::RGBA::purple(), "Main Menu");
 
-		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, { 100, 75 + 16 + 1 * 16 }, engine::RGBA::white(), "Play");
-		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, { 100, 75 + 16 + 2 * 16 }, engine::RGBA::white(), "Debug");
-		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, { 100, 75 + 16 + 3 * 16 }, engine::RGBA::white(), "Quit");
-		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, { 100 - 16, 75 + 32 + m_menu_index * 16 }, engine::RGBA::white(), ">");
+		/* Menu items */
+		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, { 110, 75 + 16 + 1 * 16 }, engine::RGBA::white(), "Play");
+		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, { 110, 75 + 16 + 2 * 16 }, engine::RGBA::white(), "Debug");
+		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, { 110, 75 + 16 + 3 * 16 }, engine::RGBA::white(), "Quit");
+
+		/* Cursor */
+		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, { 110 - 14, 75 + 32 + m_menu_index * 16 }, engine::RGBA::white(), ">");
 	}
 
 } // namespace game
