@@ -50,6 +50,7 @@ set(SRC
     src/engine/utility/string_utility.cpp
     src/game/game.cpp
     src/game/scene/menu_scene.cpp
+    src/game/scene/gameplay_scene.cpp
 )
 
 set(TEST_SRC

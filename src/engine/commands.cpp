@@ -28,11 +28,11 @@ namespace engine {
 					window->set_title(window_title);
 				}
 				MATCH_CASE(Command_LoadScene, scene_name) {
-					DEBUG_ASSERT(scene_manager->load_scene(scene_name).has_value(), "Failed to load scene \"%s\"", scene_name.c_str());
+					DEBUG_ASSERT(scene_manager->load_scene(scene_name).has_value(), "Failed to load scene \"%s\". Is it registered?", scene_name.c_str());
 					screen_stack->clear();
 				}
 				MATCH_CASE(Command_PushScreen, screen_name) {
-					DEBUG_ASSERT(screen_stack->push_screen(screen_name).has_value(), "Failed to push screen \"%s\"", screen_name.c_str());
+					DEBUG_ASSERT(screen_stack->push_screen(screen_name).has_value(), "Failed to push screen \"%s\". Is it registered?", screen_name.c_str());
 					screen_stack->top_screen()->initialize(resources, this);
 				}
 				MATCH_CASE0(Command_PopScreen) {

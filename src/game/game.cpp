@@ -9,6 +9,7 @@
 #include <engine/ui/screen_stack.h>
 
 #include <game/scene/menu_scene.h>
+#include <game/scene/gameplay_scene.h>
 
 namespace game {
 
@@ -16,6 +17,7 @@ namespace game {
 		Game game = {};
 
 		scene_manager->register_scene<MenuScene>();
+		scene_manager->register_scene<GameplayScene>();
 		scene_manager->load_scene(MenuScene::NAME);
 
 		return game;
