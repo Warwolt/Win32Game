@@ -17,9 +17,9 @@ Overall goal:
 - Try out FMOD as audio player
 
 # Doing
-- Basic scene system, to support both the debug screens and basic gameplay scene
 
 # Done
+- Basic scene system, to support both the debug screens and basic gameplay scene
 - Store Bitmap inside renderer so we can easily access its dimensions when drawing
 - CommandList class, replace std::vector<Command>
 - Remove XAudio2 audio player, raw pointer stuff too annoying, need modern C++ audio lib
