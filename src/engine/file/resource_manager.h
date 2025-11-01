@@ -1,13 +1,13 @@
 #pragma once
 
-#include <engine/graphics/image.h>
-#include <engine/graphics/image_id.h>
 #include <engine/graphics/font.h>
 #include <engine/graphics/font_id.h>
+#include <engine/graphics/image.h>
+#include <engine/graphics/image_id.h>
 
+#include <filesystem>
 #include <optional>
 #include <unordered_map>
-#include <filesystem>
 
 namespace engine {
 

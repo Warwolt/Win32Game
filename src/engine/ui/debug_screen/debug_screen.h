@@ -1,9 +1,9 @@
 #pragma once
 
-#include <engine/ui/screen.h>
 #include <engine/ui/debug_screen/font_test_page.h>
 #include <engine/ui/debug_screen/geometry_test_page.h>
 #include <engine/ui/debug_screen/image_test_page.h>
+#include <engine/ui/screen.h>
 
 namespace engine {
 

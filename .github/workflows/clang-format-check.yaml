@@ -1,7 +1,7 @@
 name: check formatting
 on: [pull_request]
 jobs:
-  formatting-check:
+  check-formatting:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
