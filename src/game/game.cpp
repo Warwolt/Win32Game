@@ -10,15 +10,27 @@
 
 #include <game/scene/menu_scene.h>
 #include <game/scene/gameplay_scene.h>
+#include <game/ui/main_menu.h>
 
 namespace game {
 
 	Game initialize(engine::SceneManager* scene_manager, engine::ScreenStack* screen_stack, engine::CommandList* commands) {
 		Game game = {};
 
+		// FIXME: We should register scenes and screens using the CommandList, I think.
+		// The implementation of a lot of stuff is in CommandList::run_commands
+		// So, we should NOT pass in engine internals here.
+
+		/* Register scenes */
 		scene_manager->register_scene<MenuScene>();
 		scene_manager->register_scene<GameplayScene>();
-		scene_manager->load_scene(MenuScene::NAME);
+
+		/* Register screens */
+		screen_stack->register_screen<MainMenu>();
+
+		/* Load first scene */
+		// scene_manager->load_scene(MenuScene::NAME);
+		commands->load_scene(MenuScene::NAME);
 
 		return game;
 	}

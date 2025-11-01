@@ -30,28 +30,6 @@ namespace game {
 	private:
 	};
 
-	class GameScene : public engine::Scene {
-	public:
-		static constexpr char NAME[] = "GameScene";
-		void update(const engine::Input& input, engine::CommandList* commands) override;
-		void draw(engine::Renderer* renderer) const override;
-	};
-
-	void GameScene::update(const engine::Input& input, engine::CommandList* commands) {
-		if (input.keyboard.key_was_pressed_now(VK_ESCAPE)) {
-			commands->load_scene("MenuScene");
-		}
-	}
-
-	void GameScene::draw(engine::Renderer* renderer) const {
-		engine::IVec2 screen_resolution = renderer->screen_resolution();
-		engine::Rect text_box = {
-			.x = screen_resolution.x / 2 - 36,
-			.y = screen_resolution.y / 4,
-		};
-		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, text_box, engine::RGBA::white(), "Game Scene");
-	}
-
 } // namespace game
 
 namespace engine {

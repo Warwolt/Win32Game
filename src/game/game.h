@@ -2,9 +2,6 @@
 
 #include <engine/commands.h>
 
-#include <optional>
-#include <vector>
-
 namespace engine {
 	struct Engine;
 	struct Input;

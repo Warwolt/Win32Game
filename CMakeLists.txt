@@ -49,8 +49,9 @@ set(SRC
     src/engine/ui/screen_stack.cpp
     src/engine/utility/string_utility.cpp
     src/game/game.cpp
-    src/game/scene/menu_scene.cpp
     src/game/scene/gameplay_scene.cpp
+    src/game/scene/menu_scene.cpp
+    src/game/ui/main_menu.cpp
 )
 
 set(TEST_SRC

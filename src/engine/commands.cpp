@@ -16,7 +16,8 @@ namespace engine {
 		SceneManager* scene_manager,
 		ScreenStack* screen_stack
 	) {
-		for (const Command& command : m_commands) {
+		for (size_t i = 0; i < m_commands.size(); i++) {
+			const Command& command = m_commands[i];
 			MATCH_VARIANT(command) {
 				MATCH_CASE0(Command_Quit) {
 					*should_quit = true;
@@ -29,6 +30,7 @@ namespace engine {
 				}
 				MATCH_CASE(Command_LoadScene, scene_name) {
 					DEBUG_ASSERT(scene_manager->load_scene(scene_name).has_value(), "Failed to load scene \"%s\". Is it registered?", scene_name.c_str());
+					scene_manager->current_scene()->initialize(resources, this);
 					screen_stack->clear();
 				}
 				MATCH_CASE(Command_PushScreen, screen_name) {

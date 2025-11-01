@@ -4,6 +4,7 @@ Overall goal:
 - Simple Win32 level editor (create content for the games)
 
 # Todo
+- Add PR check for formatting
 - Add support to generate crash dump (https://learn.microsoft.com/en-us/windows/win32/api/minidumpapiset/nf-minidumpapiset-minidumpwritedump) (We're getting segfaults when hot reloading, and we can't hot reload with debugger attached, so we need to post mortem debug issue)
 - Tidy up engine::initialize, try to make things more uniform (e.g. everything uses constructors)
 - Draw API: Support for drawing text centered in a box
