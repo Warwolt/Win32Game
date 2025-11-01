@@ -2,6 +2,13 @@
 
 namespace engine {
 
+	Screen* ScreenStack::top_screen() {
+		if (m_screens.empty()) {
+			return nullptr;
+		}
+		return m_screens.back().screen.get();
+	}
+
 	std::expected<void, ScreenStackError> ScreenStack::push_screen(const std::string& screen_name) {
 		/* Check screen registered */
 		auto it = m_screen_constructors.find(screen_name);
@@ -22,11 +29,8 @@ namespace engine {
 		m_screens.pop_back();
 	}
 
-	Screen* ScreenStack::top_screen() {
-		if (m_screens.empty()) {
-			return nullptr;
-		}
-		return m_screens.back().screen.get();
+	void ScreenStack::clear() {
+		m_screens.clear();
 	}
 
 } // namespace engine

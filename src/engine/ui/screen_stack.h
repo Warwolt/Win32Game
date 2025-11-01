@@ -27,9 +27,10 @@ namespace engine {
 			m_screen_constructors[ScreenType::NAME] = []() { return std::make_unique<ScreenType>(); };
 		}
 
+		Screen* top_screen();
 		std::expected<void, ScreenStackError> push_screen(const std::string& screen_name);
 		void pop_screen();
-		Screen* top_screen();
+		void clear();
 
 	private:
 		struct ScreenStackItem {

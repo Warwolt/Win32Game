@@ -42,11 +42,8 @@ namespace game {
 	private:
 	};
 
-	void MenuScene::initialize(engine::ResourceManager* /*resources*/, engine::CommandList* /*commands*/) {
-		// TODO:
-		// - implement a "show scene" command
-		// commands->show_scene("MainMenu");
-		LOG_DEBUG("MenuScene::initialize");
+	void MenuScene::initialize(engine::ResourceManager* /*resources*/, engine::CommandList* commands) {
+		commands->push_screen(MainMenu::NAME);
 	}
 
 	void MenuScene::update(const engine::Input& input, engine::CommandList* commands) {
@@ -158,13 +155,6 @@ namespace engine {
 				DEBUG_FAIL("Failed to load MenuScene, got error %d:", (int)result.error())
 			}
 			engine->scene_manager.current_scene()->initialize(&engine->resources, commands);
-
-			// FIXME: this should be pushed by the MenuScene
-			/* Push main menu */
-			if (auto result = engine->screen_stack.push_screen(game::MainMenu::NAME); !result) {
-				DEBUG_FAIL("Failed to push MainMenu, got error %d:", (int)result.error())
-			}
-			engine->screen_stack.top_screen()->initialize(&engine->resources, commands);
 		}
 
 		/* Update current scene */
@@ -189,7 +179,13 @@ namespace engine {
 		}
 
 		/* Process commands */
-		commands->run_commands(&engine->should_quit, &engine->window, &engine->resources, &engine->scene_manager);
+		commands->run_commands(
+			&engine->should_quit,
+			&engine->window,
+			&engine->resources,
+			&engine->scene_manager,
+			&engine->screen_stack
+		);
 	}
 
 	void draw(Engine* engine) {
