@@ -1,8 +1,8 @@
 #pragma once
 
+#include <engine/animation/animation_system.h>
 #include <engine/input/time.h>
 #include <engine/math/ivec2.h>
-#include <engine/animation/animation_system.h>
 
 namespace engine {
 
