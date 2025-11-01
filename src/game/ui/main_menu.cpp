@@ -21,9 +21,6 @@ namespace game {
 		};
 	};
 
-	void MainMenu::initialize(engine::ResourceManager* /*resources*/, engine::CommandList* /*commands*/) {
-	}
-
 	void MainMenu::update(const engine::Input& input, engine::CommandList* commands) {
 		if (input.keyboard.key_was_pressed_now(VK_ESCAPE)) {
 			commands->quit();
