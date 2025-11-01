@@ -1,6 +1,6 @@
 #pragma once
 
-#include <engine/scene/scene.h>
+#include <engine/ui/screen.h>
 #include <engine/ui/debug_screen/font_test_page.h>
 #include <engine/ui/debug_screen/geometry_test_page.h>
 #include <engine/ui/debug_screen/image_test_page.h>
@@ -21,10 +21,10 @@ namespace engine {
 		};
 	};
 
-	class DebugScreen : public Scene {
+	class DebugScreen : public Screen {
 	public:
-		DebugScreen() = default;
-		DebugScreen(ResourceManager* resources, int initial_page);
+		static constexpr char NAME[] = "DebugScreen";
+		void initialize(ResourceManager* resources, CommandList* commands) override;
 		void update(const Input& input, CommandList* commands) override;
 		void draw(Renderer* renderer) const override;
 

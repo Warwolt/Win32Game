@@ -1,5 +1,6 @@
 #include <engine/ui/debug_screen/debug_screen.h>
 
+#include <engine/commands.h>
 #include <engine/debug/profiling.h>
 #include <engine/file/resource_manager.h>
 #include <engine/graphics/renderer.h>
@@ -15,13 +16,16 @@ namespace engine {
 
 	constexpr int FONT_SIZE = 16;
 
-	DebugScreen::DebugScreen(ResourceManager* resources, int initial_page) {
-		m_page = std::clamp(initial_page, 0, (int)DebugScreenPage::Count);
+	void DebugScreen::initialize(ResourceManager* resources, CommandList* /*commands*/) {
 		m_image_test_page.initialize(resources);
 		m_font_test_page.initialize();
 	}
 
-	void DebugScreen::update(const Input& input, CommandList* /*commands*/) {
+	void DebugScreen::update(const Input& input, CommandList* commands) {
+		if (input.keyboard.key_was_pressed_now(VK_ESCAPE)) {
+			commands->pop_screen();
+		}
+
 		/* Update current page */
 		if (m_page == DebugScreenPage::GeometryTest) {
 			m_geometry_test_page.update(input);

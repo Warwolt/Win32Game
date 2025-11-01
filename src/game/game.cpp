@@ -1,14 +1,15 @@
 #include <game/game.h>
 
+#include <game/scene/gameplay_scene.h>
+#include <game/scene/menu_scene.h>
+#include <game/ui/main_menu.h>
+
 #include <engine/commands.h>
 #include <engine/debug/profiling.h>
 #include <engine/engine.h>
 #include <engine/graphics/renderer.h>
 #include <engine/input/input.h>
-
-#include <game/scene/gameplay_scene.h>
-#include <game/scene/menu_scene.h>
-#include <game/ui/main_menu.h>
+#include <engine/ui/debug_screen/debug_screen.h>
 
 namespace game {
 
@@ -21,6 +22,7 @@ namespace game {
 
 		/* Register screens */
 		commands->register_screen<MainMenu>();
+		commands->register_screen<engine::DebugScreen>();
 
 		/* Load first scene */
 		commands->load_scene(MenuScene::NAME);

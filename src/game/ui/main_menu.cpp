@@ -6,10 +6,20 @@
 #include <engine/debug/logging.h>
 #include <engine/graphics/renderer.h>
 #include <engine/input/input.h>
+#include <engine/ui/debug_screen/debug_screen.h>
 
 #include <windows.h>
 
 namespace game {
+
+	struct MainMenuItem {
+		enum {
+			Play = 0,
+			Debug = 1,
+			Quit = 2,
+			Count,
+		};
+	};
 
 	void MainMenu::initialize(engine::ResourceManager* /*resources*/, engine::CommandList* /*commands*/) {
 	}
@@ -20,12 +30,34 @@ namespace game {
 		}
 
 		if (input.keyboard.key_was_pressed_now(VK_RETURN)) {
-			commands->load_scene(GameplayScene::NAME);
+			if (m_menu_index == MainMenuItem::Play) {
+				commands->load_scene(GameplayScene::NAME);
+			}
+
+			if (m_menu_index == MainMenuItem::Debug) {
+				commands->push_screen(engine::DebugScreen::NAME);
+			}
+
+			if (m_menu_index == MainMenuItem::Quit) {
+				commands->quit();
+			}
+		}
+
+		if (input.keyboard.key_was_pressed_now(VK_UP)) {
+			m_menu_index = (MainMenuItem::Count + m_menu_index - 1) % MainMenuItem::Count;
+		}
+		if (input.keyboard.key_was_pressed_now(VK_DOWN)) {
+			m_menu_index = (MainMenuItem::Count + m_menu_index + 1) % MainMenuItem::Count;
 		}
 	}
 
 	void MainMenu::draw(engine::Renderer* renderer) const {
-		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, { 0, 0 }, engine::RGBA::white(), "MainMenu");
+		renderer->draw_text(engine::DEFAULT_FONT_ID, 32, { 68, 59 + 0 }, engine::RGBA::white(), "Main Menu");
+
+		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, { 100, 75 + 16 + 1 * 16 }, engine::RGBA::white(), "Play");
+		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, { 100, 75 + 16 + 2 * 16 }, engine::RGBA::white(), "Debug");
+		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, { 100, 75 + 16 + 3 * 16 }, engine::RGBA::white(), "Quit");
+		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, { 100 - 16, 75 + 32 + m_menu_index * 16 }, engine::RGBA::white(), ">");
 	}
 
 } // namespace game
