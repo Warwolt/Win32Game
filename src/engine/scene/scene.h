@@ -9,7 +9,7 @@ namespace engine {
 
 	class Scene {
 	public:
-		virtual ~Scene() {};
+		virtual ~Scene() = default;
 		virtual void initialize(ResourceManager* /*resources*/, CommandList* /*commands*/) {}
 		virtual void update(const Input& input, CommandList* commands) = 0;
 		virtual void draw(Renderer* renderer) const = 0;
