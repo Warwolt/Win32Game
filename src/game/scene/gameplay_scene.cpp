@@ -32,25 +32,27 @@ namespace game {
 		if (std::optional<int> keycode = m_keyboard_stack.top_keycode()) {
 			if (keycode.value() == VK_UP) {
 				input_vector.y -= 1;
+				m_player_dir = Direction::Up;
 			}
 			if (keycode.value() == VK_DOWN) {
 				input_vector.y += 1;
+				m_player_dir = Direction::Down;
 			}
 			if (keycode.value() == VK_LEFT) {
 				input_vector.x -= 1;
+				m_player_dir = Direction::Left;
 			}
 			if (keycode.value() == VK_RIGHT) {
 				input_vector.x += 1;
+				m_player_dir = Direction::Right;
 			}
 		}
-		const float player_speed = 100.0f; // pixels per second
+		const float player_speed = 75.0f; // pixels per second
 		m_player_pos += input.time_delta.in_seconds() * player_speed * input_vector;
 	}
 
 	void GameplayScene::draw(engine::Renderer* renderer) const {
 		renderer->clear_screen(engine::RGBA { 252, 216, 168, 255 });
-
-		// TODO: render sprite facing direction player is walking
 
 		constexpr int player_size = 16;
 		const engine::IVec2 world_origin = renderer->screen_resolution() / 2;
@@ -64,7 +66,33 @@ namespace game {
 			player_size,
 			player_size,
 		};
-		renderer->draw_image(m_sprite_sheet_id, world_player_pos);
+
+		int sprite_sheet_index = 0;
+		bool flipped = false;
+		if (m_player_dir == Direction::Up) {
+			sprite_sheet_index = 4;
+			flipped = false;
+		}
+		if (m_player_dir == Direction::Down) {
+			sprite_sheet_index = 0;
+			flipped = false;
+		}
+		if (m_player_dir == Direction::Left) {
+			sprite_sheet_index = 2;
+			flipped = true;
+		}
+		if (m_player_dir == Direction::Right) {
+			sprite_sheet_index = 2;
+			flipped = false;
+		}
+
+		engine::Rect clip_rect = {
+			sprite_sheet_index * player_size,
+			0,
+			player_size,
+			player_size,
+		};
+		renderer->draw_image(m_sprite_sheet_id, world_player_pos, { .clip = clip_rect, .flip_h = flipped });
 		renderer->draw_rect(player_rect, engine::RGBA::green());
 	}
 

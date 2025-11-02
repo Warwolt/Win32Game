@@ -18,8 +18,15 @@ namespace game {
 		void draw(engine::Renderer* renderer) const override;
 
 	private:
+		enum class Direction {
+			Up,
+			Down,
+			Left,
+			Right,
+		};
 		engine::KeyboardStack m_keyboard_stack;
 		engine::Vec2 m_player_pos = {};
+		Direction m_player_dir = {};
 		engine::ImageID m_sprite_sheet_id = {};
 		engine::Rect m_sprite_sheet_size = {};
 	};
