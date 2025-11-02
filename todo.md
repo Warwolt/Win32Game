@@ -5,6 +5,7 @@ Overall goal:
 
 # Todo
 - Add pause menu in-game
+- Support importing Aseprite sprite sheets
 - Draw API: Support for drawing text centered in a box
 - Add render test screen with lots of images to stress test, get a sense of budget
 - Add keyboard & mouse input test screen, display stream of events and data like e.g. mouse position

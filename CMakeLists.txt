@@ -35,6 +35,7 @@ set(SRC
     src/engine/input/button.cpp
     src/engine/input/gamepad.cpp
     src/engine/input/input.cpp
+    src/engine/input/keyboard_stack.cpp
     src/engine/input/keyboard.cpp
     src/engine/input/mouse.cpp
     src/engine/input/time.cpp

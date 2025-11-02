@@ -11,27 +11,8 @@
 
 namespace game {
 
-	InputStack::InputStack(std::vector<int> keycodes)
-		: m_keycodes(keycodes) {
-	}
-
-	void InputStack::update(const engine::Input& input) {
-		for (int keycode : m_keycodes) {
-			if (input.keyboard.key_was_pressed_now(keycode)) {
-				m_stack.push_back(keycode);
-			}
-			if (input.keyboard.key_was_released_now(keycode)) {
-				std::erase(m_stack, keycode);
-			}
-		}
-	}
-
-	std::optional<int> InputStack::top_keycode() const {
-		return m_stack.empty() ? std::nullopt : std::make_optional(m_stack.back());
-	}
-
 	GameplayScene::GameplayScene()
-		: m_input_stack({ VK_UP, VK_DOWN, VK_LEFT, VK_RIGHT }) {
+		: m_keyboard_stack({ VK_UP, VK_DOWN, VK_LEFT, VK_RIGHT }) {
 	}
 
 	void GameplayScene::initialize(engine::ResourceManager* /*resources*/, engine::CommandList* /*commands*/) {
@@ -42,9 +23,9 @@ namespace game {
 			commands->load_scene(MenuScene::NAME);
 		}
 
-		m_input_stack.update(input);
+		m_keyboard_stack.update(input);
 		engine::Vec2 input_vector = {};
-		if (std::optional<int> keycode = m_input_stack.top_keycode()) {
+		if (std::optional<int> keycode = m_keyboard_stack.top_keycode()) {
 			if (keycode.value() == VK_UP) {
 				input_vector.y -= 1;
 			}
