@@ -45,15 +45,11 @@ namespace engine {
 		[[nodiscard]] std::expected<void, AnimationError> start_animation(AnimationEntityID entity_id, AnimationID animation_id, Time now) {
 			/* Check arguments */
 			const bool is_missing_animation = m_animations.find(animation_id) == m_animations.end();
-			const bool animation_already_started = m_playing_animations.contains(entity_id);
 			if (animation_id == INVALID_ANIMATION_ID || is_missing_animation) {
 				return std::unexpected(AnimationError::InvalidAnimationID);
 			}
 			if (entity_id == INVALID_ANIMATION_ENTITY_ID) {
 				return std::unexpected(AnimationError::InvalidAnimationEntityID);
-			}
-			if (animation_already_started) {
-				return {};
 			}
 
 			/* Add playback */

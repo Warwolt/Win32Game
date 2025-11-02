@@ -70,7 +70,7 @@ TEST(AnimationSystemTests, StartAnimation_InvalidAnimationEntityID_GivesError) {
 	EXPECT_EQ(result.error(), AnimationError::InvalidAnimationEntityID);
 }
 
-TEST(AnimationSystemTests, StartAnimation_AlreadyStarted_DoesNothing) {
+TEST(AnimationSystemTests, StartAnimation_AlreadyStarted_RestartsIt) {
 	AnimationSystem<int> animation_system;
 	AnimationID animation_id = animation_system.add_animation(test_animation());
 	AnimationEntityID entity_id = AnimationEntityID(1);
@@ -82,7 +82,7 @@ TEST(AnimationSystemTests, StartAnimation_AlreadyStarted_DoesNothing) {
 
 	EXPECT_TRUE(first_result.has_value());
 	EXPECT_TRUE(second_result.has_value());
-	EXPECT_EQ(current_frame, FRAME_TWO);
+	EXPECT_EQ(current_frame, FRAME_ONE);
 }
 
 TEST(AnimationSystemTests, StopAnimation_StaysAtLastFrame) {
@@ -159,4 +159,29 @@ TEST_PARAMETERIZED(AnimationSystemTests, LoopedAnimationPlayback, AnimationPlayb
 
 	EXPECT_TRUE(result.has_value());
 	EXPECT_EQ(current_frame, GetParam().expected_frame);
+}
+
+TEST(AnimationSystemTests, StartAnimation_WhileAnotherPlaying_SwitchesAnimation) {
+	AnimationSystem<int> animation_system;
+	std::vector<AnimationFrame<int>> animation1_frames = { { FRAME_ONE, 100ms } };
+	std::vector<AnimationFrame<int>> animation2_frames = { { FRAME_TWO, 100ms } };
+	AnimationID animation1_id = animation_system.add_animation(animation1_frames);
+	AnimationID animation2_id = animation_system.add_animation(animation2_frames);
+	AnimationEntityID entity_id = AnimationEntityID(1);
+
+	/* Play first animation */
+	Time time_now1 = 0ms;
+	std::expected<void, AnimationError> result1 = animation_system.start_animation(entity_id, animation1_id, time_now1);
+	animation_system.update(time_now1);
+	int current_frame1 = animation_system.current_frame(entity_id);
+	EXPECT_TRUE(result1.has_value());
+	EXPECT_EQ(current_frame1, FRAME_ONE);
+
+	/* Play second animation */
+	Time time_now2 = 10ms;
+	std::expected<void, AnimationError> result2 = animation_system.start_animation(entity_id, animation2_id, time_now2);
+	animation_system.update(time_now2);
+	int current_frame2 = animation_system.current_frame(entity_id);
+	EXPECT_TRUE(result2.has_value());
+	EXPECT_EQ(current_frame2, FRAME_TWO);
 }

@@ -81,33 +81,35 @@ namespace game {
 		m_keyboard_stack.update(input);
 		engine::Vec2 input_vector = {};
 		if (std::optional<int> keycode = m_keyboard_stack.top_keycode()) {
-			// move player
+			Direction direction = {};
+
 			if (keycode.value() == VK_UP) {
 				input_vector.y -= 1;
-				m_player_dir = Direction::Up;
+				direction = Direction::Up;
 			}
 			if (keycode.value() == VK_DOWN) {
 				input_vector.y += 1;
-				m_player_dir = Direction::Down;
+				direction = Direction::Down;
 			}
 			if (keycode.value() == VK_LEFT) {
 				input_vector.x -= 1;
-				m_player_dir = Direction::Left;
+				direction = Direction::Left;
 			}
 			if (keycode.value() == VK_RIGHT) {
 				input_vector.x += 1;
-				m_player_dir = Direction::Right;
+				direction = Direction::Right;
 			}
 
-			// trigger animation
-			if (input.keyboard.key_was_pressed_now(keycode.value())) {
-				// FIXME: would be nicer to just write "player.start_walk_animation(m_player_dir)" or something like that, this feels too low level
+			const bool changed_direction = direction != m_player_dir;
+			m_player_dir = direction;
+			if (changed_direction) {
 				DEBUG_ASSERT(m_sprite_animation_system.start_animation(PLAYER_ID, m_walk_animations[m_player_dir], input.time_now).has_value(), "Missing animation");
 			}
 		}
 		else {
 			m_sprite_animation_system.stop_animation(PLAYER_ID);
 		}
+
 		const float player_speed = 75.0f; // pixels per second
 		m_player_pos += input.time_delta.in_seconds() * player_speed * input_vector;
 
