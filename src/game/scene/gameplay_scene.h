@@ -2,7 +2,7 @@
 
 #include <engine/input/keyboard_stack.h>
 
-#include <engine/animation/animation_system.h>
+#include <engine/animation/animation_system_OLD.h>
 #include <engine/graphics/image_id.h>
 #include <engine/graphics/rect.h>
 #include <engine/math/vec2.h>

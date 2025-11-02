@@ -1,6 +1,6 @@
 #pragma once
 
-#include <engine/animation/animation_system.h>
+#include <engine/animation/animation_system_OLD.h>
 #include <engine/graphics/image_id.h>
 #include <engine/graphics/rect.h>
 #include <engine/input/time.h>
