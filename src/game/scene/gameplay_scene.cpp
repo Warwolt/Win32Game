@@ -11,6 +11,29 @@
 
 namespace game {
 
+	InputStack::InputStack(std::vector<int> keycodes)
+		: m_keycodes(keycodes) {
+	}
+
+	void InputStack::update(const engine::Input& input) {
+		for (int keycode : m_keycodes) {
+			if (input.keyboard.key_was_pressed_now(keycode)) {
+				m_stack.push_back(keycode);
+			}
+			if (input.keyboard.key_was_released_now(keycode)) {
+				std::erase(m_stack, keycode);
+			}
+		}
+	}
+
+	std::optional<int> InputStack::top_keycode() const {
+		return m_stack.empty() ? std::nullopt : std::make_optional(m_stack.back());
+	}
+
+	GameplayScene::GameplayScene()
+		: m_input_stack({ VK_UP, VK_DOWN, VK_LEFT, VK_RIGHT }) {
+	}
+
 	void GameplayScene::initialize(engine::ResourceManager* /*resources*/, engine::CommandList* /*commands*/) {
 	}
 
@@ -19,38 +42,32 @@ namespace game {
 			commands->load_scene(MenuScene::NAME);
 		}
 
-		int keycodes[] = { VK_UP, VK_DOWN, VK_LEFT, VK_RIGHT };
-		for (int keycode : keycodes) {
-			if (input.keyboard.key_was_pressed_now(keycode)) {
-				m_input_stack.push_back(keycode);
+		m_input_stack.update(input);
+		engine::Vec2 input_vector = {};
+		if (std::optional<int> keycode = m_input_stack.top_keycode()) {
+			if (keycode.value() == VK_UP) {
+				input_vector.y -= 1;
 			}
-			if (input.keyboard.key_was_released_now(keycode)) {
-				std::erase(m_input_stack, keycode);
+			if (keycode.value() == VK_DOWN) {
+				input_vector.y += 1;
 			}
-		}
-
-		if (!m_input_stack.empty()) {
-			int keycode = m_input_stack.back();
-			if (keycode == VK_UP) {
-				m_player_pos.y -= 1;
+			if (keycode.value() == VK_LEFT) {
+				input_vector.x -= 1;
 			}
-			if (keycode == VK_DOWN) {
-				m_player_pos.y += 1;
-			}
-			if (keycode == VK_LEFT) {
-				m_player_pos.x -= 1;
-			}
-			if (keycode == VK_RIGHT) {
-				m_player_pos.x += 1;
+			if (keycode.value() == VK_RIGHT) {
+				input_vector.x += 1;
 			}
 		}
+		const float player_speed = 1.0f;
+		m_player_pos += player_speed * input_vector;
 	}
 
 	void GameplayScene::draw(engine::Renderer* renderer) const {
 		renderer->clear_screen(engine::RGBA { 252, 216, 168, 255 });
 
-		engine::IVec2 world_origin = renderer->screen_resolution() / 2;
+		// TODO: render sprite facing direction player is walking
 
+		const engine::IVec2 world_origin = renderer->screen_resolution() / 2;
 		constexpr int player_size = 16;
 		engine::Rect player_rect = {
 			(int)std::round(m_player_pos.x) - player_size / 2,
