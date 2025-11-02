@@ -6,26 +6,10 @@
 
 #include <game/scene/menu_scene.h>
 
+#include <algorithm>
 #include <windows.h>
 
 namespace game {
-
-	static engine::Vec2 get_input_vector(const engine::Input& input) {
-		engine::Vec2 input_vector = {};
-		if (input.keyboard.key_is_pressed(VK_LEFT)) {
-			input_vector.x -= 1;
-		}
-		if (input.keyboard.key_is_pressed(VK_RIGHT)) {
-			input_vector.x += 1;
-		}
-		if (input.keyboard.key_is_pressed(VK_UP)) {
-			input_vector.y -= 1;
-		}
-		if (input.keyboard.key_is_pressed(VK_DOWN)) {
-			input_vector.y += 1;
-		}
-		return input_vector.normalized();
-	}
 
 	void GameplayScene::initialize(engine::ResourceManager* /*resources*/, engine::CommandList* /*commands*/) {
 	}
@@ -35,8 +19,31 @@ namespace game {
 			commands->load_scene(MenuScene::NAME);
 		}
 
-		const float player_speed = 1.5f;
-		m_player_pos += player_speed * get_input_vector(input);
+		int keycodes[] = { VK_UP, VK_DOWN, VK_LEFT, VK_RIGHT };
+		for (int keycode : keycodes) {
+			if (input.keyboard.key_was_pressed_now(keycode)) {
+				m_input_stack.push_back(keycode);
+			}
+			if (input.keyboard.key_was_released_now(keycode)) {
+				std::erase(m_input_stack, keycode);
+			}
+		}
+
+		if (!m_input_stack.empty()) {
+			int keycode = m_input_stack.back();
+			if (keycode == VK_UP) {
+				m_player_pos.y -= 1;
+			}
+			if (keycode == VK_DOWN) {
+				m_player_pos.y += 1;
+			}
+			if (keycode == VK_LEFT) {
+				m_player_pos.x -= 1;
+			}
+			if (keycode == VK_RIGHT) {
+				m_player_pos.x += 1;
+			}
+		}
 	}
 
 	void GameplayScene::draw(engine::Renderer* renderer) const {

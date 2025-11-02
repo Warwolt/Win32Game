@@ -14,6 +14,7 @@ namespace game {
 		void draw(engine::Renderer* renderer) const override;
 
 	private:
+		std::vector<int> m_input_stack;
 		engine::Vec2 m_player_pos;
 	};
 

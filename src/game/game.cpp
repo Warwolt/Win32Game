@@ -39,8 +39,8 @@ namespace game {
 		}
 	}
 
-	void draw(engine::Renderer* renderer, const Game& /*game*/) {
-		CPUProfilingScope_Game();
+	void draw(engine::Renderer* /*renderer*/, const Game& /*game*/) {
+		// CPUProfilingScope_Game();
 	}
 
 } // namespace game
