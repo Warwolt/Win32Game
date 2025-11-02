@@ -12,6 +12,7 @@ namespace engine {
 		bool operator==(const AnimationID& rhs) const = default;
 	};
 
+	// FIXME: should this just be an "EntityID" ? We just need to identiy a _thing_
 	// Identifies something animated, e.g. a character walking.
 	// Multiple entities can use the same animation, but with different playback.
 	struct AnimationEntityID {

@@ -22,8 +22,24 @@ namespace engine {
 	enum class AnimationError {
 		InvalidAnimationID,
 		InvalidAnimationEntityID,
+		EntityHasNoPlayingAnimation,
+		IndexOutOfBounds,
 	};
 
+	// FIXME: can we improve this API?
+	// Lots of the things we want to do can fail because of bad IDs, wrong state etc.
+	// But, it's annoying having to error check every single operation.
+	// Would be much better to be able to access a given animation playback, and
+	// then operate on _that_ given that the getter result is OK?
+	//
+	// if (std::expected<Playback*, AnimationError> result = animation_system.animation(entity_id)) {
+	//     Playback& playback = *result.value();
+	//     // do something with playback
+	// }
+	// else {
+	//     // handle result.error() somehow
+	// }
+	//
 	template <typename T>
 	class AnimationSystem {
 	public:
@@ -57,6 +73,40 @@ namespace engine {
 			playback.animation_id = animation_id;
 			playback.start = now;
 			m_stopped_animations.erase(entity_id);
+
+			return {};
+		}
+
+		[[nodiscard]] std::expected<void, AnimationError> set_frame(AnimationEntityID entity_id, int frame) {
+			/* Check entity id */
+			if (entity_id == INVALID_ANIMATION_ENTITY_ID) {
+				return std::unexpected(AnimationError::InvalidAnimationEntityID);
+			}
+
+			/* Try to find animation playback */
+			auto it = m_playing_animations.find(entity_id);
+			if (it == m_playing_animations.end()) {
+				return std::unexpected(AnimationError::EntityHasNoPlayingAnimation);
+			}
+
+			/* Grab playback data */
+			Playback& playback = it->second;
+			const Animation& animation = m_animations[playback.animation_id];
+
+			/* Check bounds */
+			const bool index_within_bounds = 0 <= frame && frame < animation.frames.size();
+			if (!index_within_bounds) {
+				return std::unexpected(AnimationError::IndexOutOfBounds);
+			}
+
+			/* Update playback to continue from selected frame*/
+			Time time_up_to_frame = 0ms;
+			for (int i = 0; i < frame; i++) {
+				const AnimationFrame<T>& prev_frame = animation.frames[i];
+				time_up_to_frame += prev_frame.duration;
+			}
+			playback.start -= time_up_to_frame; // shift playback timeline back
+			playback.current_frame = frame;
 
 			return {};
 		}
@@ -97,19 +147,18 @@ namespace engine {
 			}
 		}
 
-		const T& current_frame(AnimationEntityID entity_id) const {
-			/* Try find frame of playing animation */
-			if (auto it = m_playing_animations.find(entity_id); it != m_playing_animations.end()) {
-				const Playback& playback = it->second;
-				const Animation& animation = m_animations.at(playback.animation_id);
-				return animation.frames[playback.current_frame].value;
+		int current_frame_index(AnimationEntityID entity_id) const {
+			if (const Playback* playback = _try_get_playback(entity_id)) {
+				return playback->current_frame;
 			}
 
-			/* Try find frame of stopped animation */
-			if (auto it = m_stopped_animations.find(entity_id); it != m_stopped_animations.end()) {
-				const Playback& playback = it->second;
-				const Animation& animation = m_animations.at(playback.animation_id);
-				return animation.frames[playback.current_frame].value;
+			return 0;
+		}
+
+		// FIXME: return an error from this?
+		const T& current_frame(AnimationEntityID entity_id) const {
+			if (const Playback* playback = _try_get_playback(entity_id)) {
+				return m_animations.at(playback->animation_id).frames[playback->current_frame].value;
 			}
 
 			/* Fall back to default value */
@@ -127,6 +176,20 @@ namespace engine {
 			Time start;
 			int current_frame;
 		};
+
+		const Playback* _try_get_playback(AnimationEntityID entity_id) const {
+			/* Try find playing animation */
+			if (auto it = m_playing_animations.find(entity_id); it != m_playing_animations.end()) {
+				return &(it->second);
+			}
+
+			/* Try find stopped animation */
+			if (auto it = m_stopped_animations.find(entity_id); it != m_stopped_animations.end()) {
+				return &it->second;
+			}
+
+			return nullptr;
+		}
 
 		int m_next_id = 1;
 		T m_default = {};

@@ -66,7 +66,7 @@ namespace game {
 			}
 		);
 		// FIXME: should we really be grabbing engine::Time::now ? Can we pass in the Input struct here? Should we?
-		// FIXME: starting and stopping animation immediately so that player stands still. How can this be expressed more nicely?
+		// FIXME: starting and stopping animation immediately so that player stands still. Can this be expressed more nicely?
 		auto _ = m_sprite_animation_system.start_animation(PLAYER_ID, m_walk_animations[Direction::Down], engine::Time::now());
 		m_sprite_animation_system.stop_animation(PLAYER_ID);
 	}
@@ -79,7 +79,7 @@ namespace game {
 
 		/* Movement */
 		m_keyboard_stack.update(input);
-		engine::Vec2 input_vector = {};
+		engine::Vec2 input_vector = { 0, 0 };
 		if (std::optional<int> keycode = m_keyboard_stack.top_keycode()) {
 			Direction direction = {};
 
@@ -104,14 +104,17 @@ namespace game {
 			m_player_dir = direction;
 			if (just_changed_direction || input.keyboard.key_was_pressed_now(keycode.value())) {
 				DEBUG_ASSERT(m_sprite_animation_system.start_animation(PLAYER_ID, m_walk_animations[m_player_dir], input.time_now).has_value(), "Missing animation");
+				DEBUG_ASSERT(m_sprite_animation_system.set_frame(PLAYER_ID, 1).has_value(), "Shit fuck"); // start at walking frame
 			}
 		}
 		else {
 			m_sprite_animation_system.stop_animation(PLAYER_ID);
+			auto _ = m_sprite_animation_system.set_frame(PLAYER_ID, 0);
 		}
 
 		const float player_speed = 75.0f; // pixels per second
-		m_player_pos += input.time_delta.in_seconds() * player_speed * input_vector;
+		m_player_velocity = player_speed * input_vector;
+		m_player_position += input.time_delta.in_seconds() * m_player_velocity;
 
 		/* Animation */
 		m_sprite_animation_system.update(input.time_now);
@@ -123,8 +126,8 @@ namespace game {
 		constexpr int player_size = 16;
 		const engine::IVec2 world_origin = renderer->screen_resolution() / 2;
 		const engine::IVec2 world_player_pos = {
-			world_origin.x + (int)std::round(m_player_pos.x) - player_size / 2,
-			world_origin.y + (int)std::round(m_player_pos.y) - player_size / 2,
+			world_origin.x + (int)std::round(m_player_position.x) - player_size / 2,
+			world_origin.y + (int)std::round(m_player_position.y) - player_size / 2,
 		};
 		engine::Rect player_rect = {
 			world_player_pos.x,

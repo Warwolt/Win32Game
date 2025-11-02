@@ -226,3 +226,71 @@ TEST(AnimationSystemTests, StartAnimation_StopAnimation_StartSameAnimation) {
 		EXPECT_EQ(animation_system.current_frame(entity_id), FRAME_ONE);
 	}
 }
+
+TEST(AnimationSystemTests, SetFrame_SecondFrame_PlaysSelectedFrame) {
+	AnimationSystem<int> animation_system;
+	AnimationID animation_id = animation_system.add_animation(test_animation());
+	AnimationEntityID entity_id = AnimationEntityID(1);
+
+	Time time_now = 0ms;
+	std::expected<void, AnimationError> start_result = animation_system.start_animation(entity_id, animation_id, time_now);
+	std::expected<void, AnimationError> set_result = animation_system.set_frame(entity_id, 1); // should select second frame
+	animation_system.update(time_now); // don't move time forward, but should still get second frame
+
+	ASSERT_TRUE(start_result.has_value());
+	ASSERT_TRUE(set_result.has_value());
+	EXPECT_EQ(animation_system.current_frame(entity_id), FRAME_TWO);
+}
+
+TEST(AnimationSystemTests, SetFrame_InvalidEntityID_GivesError) {
+	AnimationSystem<int> animation_system;
+	AnimationID animation_id = animation_system.add_animation(test_animation());
+	AnimationEntityID entity_id = AnimationEntityID(1);
+
+	/* Start animation */
+	Time time_now = 0ms;
+	std::expected<void, AnimationError> start_result = animation_system.start_animation(entity_id, animation_id, time_now);
+	ASSERT_TRUE(start_result.has_value());
+
+	/* Set frame */
+	std::expected<void, AnimationError> set_frame_result = animation_system.set_frame(INVALID_ANIMATION_ENTITY_ID, 0);
+	ASSERT_FALSE(set_frame_result.has_value());
+	EXPECT_EQ(set_frame_result.error(), AnimationError::InvalidAnimationEntityID);
+}
+
+TEST(AnimationSystemTests, SetFrame_NoAnimation_GivesError) {
+	AnimationSystem<int> animation_system;
+	AnimationID animation_id = animation_system.add_animation(test_animation());
+	AnimationEntityID entity_id = AnimationEntityID(1);
+
+	// Intentionally omitting `start_animation` call
+
+	/* Set frame */
+	std::expected<void, AnimationError> set_frame_result = animation_system.set_frame(entity_id, 0);
+	ASSERT_FALSE(set_frame_result.has_value());
+	EXPECT_EQ(set_frame_result.error(), AnimationError::EntityHasNoPlayingAnimation);
+}
+
+struct FrameTestData {
+	int frame;
+	const char* name;
+};
+std::vector<FrameTestData> out_of_bounds_cases = {
+	{ -1, "Negative_1" },
+	{ 3, "3" },
+};
+TEST_PARAMETERIZED(AnimationSystemTests, SetFrame_OutOfBounds_GivesError, FrameTestData, testing::ValuesIn(out_of_bounds_cases)) {
+	AnimationSystem<int> animation_system;
+	AnimationID animation_id = animation_system.add_animation(test_animation());
+	AnimationEntityID entity_id = AnimationEntityID(1);
+
+	/* Start animation */
+	Time time_now = 0ms;
+	std::expected<void, AnimationError> start_result = animation_system.start_animation(entity_id, animation_id, time_now);
+	ASSERT_TRUE(start_result.has_value());
+
+	/* Set frame */
+	std::expected<void, AnimationError> set_frame_result = animation_system.set_frame(entity_id, GetParam().frame);
+	ASSERT_FALSE(set_frame_result.has_value());
+	EXPECT_EQ(set_frame_result.error(), AnimationError::IndexOutOfBounds);
+}

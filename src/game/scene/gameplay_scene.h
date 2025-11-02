@@ -34,7 +34,8 @@ namespace game {
 
 		// Movement
 		engine::KeyboardStack m_keyboard_stack;
-		engine::Vec2 m_player_pos = {};
+		engine::Vec2 m_player_position = {};
+		engine::Vec2 m_player_velocity = {};
 		Direction m_player_dir = Direction::Down;
 
 		// Animation
