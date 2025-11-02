@@ -1,12 +1,12 @@
 #include <game/scene/gameplay_scene.h>
 
 #include <engine/commands.h>
+#include <engine/file/resource_manager.h>
 #include <engine/graphics/renderer.h>
 #include <engine/input/input.h>
 
 #include <game/scene/menu_scene.h>
 
-#include <algorithm>
 #include <windows.h>
 
 namespace game {
@@ -15,7 +15,11 @@ namespace game {
 		: m_keyboard_stack({ VK_UP, VK_DOWN, VK_LEFT, VK_RIGHT }) {
 	}
 
-	void GameplayScene::initialize(engine::ResourceManager* /*resources*/, engine::CommandList* /*commands*/) {
+	void GameplayScene::initialize(engine::ResourceManager* resources, engine::CommandList* /*commands*/) {
+		m_sprite_sheet_id = resources->load_image("assets/image/render_test/sprite_sheet.png");
+		const engine::Image& sprite_sheet = resources->image(m_sprite_sheet_id);
+		m_sprite_sheet_size.width = sprite_sheet.width;
+		m_sprite_sheet_size.height = sprite_sheet.height;
 	}
 
 	void GameplayScene::update(const engine::Input& input, engine::CommandList* commands) {
@@ -48,15 +52,20 @@ namespace game {
 
 		// TODO: render sprite facing direction player is walking
 
-		const engine::IVec2 world_origin = renderer->screen_resolution() / 2;
 		constexpr int player_size = 16;
-		engine::Rect player_rect = {
-			(int)std::round(m_player_pos.x) - player_size / 2,
-			(int)std::round(m_player_pos.y) - player_size / 2,
-			16,
-			16,
+		const engine::IVec2 world_origin = renderer->screen_resolution() / 2;
+		const engine::IVec2 world_player_pos = {
+			world_origin.x + (int)std::round(m_player_pos.x) - player_size / 2,
+			world_origin.y + (int)std::round(m_player_pos.y) - player_size / 2,
 		};
-		renderer->draw_rect_fill(player_rect + world_origin, engine::RGBA::green());
+		engine::Rect player_rect = {
+			world_player_pos.x,
+			world_player_pos.y,
+			player_size,
+			player_size,
+		};
+		renderer->draw_image(m_sprite_sheet_id, world_player_pos);
+		renderer->draw_rect(player_rect, engine::RGBA::green());
 	}
 
 } // namespace game
