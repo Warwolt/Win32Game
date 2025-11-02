@@ -6,7 +6,10 @@ namespace engine {
 		engine::update_gamepad(&input->gamepad);
 		engine::update_mouse(&input->mouse, events.mouse, window);
 		input->keyboard.update();
-		input->time_now = Time::now();
+
+		const Time time_now = Time::now();
+		input->time_delta = time_now - input->time_now;
+		input->time_now = time_now;
 	}
 
 } // namespace engine

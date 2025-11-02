@@ -18,6 +18,10 @@ namespace engine {
 		: value(std::chrono::duration_cast<std::chrono::milliseconds>(sec)) {
 	}
 
+	float Time::in_seconds() const {
+		return std::chrono::duration<float>(value).count();
+	}
+
 	Time& Time::operator+=(const Time& rhs) {
 		this->value += rhs.value;
 		return *this;

@@ -16,6 +16,8 @@ namespace engine {
 		Time(std::chrono::milliseconds ms);
 		Time(std::chrono::seconds sec);
 
+		float in_seconds() const;
+
 		auto operator<=>(const Time&) const = default;
 		Time& operator+=(const Time& rhs);
 		Time& operator-=(const Time& rhs);

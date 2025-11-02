@@ -58,8 +58,8 @@ namespace game {
 				input_vector.x += 1;
 			}
 		}
-		const float player_speed = 1.0f;
-		m_player_pos += player_speed * input_vector;
+		const float player_speed = 100.0f; // pixels per second
+		m_player_pos += input.time_delta.in_seconds() * player_speed * input_vector;
 	}
 
 	void GameplayScene::draw(engine::Renderer* renderer) const {
