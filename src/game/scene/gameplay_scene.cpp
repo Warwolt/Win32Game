@@ -100,9 +100,9 @@ namespace game {
 				direction = Direction::Right;
 			}
 
-			const bool changed_direction = direction != m_player_dir;
+			const bool just_changed_direction = direction != m_player_dir;
 			m_player_dir = direction;
-			if (changed_direction) {
+			if (just_changed_direction || input.keyboard.key_was_pressed_now(keycode.value())) {
 				DEBUG_ASSERT(m_sprite_animation_system.start_animation(PLAYER_ID, m_walk_animations[m_player_dir], input.time_now).has_value(), "Missing animation");
 			}
 		}

@@ -170,18 +170,59 @@ TEST(AnimationSystemTests, StartAnimation_WhileAnotherPlaying_SwitchesAnimation)
 	AnimationEntityID entity_id = AnimationEntityID(1);
 
 	/* Play first animation */
-	Time time_now1 = 0ms;
-	std::expected<void, AnimationError> result1 = animation_system.start_animation(entity_id, animation1_id, time_now1);
-	animation_system.update(time_now1);
-	int current_frame1 = animation_system.current_frame(entity_id);
-	EXPECT_TRUE(result1.has_value());
-	EXPECT_EQ(current_frame1, FRAME_ONE);
+	{
+		Time time_now = 0ms;
+		std::expected<void, AnimationError> result = animation_system.start_animation(entity_id, animation1_id, time_now);
+		animation_system.update(time_now);
+		ASSERT_TRUE(result.has_value());
+		EXPECT_EQ(animation_system.current_frame(entity_id), FRAME_ONE);
+	}
 
 	/* Play second animation */
-	Time time_now2 = 10ms;
-	std::expected<void, AnimationError> result2 = animation_system.start_animation(entity_id, animation2_id, time_now2);
-	animation_system.update(time_now2);
-	int current_frame2 = animation_system.current_frame(entity_id);
-	EXPECT_TRUE(result2.has_value());
-	EXPECT_EQ(current_frame2, FRAME_TWO);
+	{
+		Time time_now = 10ms;
+		std::expected<void, AnimationError> result = animation_system.start_animation(entity_id, animation2_id, time_now);
+		animation_system.update(time_now);
+		EXPECT_TRUE(result.has_value());
+		EXPECT_EQ(animation_system.current_frame(entity_id), FRAME_TWO);
+	}
+}
+
+TEST(AnimationSystemTests, StartAnimation_StopAnimation_StartSameAnimation) {
+	AnimationSystem<int> animation_system;
+	AnimationID animation_id = animation_system.add_animation(test_animation());
+	AnimationEntityID entity_id = AnimationEntityID(1);
+
+	/* Start animation */
+	{
+		Time time_now = 0ms;
+		std::expected<void, AnimationError> result = animation_system.start_animation(entity_id, animation_id, time_now);
+		animation_system.update(time_now);
+		ASSERT_TRUE(result.has_value());
+		EXPECT_EQ(animation_system.current_frame(entity_id), FRAME_ONE);
+	}
+
+	/* Continue to second frame */
+	{
+		Time time_now = 100ms;
+		animation_system.update(time_now);
+		EXPECT_EQ(animation_system.current_frame(entity_id), FRAME_TWO);
+	}
+
+	/* Stop animation at second frame */
+	{
+		Time time_now = 150ms;
+		animation_system.stop_animation(entity_id);
+		animation_system.update(time_now);
+		EXPECT_EQ(animation_system.current_frame(entity_id), FRAME_TWO);
+	}
+
+	/* Start same animation again */
+	{
+		Time time_now = 200ms;
+		std::expected<void, AnimationError> result = animation_system.start_animation(entity_id, animation_id, time_now);
+		animation_system.update(time_now);
+		EXPECT_TRUE(result.has_value());
+		EXPECT_EQ(animation_system.current_frame(entity_id), FRAME_ONE);
+	}
 }
