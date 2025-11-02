@@ -1,6 +1,7 @@
 #include <game/scene/gameplay_scene.h>
 
 #include <engine/commands.h>
+#include <engine/debug/assert.h>
 #include <engine/file/resource_manager.h>
 #include <engine/graphics/renderer.h>
 #include <engine/input/input.h>
@@ -11,6 +12,10 @@
 
 namespace game {
 
+	using namespace std::chrono_literals;
+
+	constexpr engine::AnimationEntityID PLAYER_ID = engine::AnimationEntityID(1);
+
 	GameplayScene::GameplayScene()
 		: m_keyboard_stack({ VK_UP, VK_DOWN, VK_LEFT, VK_RIGHT }) {
 	}
@@ -20,16 +25,63 @@ namespace game {
 		const engine::Image& sprite_sheet = resources->image(m_sprite_sheet_id);
 		m_sprite_sheet_size.width = sprite_sheet.width;
 		m_sprite_sheet_size.height = sprite_sheet.height;
+
+		// set up animations
+		const engine::Time frame_duration = 200ms;
+		const int player_size = 16;
+		m_walk_animations[Direction::Up] = m_sprite_animation_system.add_animation(
+			{
+				{ SpriteAnimation { .clip = engine::Rect { player_size * 4, 0, player_size, player_size }, .flip_h = false }, frame_duration },
+				{ SpriteAnimation { .clip = engine::Rect { player_size * 5, 0, player_size, player_size }, .flip_h = false }, frame_duration },
+			},
+			{
+				.looping = true,
+			}
+		);
+		m_walk_animations[Direction::Down] = m_sprite_animation_system.add_animation(
+			{
+				{ SpriteAnimation { .clip = engine::Rect { player_size * 0, 0, player_size, player_size }, .flip_h = false }, frame_duration },
+				{ SpriteAnimation { .clip = engine::Rect { player_size * 1, 0, player_size, player_size }, .flip_h = false }, frame_duration },
+			},
+			{
+				.looping = true,
+			}
+		);
+		m_walk_animations[Direction::Left] = m_sprite_animation_system.add_animation(
+			{
+				{ SpriteAnimation { .clip = engine::Rect { player_size * 2, 0, player_size, player_size }, .flip_h = true }, frame_duration },
+				{ SpriteAnimation { .clip = engine::Rect { player_size * 3, 0, player_size, player_size }, .flip_h = true }, frame_duration },
+			},
+			{
+				.looping = true,
+			}
+		);
+		m_walk_animations[Direction::Right] = m_sprite_animation_system.add_animation(
+			{
+				{ SpriteAnimation { .clip = engine::Rect { player_size * 2, 0, player_size, player_size }, .flip_h = false }, frame_duration },
+				{ SpriteAnimation { .clip = engine::Rect { player_size * 3, 0, player_size, player_size }, .flip_h = false }, frame_duration },
+			},
+			{
+				.looping = true,
+			}
+		);
+		// FIXME: should we really be grabbing engine::Time::now ? Can we pass in the Input struct here? Should we?
+		// FIXME: starting and stopping animation immediately so that player stands still. How can this be expressed more nicely?
+		auto _ = m_sprite_animation_system.start_animation(PLAYER_ID, m_walk_animations[Direction::Down], engine::Time::now());
+		m_sprite_animation_system.stop_animation(PLAYER_ID);
 	}
 
 	void GameplayScene::update(const engine::Input& input, engine::CommandList* commands) {
+		/* Quit to menu */
 		if (input.keyboard.key_was_pressed_now(VK_ESCAPE)) {
 			commands->load_scene(MenuScene::NAME);
 		}
 
+		/* Movement */
 		m_keyboard_stack.update(input);
 		engine::Vec2 input_vector = {};
 		if (std::optional<int> keycode = m_keyboard_stack.top_keycode()) {
+			// move player
 			if (keycode.value() == VK_UP) {
 				input_vector.y -= 1;
 				m_player_dir = Direction::Up;
@@ -46,9 +98,21 @@ namespace game {
 				input_vector.x += 1;
 				m_player_dir = Direction::Right;
 			}
+
+			// trigger animation
+			if (input.keyboard.key_was_pressed_now(keycode.value())) {
+				// FIXME: would be nicer to just write "player.start_walk_animation(m_player_dir)" or something like that, this feels too low level
+				DEBUG_ASSERT(m_sprite_animation_system.start_animation(PLAYER_ID, m_walk_animations[m_player_dir], input.time_now).has_value(), "Missing animation");
+			}
+		}
+		else {
+			m_sprite_animation_system.stop_animation(PLAYER_ID);
 		}
 		const float player_speed = 75.0f; // pixels per second
 		m_player_pos += input.time_delta.in_seconds() * player_speed * input_vector;
+
+		/* Animation */
+		m_sprite_animation_system.update(input.time_now);
 	}
 
 	void GameplayScene::draw(engine::Renderer* renderer) const {
@@ -67,33 +131,8 @@ namespace game {
 			player_size,
 		};
 
-		int sprite_sheet_index = 0;
-		bool flipped = false;
-		if (m_player_dir == Direction::Up) {
-			sprite_sheet_index = 4;
-			flipped = false;
-		}
-		if (m_player_dir == Direction::Down) {
-			sprite_sheet_index = 0;
-			flipped = false;
-		}
-		if (m_player_dir == Direction::Left) {
-			sprite_sheet_index = 2;
-			flipped = true;
-		}
-		if (m_player_dir == Direction::Right) {
-			sprite_sheet_index = 2;
-			flipped = false;
-		}
-
-		engine::Rect clip_rect = {
-			sprite_sheet_index * player_size,
-			0,
-			player_size,
-			player_size,
-		};
-		renderer->draw_image(m_sprite_sheet_id, world_player_pos, { .clip = clip_rect, .flip_h = flipped });
-		renderer->draw_rect(player_rect, engine::RGBA::green());
+		SpriteAnimation player_animation = m_sprite_animation_system.current_frame(PLAYER_ID);
+		renderer->draw_image(m_sprite_sheet_id, world_player_pos, { .clip = player_animation.clip, .flip_h = player_animation.flip_h });
 	}
 
 } // namespace game

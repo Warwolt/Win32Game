@@ -2,10 +2,13 @@
 
 #include <engine/input/keyboard_stack.h>
 
+#include <engine/animation/animation_system.h>
 #include <engine/graphics/image_id.h>
 #include <engine/graphics/rect.h>
 #include <engine/math/vec2.h>
 #include <engine/scene/scene.h>
+
+#include <unordered_map>
 
 namespace game {
 
@@ -24,9 +27,19 @@ namespace game {
 			Left,
 			Right,
 		};
+		struct SpriteAnimation {
+			engine::Rect clip;
+			bool flip_h;
+		};
+
+		// Movement
 		engine::KeyboardStack m_keyboard_stack;
 		engine::Vec2 m_player_pos = {};
-		Direction m_player_dir = {};
+		Direction m_player_dir = Direction::Down;
+
+		// Animation
+		engine::AnimationSystem<SpriteAnimation> m_sprite_animation_system;
+		std::unordered_map<Direction, engine::AnimationID> m_walk_animations;
 		engine::ImageID m_sprite_sheet_id = {};
 		engine::Rect m_sprite_sheet_size = {};
 	};

@@ -87,16 +87,16 @@ namespace engine {
 			for (auto& [entity_id, playback] : m_playing_animations) {
 				const Animation& animation = m_animations[playback.animation_id];
 				const Time playback_position = animation.options.looping ? (now - playback.start) % animation.total_length : now - playback.start;
-				Time elapsed_frames = 0ms;
+				Time elapsed_time = 0ms;
 				for (int i = 0; i < animation.frames.size(); i++) {
 					const AnimationFrame<T>& frame = animation.frames[i];
-					const bool is_current_frame = playback_position < elapsed_frames + frame.duration;
+					const bool is_current_frame = playback_position < elapsed_time + frame.duration;
 					const bool has_passed_last_frame = i + 1 == (int)animation.frames.size();
 					if (is_current_frame || has_passed_last_frame) {
 						playback.current_frame = i;
 						break;
 					}
-					elapsed_frames += frame.duration;
+					elapsed_time += frame.duration;
 				}
 			}
 		}
