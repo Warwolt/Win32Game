@@ -2,7 +2,7 @@
 
 #include <engine/scene/scene.h>
 
-#include <engine/math/ivec2.h>
+#include <engine/math/vec2.h>
 
 namespace game {
 
@@ -14,7 +14,7 @@ namespace game {
 		void draw(engine::Renderer* renderer) const override;
 
 	private:
-		engine::IVec2 m_player_pos;
+		engine::Vec2 m_player_pos;
 	};
 
 } // namespace game

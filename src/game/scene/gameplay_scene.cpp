@@ -10,7 +10,24 @@
 
 namespace game {
 
-	void GameplayScene::initialize(engine::ResourceManager* resources, engine::CommandList* /*commands*/) {
+	static engine::Vec2 get_input_vector(const engine::Input& input) {
+		engine::Vec2 input_vector = {};
+		if (input.keyboard.key_is_pressed(VK_LEFT)) {
+			input_vector.x -= 1;
+		}
+		if (input.keyboard.key_is_pressed(VK_RIGHT)) {
+			input_vector.x += 1;
+		}
+		if (input.keyboard.key_is_pressed(VK_UP)) {
+			input_vector.y -= 1;
+		}
+		if (input.keyboard.key_is_pressed(VK_DOWN)) {
+			input_vector.y += 1;
+		}
+		return input_vector.normalized();
+	}
+
+	void GameplayScene::initialize(engine::ResourceManager* /*resources*/, engine::CommandList* /*commands*/) {
 	}
 
 	void GameplayScene::update(const engine::Input& input, engine::CommandList* commands) {
@@ -18,18 +35,8 @@ namespace game {
 			commands->load_scene(MenuScene::NAME);
 		}
 
-		if (input.keyboard.key_is_pressed(VK_LEFT)) {
-			m_player_pos.x -= 1;
-		}
-		if (input.keyboard.key_is_pressed(VK_RIGHT)) {
-			m_player_pos.x += 1;
-		}
-		if (input.keyboard.key_is_pressed(VK_UP)) {
-			m_player_pos.y -= 1;
-		}
-		if (input.keyboard.key_is_pressed(VK_DOWN)) {
-			m_player_pos.y += 1;
-		}
+		const float player_speed = 1.5f;
+		m_player_pos += player_speed * get_input_vector(input);
 	}
 
 	void GameplayScene::draw(engine::Renderer* renderer) const {
@@ -39,8 +46,8 @@ namespace game {
 
 		constexpr int player_size = 16;
 		engine::Rect player_rect = {
-			m_player_pos.x - player_size / 2,
-			m_player_pos.y - player_size / 2,
+			(int)std::round(m_player_pos.x) - player_size / 2,
+			(int)std::round(m_player_pos.y) - player_size / 2,
 			16,
 			16,
 		};
