@@ -1,6 +1,7 @@
 #pragma once
 
 #include <engine/animation/animation_id.h>
+#include <engine/entity_id.h>
 #include <engine/input/time.h>
 
 #include <expected>
@@ -21,7 +22,7 @@ namespace engine {
 
 	enum class AnimationError {
 		InvalidAnimationID,
-		InvalidAnimationEntityID,
+		InvalidEntityID,
 		EntityHasNoPlayingAnimation,
 		IndexOutOfBounds,
 	};
@@ -59,14 +60,14 @@ namespace engine {
 			return id;
 		}
 
-		[[nodiscard]] std::expected<void, AnimationError> start_animation(AnimationEntityID entity_id, AnimationID animation_id, Time now) {
+		[[nodiscard]] std::expected<void, AnimationError> start_animation(EntityID entity_id, AnimationID animation_id, Time now) {
 			/* Check arguments */
 			const bool is_missing_animation = m_animations.find(animation_id) == m_animations.end();
 			if (animation_id == INVALID_ANIMATION_ID || is_missing_animation) {
 				return std::unexpected(AnimationError::InvalidAnimationID);
 			}
-			if (entity_id == INVALID_ANIMATION_ENTITY_ID) {
-				return std::unexpected(AnimationError::InvalidAnimationEntityID);
+			if (entity_id == INVALID_ENTITY_ID) {
+				return std::unexpected(AnimationError::InvalidEntityID);
 			}
 
 			/* Add playback */
@@ -78,10 +79,10 @@ namespace engine {
 			return {};
 		}
 
-		[[nodiscard]] std::expected<void, AnimationError> set_frame(AnimationEntityID entity_id, int frame) {
+		[[nodiscard]] std::expected<void, AnimationError> set_frame(EntityID entity_id, int frame) {
 			/* Check entity id */
-			if (entity_id == INVALID_ANIMATION_ENTITY_ID) {
-				return std::unexpected(AnimationError::InvalidAnimationEntityID);
+			if (entity_id == INVALID_ENTITY_ID) {
+				return std::unexpected(AnimationError::InvalidEntityID);
 			}
 
 			/* Try to find animation playback */
@@ -112,14 +113,14 @@ namespace engine {
 			return {};
 		}
 
-		void stop_animation(AnimationEntityID entity_id) {
+		void stop_animation(EntityID entity_id) {
 			if (auto it = m_playing_animations.find(entity_id); it != m_playing_animations.end()) {
 				m_stopped_animations[it->first] = it->second;
 				m_playing_animations.erase(it);
 			}
 		}
 
-		[[nodiscard]] std::expected<void, AnimationError> restart_animation(AnimationEntityID entity_id, AnimationID animation_id, Time now) {
+		[[nodiscard]] std::expected<void, AnimationError> restart_animation(EntityID entity_id, AnimationID animation_id, Time now) {
 			stop_animation(entity_id);
 			std::expected<void, AnimationError> result = start_animation(entity_id, animation_id, now);
 			if (result) {
@@ -148,7 +149,7 @@ namespace engine {
 			}
 		}
 
-		int current_frame_index(AnimationEntityID entity_id) const {
+		int current_frame_index(EntityID entity_id) const {
 			if (const Playback* playback = _try_get_playback(entity_id)) {
 				return playback->current_frame;
 			}
@@ -157,7 +158,7 @@ namespace engine {
 		}
 
 		// FIXME: return an error from this?
-		const T& current_frame(AnimationEntityID entity_id) const {
+		const T& current_frame(EntityID entity_id) const {
 			if (const Playback* playback = _try_get_playback(entity_id)) {
 				return m_animations.at(playback->animation_id).frames[playback->current_frame].value;
 			}
@@ -178,7 +179,7 @@ namespace engine {
 			int current_frame;
 		};
 
-		const Playback* _try_get_playback(AnimationEntityID entity_id) const {
+		const Playback* _try_get_playback(EntityID entity_id) const {
 			/* Try find playing animation */
 			if (auto it = m_playing_animations.find(entity_id); it != m_playing_animations.end()) {
 				return &(it->second);
@@ -195,8 +196,8 @@ namespace engine {
 		int m_next_id = 1;
 		T m_default = {};
 		std::unordered_map<AnimationID, Animation> m_animations;
-		std::unordered_map<AnimationEntityID, Playback> m_playing_animations;
-		std::unordered_map<AnimationEntityID, Playback> m_stopped_animations;
+		std::unordered_map<EntityID, Playback> m_playing_animations;
+		std::unordered_map<EntityID, Playback> m_stopped_animations;
 	};
 
 } // namespace engine

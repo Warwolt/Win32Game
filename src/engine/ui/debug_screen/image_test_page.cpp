@@ -41,7 +41,7 @@ namespace engine {
 
 	void ImageDebugPage::update(bool opened_now, const Input& input) {
 		if (opened_now) {
-			DEBUG_ASSERT(m_animation_system.restart_animation(AnimationEntityID(1), AnimationID(1), input.time_now), "Couldn't start animation");
+			DEBUG_ASSERT(m_animation_system.restart_animation(EntityID(1), AnimationID(1), input.time_now), "Couldn't start animation");
 		}
 
 		m_animation_system.update(input.time_now);
@@ -53,7 +53,7 @@ namespace engine {
 
 		/* Draw animated sprite */
 		{
-			const SpriteData& sprite = m_animation_system.current_frame(AnimationEntityID(1));
+			const SpriteData& sprite = m_animation_system.current_frame(EntityID(1));
 
 			const IVec2 sprite_sheet_pos = { 0, 20 };
 			const int32_t sprite_width = 16;

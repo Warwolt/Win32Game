@@ -1,6 +1,7 @@
 #pragma once
 
 #include <engine/animation/animation_id.h>
+#include <engine/entity_id.h>
 #include <engine/input/time.h>
 
 #include <expected>
@@ -59,8 +60,8 @@ namespace engine {
 		int m_next_id = 1;
 		T m_default = {};
 		std::unordered_map<AnimationID, Animation> m_animations;
-		std::unordered_map<AnimationEntityID, Playback> m_playing_animations;
-		std::unordered_map<AnimationEntityID, Playback> m_stopped_animations;
+		std::unordered_map<EntityID, Playback> m_playing_animations;
+		std::unordered_map<EntityID, Playback> m_stopped_animations;
 	};
 
 } // namespace engine
