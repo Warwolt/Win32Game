@@ -1,5 +1,6 @@
 #pragma once
 
+#include <engine/animation/animation_id.h>
 #include <engine/input/time.h>
 
 #include <expected>
@@ -7,19 +8,6 @@
 #include <vector>
 
 namespace engine {
-
-	struct AnimationID {
-		int value;
-		bool operator==(const AnimationID& rhs) const = default;
-	};
-
-	struct AnimationEntityID {
-		int value;
-		bool operator==(const AnimationEntityID& rhs) const = default;
-	};
-
-	constexpr AnimationID INVALID_ANIMATION_ID = AnimationID(0);
-	constexpr AnimationEntityID INVALID_ANIMATION_ENTITY_ID = AnimationEntityID(0);
 
 	template <typename T>
 	struct AnimationFrame {
@@ -45,10 +33,10 @@ namespace engine {
 			}
 
 			AnimationID id = AnimationID(m_next_id++);
-			m_animations[id.value].frames = frames;
-			m_animations[id.value].options = options;
+			m_animations[id].frames = frames;
+			m_animations[id].options = options;
 			for (const AnimationFrame<T>& frame : frames) {
-				m_animations[id.value].total_length += frame.duration;
+				m_animations[id].total_length += frame.duration;
 			}
 
 			return id;
@@ -56,8 +44,8 @@ namespace engine {
 
 		[[nodiscard]] std::expected<void, AnimationError> start_animation(AnimationEntityID entity_id, AnimationID animation_id, Time now) {
 			/* Check arguments */
-			const bool is_missing_animation = m_animations.find(animation_id.value) == m_animations.end();
-			const bool animation_already_started = m_playing_animations.contains(entity_id.value);
+			const bool is_missing_animation = m_animations.find(animation_id) == m_animations.end();
+			const bool animation_already_started = m_playing_animations.contains(entity_id);
 			if (animation_id == INVALID_ANIMATION_ID || is_missing_animation) {
 				return std::unexpected(AnimationError::InvalidAnimationID);
 			}
@@ -69,16 +57,16 @@ namespace engine {
 			}
 
 			/* Add playback */
-			Playback& playback = m_playing_animations[entity_id.value];
+			Playback& playback = m_playing_animations[entity_id];
 			playback.animation_id = animation_id;
 			playback.start = now;
-			m_stopped_animations.erase(entity_id.value);
+			m_stopped_animations.erase(entity_id);
 
 			return {};
 		}
 
 		void stop_animation(AnimationEntityID entity_id) {
-			if (auto it = m_playing_animations.find(entity_id.value); it != m_playing_animations.end()) {
+			if (auto it = m_playing_animations.find(entity_id); it != m_playing_animations.end()) {
 				m_stopped_animations[it->first] = it->second;
 				m_playing_animations.erase(it);
 			}
@@ -88,7 +76,7 @@ namespace engine {
 			stop_animation(entity_id);
 			std::expected<void, AnimationError> result = start_animation(entity_id, animation_id, now);
 			if (result) {
-				Playback& playback = m_playing_animations[entity_id.value];
+				Playback& playback = m_playing_animations[entity_id];
 				playback.current_frame = 0;
 			}
 			return result;
@@ -97,7 +85,7 @@ namespace engine {
 		void update(Time now) {
 			/* Determine current frame of each playing animation */
 			for (auto& [entity_id, playback] : m_playing_animations) {
-				const Animation& animation = m_animations[playback.animation_id.value];
+				const Animation& animation = m_animations[playback.animation_id];
 				const Time playback_position = animation.options.looping ? (now - playback.start) % animation.total_length : now - playback.start;
 				Time elapsed_frames = 0ms;
 				for (int i = 0; i < animation.frames.size(); i++) {
@@ -115,20 +103,20 @@ namespace engine {
 
 		const T& current_frame(AnimationEntityID entity_id) const {
 			/* Try find frame of playing animation */
-			if (auto it = m_playing_animations.find(entity_id.value); it != m_playing_animations.end()) {
+			if (auto it = m_playing_animations.find(entity_id); it != m_playing_animations.end()) {
 				const Playback& playback = it->second;
-				const Animation& animation = m_animations.at(playback.animation_id.value);
+				const Animation& animation = m_animations.at(playback.animation_id);
 				return animation.frames[playback.current_frame].value;
 			}
 
 			/* Try find frame of stopped animation */
-			if (auto it = m_stopped_animations.find(entity_id.value); it != m_stopped_animations.end()) {
+			if (auto it = m_stopped_animations.find(entity_id); it != m_stopped_animations.end()) {
 				const Playback& playback = it->second;
-				const Animation& animation = m_animations.at(playback.animation_id.value);
+				const Animation& animation = m_animations.at(playback.animation_id);
 				return animation.frames[playback.current_frame].value;
 			}
 
-			/* Fall back to default value*/
+			/* Fall back to default value */
 			return m_default;
 		}
 
@@ -146,9 +134,9 @@ namespace engine {
 
 		int m_next_id = 1;
 		T m_default = {};
-		std::unordered_map<int, Animation> m_animations;        // AnimationID -> Animation
-		std::unordered_map<int, Playback> m_playing_animations; // AnimationEntityID -> Playback
-		std::unordered_map<int, Playback> m_stopped_animations; // AnimationEntityID -> Playback
+		std::unordered_map<AnimationID, Animation> m_animations;
+		std::unordered_map<AnimationEntityID, Playback> m_playing_animations;
+		std::unordered_map<AnimationEntityID, Playback> m_stopped_animations;
 	};
 
 } // namespace engine
