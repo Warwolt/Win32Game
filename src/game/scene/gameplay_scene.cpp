@@ -29,42 +29,42 @@ namespace game {
 		// set up animations
 		const engine::Time frame_duration = 200ms;
 		const int player_size = 16;
-		m_walk_animations[Direction::Up] = m_sprite_animation_system.add_animation(
-			{
-				{ SpriteAnimation { .clip = engine::Rect { player_size * 4, 0, player_size, player_size }, .flip_h = false }, frame_duration },
-				{ SpriteAnimation { .clip = engine::Rect { player_size * 5, 0, player_size, player_size }, .flip_h = false }, frame_duration },
-			},
-			{
-				.looping = true,
-			}
-		);
-		m_walk_animations[Direction::Down] = m_sprite_animation_system.add_animation(
-			{
-				{ SpriteAnimation { .clip = engine::Rect { player_size * 0, 0, player_size, player_size }, .flip_h = false }, frame_duration },
-				{ SpriteAnimation { .clip = engine::Rect { player_size * 1, 0, player_size, player_size }, .flip_h = false }, frame_duration },
-			},
-			{
-				.looping = true,
-			}
-		);
-		m_walk_animations[Direction::Left] = m_sprite_animation_system.add_animation(
-			{
-				{ SpriteAnimation { .clip = engine::Rect { player_size * 2, 0, player_size, player_size }, .flip_h = true }, frame_duration },
-				{ SpriteAnimation { .clip = engine::Rect { player_size * 3, 0, player_size, player_size }, .flip_h = true }, frame_duration },
-			},
-			{
-				.looping = true,
-			}
-		);
-		m_walk_animations[Direction::Right] = m_sprite_animation_system.add_animation(
-			{
-				{ SpriteAnimation { .clip = engine::Rect { player_size * 2, 0, player_size, player_size }, .flip_h = false }, frame_duration },
-				{ SpriteAnimation { .clip = engine::Rect { player_size * 3, 0, player_size, player_size }, .flip_h = false }, frame_duration },
-			},
-			{
-				.looping = true,
-			}
-		);
+		// m_walk_animations[Direction::Up] = m_sprite_animation_system.add_animation(
+		// 	{
+		// 		{ SpriteAnimation { .clip = engine::Rect { player_size * 4, 0, player_size, player_size }, .flip_h = false }, frame_duration },
+		// 		{ SpriteAnimation { .clip = engine::Rect { player_size * 5, 0, player_size, player_size }, .flip_h = false }, frame_duration },
+		// 	},
+		// 	{
+		// 		.looping = true,
+		// 	}
+		// );
+		// m_walk_animations[Direction::Down] = m_sprite_animation_system.add_animation(
+		// 	{
+		// 		{ SpriteAnimation { .clip = engine::Rect { player_size * 0, 0, player_size, player_size }, .flip_h = false }, frame_duration },
+		// 		{ SpriteAnimation { .clip = engine::Rect { player_size * 1, 0, player_size, player_size }, .flip_h = false }, frame_duration },
+		// 	},
+		// 	{
+		// 		.looping = true,
+		// 	}
+		// );
+		// m_walk_animations[Direction::Left] = m_sprite_animation_system.add_animation(
+		// 	{
+		// 		{ SpriteAnimation { .clip = engine::Rect { player_size * 2, 0, player_size, player_size }, .flip_h = true }, frame_duration },
+		// 		{ SpriteAnimation { .clip = engine::Rect { player_size * 3, 0, player_size, player_size }, .flip_h = true }, frame_duration },
+		// 	},
+		// 	{
+		// 		.looping = true,
+		// 	}
+		// );
+		// m_walk_animations[Direction::Right] = m_sprite_animation_system.add_animation(
+		// 	{
+		// 		{ SpriteAnimation { .clip = engine::Rect { player_size * 2, 0, player_size, player_size }, .flip_h = false }, frame_duration },
+		// 		{ SpriteAnimation { .clip = engine::Rect { player_size * 3, 0, player_size, player_size }, .flip_h = false }, frame_duration },
+		// 	},
+		// 	{
+		// 		.looping = true,
+		// 	}
+		// );
 		// FIXME: should we really be grabbing engine::Time::now ? Can we pass in the Input struct here? Should we?
 		// FIXME: starting and stopping animation immediately so that player stands still. Can this be expressed more nicely?
 		// Should we have a "paused" option in `AnimationOptions` ? So we just add the animation directly to the "stopped" map.
@@ -118,7 +118,7 @@ namespace game {
 		// m_player_position += input.time_delta.in_seconds() * m_player_velocity;
 
 		/* Animation */
-		m_sprite_animation_system.update(input.time_now);
+		// m_sprite_animation_system.update(input.time_now);
 	}
 
 	void GameplayScene::draw(engine::Renderer* renderer) const {
@@ -137,7 +137,8 @@ namespace game {
 			player_size,
 		};
 
-		SpriteAnimation player_animation = m_sprite_animation_system.current_frame(PLAYER_ID);
+		// SpriteAnimation player_animation = m_sprite_animation_system.current_frame(PLAYER_ID);
+		SpriteAnimation player_animation = SpriteAnimation {};
 		renderer->draw_image(m_sprite_sheet_id, world_player_pos, { .clip = player_animation.clip, .flip_h = player_animation.flip_h });
 	}
 

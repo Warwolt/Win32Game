@@ -2,7 +2,7 @@
 
 #include <engine/input/keyboard_stack.h>
 
-#include <engine/animation/animation_system_OLD.h>
+#include <engine/animation/animation.h>
 #include <engine/graphics/image_id.h>
 #include <engine/graphics/rect.h>
 #include <engine/math/vec2.h>
@@ -39,7 +39,9 @@ namespace game {
 		Direction m_player_dir = Direction::Down;
 
 		// Animation
-		engine::AnimationSystem_OLD<SpriteAnimation> m_sprite_animation_system;
+		// engine::AnimationSystem_OLD<SpriteAnimation> m_sprite_animation_system;
+		engine::AnimationLibrary<SpriteAnimation> m_sprite_animations;
+		engine::AnimationPlayer<SpriteAnimation> m_player_animation;
 		std::unordered_map<Direction, engine::AnimationID> m_walk_animations;
 		engine::ImageID m_sprite_sheet_id = {};
 		engine::Rect m_sprite_sheet_size = {};
