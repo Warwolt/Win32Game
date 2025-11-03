@@ -53,7 +53,7 @@ TEST(AnimationPlayerTests, PlayAnimation_StartsAtFirstFrame) {
 TEST(AnimationPlayerTests, PlayAnimation_NonLoopingAnimation) {
 	AnimationLibrary<int> library;
 	AnimationPlayer<int> player;
-	const AnimationID animation_id = library.add_animation(TEST_ANIMATION);
+	const AnimationID animation_id = library.add_animation(TEST_ANIMATION, { .looping = false });
 
 	/* Play animation */
 	const Time start_time = 0ms;
@@ -80,11 +80,11 @@ TEST(AnimationPlayerTests, PlayAnimation_NonLoopingAnimation) {
 TEST(AnimationPlayerTests, PlayAnimation_LoopingAnimation) {
 	AnimationLibrary<int> library;
 	AnimationPlayer<int> player;
-	const AnimationID animation_id = library.add_animation(TEST_ANIMATION);
+	const AnimationID animation_id = library.add_animation(TEST_ANIMATION, { .looping = true });
 
 	/* Play animation */
 	const Time start_time = 0ms;
-	std::optional<AnimationError> error = player.play(library, animation_id, start_time, { .looping = true });
+	std::optional<AnimationError> error = player.play(library, animation_id, start_time);
 	EXPECT_FALSE(error.has_value());
 
 	/* First frame */

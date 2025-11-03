@@ -28,14 +28,15 @@ namespace engine {
 	template <typename T>
 	struct Animation {
 		std::vector<AnimationFrame<T>> frames;
+		AnimationOptions options;
 	};
 
 	template <typename T>
 	class AnimationLibrary {
 	public:
-		AnimationID add_animation(std::vector<AnimationFrame<T>> frames) {
+		AnimationID add_animation(std::vector<AnimationFrame<T>> frames, AnimationOptions options = {}) {
 			AnimationID id = AnimationID(m_next_id++);
-			m_animations[id] = Animation { frames };
+			m_animations[id] = Animation<T> { frames, options };
 			return id;
 		}
 
@@ -51,7 +52,7 @@ namespace engine {
 	template <typename T>
 	class AnimationPlayer {
 	public:
-		std::optional<AnimationError> play(const AnimationLibrary<T>& library, AnimationID animation_id, Time start_time, AnimationOptions options = {}) {
+		std::optional<AnimationError> play(const AnimationLibrary<T>& library, AnimationID animation_id, Time start_time) {
 			/* Try get animation */
 			auto it = library.animations().find(animation_id);
 			if (it == library.animations().end()) {
@@ -63,7 +64,6 @@ namespace engine {
 			m_value = animation.frames[0].value;
 			m_animation_id = animation_id;
 			m_start_time = start_time;
-			m_options = options;
 			m_is_paused = false;
 			m_total_duration = 0ms;
 			for (const AnimationFrame<T>& frame : animation.frames) {
@@ -107,7 +107,7 @@ namespace engine {
 
 			if (auto it = library.animations().find(m_animation_id); it != library.animations().end()) {
 				const Animation<T>& animation = it->second;
-				const Time relative_now = m_options.looping ? (global_now - m_start_time) % m_total_duration : global_now - m_start_time;
+				const Time relative_now = animation.options.looping ? (global_now - m_start_time) % m_total_duration : global_now - m_start_time;
 				Time elapsed_time = 0ms;
 				for (const AnimationFrame<T> frame : animation.frames) {
 					if (relative_now <= elapsed_time) {
@@ -126,7 +126,6 @@ namespace engine {
 	private:
 		T m_value = {};
 		AnimationID m_animation_id = {};
-		AnimationOptions m_options = {};
 		Time m_start_time = {};
 		Time m_total_duration = {};
 		bool m_is_paused = false;
