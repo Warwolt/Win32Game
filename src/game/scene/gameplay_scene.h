@@ -39,9 +39,8 @@ namespace game {
 		Direction m_player_dir = Direction::Down;
 
 		// Animation
-		// engine::AnimationSystem_OLD<SpriteAnimation> m_sprite_animation_system;
-		engine::AnimationLibrary<SpriteAnimation> m_sprite_animations;
-		engine::AnimationPlayer<SpriteAnimation> m_player_animation;
+		engine::AnimationLibrary<SpriteAnimation> m_animation_library;
+		engine::AnimationPlayer<SpriteAnimation> m_animation_player;
 		std::unordered_map<Direction, engine::AnimationID> m_walk_animations;
 		engine::ImageID m_sprite_sheet_id = {};
 		engine::Rect m_sprite_sheet_size = {};

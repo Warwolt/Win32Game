@@ -29,47 +29,45 @@ namespace game {
 		// set up animations
 		const engine::Time frame_duration = 200ms;
 		const int player_size = 16;
-		// m_walk_animations[Direction::Up] = m_sprite_animation_system.add_animation(
-		// 	{
-		// 		{ SpriteAnimation { .clip = engine::Rect { player_size * 4, 0, player_size, player_size }, .flip_h = false }, frame_duration },
-		// 		{ SpriteAnimation { .clip = engine::Rect { player_size * 5, 0, player_size, player_size }, .flip_h = false }, frame_duration },
-		// 	},
-		// 	{
-		// 		.looping = true,
-		// 	}
-		// );
-		// m_walk_animations[Direction::Down] = m_sprite_animation_system.add_animation(
-		// 	{
-		// 		{ SpriteAnimation { .clip = engine::Rect { player_size * 0, 0, player_size, player_size }, .flip_h = false }, frame_duration },
-		// 		{ SpriteAnimation { .clip = engine::Rect { player_size * 1, 0, player_size, player_size }, .flip_h = false }, frame_duration },
-		// 	},
-		// 	{
-		// 		.looping = true,
-		// 	}
-		// );
-		// m_walk_animations[Direction::Left] = m_sprite_animation_system.add_animation(
-		// 	{
-		// 		{ SpriteAnimation { .clip = engine::Rect { player_size * 2, 0, player_size, player_size }, .flip_h = true }, frame_duration },
-		// 		{ SpriteAnimation { .clip = engine::Rect { player_size * 3, 0, player_size, player_size }, .flip_h = true }, frame_duration },
-		// 	},
-		// 	{
-		// 		.looping = true,
-		// 	}
-		// );
-		// m_walk_animations[Direction::Right] = m_sprite_animation_system.add_animation(
-		// 	{
-		// 		{ SpriteAnimation { .clip = engine::Rect { player_size * 2, 0, player_size, player_size }, .flip_h = false }, frame_duration },
-		// 		{ SpriteAnimation { .clip = engine::Rect { player_size * 3, 0, player_size, player_size }, .flip_h = false }, frame_duration },
-		// 	},
-		// 	{
-		// 		.looping = true,
-		// 	}
-		// );
-		// FIXME: should we really be grabbing engine::Time::now ? Can we pass in the Input struct here? Should we?
-		// FIXME: starting and stopping animation immediately so that player stands still. Can this be expressed more nicely?
-		// Should we have a "paused" option in `AnimationOptions` ? So we just add the animation directly to the "stopped" map.
-		// auto _ = m_sprite_animation_system.start_animation(PLAYER_ID, m_walk_animations[Direction::Down], engine::Time::now());
-		// m_sprite_animation_system.stop_animation(PLAYER_ID);
+		m_walk_animations[Direction::Up] = m_animation_library.add_animation(
+			{
+				{ SpriteAnimation { .clip = engine::Rect { player_size * 4, 0, player_size, player_size }, .flip_h = false }, frame_duration },
+				{ SpriteAnimation { .clip = engine::Rect { player_size * 5, 0, player_size, player_size }, .flip_h = false }, frame_duration },
+			},
+			{
+				.looping = true,
+			}
+		);
+		m_walk_animations[Direction::Down] = m_animation_library.add_animation(
+			{
+				{ SpriteAnimation { .clip = engine::Rect { player_size * 0, 0, player_size, player_size }, .flip_h = false }, frame_duration },
+				{ SpriteAnimation { .clip = engine::Rect { player_size * 1, 0, player_size, player_size }, .flip_h = false }, frame_duration },
+			},
+			{
+				.looping = true,
+			}
+		);
+		m_walk_animations[Direction::Left] = m_animation_library.add_animation(
+			{
+				{ SpriteAnimation { .clip = engine::Rect { player_size * 2, 0, player_size, player_size }, .flip_h = true }, frame_duration },
+				{ SpriteAnimation { .clip = engine::Rect { player_size * 3, 0, player_size, player_size }, .flip_h = true }, frame_duration },
+			},
+			{
+				.looping = true,
+			}
+		);
+		m_walk_animations[Direction::Right] = m_animation_library.add_animation(
+			{
+				{ SpriteAnimation { .clip = engine::Rect { player_size * 2, 0, player_size, player_size }, .flip_h = false }, frame_duration },
+				{ SpriteAnimation { .clip = engine::Rect { player_size * 3, 0, player_size, player_size }, .flip_h = false }, frame_duration },
+			},
+			{
+				.looping = true,
+			}
+		);
+		std::optional<engine::AnimationError> error = m_animation_player.play(m_animation_library, m_walk_animations[Direction::Down], engine::Time::now());
+		m_animation_player.pause();
+		DEBUG_ASSERT(!error.has_value(), "Couldn't start animation");
 	}
 
 	void GameplayScene::update(const engine::Input& input, engine::CommandList* commands) {
@@ -78,47 +76,48 @@ namespace game {
 			commands->load_scene(MenuScene::NAME);
 		}
 
-		// /* Movement */
-		// m_keyboard_stack.update(input);
-		// engine::Vec2 input_vector = { 0, 0 };
-		// if (std::optional<int> keycode = m_keyboard_stack.top_keycode()) {
-		// 	Direction direction = {};
+		/* Movement */
+		m_keyboard_stack.update(input);
+		engine::Vec2 input_vector = { 0, 0 };
+		if (std::optional<int> keycode = m_keyboard_stack.top_keycode()) {
+			Direction direction = {};
 
-		// 	if (keycode.value() == VK_UP) {
-		// 		input_vector.y -= 1;
-		// 		direction = Direction::Up;
-		// 	}
-		// 	if (keycode.value() == VK_DOWN) {
-		// 		input_vector.y += 1;
-		// 		direction = Direction::Down;
-		// 	}
-		// 	if (keycode.value() == VK_LEFT) {
-		// 		input_vector.x -= 1;
-		// 		direction = Direction::Left;
-		// 	}
-		// 	if (keycode.value() == VK_RIGHT) {
-		// 		input_vector.x += 1;
-		// 		direction = Direction::Right;
-		// 	}
+			if (keycode.value() == VK_UP) {
+				input_vector.y -= 1;
+				direction = Direction::Up;
+			}
+			if (keycode.value() == VK_DOWN) {
+				input_vector.y += 1;
+				direction = Direction::Down;
+			}
+			if (keycode.value() == VK_LEFT) {
+				input_vector.x -= 1;
+				direction = Direction::Left;
+			}
+			if (keycode.value() == VK_RIGHT) {
+				input_vector.x += 1;
+				direction = Direction::Right;
+			}
 
-		// 	const bool just_changed_direction = direction != m_player_dir;
-		// 	m_player_dir = direction;
-		// 	if (just_changed_direction || input.keyboard.key_was_pressed_now(keycode.value())) {
-		// 		DEBUG_ASSERT(m_sprite_animation_system.start_animation(PLAYER_ID, m_walk_animations[m_player_dir], input.time_now).has_value(), "Missing animation");
-		// 		DEBUG_ASSERT(m_sprite_animation_system.set_frame(PLAYER_ID, 1).has_value(), "Shit fuck"); // start at walking frame
-		// 	}
-		// }
-		// else {
-		// 	m_sprite_animation_system.stop_animation(PLAYER_ID);
-		// 	auto _ = m_sprite_animation_system.set_frame(PLAYER_ID, 0);
-		// }
+			// 	const bool just_changed_direction = direction != m_player_dir;
+			// 	m_player_dir = direction;
+			// 	if (just_changed_direction || input.keyboard.key_was_pressed_now(keycode.value())) {
+			// 		DEBUG_ASSERT(m_sprite_animation_system.start_animation(PLAYER_ID, m_walk_animations[m_player_dir], input.time_now).has_value(), "Missing animation");
+			// 		DEBUG_ASSERT(m_sprite_animation_system.set_frame(PLAYER_ID, 1).has_value(), "Shit fuck"); // start at walking frame
+			// 	}
+			// }
+			// else {
+			// 	m_sprite_animation_system.stop_animation(PLAYER_ID);
+			// 	auto _ = m_sprite_animation_system.set_frame(PLAYER_ID, 0);
+			// }
 
-		// const float player_speed = 75.0f; // pixels per second
-		// m_player_velocity = player_speed * input_vector;
-		// m_player_position += input.time_delta.in_seconds() * m_player_velocity;
+			const float player_speed = 75.0f; // pixels per second
+			m_player_velocity = player_speed * input_vector;
+			m_player_position += input.time_delta.in_seconds() * m_player_velocity;
 
-		/* Animation */
-		// m_sprite_animation_system.update(input.time_now);
+			/* Animation */
+			// m_sprite_animation_system.update(input.time_now);
+		}
 	}
 
 	void GameplayScene::draw(engine::Renderer* renderer) const {
@@ -137,8 +136,7 @@ namespace game {
 			player_size,
 		};
 
-		// SpriteAnimation player_animation = m_sprite_animation_system.current_frame(PLAYER_ID);
-		SpriteAnimation player_animation = SpriteAnimation {};
+		SpriteAnimation player_animation = m_animation_player.value();
 		renderer->draw_image(m_sprite_sheet_id, world_player_pos, { .clip = player_animation.clip, .flip_h = player_animation.flip_h });
 	}
 

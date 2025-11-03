@@ -51,7 +51,7 @@ namespace engine {
 	template <typename T>
 	class AnimationPlayer {
 	public:
-		std::optional<AnimationError> play(const AnimationLibrary<T>& library, AnimationID animation_id, Time start_time) {
+		[[nodiscard]] std::optional<AnimationError> play(const AnimationLibrary<T>& library, AnimationID animation_id, Time start_time) {
 			/* Try get animation */
 			auto it = library.animations().find(animation_id);
 			if (it == library.animations().end()) {
@@ -76,7 +76,7 @@ namespace engine {
 			m_is_paused = true;
 		}
 
-		std::optional<AnimationError> set_frame(const AnimationLibrary<T>& library, Time global_time_now, int frame_index) {
+		[[nodiscard]] std::optional<AnimationError> set_frame(const AnimationLibrary<T>& library, Time global_time_now, int frame_index) {
 			/* Try get animation */
 			auto it = library.animations().find(m_animation_id);
 			if (it == library.animations().end()) {
