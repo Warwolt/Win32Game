@@ -63,6 +63,7 @@ namespace engine {
 			m_animation_id = animation_id;
 			m_start_time = start_time;
 			m_options = options;
+			m_is_paused = false;
 			m_total_duration = 0ms;
 			for (const AnimationFrame<T>& frame : animation.frames) {
 				m_total_duration += frame.duration;
@@ -70,10 +71,17 @@ namespace engine {
 			return {};
 		}
 
-		// void stop()
+		void pause() {
+			m_is_paused = true;
+		}
+
 		// void set_frame(int index)
 
 		void update(const AnimationLibrary<T>& library, Time global_now) {
+			if (m_is_paused) {
+				return;
+			}
+
 			if (auto it = library.animations().find(m_animation_id); it != library.animations().end()) {
 				const Animation<T>& animation = it->second;
 				const Time relative_now = m_options.looping ? (global_now - m_start_time) % m_total_duration : global_now - m_start_time;
@@ -98,6 +106,7 @@ namespace engine {
 		AnimationOptions m_options = {};
 		Time m_start_time = {};
 		Time m_total_duration = {};
+		bool m_is_paused = false;
 	};
 
 } // namespace engine
