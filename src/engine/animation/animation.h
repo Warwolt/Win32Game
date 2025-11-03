@@ -1,7 +1,6 @@
 #pragma once
 
 #include <engine/animation/animation_id.h>
-#include <engine/entity_id.h>
 #include <engine/input/time.h>
 
 #include <optional>
@@ -69,6 +68,7 @@ namespace engine {
 			for (const AnimationFrame<T>& frame : animation.frames) {
 				m_total_duration += frame.duration;
 			}
+
 			return {};
 		}
 
@@ -108,13 +108,26 @@ namespace engine {
 			if (auto it = library.animations().find(m_animation_id); it != library.animations().end()) {
 				const Animation<T>& animation = it->second;
 				const Time relative_now = animation.options.looping ? (global_now - m_start_time) % m_total_duration : global_now - m_start_time;
-				Time elapsed_time = 0ms;
-				for (const AnimationFrame<T> frame : animation.frames) {
-					if (relative_now <= elapsed_time) {
-						m_value = frame.value;
-						break;
+
+				/* Animation hasn't started yet */
+				if (relative_now < 0ms) {
+					m_value = animation.frames.front().value;
+				}
+				/* Animation has finished */
+				else if (relative_now >= m_total_duration) {
+					m_value = animation.frames.back().value;
+				}
+				/* Animation is mid-playback */
+				else {
+					Time prev_frame_durations = 0ms;
+					for (const AnimationFrame<T> frame : animation.frames) {
+						const Time frame_end = prev_frame_durations + frame.duration;
+						if (relative_now < frame_end) {
+							m_value = frame.value;
+							break;
+						}
+						prev_frame_durations += frame.duration;
 					}
-					elapsed_time += frame.duration;
 				}
 			}
 		}

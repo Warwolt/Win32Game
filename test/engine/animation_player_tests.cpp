@@ -1,7 +1,5 @@
 #include <gtest/gtest.h>
 
-#include <test/helpers/parameterized_tests.h>
-
 #include <engine/animation/animation.h>
 
 using namespace engine;
@@ -107,6 +105,43 @@ TEST(AnimationPlayerTests, PlayAnimation_LoopingAnimation) {
 	player.update(library, start_time + FRAME_ONE_DURATION + FRAME_TWO_DURATION + FRAME_THREE_DURATION + FRAME_ONE_DURATION);
 	EXPECT_EQ(player.value(), FRAME_TWO_VALUE);
 }
+
+TEST(AnimationPlayerTests, PlayAnimation_LoopingAnimation_MidFrameTiming) {
+	AnimationLibrary<int> library;
+	AnimationPlayer<int> player;
+	const AnimationID animation_id = library.add_animation(TEST_ANIMATION, { .looping = true });
+
+	/* Play animation */
+	const Time start_time = 0ms;
+	std::optional<AnimationError> error = player.play(library, animation_id, start_time);
+	EXPECT_FALSE(error.has_value());
+
+	/* First frame */
+	player.update(library, start_time + 0ms);
+	EXPECT_EQ(player.value(), FRAME_ONE_VALUE);
+
+	/* Middle of second frame */
+	player.update(library, start_time + FRAME_ONE_DURATION + 50ms);
+	EXPECT_EQ(player.value(), FRAME_TWO_VALUE);
+
+	/* Just before loop */
+	player.update(library, start_time + FRAME_ONE_DURATION + FRAME_TWO_DURATION + FRAME_THREE_DURATION - 1ms);
+	EXPECT_EQ(player.value(), FRAME_THREE_VALUE);
+
+	/* Right at loop boundary */
+	player.update(library, start_time + FRAME_ONE_DURATION + FRAME_TWO_DURATION + FRAME_THREE_DURATION);
+	EXPECT_EQ(player.value(), FRAME_ONE_VALUE);
+
+	/* Middle of first frame after loop */
+	player.update(library, start_time + FRAME_ONE_DURATION + FRAME_TWO_DURATION + FRAME_THREE_DURATION + 50ms);
+	EXPECT_EQ(player.value(), FRAME_ONE_VALUE);
+
+	/* Multiple loops later, mid-frame */
+	const Time three_and_half_loops = 3 * (FRAME_ONE_DURATION + FRAME_TWO_DURATION + FRAME_THREE_DURATION) + FRAME_ONE_DURATION + 50ms;
+	player.update(library, start_time + three_and_half_loops);
+	EXPECT_EQ(player.value(), FRAME_TWO_VALUE);
+}
+
 
 TEST(AnimationPlayerTests, PlayAnimation_AlreadyPlaying_Resetarts) {
 	AnimationLibrary<int> library;

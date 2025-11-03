@@ -40,6 +40,10 @@ namespace engine {
 		return lhs.value - rhs.value;
 	}
 
+	Time operator*(float lhs, const Time& rhs) {
+		return Time(std::chrono::duration_cast<std::chrono::milliseconds>(lhs * rhs.value));
+	}
+
 	int64_t operator/(Time lhs, const Time& rhs) {
 		return lhs.value / rhs.value;
 	}

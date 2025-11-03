@@ -24,6 +24,7 @@ namespace engine {
 		Time& operator-=(const Time& rhs);
 		friend Time operator+(Time lhs, const Time& rhs);
 		friend Time operator-(Time lhs, const Time& rhs);
+		friend Time operator*(float lhs, const Time& rhs);
 		friend int64_t operator/(Time lhs, const Time& rhs);
 		friend Time operator%(Time lhs, const Time& rhs);
 	};

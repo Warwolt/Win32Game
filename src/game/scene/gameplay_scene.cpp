@@ -14,7 +14,7 @@ namespace game {
 
 	using namespace std::chrono_literals;
 
-	constexpr engine::EntityID PLAYER_ID = engine::EntityID(1);
+	// constexpr engine::EntityID PLAYER_ID = engine::EntityID(1);
 
 	GameplayScene::GameplayScene()
 		: m_keyboard_stack({ VK_UP, VK_DOWN, VK_LEFT, VK_RIGHT }) {
