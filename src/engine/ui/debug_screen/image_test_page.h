@@ -25,7 +25,7 @@ namespace engine {
 			bool is_flipped;
 		};
 
-		AnimationSystem<SpriteData> m_animation_system;
+		AnimationSystem_OLD<SpriteData> m_animation_system;
 
 		ImageID m_test_image;
 		ImageID m_sprite_sheet;

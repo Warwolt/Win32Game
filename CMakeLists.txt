@@ -56,7 +56,7 @@ set(SRC
 )
 
 set(TEST_SRC
-    test/engine/animation_system_tests.cpp
+    test/engine/animation_player_tests.cpp
     test/engine/button_tests.cpp
     test/engine/keyboard_tests.cpp
     test/engine/moving_average_tests.cpp

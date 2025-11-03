@@ -23,24 +23,21 @@ std::vector<AnimationFrame<int>> test_animation() {
 	};
 }
 
-TEST(AnimationSystemTests, AddAnimation_NoFrames_GivesInvalidAnimationID) {
-	AnimationSystem<int> animation_system;
+// TEST(AnimationSystemTests, AddAnimation_NoFrames_GivesInvalidAnimationID) {
+// 	AnimationSystem_OLD<int> animation_system;
 
-	AnimationID animation_id = animation_system.add_animation({});
+// 	AnimationID animation_id = animation_system.add_animation({});
 
-	EXPECT_EQ(animation_id, INVALID_ANIMATION_ID);
-}
-
-// TEST(AnimationSystemTests, CurrentFrame_InvalidAnimationID_GivesDefaultAnimationFrame) {
-// 	AnimationSystem<int> animation_system;
-
-// 	int current_frame = animation_system.current_frame(INVALID_ENTITY_ID);
-
-// 	EXPECT_EQ(current_frame, 0);
+// 	EXPECT_EQ(animation_id, INVALID_ANIMATION_ID);
 // }
 
+TEST(AnimationSystemTests, CurrentFrame_InvalidAnimationID_GivesError) {
+	AnimationSystem_OLD<int> animation_system;
+
+}
+
 // TEST(AnimationSystemTests, StartAnimation_InvalidAnimationID_GivesError) {
-// 	AnimationSystem<int> animation_system;
+// 	AnimationSystem_OLD<int> animation_system;
 // 	EntityID entity_id = EntityID(1);
 
 // 	std::expected<void, AnimationError> result = animation_system.start_animation(entity_id, INVALID_ANIMATION_ID, 0ms);
@@ -50,7 +47,7 @@ TEST(AnimationSystemTests, AddAnimation_NoFrames_GivesInvalidAnimationID) {
 // }
 
 // TEST(AnimationSystemTests, StartAnimation_NonRegisteredAnimationID_GivesError) {
-// 	AnimationSystem<int> animation_system;
+// 	AnimationSystem_OLD<int> animation_system;
 // 	AnimationID animation_id = AnimationID(1); // we haven't added this animation to the system
 // 	EntityID entity_id = EntityID(1);
 
@@ -61,7 +58,7 @@ TEST(AnimationSystemTests, AddAnimation_NoFrames_GivesInvalidAnimationID) {
 // }
 
 // TEST(AnimationSystemTests, StartAnimation_InvalidAnimationEntityID_GivesError) {
-// 	AnimationSystem<int> animation_system;
+// 	AnimationSystem_OLD<int> animation_system;
 // 	AnimationID animation_id = animation_system.add_animation(test_animation());
 
 // 	std::expected<void, AnimationError> result = animation_system.start_animation(INVALID_ENTITY_ID, animation_id, 0ms);
@@ -71,7 +68,7 @@ TEST(AnimationSystemTests, AddAnimation_NoFrames_GivesInvalidAnimationID) {
 // }
 
 // TEST(AnimationSystemTests, StartAnimation_AlreadyStarted_RestartsIt) {
-// 	AnimationSystem<int> animation_system;
+// 	AnimationSystem_OLD<int> animation_system;
 // 	AnimationID animation_id = animation_system.add_animation(test_animation());
 // 	EntityID entity_id = EntityID(1);
 
@@ -86,7 +83,7 @@ TEST(AnimationSystemTests, AddAnimation_NoFrames_GivesInvalidAnimationID) {
 // }
 
 // TEST(AnimationSystemTests, StopAnimation_StaysAtLastFrame) {
-// 	AnimationSystem<int> animation_system;
+// 	AnimationSystem_OLD<int> animation_system;
 // 	AnimationID animation_id = animation_system.add_animation(test_animation());
 // 	EntityID entity_id = EntityID(1);
 
@@ -101,7 +98,7 @@ TEST(AnimationSystemTests, AddAnimation_NoFrames_GivesInvalidAnimationID) {
 // }
 
 // TEST(AnimationSystemTests, RestartAnimation_GoesBackToFirstFrame) {
-// 	AnimationSystem<int> animation_system;
+// 	AnimationSystem_OLD<int> animation_system;
 // 	AnimationID animation_id = animation_system.add_animation(test_animation());
 // 	EntityID entity_id = EntityID(1);
 
@@ -128,7 +125,7 @@ TEST(AnimationSystemTests, AddAnimation_NoFrames_GivesInvalidAnimationID) {
 // 	{ 300ms, FRAME_THREE, "300ms_GivesThirdFrame" },
 // };
 // TEST_PARAMETERIZED(AnimationSystemTests, AnimationPlayback, AnimationPlaybackTestData, testing::ValuesIn(animation_playback_tests)) {
-// 	AnimationSystem<int> animation_system;
+// 	AnimationSystem_OLD<int> animation_system;
 // 	AnimationID animation_id = animation_system.add_animation(test_animation());
 // 	EntityID entity_id = EntityID(1);
 
@@ -149,7 +146,7 @@ TEST(AnimationSystemTests, AddAnimation_NoFrames_GivesInvalidAnimationID) {
 // 	{ 500ms, FRAME_THREE, "500ms_LoopsAndGivesThirdFrame" },
 // };
 // TEST_PARAMETERIZED(AnimationSystemTests, LoopedAnimationPlayback, AnimationPlaybackTestData, testing::ValuesIn(looping_animation_playback_tests)) {
-// 	AnimationSystem<int> animation_system;
+// 	AnimationSystem_OLD<int> animation_system;
 // 	AnimationID animation_id = animation_system.add_animation(test_animation(), { .looping = true });
 // 	EntityID entity_id = EntityID(1);
 
@@ -162,7 +159,7 @@ TEST(AnimationSystemTests, AddAnimation_NoFrames_GivesInvalidAnimationID) {
 // }
 
 // TEST(AnimationSystemTests, StartAnimation_WhileAnotherPlaying_SwitchesAnimation) {
-// 	AnimationSystem<int> animation_system;
+// 	AnimationSystem_OLD<int> animation_system;
 // 	std::vector<AnimationFrame<int>> animation1_frames = { { FRAME_ONE, 100ms } };
 // 	std::vector<AnimationFrame<int>> animation2_frames = { { FRAME_TWO, 100ms } };
 // 	AnimationID animation1_id = animation_system.add_animation(animation1_frames);
@@ -189,7 +186,7 @@ TEST(AnimationSystemTests, AddAnimation_NoFrames_GivesInvalidAnimationID) {
 // }
 
 // TEST(AnimationSystemTests, StartAnimation_StopAnimation_StartSameAnimation) {
-// 	AnimationSystem<int> animation_system;
+// 	AnimationSystem_OLD<int> animation_system;
 // 	AnimationID animation_id = animation_system.add_animation(test_animation());
 // 	EntityID entity_id = EntityID(1);
 
@@ -228,7 +225,7 @@ TEST(AnimationSystemTests, AddAnimation_NoFrames_GivesInvalidAnimationID) {
 // }
 
 // TEST(AnimationSystemTests, SetFrame_SecondFrame_PlaysSelectedFrame) {
-// 	AnimationSystem<int> animation_system;
+// 	AnimationSystem_OLD<int> animation_system;
 // 	AnimationID animation_id = animation_system.add_animation(test_animation());
 // 	EntityID entity_id = EntityID(1);
 
@@ -243,7 +240,7 @@ TEST(AnimationSystemTests, AddAnimation_NoFrames_GivesInvalidAnimationID) {
 // }
 
 // TEST(AnimationSystemTests, SetFrame_InvalidEntityID_GivesError) {
-// 	AnimationSystem<int> animation_system;
+// 	AnimationSystem_OLD<int> animation_system;
 // 	AnimationID animation_id = animation_system.add_animation(test_animation());
 // 	EntityID entity_id = EntityID(1);
 
@@ -259,7 +256,7 @@ TEST(AnimationSystemTests, AddAnimation_NoFrames_GivesInvalidAnimationID) {
 // }
 
 // TEST(AnimationSystemTests, SetFrame_NoAnimation_GivesError) {
-// 	AnimationSystem<int> animation_system;
+// 	AnimationSystem_OLD<int> animation_system;
 // 	AnimationID animation_id = animation_system.add_animation(test_animation());
 // 	EntityID entity_id = EntityID(1);
 
@@ -280,7 +277,7 @@ TEST(AnimationSystemTests, AddAnimation_NoFrames_GivesInvalidAnimationID) {
 // 	{ 3, "3" },
 // };
 // TEST_PARAMETERIZED(AnimationSystemTests, SetFrame_OutOfBounds_GivesError, FrameTestData, testing::ValuesIn(out_of_bounds_cases)) {
-// 	AnimationSystem<int> animation_system;
+// 	AnimationSystem_OLD<int> animation_system;
 // 	AnimationID animation_id = animation_system.add_animation(test_animation());
 // 	EntityID entity_id = EntityID(1);
 

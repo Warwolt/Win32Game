@@ -27,23 +27,8 @@ namespace engine {
 		IndexOutOfBounds,
 	};
 
-	// FIXME: can we improve this API?
-	// Lots of the things we want to do can fail because of bad IDs, wrong state etc.
-	// But, it's annoying having to error check every single operation.
-	// Would be much better to be able to access a given animation playback, and
-	// then operate on _that_ given that the getter result is OK?
-	//
-	// if (std::expected<Playback*, AnimationError> result = animation_system.animation(entity_id)) {
-	//     Playback& playback = *result.value();
-	//     playback.start();
-	// }
-	// else {
-	//     // handle result.error() somehow
-	// }
-	//
-	//
 	template <typename T>
-	class AnimationSystem {
+	class AnimationSystem_OLD {
 	public:
 		AnimationID add_animation(std::vector<AnimationFrame<T>> frames, AnimationOptions options = {}) {
 			if (frames.empty()) {
