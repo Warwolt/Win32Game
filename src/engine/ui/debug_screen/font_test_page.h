@@ -16,7 +16,9 @@ namespace engine {
 		void draw(Renderer* renderer, IVec2 screen_resolution) const;
 
 	private:
-		// AnimationSystem_OLD<int> m_animation_system;
+		AnimationLibrary<int> m_animation_library;
+		AnimationPlayer<int> m_animation_player;
+		AnimationID m_animation_id;
 	};
 
 } // namespace engine
