@@ -108,26 +108,14 @@ namespace engine {
 			if (auto it = library.animations().find(m_animation_id); it != library.animations().end()) {
 				const Animation<T>& animation = it->second;
 				const Time relative_now = animation.options.looping ? (global_now - m_start_time) % m_total_duration : global_now - m_start_time;
-
-				/* Animation hasn't started yet */
-				if (relative_now < 0ms) {
-					m_value = animation.frames.front().value;
-				}
-				/* Animation has finished */
-				else if (relative_now >= m_total_duration) {
-					m_value = animation.frames.back().value;
-				}
-				/* Animation is mid-playback */
-				else {
-					Time prev_frame_durations = 0ms;
-					for (const AnimationFrame<T> frame : animation.frames) {
-						const Time frame_end = prev_frame_durations + frame.duration;
-						if (relative_now < frame_end) {
-							m_value = frame.value;
-							break;
-						}
-						prev_frame_durations += frame.duration;
+				Time prev_frame_durations = 0ms;
+				for (const AnimationFrame<T> frame : animation.frames) {
+					const Time frame_end = prev_frame_durations + frame.duration;
+					if (relative_now < frame_end) {
+						m_value = frame.value;
+						break;
 					}
+					prev_frame_durations += frame.duration;
 				}
 			}
 		}
