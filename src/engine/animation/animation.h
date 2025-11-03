@@ -29,7 +29,6 @@ namespace engine {
 		std::vector<AnimationFrame<T>> frames;
 	};
 
-	// Stores Animation instances
 	template <typename T>
 	class AnimationLibrary {
 	public:
@@ -48,26 +47,10 @@ namespace engine {
 		std::unordered_map<AnimationID, Animation<T>> m_animations;
 	};
 
-	// Keeps track of playing back a given animation
 	template <typename T>
 	class AnimationPlayer {
 	public:
-		void update(const AnimationLibrary<T>& library, Time global_now) {
-			if (auto it = library.animations().find(m_animation_id); it != library.animations().end()) {
-				const Animation<T>& animation = it->second;
-				const Time relative_now = global_now - m_start_time;
-				Time elapsed_time = 0ms;
-				for (const AnimationFrame<T> frame : animation.frames) {
-					if (relative_now <= elapsed_time) {
-						m_value = frame.value;
-						break;
-					}
-					elapsed_time += frame.duration;
-				}
-			}
-		}
-
-		std::optional<AnimationError> play(const AnimationLibrary<T>& library, AnimationID animation_id, Time start_time) {
+		std::optional<AnimationError> play(const AnimationLibrary<T>& library, AnimationID animation_id, Time start_time, AnimationOptions options = {}) {
 			/* Try get animation */
 			auto it = library.animations().find(animation_id);
 			if (it == library.animations().end()) {
@@ -79,11 +62,31 @@ namespace engine {
 			m_value = animation.frames[0].value;
 			m_animation_id = animation_id;
 			m_start_time = start_time;
+			m_options = options;
+			m_total_duration = 0ms;
+			for (const AnimationFrame<T>& frame : animation.frames) {
+				m_total_duration += frame.duration;
+			}
 			return {};
 		}
 
 		// void stop()
 		// void set_frame(int index)
+
+		void update(const AnimationLibrary<T>& library, Time global_now) {
+			if (auto it = library.animations().find(m_animation_id); it != library.animations().end()) {
+				const Animation<T>& animation = it->second;
+				const Time relative_now = m_options.looping ? (global_now - m_start_time) % m_total_duration : global_now - m_start_time;
+				Time elapsed_time = 0ms;
+				for (const AnimationFrame<T> frame : animation.frames) {
+					if (relative_now <= elapsed_time) {
+						m_value = frame.value;
+						break;
+					}
+					elapsed_time += frame.duration;
+				}
+			}
+		}
 
 		const T& value() const {
 			return m_value;
@@ -92,7 +95,9 @@ namespace engine {
 	private:
 		T m_value = {};
 		AnimationID m_animation_id = {};
+		AnimationOptions m_options = {};
 		Time m_start_time = {};
+		Time m_total_duration = {};
 	};
 
 } // namespace engine

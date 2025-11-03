@@ -51,8 +51,7 @@ TEST(AnimationPlayerTests, PlayAnimation_StartsAtFirstFrame) {
 	EXPECT_EQ(value, FRAME_ONE_VALUE);
 }
 
-// animation player steps through values in animation when updated
-TEST(AnimationPlayerTests, PlayAnimation_Update_SetsValueToCurrentFrame) {
+TEST(AnimationPlayerTests, PlayAnimation_NonLoopingAnimation) {
 	AnimationLibrary<int> library;
 	AnimationPlayer<int> player;
 	AnimationID animation_id = library.add_animation(TEST_ANIMATION);
@@ -77,3 +76,39 @@ TEST(AnimationPlayerTests, PlayAnimation_Update_SetsValueToCurrentFrame) {
 	player.update(library, start_time + FRAME_ONE_DURATION + FRAME_TWO_DURATION + FRAME_THREE_DURATION);
 	EXPECT_EQ(player.value(), FRAME_THREE_VALUE);
 }
+
+TEST(AnimationPlayerTests, PlayAnimation_LoopingAnimation) {
+	AnimationLibrary<int> library;
+	AnimationPlayer<int> player;
+	AnimationID animation_id = library.add_animation(TEST_ANIMATION);
+
+	const Time start_time = 0ms;
+	std::optional<AnimationError> error = player.play(library, animation_id, start_time, { .looping = true });
+	EXPECT_FALSE(error.has_value());
+
+	/* First frame */
+	player.update(library, start_time + 0ms);
+	EXPECT_EQ(player.value(), FRAME_ONE_VALUE);
+
+	/* Second frame */
+	player.update(library, start_time + FRAME_ONE_DURATION);
+	EXPECT_EQ(player.value(), FRAME_TWO_VALUE);
+
+	/* Third frame */
+	player.update(library, start_time + FRAME_ONE_DURATION + FRAME_TWO_DURATION);
+	EXPECT_EQ(player.value(), FRAME_THREE_VALUE);
+
+	/* First frame again */
+	player.update(library, start_time + FRAME_ONE_DURATION + FRAME_TWO_DURATION + FRAME_THREE_DURATION);
+	EXPECT_EQ(player.value(), FRAME_ONE_VALUE);
+
+	/* Second frame again */
+	player.update(library, start_time + FRAME_ONE_DURATION + FRAME_TWO_DURATION + FRAME_THREE_DURATION + FRAME_ONE_DURATION);
+	EXPECT_EQ(player.value(), FRAME_TWO_VALUE);
+}
+
+// play animation, already playing, restarts
+
+// stop animation, value remains unchanged on update
+
+// set animation frame, jumps there immediately
