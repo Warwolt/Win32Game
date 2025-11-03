@@ -52,7 +52,20 @@ namespace engine {
 	template <typename T>
 	class AnimationPlayer {
 	public:
-		// void update
+		void update(const AnimationLibrary<T>& library, Time global_now) {
+			if (auto it = library.animations().find(m_animation_id); it != library.animations().end()) {
+				const Animation<T>& animation = it->second;
+				const Time relative_now = global_now - m_start_time;
+				Time elapsed_time = 0ms;
+				for (const AnimationFrame<T> frame : animation.frames) {
+					if (relative_now <= elapsed_time) {
+						m_value = frame.value;
+						break;
+					}
+					elapsed_time += frame.duration;
+				}
+			}
+		}
 
 		std::optional<AnimationError> play(const AnimationLibrary<T>& library, AnimationID animation_id, Time start_time) {
 			/* Try get animation */
