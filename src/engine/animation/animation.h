@@ -22,6 +22,7 @@ namespace engine {
 
 	enum class AnimationError {
 		MissingAnimationInLibrary,
+		IndexOutOfBounds,
 	};
 
 	template <typename T>
@@ -75,7 +76,29 @@ namespace engine {
 			m_is_paused = true;
 		}
 
-		// void set_frame(int index)
+		std::optional<AnimationError> set_frame(const AnimationLibrary<T>& library, Time global_time_now, int frame_index) {
+			/* Try get animation */
+			auto it = library.animations().find(m_animation_id);
+			if (it == library.animations().end()) {
+				return AnimationError::MissingAnimationInLibrary;
+			}
+			const Animation<T>& animation = it->second;
+
+			/* Bounds check*/
+			if (frame_index < 0 || frame_index >= animation.frames.size()) {
+				return AnimationError::IndexOutOfBounds;
+			}
+
+			/* Move animation time line so desired frame starts now */
+			Time time_until_frame = 0ms;
+			for (int i = 0; i < frame_index && i < animation.frames.size(); i++) {
+				time_until_frame += animation.frames[i].duration;
+			}
+			m_start_time = global_time_now - time_until_frame;
+			m_value = animation.frames[frame_index].value;
+
+			return {};
+		}
 
 		void update(const AnimationLibrary<T>& library, Time global_now) {
 			if (m_is_paused) {

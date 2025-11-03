@@ -41,7 +41,7 @@ TEST(AnimationPlayerTests, PlayAnimation_MissingInLibrary_GivesError) {
 TEST(AnimationPlayerTests, PlayAnimation_StartsAtFirstFrame) {
 	AnimationLibrary<int> library;
 	AnimationPlayer<int> player;
-	AnimationID animation_id = library.add_animation(TEST_ANIMATION);
+	const AnimationID animation_id = library.add_animation(TEST_ANIMATION);
 
 	std::optional<AnimationError> error = player.play(library, animation_id, 0ms);
 	EXPECT_FALSE(error.has_value());
@@ -53,7 +53,7 @@ TEST(AnimationPlayerTests, PlayAnimation_StartsAtFirstFrame) {
 TEST(AnimationPlayerTests, PlayAnimation_NonLoopingAnimation) {
 	AnimationLibrary<int> library;
 	AnimationPlayer<int> player;
-	AnimationID animation_id = library.add_animation(TEST_ANIMATION);
+	const AnimationID animation_id = library.add_animation(TEST_ANIMATION);
 
 	/* Play animation */
 	const Time start_time = 0ms;
@@ -80,7 +80,7 @@ TEST(AnimationPlayerTests, PlayAnimation_NonLoopingAnimation) {
 TEST(AnimationPlayerTests, PlayAnimation_LoopingAnimation) {
 	AnimationLibrary<int> library;
 	AnimationPlayer<int> player;
-	AnimationID animation_id = library.add_animation(TEST_ANIMATION);
+	const AnimationID animation_id = library.add_animation(TEST_ANIMATION);
 
 	/* Play animation */
 	const Time start_time = 0ms;
@@ -111,7 +111,7 @@ TEST(AnimationPlayerTests, PlayAnimation_LoopingAnimation) {
 TEST(AnimationPlayerTests, PlayAnimation_AlreadyPlaying_Resetarts) {
 	AnimationLibrary<int> library;
 	AnimationPlayer<int> player;
-	AnimationID animation_id = library.add_animation(TEST_ANIMATION);
+	const AnimationID animation_id = library.add_animation(TEST_ANIMATION);
 
 	/* Play animation */
 	const Time start_time = 0ms;
@@ -132,9 +132,9 @@ TEST(AnimationPlayerTests, PlayAnimation_AlreadyPlaying_Resetarts) {
 TEST(AnimationPlayerTests, PauseAnimation_HoldsSameFrame) {
 	AnimationLibrary<int> library;
 	AnimationPlayer<int> player;
-	AnimationID animation_id = library.add_animation(TEST_ANIMATION);
+	const AnimationID animation_id = library.add_animation(TEST_ANIMATION);
 
-	/* Start animation */
+	/* Play animation */
 	const Time start_time = 0ms;
 	std::optional<AnimationError> error = player.play(library, animation_id, start_time);
 	EXPECT_FALSE(error.has_value());
@@ -150,4 +150,44 @@ TEST(AnimationPlayerTests, PauseAnimation_HoldsSameFrame) {
 	EXPECT_EQ(player.value(), FRAME_ONE_VALUE);
 }
 
-// set animation frame, jumps there immediately
+TEST(AnimationPlayerTests, SetFrame_NoStartedAnimation_GivesError) {
+	AnimationLibrary<int> library;
+	AnimationPlayer<int> player;
+
+	std::optional<AnimationError> error = player.set_frame(library, 0ms, 1);
+	ASSERT_TRUE(error.has_value());
+	EXPECT_EQ(error.value(), AnimationError::MissingAnimationInLibrary);
+}
+
+TEST(AnimationPlayerTests, SetFrame_OutOfBounds_GivesError) {
+	AnimationLibrary<int> library;
+	AnimationPlayer<int> player;
+	const AnimationID animation_id = library.add_animation(TEST_ANIMATION);
+
+	const Time start_time = 0ms;
+	std::optional<AnimationError> play_error = player.play(library, animation_id, start_time);
+	std::optional<AnimationError> set_error = player.set_frame(library, start_time, 5);
+	EXPECT_FALSE(play_error.has_value());
+	ASSERT_TRUE(set_error.has_value());
+	EXPECT_EQ(set_error.value(), AnimationError::IndexOutOfBounds);
+}
+
+TEST(AnimationPlayerTests, SetFrame_JumpsThereImmediately) {
+	AnimationLibrary<int> library;
+	AnimationPlayer<int> player;
+	const AnimationID animation_id = library.add_animation(TEST_ANIMATION);
+
+	/* Play animation */
+	const Time start_time = 0ms;
+	std::optional<AnimationError> play_error = player.play(library, animation_id, start_time);
+	EXPECT_FALSE(play_error.has_value());
+
+	/* Set current frame to frame two */
+	std::optional<AnimationError> set_error = player.set_frame(library, start_time, 1);
+	EXPECT_FALSE(set_error.has_value());
+	EXPECT_EQ(player.value(), FRAME_TWO_VALUE);
+
+	/* Continue playing */
+	player.update(library, start_time + FRAME_TWO_DURATION);
+	EXPECT_EQ(player.value(), FRAME_THREE_VALUE);
+}
