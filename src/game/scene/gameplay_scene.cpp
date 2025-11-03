@@ -14,8 +14,6 @@ namespace game {
 
 	using namespace std::chrono_literals;
 
-	// constexpr engine::EntityID PLAYER_ID = engine::EntityID(1);
-
 	GameplayScene::GameplayScene()
 		: m_keyboard_stack({ VK_UP, VK_DOWN, VK_LEFT, VK_RIGHT }) {
 	}
@@ -99,25 +97,24 @@ namespace game {
 				direction = Direction::Right;
 			}
 
-			// 	const bool just_changed_direction = direction != m_player_dir;
-			// 	m_player_dir = direction;
-			// 	if (just_changed_direction || input.keyboard.key_was_pressed_now(keycode.value())) {
-			// 		DEBUG_ASSERT(m_sprite_animation_system.start_animation(PLAYER_ID, m_walk_animations[m_player_dir], input.time_now).has_value(), "Missing animation");
-			// 		DEBUG_ASSERT(m_sprite_animation_system.set_frame(PLAYER_ID, 1).has_value(), "Shit fuck"); // start at walking frame
-			// 	}
-			// }
-			// else {
-			// 	m_sprite_animation_system.stop_animation(PLAYER_ID);
-			// 	auto _ = m_sprite_animation_system.set_frame(PLAYER_ID, 0);
-			// }
-
-			const float player_speed = 75.0f; // pixels per second
-			m_player_velocity = player_speed * input_vector;
-			m_player_position += input.time_delta.in_seconds() * m_player_velocity;
-
-			/* Animation */
-			// m_sprite_animation_system.update(input.time_now);
+			const bool just_changed_direction = direction != m_player_dir;
+			m_player_dir = direction;
+			if (just_changed_direction || input.keyboard.key_was_pressed_now(keycode.value())) {
+				DEBUG_ASSERT(!m_animation_player.play(m_animation_library, m_walk_animations[m_player_dir], input.time_now).has_value(), "Couldn't play walk animation");
+				DEBUG_ASSERT(!m_animation_player.set_frame(m_animation_library, input.time_now, 1).has_value(), "Couldn't set walk animation frame");
+			}
 		}
+		else {
+			DEBUG_ASSERT(!m_animation_player.set_frame(m_animation_library, input.time_now, 0).has_value(), "Couldn't set walk animation frame");
+			m_animation_player.pause();
+		}
+
+		const float player_speed = 75.0f; // pixels per second
+		m_player_velocity = player_speed * input_vector;
+		m_player_position += input.time_delta.in_seconds() * m_player_velocity;
+
+		/* Animation */
+		m_animation_player.update(m_animation_library, input.time_now);
 	}
 
 	void GameplayScene::draw(engine::Renderer* renderer) const {
