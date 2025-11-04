@@ -76,6 +76,10 @@ namespace engine {
 			m_is_paused = true;
 		}
 
+		void unpause() {
+			m_is_paused = false;
+		}
+
 		[[nodiscard]] std::optional<AnimationError> set_frame(const AnimationLibrary<T>& library, Time global_time_now, int frame_index) {
 			/* Try get animation */
 			auto it = library.animations().find(m_animation_id);

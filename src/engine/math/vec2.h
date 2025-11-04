@@ -8,6 +8,8 @@ namespace engine {
 		float x;
 		float y;
 
+		bool operator==(const Vec2& rhs) const = default;
+
 		Vec2& operator+=(const Vec2& rhs);
 		Vec2& operator-=(const Vec2& rhs);
 		Vec2& operator*=(const Vec2& rhs);

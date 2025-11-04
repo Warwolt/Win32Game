@@ -77,6 +77,7 @@ namespace game {
 		/* Movement */
 		m_keyboard_stack.update(input);
 		engine::Vec2 input_vector = { 0, 0 };
+		bool just_changed_direction = false;
 		if (std::optional<int> keycode = m_keyboard_stack.top_keycode()) {
 			Direction direction = {};
 
@@ -96,22 +97,38 @@ namespace game {
 				input_vector.x += 1;
 				direction = Direction::Right;
 			}
-
-			const bool just_changed_direction = direction != m_player_dir;
+			just_changed_direction = m_player_dir != direction;
 			m_player_dir = direction;
-			if (just_changed_direction || input.keyboard.key_was_pressed_now(keycode.value())) {
+		}
+
+		const float player_speed = 75.0f; // pixels per second
+		const engine::Vec2 player_velocity = player_speed * input_vector;
+		const bool just_changed_velocity = player_velocity != m_player_velocity;
+		m_player_velocity = player_velocity;
+		m_player_position += input.time_delta.in_seconds() * m_player_velocity;
+
+		// FIXME: we want a "skip_to_next_frame" method on AnimationPlayer I think
+		//
+		// That way we can make the walk look good in the vertical direction,
+		// right now link always stops on the left foot, we want each keyboard
+		// press to alterante which foot he rests on.
+		//
+		// But, to implement that we need to refactor AnimationPlayer to keep
+		// track of which frame index it's on as a member, and not just compute
+		// that in the `update` and `set_frame` methods.
+
+		if (just_changed_velocity) {
+			/* Stop walking animation */
+			if (m_player_velocity.length() == 0) {
+				m_animation_player.pause();
+				DEBUG_ASSERT(!m_animation_player.set_frame(m_animation_library, input.time_now, 0).has_value(), "Couldn't set walk animation frame");
+			}
+			/* Start walking animation */
+			else {
 				DEBUG_ASSERT(!m_animation_player.play(m_animation_library, m_walk_animations[m_player_dir], input.time_now).has_value(), "Couldn't play walk animation");
 				DEBUG_ASSERT(!m_animation_player.set_frame(m_animation_library, input.time_now, 1).has_value(), "Couldn't set walk animation frame");
 			}
 		}
-		else {
-			DEBUG_ASSERT(!m_animation_player.set_frame(m_animation_library, input.time_now, 0).has_value(), "Couldn't set walk animation frame");
-			m_animation_player.pause();
-		}
-
-		const float player_speed = 75.0f; // pixels per second
-		m_player_velocity = player_speed * input_vector;
-		m_player_position += input.time_delta.in_seconds() * m_player_velocity;
 
 		/* Animation */
 		m_animation_player.update(m_animation_library, input.time_now);
