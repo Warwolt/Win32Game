@@ -4,19 +4,21 @@ Overall goal:
 - Simple Win32 level editor (create content for the games)
 
 # Todo
-- Tidy up engine::initialize, try to make things more uniform (e.g. everything uses constructors)
+- Add pause menu in-game
+- Create nicer interface for triggering animations that hides dependencies like AnimationLibrary and current time etc. (Add `play_animation` to CommandList? Add AnimationCommands as sub-object to CommandList?)
+- Support importing Aseprite sprite sheets
 - Draw API: Support for drawing text centered in a box
-- Add render test screen with lots of images to stress test, get a sense of budget
 - Add keyboard & mouse input test screen, display stream of events and data like e.g. mouse position
 - Add audio test screen, display volume of current played sample as a little bar
   - maybe relevant: https://stackoverflow.com/questions/35438815/how-do-i-retrieve-the-current-sample-play-position-from-an-xaudio2-source-voice
-- Add a little Link sprite that can walk around with keyboard
 - Try out LDtk Level Editor (https://ldtk.io/)
 - Try out FMOD as audio player
+- Add render test screen with lots of images to stress test, get a sense of budget
 
 # Doing
 
 # Done
+- Add a little Link sprite that can walk around with keyboard
 - Add support to generate crash dump (https://learn.microsoft.com/en-us/windows/win32/api/minidumpapiset/nf-minidumpapiset-minidumpwritedump)
 - Add PR check for formatting
 - Basic scene system, to support both the debug screens and basic gameplay scene

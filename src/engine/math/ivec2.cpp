@@ -71,6 +71,15 @@ namespace engine {
 		};
 	}
 
+	float IVec2::length() const {
+		return sqrtf((float)(this->x * this->x + this->y * this->y));
+	}
+
+	Vec2 IVec2::normalized() const {
+		float length = this->length();
+		return Vec2 { this->x / length, this->y / length };
+	}
+
 	IVec2 IVec2::lerp(IVec2 lhs, const IVec2& rhs, float t) {
 		return IVec2 {
 			.x = (int32_t)std::round(engine::lerp((float)lhs.x, (float)rhs.x, t)),

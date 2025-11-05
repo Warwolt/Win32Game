@@ -1,7 +1,6 @@
 #pragma once
 
 #include <engine/graphics/rgba.h>
-#include <engine/math/math.h>
 #include <engine/math/vec2.h>
 
 #include <filesystem>

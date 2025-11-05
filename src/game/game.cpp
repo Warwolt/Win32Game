@@ -39,9 +39,8 @@ namespace game {
 		}
 	}
 
-	void draw(engine::Renderer* renderer, const Game& /*game*/) {
-		CPUProfilingScope_Game();
-		renderer->clear_screen(engine::RGBA::black());
+	void draw(engine::Renderer* /*renderer*/, const Game& /*game*/) {
+		// CPUProfilingScope_Game();
 	}
 
 } // namespace game

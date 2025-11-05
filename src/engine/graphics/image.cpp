@@ -1,8 +1,10 @@
 #include <engine/graphics/image.h>
 
-#include <stb_image/stb_image.h>
+#include <engine/math/math.h>
 
 #include <cmath>
+
+#include <stb_image/stb_image.h>
 
 namespace engine {
 

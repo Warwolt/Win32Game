@@ -3,6 +3,7 @@
 #include <game/ui/main_menu.h>
 
 #include <engine/commands.h>
+#include <engine/graphics/renderer.h>
 
 namespace game {
 
@@ -13,7 +14,8 @@ namespace game {
 	void MenuScene::update(const engine::Input& /*input*/, engine::CommandList* /*commands*/) {
 	}
 
-	void MenuScene::draw(engine::Renderer* /*renderer*/) const {
+	void MenuScene::draw(engine::Renderer* renderer) const {
+		renderer->clear_screen(engine::RGBA::black());
 	}
 
 } // namespace game

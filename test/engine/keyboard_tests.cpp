@@ -98,3 +98,26 @@ TEST(KeyboardTests, HeldUp) {
 	EXPECT_FALSE(keyboard.key_was_pressed_now(TEST_KEY_ID));
 }
 
+// From bug where up event not registered after holding down key for long time
+TEST(KeyboardTests, RepeatedDownEvents_UpEvent) {
+    Keyboard keyboard;
+
+    // push
+    keyboard.on_key_event(TEST_KEY_ID, true);
+    keyboard.on_key_event(TEST_KEY_ID, true);
+    keyboard.on_key_event(TEST_KEY_ID, true);
+    keyboard.on_key_event(TEST_KEY_ID, true);
+    keyboard.on_key_event(TEST_KEY_ID, true);
+
+    keyboard.update();
+
+    // release
+    keyboard.on_key_event(TEST_KEY_ID, false);
+
+    keyboard.update();
+
+    EXPECT_TRUE(keyboard.key_is_released(TEST_KEY_ID));
+	EXPECT_FALSE(keyboard.key_is_pressed(TEST_KEY_ID));
+	EXPECT_TRUE(keyboard.key_was_released_now(TEST_KEY_ID));
+	EXPECT_FALSE(keyboard.key_was_pressed_now(TEST_KEY_ID));
+}

@@ -8,6 +8,8 @@ namespace engine {
 		float x;
 		float y;
 
+		bool operator==(const Vec2& rhs) const = default;
+
 		Vec2& operator+=(const Vec2& rhs);
 		Vec2& operator-=(const Vec2& rhs);
 		Vec2& operator*=(const Vec2& rhs);
@@ -19,6 +21,9 @@ namespace engine {
 		friend Vec2 operator/(Vec2 lhs, const Vec2& rhs);
 		friend Vec2 operator*(float lhs, Vec2 rhs);
 		friend Vec2 operator/(Vec2 lhs, float rhs);
+
+		float length() const;
+		Vec2 normalized() const;
 
 		static Vec2 lerp(Vec2 lhs, const Vec2& rhs, float t);
 	};

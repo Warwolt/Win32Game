@@ -20,6 +20,7 @@ namespace engine {
 		Keyboard keyboard;
 		Mouse mouse;
 		Time time_now;
+		Time time_delta;
 	};
 
 	void update_input(Input* input, const InputEvents& events, const Window& window);

@@ -9,7 +9,7 @@ namespace engine {
 
 	class Screen {
 	public:
-		virtual ~Screen() {};
+		virtual ~Screen() = default;
 		virtual void initialize(ResourceManager* /*resources*/, CommandList* /*commands*/) {}
 		virtual void update(const Input& input, CommandList* commands) = 0;
 		virtual void draw(Renderer* renderer) const = 0;
