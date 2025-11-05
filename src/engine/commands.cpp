@@ -36,7 +36,8 @@ namespace engine {
 					scene_manager->register_scene(scene_name, scene_constructor);
 				}
 				MATCH_CASE(Command_LoadScene, scene_name) {
-					DEBUG_ASSERT(scene_manager->load_scene(scene_name).has_value(), "Failed to load scene \"%s\". Is it registered?", scene_name.c_str());
+					std::optional<SceneManagerError> load_error = scene_manager->load_scene(scene_name);
+					DEBUG_ASSERT(!load_error.has_value(), "Failed to load scene \"%s\". Is it registered?", scene_name.c_str());
 					scene_manager->current_scene()->initialize(resources, this);
 					screen_stack->clear();
 				}

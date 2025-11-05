@@ -41,10 +41,10 @@ TEST(SceneManagerTests, InitiallyHoldsNoScene) {
 TEST(SceneManagerTests, LoadScene_NonRegisteredScene_GivesError) {
 	SceneManager scene_manager;
 
-	std::expected<void, SceneManagerError> result = scene_manager.load_scene("bad scene name");
+	std::optional<SceneManagerError> error = scene_manager.load_scene("bad scene name");
 
-	ASSERT_FALSE(result.has_value());
-	EXPECT_EQ(result.error(), SceneManagerError::InvalidSceneName);
+	ASSERT_TRUE(error.has_value());
+	EXPECT_EQ(error.value(), SceneManagerError::InvalidSceneName);
 }
 
 TEST(SceneManagerTests, LoadScene_RegisteredScene_SceneGetsLoaded) {
@@ -55,8 +55,8 @@ TEST(SceneManagerTests, LoadScene_RegisteredScene_SceneGetsLoaded) {
 	EXPECT_EQ(TestScene::num_instances, 0);
 
 	/* Load scene */
-	std::expected<void, SceneManagerError> result = scene_manager.load_scene(TestScene::NAME);
-	EXPECT_TRUE(result.has_value());
+	std::optional<SceneManagerError> error = scene_manager.load_scene(TestScene::NAME);
+	EXPECT_FALSE(error.has_value());
 	EXPECT_EQ(TestScene::num_instances, 1);
 	EXPECT_NE(scene_manager.current_scene(), nullptr);
 }
@@ -71,14 +71,14 @@ TEST(SceneManagerTests, LoadScene_TwoRegisteredScenes_CanSwapBetweenThem) {
 	EXPECT_EQ(TestScene2::num_instances, 0);
 
 	/* Load first scene */
-	std::expected<void, SceneManagerError> result = scene_manager.load_scene(TestScene::NAME);
-	EXPECT_TRUE(result.has_value());
+	std::optional<SceneManagerError> error = scene_manager.load_scene(TestScene::NAME);
+	EXPECT_FALSE(error.has_value());
 	EXPECT_EQ(TestScene::num_instances, 1);
 	EXPECT_EQ(TestScene2::num_instances, 0);
 
 	/* Load second scene */
-	std::expected<void, SceneManagerError> result2 = scene_manager.load_scene(TestScene2::NAME);
-	EXPECT_TRUE(result2.has_value());
+	std::optional<SceneManagerError> error2 = scene_manager.load_scene(TestScene2::NAME);
+	EXPECT_FALSE(error.has_value());
 	EXPECT_EQ(TestScene::num_instances, 0);
 	EXPECT_EQ(TestScene2::num_instances, 1);
 }
