@@ -146,7 +146,7 @@ namespace engine {
 
 		int m_next_id = 1;
 		T m_default = {};
-		std::unordered_map<int, Animation> m_animations;        // AnimationID -> Animation
+		std::unordered_map<int, Animation> m_animations; // AnimationID -> Animation
 		std::unordered_map<int, Playback> m_playing_animations; // AnimationEntityID -> Playback
 		std::unordered_map<int, Playback> m_stopped_animations; // AnimationEntityID -> Playback
 	};

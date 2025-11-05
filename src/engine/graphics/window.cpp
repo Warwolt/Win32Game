@@ -20,7 +20,7 @@ namespace engine {
 		/* Register window class */
 		WNDCLASSA window_class = {
 			.style =
-				CS_OWNDC                   // give this window a unique device context
+				CS_OWNDC // give this window a unique device context
 				| CS_HREDRAW | CS_VREDRAW, // redraw entire window when it's resized
 			.lpfnWndProc = wnd_proc,
 			.hInstance = instance,
@@ -50,18 +50,18 @@ namespace engine {
 
 		/* Create window */
 		window.m_handle = CreateWindowExA(
-			0,                                                                   // DWORD dwExStyle
-			window_class.lpszClassName,                                          // LPCWSTR lpClassName
-			window_title,                                                        // LPCWSTR lpWindowName
+			0, // DWORD dwExStyle
+			window_class.lpszClassName, // LPCWSTR lpClassName
+			window_title, // LPCWSTR lpWindowName
 			WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX & ~WS_THICKFRAME | WS_VISIBLE, // DWORD dwStyle
-			monitor_center_x - window.m_window_size.x / 2,                       // int X
-			monitor_center_y - window.m_window_size.y / 2,                       // int Y
-			adjusted_window_width,                                               // int nWidth
-			adjusted_window_height,                                              // int nHeight
-			0,                                                                   // HWND hWndParent
-			0,                                                                   // HMENU hMenu
-			instance,                                                            // HINSTANCE hInstance
-			0                                                                    // LPVOID lpParam
+			monitor_center_x - window.m_window_size.x / 2, // int X
+			monitor_center_y - window.m_window_size.y / 2, // int Y
+			adjusted_window_width, // int nWidth
+			adjusted_window_height, // int nHeight
+			0, // HWND hWndParent
+			0, // HMENU hMenu
+			instance, // HINSTANCE hInstance
+			0 // LPVOID lpParam
 		);
 
 		if (!window.m_handle) {

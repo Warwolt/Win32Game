@@ -31,16 +31,16 @@ namespace engine {
 			.hStdError = stdout_write,
 		};
 		BOOL process_was_created = CreateProcessA(
-			NULL,                               // lpApplicationName
+			NULL, // lpApplicationName
 			const_cast<LPSTR>(command.c_str()), // lpCommandLine
-			NULL,                               // lpProcessAttributes
-			NULL,                               // lpThreadAttributes
-			TRUE,                               // bInheritHandles
-			0,                                  // dwCreationFlags
-			NULL,                               // lpEnvironment
-			NULL,                               // lpCurrentDirectory
-			&startup_info,                      // lpStartupInfo
-			&process_info                       // lpProcessInformation
+			NULL, // lpProcessAttributes
+			NULL, // lpThreadAttributes
+			TRUE, // bInheritHandles
+			0, // dwCreationFlags
+			NULL, // lpEnvironment
+			NULL, // lpCurrentDirectory
+			&startup_info, // lpStartupInfo
+			&process_info // lpProcessInformation
 		);
 		if (!process_was_created) {
 			return std::unexpected(std::format("CreateProcessA failed, error: {}", GetLastError()));
