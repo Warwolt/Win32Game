@@ -26,6 +26,37 @@ namespace game {
 		m_scene_is_paused = false;
 	}
 
+	// Save system
+	//
+	// How do we support saving and loading? What's happening between the game module and the scenes?
+	// Should the `initialize` maybe take some kind of read-only game state to initialize itself from?
+	//
+	// The most simple save data we can use right now is probably the position of the player character.
+	// When pressing "save & quit" in the pause menu, we want to save the current player position.
+	// When pressing "play" in the main menu we'd want to continue from where we left off.
+	// That means we'd want the GameplayScene to initialize the player position based on the save data.
+	// But, Scene::initialize is defined in the engine, so we can't use any specific game type here.
+	// So how do we get the data into the Scene?
+	//
+	// Should the engine provide some kind of generic load/save mechanism?
+	// One possiblity is to just provide a "key-value dict" that is sent into the initialize method.
+	//
+	// Scene::initialize(const SaveData& save_data, ResourceManager* resources, CommandList* commands)
+	//
+	// m_player_position = save_data["player_position"].as_number().value()
+	//
+	// Probably we'd want the SaveData to behave like a json blob, interface wise?
+	// We could use https://github.com/nlohmann/json as JSON parser, and just wrap the JSON stuff with our own engine::SaveData type.
+	// That way, we have something the engine can safely expose, while still allowing us to swap to some other data format later if want.
+	//
+	// Let's assume Scene::initialize receives a SaveData reference when it's created.
+	// Where is that SaveData instance sourced from? We'd need some kind of "load data" command.
+	//
+	// CommandList::read_save_file(std::string file_path) => read file content into the engine::save_data variable
+	// CommandList::write_save_file(std::string file_path) => writes engine::save_data variable to file
+	//
+	// Inside GameplayScene::initialize we'd just try to parse the contents of SaveData
+
 	void GameplayScene::initialize(engine::ResourceManager* resources, engine::CommandList* /*commands*/) {
 		m_sprite_sheet_id = resources->load_image("assets/image/render_test/sprite_sheet.png");
 		const engine::Image& sprite_sheet = resources->image(m_sprite_sheet_id);
