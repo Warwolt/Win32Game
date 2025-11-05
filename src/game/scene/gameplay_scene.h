@@ -32,8 +32,6 @@ namespace game {
 			bool flip_h;
 		};
 
-		bool m_scene_is_paused = false;
-
 		// Movement
 		engine::KeyboardStack m_keyboard_stack;
 		engine::Vec2 m_player_position = {};

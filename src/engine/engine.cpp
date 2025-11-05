@@ -67,10 +67,13 @@ namespace engine {
 
 		/* Update current scene */
 		if (Scene* current_scene = engine->scene_manager.current_scene()) {
-			current_scene->update(engine->input, commands);
+			// Only update scene if we're not drawing a screen on top
+			if (engine->screen_stack.top_screen() == nullptr) {
+				current_scene->update(engine->input, commands);
+			}
 		}
 
-		/* Update topmost screen */
+		/* Update top-most screen */
 		if (Screen* top_screen = engine->screen_stack.top_screen()) {
 			top_screen->update(engine->input, commands);
 		}

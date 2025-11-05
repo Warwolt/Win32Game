@@ -71,29 +71,13 @@ namespace game {
 	void GameplayScene::update(const engine::Input& input, engine::CommandList* commands) {
 		/* Show Pause */
 		if (input.keyboard.key_was_pressed_now(VK_ESCAPE)) {
-			// FIXME:
-			// Is this really the right way to do this?
-			// We're updating this scene even though we're paused
-			// Should we may be make it a property of a screen that it pauses the underlying scene?
-			// Maybe unless the screen is an overlay (e.g. a HUD) we always pause the scene?
-			if (m_scene_is_paused) {
-				m_scene_is_paused = false;
-			}
-			else {
-				m_scene_is_paused = true;
-				commands->push_screen(PauseMenu::NAME);
-			}
+			commands->push_screen(PauseMenu::NAME);
 		}
 
 		/* Update systems */
-		m_keyboard_stack.update(input);
 		// FIXME: we to pause and unpause animations on scene pause, probably
+		m_keyboard_stack.update(input);
 		m_animation_player.update(m_animation_library, input.time_now);
-
-		/* Skip remaining update if we're paused */
-		if (m_scene_is_paused) {
-			return;
-		}
 
 		/* Movement */
 		engine::Vec2 input_vector = { 0, 0 };
