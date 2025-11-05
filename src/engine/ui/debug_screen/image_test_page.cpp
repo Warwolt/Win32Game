@@ -36,15 +36,15 @@ namespace engine {
 			{ { 3, true }, 430ms },
 			{ { 2, true }, 430ms },
 		};
-		m_animation_system.add_animation(sprite_animation, { .looping = true });
+		m_animation_id = m_animation_library.add_animation(sprite_animation, { .looping = true });
 	}
 
 	void ImageDebugPage::update(bool opened_now, const Input& input) {
 		if (opened_now) {
-			DEBUG_ASSERT(m_animation_system.restart_animation(AnimationEntityID(1), AnimationID(1), input.time_now), "Couldn't start animation");
+			std::optional<AnimationError> error = m_animation_player.play(m_animation_library, m_animation_id, input.time_now);
+			DEBUG_ASSERT(!error.has_value(), "Couldn't play animation, error %d", (int)error.value());
 		}
-
-		m_animation_system.update(input.time_now);
+		m_animation_player.update(m_animation_library, input.time_now);
 	}
 
 	void ImageDebugPage::draw(Renderer* renderer) const {
@@ -53,7 +53,7 @@ namespace engine {
 
 		/* Draw animated sprite */
 		{
-			const SpriteData& sprite = m_animation_system.current_frame(AnimationEntityID(1));
+			const SpriteData& sprite = m_animation_player.value();
 
 			const IVec2 sprite_sheet_pos = { 0, 20 };
 			const int32_t sprite_width = 16;

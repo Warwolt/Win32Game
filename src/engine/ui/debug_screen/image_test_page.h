@@ -1,11 +1,8 @@
 #pragma once
 
-#include <engine/animation/animation_system.h>
+#include <engine/animation/animation.h>
 #include <engine/graphics/image_id.h>
 #include <engine/graphics/rect.h>
-#include <engine/input/time.h>
-
-#include <vector>
 
 namespace engine {
 
@@ -25,7 +22,9 @@ namespace engine {
 			bool is_flipped;
 		};
 
-		AnimationSystem<SpriteData> m_animation_system;
+		AnimationLibrary<SpriteData> m_animation_library;
+		AnimationPlayer<SpriteData> m_animation_player;
+		AnimationID m_animation_id = {};
 
 		ImageID m_test_image;
 		ImageID m_sprite_sheet;

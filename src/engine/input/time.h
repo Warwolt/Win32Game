@@ -16,11 +16,14 @@ namespace engine {
 		Time(std::chrono::milliseconds ms);
 		Time(std::chrono::seconds sec);
 
+		float in_seconds() const;
+
 		auto operator<=>(const Time&) const = default;
 		Time& operator+=(const Time& rhs);
 		Time& operator-=(const Time& rhs);
 		friend Time operator+(Time lhs, const Time& rhs);
 		friend Time operator-(Time lhs, const Time& rhs);
+		friend Time operator*(float lhs, const Time& rhs);
 		friend int64_t operator/(Time lhs, const Time& rhs);
 		friend Time operator%(Time lhs, const Time& rhs);
 	};
