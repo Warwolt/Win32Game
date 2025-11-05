@@ -61,6 +61,7 @@ set(TEST_SRC
     test/engine/button_tests.cpp
     test/engine/keyboard_tests.cpp
     test/engine/moving_average_tests.cpp
+    test/engine/save_file_tests.cpp
     test/engine/scene_manager_tests.cpp
     test/engine/screen_stack_tests.cpp
 )

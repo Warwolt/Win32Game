@@ -41,21 +41,22 @@ namespace game {
 	// Should the engine provide some kind of generic load/save mechanism?
 	// One possiblity is to just provide a "key-value dict" that is sent into the initialize method.
 	//
-	// Scene::initialize(const SaveData& save_data, ResourceManager* resources, CommandList* commands)
+	// Scene::initialize(const SaveFile& save_file, ResourceManager* resources, CommandList* commands)
 	//
-	// m_player_position = save_data["player_position"].as_number().value()
+	// m_player_position.x = save_file["player_position_x"].as_number().value();
+	// m_player_position.y = save_file["player_position_y"].as_number().value();
 	//
-	// Probably we'd want the SaveData to behave like a json blob, interface wise?
-	// We could use https://github.com/nlohmann/json as JSON parser, and just wrap the JSON stuff with our own engine::SaveData type.
+	// Probably we'd want the SaveFile to behave like a json blob, interface wise?
+	// We could use https://github.com/nlohmann/json as JSON parser, and just wrap the JSON stuff with our own engine::SaveFile type.
 	// That way, we have something the engine can safely expose, while still allowing us to swap to some other data format later if want.
 	//
-	// Let's assume Scene::initialize receives a SaveData reference when it's created.
-	// Where is that SaveData instance sourced from? We'd need some kind of "load data" command.
+	// Let's assume Scene::initialize receives a SaveFile reference when it's created.
+	// Where is that SaveFile instance sourced from? We'd need some kind of "load data" command.
 	//
-	// CommandList::read_save_file(std::string file_path) => read file content into the engine::save_data variable
-	// CommandList::write_save_file(std::string file_path) => writes engine::save_data variable to file
+	// CommandList::read_save_file(std::string file_path) => read file content into the engine::save_file variable
+	// CommandList::write_save_file(std::string file_path) => writes engine::save_file variable to file
 	//
-	// Inside GameplayScene::initialize we'd just try to parse the contents of SaveData
+	// Inside GameplayScene::initialize we'd just try to parse the contents of SaveFile
 
 	void GameplayScene::initialize(engine::ResourceManager* resources, engine::CommandList* /*commands*/) {
 		m_sprite_sheet_id = resources->load_image("assets/image/render_test/sprite_sheet.png");
