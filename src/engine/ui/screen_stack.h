@@ -22,6 +22,7 @@ namespace engine {
 
 		void register_screen(std::string name, ScreenConstructor constructor);
 		Screen* top_screen();
+		// FIXME: return an optional instead of an error here
 		std::expected<void, ScreenStackError> push_screen(const std::string& screen_name);
 		void pop_screen();
 		void clear();

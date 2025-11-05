@@ -16,6 +16,10 @@ namespace game {
 	public:
 		static constexpr char NAME[] = "GameplayScene";
 		GameplayScene();
+
+		void on_pause() override;
+		void on_unpause() override;
+
 		void initialize(engine::ResourceManager* resources, engine::CommandList* commands) override;
 		void update(const engine::Input& input, engine::CommandList* commands) override;
 		void draw(engine::Renderer* renderer) const override;
@@ -31,6 +35,8 @@ namespace game {
 			engine::Rect clip;
 			bool flip_h;
 		};
+
+		bool m_scene_is_paused = false;
 
 		// Movement
 		engine::KeyboardStack m_keyboard_stack;
