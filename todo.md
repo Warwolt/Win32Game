@@ -7,6 +7,7 @@ Goal:
   - Victory screen
 
 # Todo
+- Bug investigation: Probably the crash on hot reload is caused by the re-loaded DLL using new heap compared to the previous DLL. Can we investigate if this really the case? Reference: (https://devblogs.microsoft.com/oldnewthing/20161209-00/?p=94905)
 - Create nicer interface for triggering animations that hides dependencies like AnimationLibrary and current time etc. (Add `play_animation` to CommandList? Add AnimationCommands as sub-object to CommandList?)
 - Support importing Aseprite sprite sheets
 - Draw API: Support for drawing text centered in a box
