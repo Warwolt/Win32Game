@@ -1,10 +1,12 @@
-Overall goal:
-- Game programming in Win32
-- Simple complete games (pong, tetris etc.)
-- Simple Win32 level editor (create content for the games)
+Goal:
+- Get a minimalistic NES Zelda game done.
+  - Main menu
+  - Some levels to play
+  - Pause screen
+  - Game over screen
+  - Victory screen
 
 # Todo
-- Add pause menu in-game
 - Create nicer interface for triggering animations that hides dependencies like AnimationLibrary and current time etc. (Add `play_animation` to CommandList? Add AnimationCommands as sub-object to CommandList?)
 - Support importing Aseprite sprite sheets
 - Draw API: Support for drawing text centered in a box
@@ -16,6 +18,7 @@ Overall goal:
 - Add render test screen with lots of images to stress test, get a sense of budget
 
 # Doing
+- Add pause menu in-game
 
 # Done
 - Add a little Link sprite that can walk around with keyboard
