@@ -9,9 +9,9 @@
 
 namespace engine {
 
-    struct Input;
+	struct Input;
 
-    // Keeps track of most recently pressed key in a set of keyboard keys.
+	// Keeps track of most recently pressed key in a set of keyboard keys.
 	//
 	// Pressing a key puts it on top of the stack.
 	// When releasing a key, it's removed from the stack.
