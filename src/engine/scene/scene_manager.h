@@ -2,9 +2,9 @@
 
 #include <engine/scene/scene.h>
 
-#include <expected>
 #include <functional>
 #include <memory>
+#include <optional>
 #include <string>
 #include <unordered_map>
 
@@ -19,7 +19,7 @@ namespace engine {
 		using SceneConstructor = std::function<std::unique_ptr<Scene>()>;
 
 		void register_scene(std::string name, SceneConstructor constructor);
-		std::expected<void, SceneManagerError> load_scene(const std::string& scene_name);
+		std::optional<SceneManagerError> load_scene(const std::string& scene_name);
 		Scene* current_scene();
 
 	private:

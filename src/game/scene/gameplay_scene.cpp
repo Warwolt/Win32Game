@@ -1,12 +1,12 @@
 #include <game/scene/gameplay_scene.h>
 
+#include <game/ui/pause_menu.h>
+
 #include <engine/commands.h>
 #include <engine/debug/assert.h>
 #include <engine/file/resource_manager.h>
 #include <engine/graphics/renderer.h>
 #include <engine/input/input.h>
-
-#include <game/scene/menu_scene.h>
 
 #include <windows.h>
 
@@ -16,6 +16,14 @@ namespace game {
 
 	GameplayScene::GameplayScene()
 		: m_keyboard_stack({ VK_UP, VK_DOWN, VK_LEFT, VK_RIGHT }) {
+	}
+
+	void GameplayScene::on_pause() {
+		m_scene_is_paused = true;
+	}
+
+	void GameplayScene::on_unpause() {
+		m_scene_is_paused = false;
 	}
 
 	void GameplayScene::initialize(engine::ResourceManager* resources, engine::CommandList* /*commands*/) {
@@ -69,69 +77,69 @@ namespace game {
 	}
 
 	void GameplayScene::update(const engine::Input& input, engine::CommandList* commands) {
-		/* Quit to menu */
+		/* Show pause menu */
 		if (input.keyboard.key_was_pressed_now(VK_ESCAPE)) {
-			commands->load_scene(MenuScene::NAME);
+			commands->push_screen(PauseMenu::NAME);
 		}
 
-		/* Movement */
+		/* Update non-pausable systems */
 		m_keyboard_stack.update(input);
-		engine::Vec2 input_vector = { 0, 0 };
-		bool just_changed_direction = false;
-		if (std::optional<int> keycode = m_keyboard_stack.top_keycode()) {
-			Direction direction = {};
 
-			if (keycode.value() == VK_UP) {
-				input_vector.y -= 1;
-				direction = Direction::Up;
-			}
-			if (keycode.value() == VK_DOWN) {
-				input_vector.y += 1;
-				direction = Direction::Down;
-			}
-			if (keycode.value() == VK_LEFT) {
-				input_vector.x -= 1;
-				direction = Direction::Left;
-			}
-			if (keycode.value() == VK_RIGHT) {
-				input_vector.x += 1;
-				direction = Direction::Right;
-			}
-			just_changed_direction = m_player_dir != direction;
-			m_player_dir = direction;
+		/* Skip remaining update if we're paused */
+		if (m_scene_is_paused) {
+			return;
 		}
 
-		const float player_speed = 75.0f; // pixels per second
-		const engine::Vec2 player_velocity = player_speed * input_vector;
-		const bool just_changed_velocity = player_velocity != m_player_velocity;
-		m_player_velocity = player_velocity;
-		m_player_position += input.time_delta.in_seconds() * m_player_velocity;
-
-		// FIXME: we want a "skip_to_next_frame" method on AnimationPlayer I think
-		//
-		// That way we can make the walk look good in the vertical direction,
-		// right now link always stops on the left foot, we want each keyboard
-		// press to alterante which foot he rests on.
-		//
-		// But, to implement that we need to refactor AnimationPlayer to keep
-		// track of which frame index it's on as a member, and not just compute
-		// that in the `update` and `set_frame` methods.
-
-		if (just_changed_velocity) {
-			/* Stop walking animation */
-			if (m_player_velocity.length() == 0) {
-				m_animation_player.pause();
-				DEBUG_ASSERT(!m_animation_player.set_frame(m_animation_library, input.time_now, 0).has_value(), "Couldn't set walk animation frame");
-			}
-			/* Start walking animation */
-			else {
-				DEBUG_ASSERT(!m_animation_player.play(m_animation_library, m_walk_animations[m_player_dir], input.time_now).has_value(), "Couldn't play walk animation");
-				DEBUG_ASSERT(!m_animation_player.set_frame(m_animation_library, input.time_now, 1).has_value(), "Couldn't set walk animation frame");
-			}
-		}
-
-		/* Animation */
+		/* Update pausable systems */
 		m_animation_player.update(m_animation_library, input.time_now);
+
+		/* Update pausable game logic */
+		{
+			/* Movement */
+			engine::Vec2 input_vector = { 0, 0 };
+			bool just_changed_direction = false;
+			if (std::optional<int> keycode = m_keyboard_stack.top_keycode()) {
+				Direction direction = {};
+
+				if (keycode.value() == VK_UP) {
+					input_vector.y -= 1;
+					direction = Direction::Up;
+				}
+				if (keycode.value() == VK_DOWN) {
+					input_vector.y += 1;
+					direction = Direction::Down;
+				}
+				if (keycode.value() == VK_LEFT) {
+					input_vector.x -= 1;
+					direction = Direction::Left;
+				}
+				if (keycode.value() == VK_RIGHT) {
+					input_vector.x += 1;
+					direction = Direction::Right;
+				}
+				just_changed_direction = m_player_dir != direction;
+				m_player_dir = direction;
+			}
+
+			const float player_speed = 75.0f; // pixels per second
+			const engine::Vec2 player_velocity = player_speed * input_vector;
+			const bool just_changed_velocity = player_velocity != m_player_velocity;
+			m_player_velocity = player_velocity;
+			m_player_position += input.time_delta.in_seconds() * m_player_velocity;
+
+			if (just_changed_velocity) {
+				/* Stop walking animation */
+				if (m_player_velocity.length() == 0) {
+					m_animation_player.pause();
+					DEBUG_ASSERT(!m_animation_player.set_frame(m_animation_library, input.time_now, 0).has_value(), "Couldn't set walk animation frame");
+				}
+				/* Start walking animation */
+				else {
+					DEBUG_ASSERT(!m_animation_player.play(m_animation_library, m_walk_animations[m_player_dir], input.time_now).has_value(), "Couldn't play walk animation");
+					DEBUG_ASSERT(!m_animation_player.set_frame(m_animation_library, input.time_now, 1).has_value(), "Couldn't set walk animation frame");
+				}
+			}
+		}
 	}
 
 	void GameplayScene::draw(engine::Renderer* renderer) const {

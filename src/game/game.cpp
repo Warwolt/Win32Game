@@ -3,6 +3,7 @@
 #include <game/scene/gameplay_scene.h>
 #include <game/scene/menu_scene.h>
 #include <game/ui/main_menu.h>
+#include <game/ui/pause_menu.h>
 
 #include <engine/commands.h>
 #include <engine/debug/profiling.h>
@@ -22,6 +23,7 @@ namespace game {
 
 		/* Register screens */
 		commands->register_screen<MainMenu>();
+		commands->register_screen<PauseMenu>();
 		commands->register_screen<engine::DebugScreen>();
 
 		/* Load first scene */

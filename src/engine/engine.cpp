@@ -70,7 +70,7 @@ namespace engine {
 			current_scene->update(engine->input, commands);
 		}
 
-		/* Update topmost screen */
+		/* Update top-most screen */
 		if (Screen* top_screen = engine->screen_stack.top_screen()) {
 			top_screen->update(engine->input, commands);
 		}
