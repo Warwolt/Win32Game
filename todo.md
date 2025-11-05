@@ -7,20 +7,20 @@ Goal:
   - [ ] Victory screen
 
 # Todo
-- Save file system, save & quit in menu
 - Enemies walking around
 - Support importing Aseprite sprite sheets
 - Bug investigation: Probably the crash on hot reload is caused by the re-loaded DLL using new heap compared to the previous DLL. Can we investigate if this really the case? Reference: (https://devblogs.microsoft.com/oldnewthing/20161209-00/?p=94905)
 - Create nicer interface for triggering animations that hides dependencies like AnimationLibrary and current time etc. (Add `play_animation` to CommandList? Add AnimationCommands as sub-object to CommandList?)
 - Draw API: Support for drawing text centered in a box
 - Add keyboard & mouse input test screen, display stream of events and data like e.g. mouse position
-- Add audio test screen, display volume of current played sample as a little bar
-  - maybe relevant: https://stackoverflow.com/questions/35438815/how-do-i-retrieve-the-current-sample-play-position-from-an-xaudio2-source-voice
 - Try out LDtk Level Editor (https://ldtk.io/)
 - Try out FMOD as audio player
+- Add audio test screen, display volume of current played sample as a little bar
+  - maybe relevant: https://stackoverflow.com/questions/35438815/how-do-i-retrieve-the-current-sample-play-position-from-an-xaudio2-source-voice
 - Add render test screen with lots of images to stress test, get a sense of budget
 
 # Doing
+- Save file system, save & quit in menu
 
 # Done
 - Add pause menu in-game
