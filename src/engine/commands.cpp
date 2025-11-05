@@ -47,7 +47,12 @@ namespace engine {
 				}
 				MATCH_CASE(Command_PushScreen, screen_name) {
 					const bool pushing_onto_empty_stack = screen_stack->top_screen() == nullptr;
-					DEBUG_ASSERT(screen_stack->push_screen(screen_name).has_value(), "Failed to push screen \"%s\". Is it registered?", screen_name.c_str());
+
+					/* Push screen */
+					std::optional<ScreenStackError> push_error = screen_stack->push_screen(screen_name);
+					DEBUG_ASSERT(!push_error.has_value(), "Failed to push screen \"%s\". Is it registered?", screen_name.c_str());
+
+					/* Notify scene that it's being paused */
 					screen_stack->top_screen()->initialize(resources, this);
 					if (Scene* current_scene = scene_manager->current_scene()) {
 						if (pushing_onto_empty_stack) {
@@ -56,7 +61,10 @@ namespace engine {
 					}
 				}
 				MATCH_CASE0(Command_PopScreen) {
+					/* Pop screen */
 					screen_stack->pop_screen();
+
+					/* Notify scene that it's being unpaused */
 					const bool last_screen_popped = screen_stack->top_screen() == nullptr;
 					if (Scene* current_scene = scene_manager->current_scene()) {
 						if (last_screen_popped) {

@@ -13,11 +13,11 @@ namespace engine {
 		return m_screens.back().screen.get();
 	}
 
-	std::expected<void, ScreenStackError> ScreenStack::push_screen(const std::string& screen_name) {
+	std::optional<ScreenStackError> ScreenStack::push_screen(const std::string& screen_name) {
 		/* Check screen registered */
 		auto it = m_screen_constructors.find(screen_name);
 		if (it == m_screen_constructors.end()) {
-			return std::unexpected(ScreenStackError::InvalidSceeenName);
+			return ScreenStackError::InvalidSceeenName;
 		}
 
 		/* Show screen if it's not already currently shown */

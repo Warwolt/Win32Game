@@ -2,7 +2,7 @@
 
 #include <engine/ui/screen.h>
 
-#include <expected>
+#include <optional>
 #include <functional>
 #include <memory>
 #include <string>
@@ -22,8 +22,7 @@ namespace engine {
 
 		void register_screen(std::string name, ScreenConstructor constructor);
 		Screen* top_screen();
-		// FIXME: return an optional instead of an error here
-		std::expected<void, ScreenStackError> push_screen(const std::string& screen_name);
+		std::optional<ScreenStackError> push_screen(const std::string& screen_name);
 		void pop_screen();
 		void clear();
 
