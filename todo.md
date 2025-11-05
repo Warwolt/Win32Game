@@ -1,15 +1,17 @@
 Goal:
 - Get a minimalistic NES Zelda game done.
-  - Main menu
-  - Some levels to play
-  - Pause screen
-  - Game over screen
-  - Victory screen
+  - [x] Main menu
+  - [ ] Level with enemy and goal
+  - [x] Pause screen
+  - [ ] Game over screen
+  - [ ] Victory screen
 
 # Todo
+- Save file system, save & quit in menu
+- Enemies walking around
+- Support importing Aseprite sprite sheets
 - Bug investigation: Probably the crash on hot reload is caused by the re-loaded DLL using new heap compared to the previous DLL. Can we investigate if this really the case? Reference: (https://devblogs.microsoft.com/oldnewthing/20161209-00/?p=94905)
 - Create nicer interface for triggering animations that hides dependencies like AnimationLibrary and current time etc. (Add `play_animation` to CommandList? Add AnimationCommands as sub-object to CommandList?)
-- Support importing Aseprite sprite sheets
 - Draw API: Support for drawing text centered in a box
 - Add keyboard & mouse input test screen, display stream of events and data like e.g. mouse position
 - Add audio test screen, display volume of current played sample as a little bar
@@ -19,9 +21,9 @@ Goal:
 - Add render test screen with lots of images to stress test, get a sense of budget
 
 # Doing
-- Add pause menu in-game
 
 # Done
+- Add pause menu in-game
 - Add a little Link sprite that can walk around with keyboard
 - Add support to generate crash dump (https://learn.microsoft.com/en-us/windows/win32/api/minidumpapiset/nf-minidumpapiset-minidumpwritedump)
 - Add PR check for formatting
