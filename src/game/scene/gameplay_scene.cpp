@@ -1,12 +1,12 @@
 #include <game/scene/gameplay_scene.h>
 
+#include <game/ui/pause_menu.h>
+
 #include <engine/commands.h>
 #include <engine/debug/assert.h>
 #include <engine/file/resource_manager.h>
 #include <engine/graphics/renderer.h>
 #include <engine/input/input.h>
-
-#include <game/scene/menu_scene.h>
 
 #include <windows.h>
 
@@ -69,13 +69,33 @@ namespace game {
 	}
 
 	void GameplayScene::update(const engine::Input& input, engine::CommandList* commands) {
-		/* Quit to menu */
+		/* Show Pause */
 		if (input.keyboard.key_was_pressed_now(VK_ESCAPE)) {
-			commands->load_scene(MenuScene::NAME);
+			// FIXME:
+			// Is this really the right way to do this?
+			// We're updating this scene even though we're paused
+			// Should we may be make it a property of a screen that it pauses the underlying scene?
+			// Maybe unless the screen is an overlay (e.g. a HUD) we always pause the scene?
+			if (m_scene_is_paused) {
+				m_scene_is_paused = false;
+			}
+			else {
+				m_scene_is_paused = true;
+				commands->push_screen(PauseMenu::NAME);
+			}
+		}
+
+		/* Update systems */
+		m_keyboard_stack.update(input);
+		// FIXME: we to pause and unpause animations on scene pause, probably
+		m_animation_player.update(m_animation_library, input.time_now);
+
+		/* Skip remaining update if we're paused */
+		if (m_scene_is_paused) {
+			return;
 		}
 
 		/* Movement */
-		m_keyboard_stack.update(input);
 		engine::Vec2 input_vector = { 0, 0 };
 		bool just_changed_direction = false;
 		if (std::optional<int> keycode = m_keyboard_stack.top_keycode()) {
@@ -107,16 +127,6 @@ namespace game {
 		m_player_velocity = player_velocity;
 		m_player_position += input.time_delta.in_seconds() * m_player_velocity;
 
-		// FIXME: we want a "skip_to_next_frame" method on AnimationPlayer I think
-		//
-		// That way we can make the walk look good in the vertical direction,
-		// right now link always stops on the left foot, we want each keyboard
-		// press to alterante which foot he rests on.
-		//
-		// But, to implement that we need to refactor AnimationPlayer to keep
-		// track of which frame index it's on as a member, and not just compute
-		// that in the `update` and `set_frame` methods.
-
 		if (just_changed_velocity) {
 			/* Stop walking animation */
 			if (m_player_velocity.length() == 0) {
@@ -129,9 +139,6 @@ namespace game {
 				DEBUG_ASSERT(!m_animation_player.set_frame(m_animation_library, input.time_now, 1).has_value(), "Couldn't set walk animation frame");
 			}
 		}
-
-		/* Animation */
-		m_animation_player.update(m_animation_library, input.time_now);
 	}
 
 	void GameplayScene::draw(engine::Renderer* renderer) const {

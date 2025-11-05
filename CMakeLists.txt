@@ -53,6 +53,7 @@ set(SRC
     src/game/scene/gameplay_scene.cpp
     src/game/scene/menu_scene.cpp
     src/game/ui/main_menu.cpp
+    src/game/ui/pause_menu.cpp
 )
 
 set(TEST_SRC
