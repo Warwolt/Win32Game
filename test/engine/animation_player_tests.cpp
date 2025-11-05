@@ -9,9 +9,9 @@ constexpr int FRAME_ONE_VALUE = 111;
 constexpr int FRAME_TWO_VALUE = 222;
 constexpr int FRAME_THREE_VALUE = 333;
 
-const Time FRAME_ONE_DURATION = 100ms;
-const Time FRAME_TWO_DURATION = 100ms;
-const Time FRAME_THREE_DURATION = 100ms;
+const Time FRAME_ONE_DURATION = 123ms;
+const Time FRAME_TWO_DURATION = 456ms;
+const Time FRAME_THREE_DURATION = 789ms;
 
 const std::vector<AnimationFrame<int>> TEST_ANIMATION = {
 	{ .value = FRAME_ONE_VALUE, .duration = FRAME_ONE_DURATION },
