@@ -93,7 +93,7 @@ namespace engine {
 		std::time_t t = std::time(0); // get time now
 		std::tm* now = std::localtime(&t);
 		offset += snprintf(buffer + offset, 1024 - offset, "%02d-%02d-%02d ", now->tm_year + 1900, now->tm_mon + 1, now->tm_mday); // year
-		offset += snprintf(buffer + offset, 1024 - offset, "%02d:%02d ", now->tm_hour, now->tm_min);                               // hour
+		offset += snprintf(buffer + offset, 1024 - offset, "%02d:%02d ", now->tm_hour, now->tm_min); // hour
 
 		/* File and line */
 		offset += snprintf(buffer + offset, 1024 - offset, "%s:%d ", file, line);
