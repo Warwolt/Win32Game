@@ -11,18 +11,19 @@ namespace engine {
 			{ 0, 1500ms },
 			{ 1, 1500ms },
 		};
-		m_animation_system.add_animation(frames, { .looping = true });
+		m_animation_id = m_animation_library.add_animation(frames, { .looping = true });
 	}
 
 	void FontDebugPage::update(bool opened_now, const Input& input) {
 		if (opened_now) {
-			DEBUG_ASSERT(m_animation_system.restart_animation(AnimationEntityID(1), AnimationID(1), input.time_now), "Couldn't start animation");
+			std::optional<AnimationError> error = m_animation_player.play(m_animation_library, m_animation_id, input.time_now);
+			DEBUG_ASSERT(!error.has_value(), "Couldn't play animation, error %d", (int)error.value());
 		}
-		m_animation_system.update(input.time_now);
+		m_animation_player.update(m_animation_library, input.time_now);
 	}
 
 	void FontDebugPage::draw(Renderer* renderer, IVec2 screen_resolution) const {
-		const int animation_index = m_animation_system.current_frame(AnimationEntityID(1));
+		const int animation_index = m_animation_player.value();
 		const int32_t font_size = 16;
 		const int32_t font_ascent = 12;
 		const int32_t text_box_width = animation_index == 0 ? screen_resolution.x / 2 : screen_resolution.x / 4 + 8;

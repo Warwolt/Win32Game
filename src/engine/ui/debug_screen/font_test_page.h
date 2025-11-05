@@ -1,6 +1,6 @@
 #pragma once
 
-#include <engine/animation/animation_system.h>
+#include <engine/animation/animation.h>
 #include <engine/input/time.h>
 #include <engine/math/ivec2.h>
 
@@ -16,7 +16,9 @@ namespace engine {
 		void draw(Renderer* renderer, IVec2 screen_resolution) const;
 
 	private:
-		AnimationSystem<int> m_animation_system;
+		AnimationLibrary<int> m_animation_library;
+		AnimationPlayer<int> m_animation_player;
+		AnimationID m_animation_id;
 	};
 
 } // namespace engine
