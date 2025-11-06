@@ -27,6 +27,12 @@ namespace game {
 		m_scene_is_paused = false;
 	}
 
+	void GameplayScene::on_save_file_loaded(const engine::SaveFile& save_file) {
+		if (save_file.contains("hello")) {
+			LOG_DEBUG("Hello world");
+		}
+	}
+
 	// How to handle load and read save file?
 	//
 	// We obviously want to set up the scene based on the current save file so

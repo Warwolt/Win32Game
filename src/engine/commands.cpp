@@ -33,11 +33,19 @@ namespace engine {
 					DEBUG_ASSERT(did_write, "Couldn't open file %s when writing save file", filepath.string().c_str());
 				}
 				MATCH_CASE(Command_LoadSaveFile, filepath) {
+					/* Read file */
 					std::optional<std::string> file_content = read_string_from_file(filepath);
 					DEBUG_ASSERT(file_content.has_value(), "Couldn't read save file %s", filepath.string().c_str());
+
+					/* Parse save data */
 					std::expected<SaveFile, SaveFileError> result = SaveFile::from_json_string(file_content.value());
 					DEBUG_ASSERT(result.has_value(), "Save file %s did not contain valid json", filepath.string().c_str());
 					*save_file = result.value();
+
+					/* Send event */
+					if (Scene* current_scene = scene_manager->current_scene()) {
+						current_scene->on_save_file_loaded(*save_file);
+					}
 				}
 
 				/* SceneManager */

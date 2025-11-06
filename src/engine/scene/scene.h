@@ -18,6 +18,7 @@ namespace engine {
 
 		virtual void on_pause() {}
 		virtual void on_unpause() {}
+		virtual void on_save_file_loaded(const SaveFile& /*save_file*/) {}
 	};
 
 } // namespace engine

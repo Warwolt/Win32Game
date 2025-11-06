@@ -19,6 +19,7 @@ namespace game {
 
 		void on_pause() override;
 		void on_unpause() override;
+		void on_save_file_loaded(const engine::SaveFile& save_file) override;
 
 		void initialize(engine::ResourceManager* resources, engine::CommandList* commands) override;
 		void update(const engine::Input& input, engine::CommandList* commands) override;
