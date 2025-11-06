@@ -84,10 +84,11 @@ namespace engine {
 		/* Process commands */
 		commands->run_commands(
 			&engine->should_quit,
-			&engine->window,
+			&engine->save_file,
 			&engine->resources,
 			&engine->scene_manager,
-			&engine->screen_stack
+			&engine->screen_stack,
+			&engine->window
 		);
 	}
 

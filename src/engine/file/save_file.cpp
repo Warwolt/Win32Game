@@ -13,7 +13,7 @@ namespace engine {
 		return save_file;
 	}
 
-	std::string SaveFile::to_json_string() {
+	std::string SaveFile::to_json_string() const {
 		if (m_json_data.empty()) {
 			return "{}";
 		}

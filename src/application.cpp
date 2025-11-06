@@ -62,10 +62,11 @@ State* initialize_application(int argc, char** argv, HINSTANCE instance, WNDPROC
 	state->game = game::initialize(&commands);
 	commands.run_commands(
 		&state->engine.should_quit,
-		&state->engine.window,
+		&state->engine.save_file,
 		&state->engine.resources,
 		&state->engine.scene_manager,
-		&state->engine.screen_stack
+		&state->engine.screen_stack,
+		&state->engine.window
 	);
 
 	LOG_INFO("Initialized");

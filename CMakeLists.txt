@@ -28,6 +28,7 @@ set(SRC
     src/engine/debug/delta_timer.cpp
     src/engine/debug/logging.cpp
     src/engine/engine.cpp
+    src/engine/file/file.cpp
     src/engine/file/resource_manager.cpp
     src/engine/file/save_file.cpp
     src/engine/graphics/bitmap.cpp

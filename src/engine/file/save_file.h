@@ -16,7 +16,7 @@ namespace engine {
 	class SaveFile {
 	public:
 		static std::expected<SaveFile, SaveFileError> from_json_string(std::string json_string);
-		std::string to_json_string();
+		std::string to_json_string() const;
 
 		const nlohmann::ordered_json& operator[](std::string key) const;
 		nlohmann::ordered_json& operator[](std::string key);

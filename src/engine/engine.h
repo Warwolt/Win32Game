@@ -3,6 +3,7 @@
 #include <engine/commands.h>
 #include <engine/debug/delta_timer.h>
 #include <engine/file/resource_manager.h>
+#include <engine/file/save_file.h>
 #include <engine/graphics/renderer.h>
 #include <engine/graphics/window.h>
 #include <engine/input/input.h>
@@ -28,6 +29,7 @@ namespace engine {
 
 		// file
 		ResourceManager resources;
+		SaveFile save_file;
 
 		// graphics
 		Renderer renderer;

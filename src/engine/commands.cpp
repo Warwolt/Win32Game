@@ -2,7 +2,9 @@
 
 #include <engine/container/match_variant.h>
 #include <engine/debug/assert.h>
+#include <engine/file/file.h>
 #include <engine/file/resource_manager.h>
+#include <engine/file/save_file.h>
 #include <engine/graphics/window.h>
 #include <engine/scene/scene_manager.h>
 #include <engine/ui/screen_stack.h>
@@ -11,24 +13,31 @@ namespace engine {
 
 	void CommandList::run_commands(
 		bool* should_quit,
-		Window* window,
+		SaveFile* save_file,
 		ResourceManager* resources,
 		SceneManager* scene_manager,
-		ScreenStack* screen_stack
+		ScreenStack* screen_stack,
+		Window* window
 	) {
 		for (size_t i = 0; i < m_commands.size(); i++) {
 			const Command& command = m_commands[i];
 			MATCH_VARIANT(command) {
+				/* App */
 				MATCH_CASE0(Command_Quit) {
 					*should_quit = true;
 				}
 
-				/* Window */
-				MATCH_CASE0(Command_ToggleFullscreen) {
-					window->toggle_fullscreen();
+				/* File */
+				MATCH_CASE(Command_WriteSaveFile, filepath) {
+					bool did_write = write_string_to_file(save_file->to_json_string(), filepath);
+					DEBUG_ASSERT(did_write, "Couldn't open file %s when writing save file", filepath.string().c_str());
 				}
-				MATCH_CASE(Command_SetWindowTitle, window_title) {
-					window->set_title(window_title);
+				MATCH_CASE(Command_ReadSaveFile, filepath) {
+					std::optional<std::string> file_content = read_string_from_file(filepath);
+					DEBUG_ASSERT(file_content.has_value(), "Couldn't read save file %s", filepath.string().c_str());
+					std::expected<SaveFile, SaveFileError> result = SaveFile::from_json_string(file_content.value());
+					DEBUG_ASSERT(result.has_value(), "Save file %s did not contain valid json", filepath.string().c_str());
+					*save_file = result.value();
 				}
 
 				/* SceneManager */
@@ -73,6 +82,14 @@ namespace engine {
 						}
 					}
 				}
+
+				/* Window */
+				MATCH_CASE0(Command_ToggleFullscreen) {
+					window->toggle_fullscreen();
+				}
+				MATCH_CASE(Command_SetWindowTitle, window_title) {
+					window->set_title(window_title);
+				}
 			}
 		}
 		m_commands.clear();
@@ -80,6 +97,14 @@ namespace engine {
 
 	void CommandList::quit() {
 		m_commands.push_back(Command_Quit {});
+	}
+
+	void CommandList::read_save_file(std::filesystem::path filepath) {
+		m_commands.push_back(Command_ReadSaveFile { filepath });
+	}
+
+	void CommandList::write_save_file(std::filesystem::path filepath) {
+		m_commands.push_back(Command_WriteSaveFile { filepath });
 	}
 
 	void CommandList::toggle_fullscreen() {

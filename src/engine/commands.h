@@ -1,5 +1,6 @@
 #pragma once
 
+#include <filesystem>
 #include <functional>
 #include <memory>
 #include <string>
@@ -11,6 +12,7 @@ namespace engine {
 
 	class ResourceManager;
 	class SceneManager;
+	class SaveFile;
 	class ScreenStack;
 	class Scene;
 	class Screen;
@@ -20,17 +22,19 @@ namespace engine {
 	public:
 		void run_commands(
 			bool* should_quit,
-			Window* window,
+			SaveFile* save_file,
 			ResourceManager* resources,
 			SceneManager* scene_manager,
-			ScreenStack* screen_stack
+			ScreenStack* screen_stack,
+			Window* window
 		);
 
+		/* App */
 		void quit();
 
-		/* Window */
-		void toggle_fullscreen();
-		void set_window_title(std::string window_title);
+		/* File */
+		void read_save_file(std::filesystem::path filepath);
+		void write_save_file(std::filesystem::path filepath);
 
 		/* SceneManager */
 		template <typename SceenType>
@@ -51,12 +55,21 @@ namespace engine {
 		void push_screen(std::string screen_name);
 		void pop_screen();
 
-	private:
-		struct Command_Quit {};
 		/* Window */
-		struct Command_ToggleFullscreen {};
-		struct Command_SetWindowTitle {
-			std::string window_title;
+		void toggle_fullscreen();
+		void set_window_title(std::string window_title);
+
+
+	private:
+		/* App */
+		struct Command_Quit {};
+
+		/* File */
+		struct Command_ReadSaveFile {
+			std::filesystem::path filepath;
+		};
+		struct Command_WriteSaveFile {
+			std::filesystem::path filepath;
 		};
 
 		/* SceneManager */
@@ -78,12 +91,19 @@ namespace engine {
 		};
 		struct Command_PopScreen {};
 
+		/* Window */
+		struct Command_ToggleFullscreen {};
+		struct Command_SetWindowTitle {
+			std::string window_title;
+		};
+
 		using Command = std::variant<
+			/* App */
 			Command_Quit,
 
-			/* Window */
-			Command_ToggleFullscreen,
-			Command_SetWindowTitle,
+			/* File */
+			Command_ReadSaveFile,
+			Command_WriteSaveFile,
 
 			/* SceneManager */
 			Command_RegisterScene,
@@ -92,7 +112,11 @@ namespace engine {
 			/* ScreenStack */
 			Command_RegisterScreen,
 			Command_PushScreen,
-			Command_PopScreen>;
+			Command_PopScreen,
+
+			/* Window */
+			Command_ToggleFullscreen,
+			Command_SetWindowTitle>;
 
 		std::vector<Command> m_commands;
 	};
