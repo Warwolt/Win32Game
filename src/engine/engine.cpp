@@ -65,6 +65,13 @@ namespace engine {
 	void update(Engine* engine, CommandList* commands) {
 		CPUProfilingScope_Engine();
 
+		// test load file
+		static bool once = false;
+		if (!once) {
+			once = true;
+			commands->read_save_file("save_file.json");
+		}
+
 		/* Update current scene */
 		if (Scene* current_scene = engine->scene_manager.current_scene()) {
 			current_scene->update(engine->input, commands);

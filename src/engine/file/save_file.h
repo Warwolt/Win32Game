@@ -18,8 +18,9 @@ namespace engine {
 		static std::expected<SaveFile, SaveFileError> from_json_string(std::string json_string);
 		std::string to_json_string() const;
 
-		const nlohmann::ordered_json& operator[](std::string key) const;
-		nlohmann::ordered_json& operator[](std::string key);
+		bool contains(const std::string& key) const;
+		const nlohmann::ordered_json& operator[](const std::string& key) const;
+		nlohmann::ordered_json& operator[](const std::string& key);
 
 	private:
 		nlohmann::ordered_json m_json_data;

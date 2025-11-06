@@ -20,11 +20,15 @@ namespace engine {
 		return m_json_data.dump();
 	}
 
-	const nlohmann::ordered_json& SaveFile::operator[](std::string key) const {
+	bool SaveFile::contains(const std::string& key) const {
+		return m_json_data.contains(key);
+	}
+
+	const nlohmann::ordered_json& SaveFile::operator[](const std::string& key) const {
 		return m_json_data[key];
 	}
 
-	nlohmann::ordered_json& SaveFile::operator[](std::string key) {
+	nlohmann::ordered_json& SaveFile::operator[](const std::string& key) {
 		return m_json_data[key];
 	}
 
