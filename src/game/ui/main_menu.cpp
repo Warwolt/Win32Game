@@ -22,10 +22,6 @@ namespace game {
 	};
 
 	void MainMenu::update(const engine::Input& input, engine::CommandList* commands) {
-		if (input.keyboard.key_was_pressed_now(VK_ESCAPE)) {
-			commands->quit();
-		}
-
 		if (input.keyboard.key_was_pressed_now(VK_RETURN)) {
 			if (m_menu_index == MainMenuItem::Play) {
 				commands->load_scene(GameplayScene::NAME);

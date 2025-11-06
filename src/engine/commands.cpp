@@ -56,6 +56,7 @@ namespace engine {
 					std::optional<SceneManagerError> load_error = scene_manager->load_scene(scene_name);
 					DEBUG_ASSERT(!load_error.has_value(), "Failed to load scene \"%s\". Is it registered?", scene_name.c_str());
 					scene_manager->current_scene()->initialize(resources, this);
+					scene_manager->current_scene()->on_save_file_loaded(*save_file);
 					screen_stack->clear();
 				}
 
