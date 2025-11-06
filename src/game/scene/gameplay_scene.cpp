@@ -28,9 +28,7 @@ namespace game {
 	}
 
 	void GameplayScene::on_save_file_loaded(const engine::SaveFile& save_file) {
-		if (save_file.contains("hello")) {
-			LOG_DEBUG("Hello world");
-		}
+		_read_save_file(save_file);
 	}
 
 	// How to handle load and read save file?
@@ -50,7 +48,9 @@ namespace game {
 	// commands->write_save_file(filepath, [](SaveFile* save_file) { /* write to save file */ })
 	// commands->load_save_file(filepath); // triggers on_save_file_loaded() event?
 
-	void GameplayScene::initialize(engine::ResourceManager* resources, engine::CommandList* /*commands*/) {
+	void GameplayScene::initialize(const engine::SaveFile& save_file, engine::ResourceManager* resources, engine::CommandList* /*commands*/) {
+		_read_save_file(save_file);
+
 		m_sprite_sheet_id = resources->load_image("assets/image/render_test/sprite_sheet.png");
 		const engine::Image& sprite_sheet = resources->image(m_sprite_sheet_id);
 		m_sprite_sheet_size.width = sprite_sheet.width;
@@ -184,6 +184,12 @@ namespace game {
 
 		SpriteAnimation player_animation = m_animation_player.value();
 		renderer->draw_image(m_sprite_sheet_id, world_player_pos, { .clip = player_animation.clip, .flip_h = player_animation.flip_h });
+	}
+
+	void GameplayScene::_read_save_file(const engine::SaveFile& save_file) {
+		if (save_file.contains("hello")) {
+			LOG_DEBUG("Hello world");
+		}
 	}
 
 } // namespace game

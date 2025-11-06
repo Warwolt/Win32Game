@@ -29,9 +29,11 @@ namespace engine {
 
 				/* File */
 				MATCH_CASE(Command_WriteSaveFile, filepath) {
+					/* Write file */
 					bool did_write = write_string_to_file(save_file->to_json_string(), filepath);
 					DEBUG_ASSERT(did_write, "Couldn't open file %s when writing save file", filepath.string().c_str());
 				}
+
 				MATCH_CASE(Command_LoadSaveFile, filepath) {
 					/* Read file */
 					std::optional<std::string> file_content = read_string_from_file(filepath);
@@ -52,11 +54,11 @@ namespace engine {
 				MATCH_CASE(Command_RegisterScene, scene_name, scene_constructor) {
 					scene_manager->register_scene(scene_name, scene_constructor);
 				}
+
 				MATCH_CASE(Command_LoadScene, scene_name) {
 					std::optional<SceneManagerError> load_error = scene_manager->load_scene(scene_name);
 					DEBUG_ASSERT(!load_error.has_value(), "Failed to load scene \"%s\". Is it registered?", scene_name.c_str());
-					scene_manager->current_scene()->initialize(resources, this);
-					scene_manager->current_scene()->on_save_file_loaded(*save_file);
+					scene_manager->current_scene()->initialize(*save_file, resources, this);
 					screen_stack->clear();
 				}
 
@@ -64,6 +66,7 @@ namespace engine {
 				MATCH_CASE(Command_RegisterScreen, screen_name, screen_constructor) {
 					screen_stack->register_screen(screen_name, screen_constructor);
 				}
+
 				MATCH_CASE(Command_PushScreen, screen_name) {
 					const bool pushing_onto_empty_stack = screen_stack->top_screen() == nullptr;
 
@@ -79,6 +82,7 @@ namespace engine {
 						}
 					}
 				}
+
 				MATCH_CASE0(Command_PopScreen) {
 					/* Pop screen */
 					screen_stack->pop_screen();
@@ -96,6 +100,7 @@ namespace engine {
 				MATCH_CASE0(Command_ToggleFullscreen) {
 					window->toggle_fullscreen();
 				}
+
 				MATCH_CASE(Command_SetWindowTitle, window_title) {
 					window->set_title(window_title);
 				}
