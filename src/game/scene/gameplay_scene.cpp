@@ -27,15 +27,28 @@ namespace game {
 		m_scene_is_paused = false;
 	}
 
-	void GameplayScene::initialize(const engine::SaveFile& save_file, engine::ResourceManager* resources, engine::CommandList* /*commands*/) {
+	// How to handle load and read save file?
+	//
+	// We obviously want to set up the scene based on the current save file so
+	// we can support e.g. a "continue" option in the main menu.
+	//
+	// But, surely we also want to be able to load a save file _while_ playing?
+	//
+	// So, we have to be able to set the state of the current scene at arbitrary
+	// points of its lifetime.
+	//
+	// How should we handle saving? What if different scenes are intersted in different data?
+	//
+	// Should we have a "save_game_data" command that triggers a callback or something?
+	//
+	// commands->write_save_file(filepath, [](SaveFile* save_file) { /* write to save file */ })
+	// commands->load_save_file(filepath); // triggers on_save_file_read() event?
+
+	void GameplayScene::initialize(engine::ResourceManager* resources, engine::CommandList* /*commands*/) {
 		m_sprite_sheet_id = resources->load_image("assets/image/render_test/sprite_sheet.png");
 		const engine::Image& sprite_sheet = resources->image(m_sprite_sheet_id);
 		m_sprite_sheet_size.width = sprite_sheet.width;
 		m_sprite_sheet_size.height = sprite_sheet.height;
-
-		if (save_file.contains("hello")) {
-			LOG_DEBUG("%s", save_file["hello"].get<std::string>().c_str());
-		}
 
 		// set up animations
 		const engine::Time frame_duration = 200ms;

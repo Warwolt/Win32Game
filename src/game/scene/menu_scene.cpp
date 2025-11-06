@@ -7,7 +7,7 @@
 
 namespace game {
 
-	void MenuScene::initialize(const engine::SaveFile& /*save_file*/, engine::ResourceManager* /*resources*/, engine::CommandList* commands) {
+	void MenuScene::initialize(engine::ResourceManager* /*resources*/, engine::CommandList* commands) {
 		commands->push_screen(MainMenu::NAME);
 	}
 
