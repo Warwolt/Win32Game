@@ -42,7 +42,7 @@ namespace game {
 	// Should we have a "save_game_data" command that triggers a callback or something?
 	//
 	// commands->write_save_file(filepath, [](SaveFile* save_file) { /* write to save file */ })
-	// commands->load_save_file(filepath); // triggers on_save_file_read() event?
+	// commands->load_save_file(filepath); // triggers on_save_file_loaded() event?
 
 	void GameplayScene::initialize(engine::ResourceManager* resources, engine::CommandList* /*commands*/) {
 		m_sprite_sheet_id = resources->load_image("assets/image/render_test/sprite_sheet.png");

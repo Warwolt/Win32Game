@@ -32,7 +32,7 @@ namespace engine {
 					bool did_write = write_string_to_file(save_file->to_json_string(), filepath);
 					DEBUG_ASSERT(did_write, "Couldn't open file %s when writing save file", filepath.string().c_str());
 				}
-				MATCH_CASE(Command_ReadSaveFile, filepath) {
+				MATCH_CASE(Command_LoadSaveFile, filepath) {
 					std::optional<std::string> file_content = read_string_from_file(filepath);
 					DEBUG_ASSERT(file_content.has_value(), "Couldn't read save file %s", filepath.string().c_str());
 					std::expected<SaveFile, SaveFileError> result = SaveFile::from_json_string(file_content.value());
@@ -99,8 +99,8 @@ namespace engine {
 		m_commands.push_back(Command_Quit {});
 	}
 
-	void CommandList::read_save_file(std::filesystem::path filepath) {
-		m_commands.push_back(Command_ReadSaveFile { filepath });
+	void CommandList::load_save_file(std::filesystem::path filepath) {
+		m_commands.push_back(Command_LoadSaveFile { filepath });
 	}
 
 	void CommandList::write_save_file(std::filesystem::path filepath) {

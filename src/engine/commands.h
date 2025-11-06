@@ -33,7 +33,7 @@ namespace engine {
 		void quit();
 
 		/* File */
-		void read_save_file(std::filesystem::path filepath);
+		void load_save_file(std::filesystem::path filepath);
 		void write_save_file(std::filesystem::path filepath);
 
 		/* SceneManager */
@@ -65,7 +65,7 @@ namespace engine {
 		struct Command_Quit {};
 
 		/* File */
-		struct Command_ReadSaveFile {
+		struct Command_LoadSaveFile {
 			std::filesystem::path filepath;
 		};
 		struct Command_WriteSaveFile {
@@ -102,7 +102,7 @@ namespace engine {
 			Command_Quit,
 
 			/* File */
-			Command_ReadSaveFile,
+			Command_LoadSaveFile,
 			Command_WriteSaveFile,
 
 			/* SceneManager */

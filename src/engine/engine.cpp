@@ -69,7 +69,7 @@ namespace engine {
 		static bool once = false;
 		if (!once) {
 			once = true;
-			commands->read_save_file("save_file.json");
+			commands->load_save_file("save_file.json");
 		}
 
 		/* Update current scene */
