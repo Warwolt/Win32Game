@@ -1,5 +1,10 @@
 #pragma once
 
+#include <expected>
+#include <string>
+
+#include <nlohmann/json.hpp>
+
 namespace engine {
 
 	class SaveFileValue {
@@ -10,6 +15,7 @@ namespace engine {
 		// void set(bool boolean);
 		// void set(std::string string);
 
+		// bool is_null() const;
 		// bool is_boolean() const;
 		// bool is_number() const;
 		// bool is_string() const;
@@ -22,14 +28,18 @@ namespace engine {
 		// json data
 	};
 
+	enum class SaveFileError {
+		InvalidJson,
+	};
+
 	class SaveFile {
 	public:
-		// static std::expected<SaveFile, SaveFileError> from_json_string(std::string json_string)
+		static std::expected<SaveFile, SaveFileError> from_json_string(std::string json_string);
 		// std::string to_json_string(); // for serialization
 		// std::optional<SaveFileValue> operator[](std::string key) const;
 
 	private:
-		// json object
+		nlohmann::json m_json_data;
 	};
 
 } // namespace engine

@@ -6,6 +6,8 @@ option(BUILD_TESTS "Build tests" ON)
 option(LINK_DYNAMICALLY "Link app dynamically (for hot reloading)" ON)
 option(ENABLE_PROFILING "Enable profiling tool" OFF)
 
+set(JSON_BuildTests OFF CACHE INTERNAL "")
+
 if (LINK_DYNAMICALLY AND ENABLE_PROFILING)
     message(WARNING "LINK_DYNAMICALLY and ENABLE_PROFILING are not compatible, Tracy profiler locks PDB file preventing DLL to be re-built! LINK_DYNAMICALLY will be disabled.")
     set(LINK_DYNAMICALLY OFF)
@@ -16,6 +18,8 @@ message(STATUS "BUILD_TESTS: ${BUILD_TESTS}")
 message(STATUS "LINK_DYNAMICALLY: ${LINK_DYNAMICALLY}")
 message(STATUS "ENABLE_PROFILING: ${ENABLE_PROFILING}")
 
+add_subdirectory(libs/nlohmann_json)
+
 set(SRC
     libs/stb/stb_image/stb_image.c
     libs/stb/stb_truetype/stb_truetype.c
@@ -25,6 +29,7 @@ set(SRC
     src/engine/debug/logging.cpp
     src/engine/engine.cpp
     src/engine/file/resource_manager.cpp
+    src/engine/file/save_file.cpp
     src/engine/graphics/bitmap.cpp
     src/engine/graphics/font.cpp
     src/engine/graphics/image.cpp
@@ -71,6 +76,7 @@ set(INC
     src
     libs/stb
     libs/tracy/public
+    libs/nlohmann_json/include
 )
 
 # Executable
@@ -103,6 +109,7 @@ target_link_libraries(Library PRIVATE Source)
 
 # Source Library
 add_library(Source STATIC ${SRC})
+target_link_libraries(Source PRIVATE nlohmann_json::nlohmann_json)
 
 # Tests
 if(BUILD_TESTS)
