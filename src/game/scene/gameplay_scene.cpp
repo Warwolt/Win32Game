@@ -187,9 +187,8 @@ namespace game {
 	}
 
 	void GameplayScene::_read_save_file(const engine::SaveFile& save_file) {
-		if (save_file.contains("hello")) {
-			LOG_DEBUG("Hello world");
-		}
+		m_player_position.x = save_file.try_get<float>("player_pos_x").value_or(0.0f);
+		m_player_position.y = save_file.try_get<float>("player_pos_y").value_or(0.0f);
 	}
 
 } // namespace game
