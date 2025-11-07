@@ -16,7 +16,7 @@ Goal:
 - Add keyboard & mouse input test screen, display stream of events and data like e.g. mouse position
 - Add audio test screen, display volume of current played sample as a little bar
   - maybe relevant: https://stackoverflow.com/questions/35438815/how-do-i-retrieve-the-current-sample-play-position-from-an-xaudio2-source-voice
-- Try out LDtk Level Editor (https://ldtk.io/)
+- Try out LDtk Level Editor (https://ldtk.io/) or Tiled (https://www.mapeditor.org/)
 - Try out FMOD as audio player
 - Add render test screen with lots of images to stress test, get a sense of budget
 
