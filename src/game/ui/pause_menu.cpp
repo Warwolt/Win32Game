@@ -14,7 +14,7 @@ namespace game {
 	struct PauseMenuItem {
 		enum {
 			Continue = 0,
-			Quit = 1,
+			SaveAndQuit = 1,
 			Count,
 		};
 	};
@@ -29,7 +29,7 @@ namespace game {
 				commands->pop_screen();
 			}
 
-			if (m_menu_index == PauseMenuItem::Quit) {
+			if (m_menu_index == PauseMenuItem::SaveAndQuit) {
 				commands->load_scene(MenuScene::NAME);
 			}
 		}
@@ -44,7 +44,7 @@ namespace game {
 
 	void PauseMenu::draw(const GameData& /*game*/, engine::Renderer* renderer) const {
 		const engine::IVec2 screen_resolution = renderer->screen_resolution();
-		const int menu_width = 100;
+		const int menu_width = 120;
 		const int menu_height = 100;
 		const engine::Rect menu_rect = {
 			(screen_resolution.x - menu_width) / 2,
@@ -63,9 +63,12 @@ namespace game {
 		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, title_rect, engine::RGBA::white(), "Paused");
 
 		/* Draw menu items and cursor */
-		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, title_rect + engine::IVec2 { 0, 32 }, engine::RGBA::white(), "Continue");
-		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, title_rect + engine::IVec2 { 0, 32 + 16 }, engine::RGBA::white(), "Quit");
-		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, title_rect + engine::IVec2 { -16, 32 + m_menu_index * 16 }, engine::RGBA::white(), ">");
+		int index = 0;
+		const int item_y = menu_rect.y + 48;
+		const int item_x = menu_rect.x + 20;
+		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, { item_x, item_y + index++ * 16 }, engine::RGBA::white(), "Continue");
+		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, { item_x, item_y + index++ * 16 } /*  */, engine::RGBA::white(), "Save & Quit");
+		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, { item_x - 16, item_y + m_menu_index * 16 }, engine::RGBA::white(), ">");
 	}
 
 } // namespace game
