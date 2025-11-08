@@ -50,7 +50,7 @@ namespace engine {
 		DeltaTimer frame_timer;
 	};
 
-	std::optional<Engine> initialize(const std::vector<std::string>& args, HINSTANCE instance, WNDPROC wnd_proc);
+	std::optional<Engine> initialize(const std::vector<std::string>& args, HINSTANCE instance, WNDPROC wnd_proc, game::GameData* game_data);
 	void update(Engine* engine, CommandList* commands);
 	void draw(Engine* engine);
 

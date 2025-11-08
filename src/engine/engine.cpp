@@ -33,8 +33,9 @@ namespace engine {
 		return engine_args;
 	}
 
-	std::optional<Engine> initialize(const std::vector<std::string>& args, HINSTANCE instance, WNDPROC wnd_proc) {
+	std::optional<Engine> initialize(const std::vector<std::string>& args, HINSTANCE instance, WNDPROC wnd_proc, game::GameData* game_data) {
 		Engine engine = {};
+		engine.game_data = game_data;
 		EngineArgs engine_args = parse_args(args);
 		initialize_logging();
 
