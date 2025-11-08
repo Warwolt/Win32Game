@@ -49,12 +49,14 @@ namespace game {
 	void on_save_file_loaded(GameData* game, const engine::SaveFile& save_file) {
 		game->player_position.x = save_file.try_get<float>("player_pos_x").value_or(0.0f);
 		game->player_position.y = save_file.try_get<float>("player_pos_y").value_or(0.0f);
+		game->player_direction = save_file.try_get<Direction>("player_direction").value_or(Direction::Down);
 	}
 
 	engine::SaveFile on_write_save_file(const GameData& game) {
 		engine::SaveFile save_file;
 		save_file["player_pos_x"] = game.player_position.x;
 		save_file["player_pos_y"] = game.player_position.y;
+		save_file["player_direction"] = (int)game.player_direction;
 		return save_file;
 	}
 

@@ -1,10 +1,11 @@
 #pragma once
 
-#include <engine/input/keyboard_stack.h>
+#include <game/direction.h>
 
 #include <engine/animation/animation.h>
 #include <engine/graphics/image_id.h>
 #include <engine/graphics/rect.h>
+#include <engine/input/keyboard_stack.h>
 #include <engine/math/vec2.h>
 #include <engine/scene/scene.h>
 
@@ -25,12 +26,6 @@ namespace game {
 		void draw(const GameData& game, engine::Renderer* renderer) const override;
 
 	private:
-		enum class Direction {
-			Up,
-			Down,
-			Left,
-			Right,
-		};
 		struct SpriteAnimation {
 			engine::Rect clip;
 			bool flip_h;
@@ -42,7 +37,6 @@ namespace game {
 		// Movement
 		engine::KeyboardStack m_keyboard_stack;
 		engine::Vec2 m_player_velocity = {};
-		Direction m_player_dir = Direction::Down;
 
 		// Animation
 		engine::AnimationLibrary<SpriteAnimation> m_animation_library;

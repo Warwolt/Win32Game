@@ -1,7 +1,7 @@
 #include <game/scene/gameplay_scene.h>
 
-#include <game/ui/pause_menu.h>
 #include <game/game_data.h>
+#include <game/ui/pause_menu.h>
 
 #include <engine/commands.h>
 #include <engine/debug/assert.h>
@@ -28,7 +28,7 @@ namespace game {
 		m_scene_is_paused = false;
 	}
 
-	void GameplayScene::initialize(GameData* /*game*/, engine::ResourceManager* resources, engine::CommandList* /*commands*/) {
+	void GameplayScene::initialize(GameData* game, engine::ResourceManager* resources, engine::CommandList* /*commands*/) {
 		m_sprite_sheet_id = resources->load_image("assets/image/render_test/sprite_sheet.png");
 		const engine::Image& sprite_sheet = resources->image(m_sprite_sheet_id);
 		m_sprite_sheet_size.width = sprite_sheet.width;
@@ -73,9 +73,8 @@ namespace game {
 				.looping = true,
 			}
 		);
-		std::optional<engine::AnimationError> error = m_animation_player.play(m_animation_library, m_walk_animations[Direction::Down], engine::Time::now());
+		DEBUG_ASSERT(!m_animation_player.play(m_animation_library, m_walk_animations[game->player_direction], engine::Time::now()), "Couldn't start animation");
 		m_animation_player.pause();
-		DEBUG_ASSERT(!error.has_value(), "Couldn't start animation");
 	}
 
 	void GameplayScene::update(GameData* game, const engine::Input& input, engine::CommandList* commands) {
@@ -119,8 +118,8 @@ namespace game {
 					input_vector.x += 1;
 					direction = Direction::Right;
 				}
-				just_changed_direction = m_player_dir != direction;
-				m_player_dir = direction;
+				just_changed_direction = game->player_direction != direction;
+				game->player_direction = direction;
 			}
 
 			const float player_speed = 75.0f; // pixels per second
@@ -133,12 +132,12 @@ namespace game {
 				/* Stop walking animation */
 				if (m_player_velocity.length() == 0) {
 					m_animation_player.pause();
-					DEBUG_ASSERT(!m_animation_player.set_frame(m_animation_library, input.time_now, 0).has_value(), "Couldn't set walk animation frame");
+					DEBUG_ASSERT(!m_animation_player.set_frame(m_animation_library, input.time_now, 0), "Couldn't set walk animation frame");
 				}
 				/* Start walking animation */
 				else {
-					DEBUG_ASSERT(!m_animation_player.play(m_animation_library, m_walk_animations[m_player_dir], input.time_now).has_value(), "Couldn't play walk animation");
-					DEBUG_ASSERT(!m_animation_player.set_frame(m_animation_library, input.time_now, 1).has_value(), "Couldn't set walk animation frame");
+					DEBUG_ASSERT(!m_animation_player.play(m_animation_library, m_walk_animations[game->player_direction], input.time_now), "Couldn't play walk animation");
+					DEBUG_ASSERT(!m_animation_player.set_frame(m_animation_library, input.time_now, 1), "Couldn't set walk animation frame");
 				}
 			}
 		}
