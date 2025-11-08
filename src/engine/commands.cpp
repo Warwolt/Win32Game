@@ -9,6 +9,8 @@
 #include <engine/scene/scene_manager.h>
 #include <engine/ui/screen_stack.h>
 
+#include <game/game.h>
+
 namespace engine {
 
 	void CommandList::run_commands(
@@ -46,9 +48,7 @@ namespace engine {
 					*save_file = result.value();
 
 					/* Send event */
-					if (Scene* current_scene = scene_manager->current_scene()) {
-						current_scene->on_save_file_loaded(*save_file);
-					}
+					game::on_save_file_loaded(game_data, *save_file);
 				}
 
 				/* SceneManager */

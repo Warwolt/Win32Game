@@ -19,11 +19,10 @@ namespace game {
 
 		void on_pause() override;
 		void on_unpause() override;
-		void on_save_file_loaded(const engine::SaveFile& save_file) override;
 
 		void initialize(GameData* game, engine::ResourceManager* resources, engine::CommandList* commands) override;
 		void update(GameData* game, const engine::Input& input, engine::CommandList* commands) override;
-		void draw(engine::Renderer* renderer) const override;
+		void draw(const GameData& game, engine::Renderer* renderer) const override;
 
 	private:
 		enum class Direction {
@@ -42,7 +41,6 @@ namespace game {
 
 		// Movement
 		engine::KeyboardStack m_keyboard_stack;
-		engine::Vec2 m_player_position = {};
 		engine::Vec2 m_player_velocity = {};
 		Direction m_player_dir = Direction::Down;
 

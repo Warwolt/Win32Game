@@ -105,7 +105,7 @@ namespace engine {
 
 		/* Draw current scene */
 		if (Scene* current_scene = engine->scene_manager.current_scene()) {
-			current_scene->draw(&engine->renderer);
+			current_scene->draw(*engine->game_data, &engine->renderer);
 		}
 
 		/* Draw current ui screen */

@@ -12,7 +12,7 @@ struct TestScene : public Scene {
 	TestScene() { num_instances++; }
 	~TestScene() { num_instances--; }
 	void update(game::GameData*, const Input&, CommandList*) override {}
-	void draw(Renderer*) const override {}
+	void draw(const game::GameData&, Renderer*) const override {}
 };
 
 struct TestScene2 : public Scene {
@@ -21,7 +21,7 @@ struct TestScene2 : public Scene {
 	TestScene2() { num_instances++; }
 	~TestScene2() { num_instances--; }
 	void update(game::GameData*, const Input&, CommandList*) override {}
-	void draw(Renderer*) const override {}
+	void draw(const game::GameData&, Renderer*) const override {}
 };
 
 int TestScene::num_instances = 0;

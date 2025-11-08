@@ -8,9 +8,12 @@ namespace engine {
 	struct Engine;
 	struct Input;
 	class Renderer;
+	class SaveFile;
 } // namespace engine
 
 namespace game {
+
+	void on_save_file_loaded(GameData* game, const engine::SaveFile& save_file);
 
 	GameData initialize(engine::CommandList* commands);
 	void update(GameData* game, const engine::Input& input, engine::CommandList* commands);

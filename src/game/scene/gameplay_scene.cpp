@@ -1,6 +1,7 @@
 #include <game/scene/gameplay_scene.h>
 
 #include <game/ui/pause_menu.h>
+#include <game/game_data.h>
 
 #include <engine/commands.h>
 #include <engine/debug/assert.h>
@@ -25,11 +26,6 @@ namespace game {
 
 	void GameplayScene::on_unpause() {
 		m_scene_is_paused = false;
-	}
-
-	void GameplayScene::on_save_file_loaded(const engine::SaveFile& save_file) {
-		m_player_position.x = save_file.try_get<float>("player_pos_x").value_or(0.0f);
-		m_player_position.y = save_file.try_get<float>("player_pos_y").value_or(0.0f);
 	}
 
 	void GameplayScene::initialize(GameData* /*game*/, engine::ResourceManager* resources, engine::CommandList* /*commands*/) {
@@ -82,7 +78,7 @@ namespace game {
 		DEBUG_ASSERT(!error.has_value(), "Couldn't start animation");
 	}
 
-	void GameplayScene::update(GameData* /*game*/, const engine::Input& input, engine::CommandList* commands) {
+	void GameplayScene::update(GameData* game, const engine::Input& input, engine::CommandList* commands) {
 		/* Show pause menu */
 		if (input.keyboard.key_was_pressed_now(VK_ESCAPE)) {
 			commands->push_screen(PauseMenu::NAME);
@@ -131,7 +127,7 @@ namespace game {
 			const engine::Vec2 player_velocity = player_speed * input_vector;
 			const bool just_changed_velocity = player_velocity != m_player_velocity;
 			m_player_velocity = player_velocity;
-			m_player_position += input.time_delta.in_seconds() * m_player_velocity;
+			game->player_position += input.time_delta.in_seconds() * m_player_velocity;
 
 			if (just_changed_velocity) {
 				/* Stop walking animation */
@@ -148,14 +144,14 @@ namespace game {
 		}
 	}
 
-	void GameplayScene::draw(engine::Renderer* renderer) const {
+	void GameplayScene::draw(const GameData& game, engine::Renderer* renderer) const {
 		renderer->clear_screen(engine::RGBA { 252, 216, 168, 255 });
 
 		constexpr int player_size = 16;
 		const engine::IVec2 world_origin = renderer->screen_resolution() / 2;
 		const engine::IVec2 world_player_pos = {
-			world_origin.x + (int)std::round(m_player_position.x) - player_size / 2,
-			world_origin.y + (int)std::round(m_player_position.y) - player_size / 2,
+			world_origin.x + (int)std::round(game.player_position.x) - player_size / 2,
+			world_origin.y + (int)std::round(game.player_position.y) - player_size / 2,
 		};
 		engine::Rect player_rect = {
 			world_player_pos.x,
