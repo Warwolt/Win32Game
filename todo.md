@@ -16,7 +16,7 @@ Goal:
 - Create nicer interface for triggering animations that hides dependencies like AnimationLibrary and current time etc. (Add `play_animation` to CommandList? Add AnimationCommands as sub-object to CommandList?)
 - Draw API: Support for drawing text centered in a box
 - Add keyboard & mouse input test screen, display stream of events and data like e.g. mouse position
-- Try out LDtk Level Editor (https://ldtk.io/)
+- Try out LDtk Level Editor (https://ldtk.io/) or Tiled (https://www.mapeditor.org/)
 - Try out FMOD as audio player
 - Add audio test screen, display volume of current played sample as a little bar
   - maybe relevant: https://stackoverflow.com/questions/35438815/how-do-i-retrieve-the-current-sample-play-position-from-an-xaudio2-source-voice
