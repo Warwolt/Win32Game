@@ -30,7 +30,7 @@ namespace game {
 			}
 
 			if (m_menu_index == PauseMenuItem::SaveAndQuit) {
-				commands->write_save_file("test_save.json");
+				commands->write_save_file("build/save_file.json");
 				commands->load_scene(MenuScene::NAME);
 			}
 		}

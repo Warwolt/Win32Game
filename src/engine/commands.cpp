@@ -34,22 +34,22 @@ namespace engine {
 					/* Write file */
 					SaveFile save_file = game::on_write_save_file(*game_data);
 					bool did_write = write_string_to_file(save_file.to_json_string(), filepath);
-					DEBUG_ASSERT(did_write, "Couldn't open file %s when writing save file", filepath.string().c_str());
-					LOG_INFO("Wrote save file %s", filepath.string().c_str());
+					DEBUG_ASSERT(did_write, "Couldn't open file \"%s\" when writing save file", filepath.string().c_str());
+					LOG_INFO("Wrote save file \"%s\"", filepath.string().c_str());
 				}
 
 				MATCH_CASE(Command_LoadSaveFile, filepath) {
 					/* Read file */
 					std::optional<std::string> file_content = read_string_from_file(filepath);
-					DEBUG_ASSERT(file_content.has_value(), "Couldn't read save file %s", filepath.string().c_str());
+					DEBUG_ASSERT(file_content.has_value(), "Couldn't read save file \"%s\"", filepath.string().c_str());
 
 					/* Parse save data */
 					std::expected<SaveFile, SaveFileError> save_file = SaveFile::from_json_string(file_content.value());
-					DEBUG_ASSERT(save_file.has_value(), "Save file %s did not contain valid json", filepath.string().c_str());
+					DEBUG_ASSERT(save_file.has_value(), "Save file \"%s\" did not contain valid json", filepath.string().c_str());
 
 					/* Send event */
 					game::on_save_file_loaded(game_data, save_file.value());
-					LOG_INFO("Loaded save file %s", filepath.string().c_str());
+					LOG_INFO("Loaded save file \"%s\"", filepath.string().c_str());
 				}
 
 				/* SceneManager */

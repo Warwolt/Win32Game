@@ -31,7 +31,9 @@ namespace game {
 			}
 
 			if (m_menu_index == MainMenuItem::LoadGame) {
-				LOG_ERROR("Not implemented yet!");
+				// FIXME: add Load Game Screen that lists all save files?
+				commands->load_save_file("build/save_file.json");
+				commands->load_scene(GameplayScene::NAME);
 			}
 
 			if (m_menu_index == MainMenuItem::Debug) {
