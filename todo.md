@@ -7,6 +7,7 @@ Goal:
   - [ ] Victory screen
 
 # Todo
+- Make CommandList::run_commands take Engine* instead of separte dependencies
 - Add "file menu" in debug builds, move hot reloading there, free up F5 key for e.g. quick save
 - Enemies walking around
 - Support importing Aseprite sprite sheets
