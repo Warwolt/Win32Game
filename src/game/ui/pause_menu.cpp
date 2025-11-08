@@ -19,7 +19,7 @@ namespace game {
 		};
 	};
 
-	void PauseMenu::update(const engine::Input& input, engine::CommandList* commands) {
+	void PauseMenu::update(GameData* /*game*/, const engine::Input& input, engine::CommandList* commands) {
 		if (input.keyboard.key_was_pressed_now(VK_ESCAPE)) {
 			commands->pop_screen();
 		}
@@ -42,7 +42,7 @@ namespace game {
 		}
 	}
 
-	void PauseMenu::draw(engine::Renderer* renderer) const {
+	void PauseMenu::draw(const GameData& /*game*/, engine::Renderer* renderer) const {
 		const engine::IVec2 screen_resolution = renderer->screen_resolution();
 		const int menu_width = 100;
 		const int menu_height = 100;

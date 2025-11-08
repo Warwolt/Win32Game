@@ -1,6 +1,7 @@
 #include <game/ui/main_menu.h>
 
 #include <game/scene/gameplay_scene.h>
+#include <game/game_data.h>
 
 #include <engine/commands.h>
 #include <engine/debug/logging.h>
@@ -14,17 +15,23 @@ namespace game {
 
 	struct MainMenuItem {
 		enum {
-			Play = 0,
-			Debug = 1,
-			Quit = 2,
+			NewGame,
+			LoadGame,
+			Debug,
+			Quit,
 			Count,
 		};
 	};
 
-	void MainMenu::update(const engine::Input& input, engine::CommandList* commands) {
+	void MainMenu::update(GameData* game, const engine::Input& input, engine::CommandList* commands) {
 		if (input.keyboard.key_was_pressed_now(VK_RETURN)) {
-			if (m_menu_index == MainMenuItem::Play) {
+			if (m_menu_index == MainMenuItem::NewGame) {
+				*game = GameData {}; // reset game data
 				commands->load_scene(GameplayScene::NAME);
+			}
+
+			if (m_menu_index == MainMenuItem::LoadGame) {
+				LOG_ERROR("Not implemented yet!");
 			}
 
 			if (m_menu_index == MainMenuItem::Debug) {
@@ -44,19 +51,22 @@ namespace game {
 		}
 	}
 
-	void MainMenu::draw(engine::Renderer* renderer) const {
+	void MainMenu::draw(const GameData& /*game*/, engine::Renderer* renderer) const {
 		/* Title */
 		renderer->draw_text(engine::DEFAULT_FONT_ID, 32, { 56 + 2, 59 + 2 }, engine::RGBA::dark_purple(), "Main Menu");
 		renderer->draw_text(engine::DEFAULT_FONT_ID, 32, { 56 + 1, 59 + 1 }, engine::RGBA::dark_purple(), "Main Menu");
 		renderer->draw_text(engine::DEFAULT_FONT_ID, 32, { 56 + 0, 59 + 0 }, engine::RGBA::purple(), "Main Menu");
 
 		/* Menu items */
-		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, { 110, 75 + 16 + 1 * 16 }, engine::RGBA::white(), "Play");
-		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, { 110, 75 + 16 + 2 * 16 }, engine::RGBA::white(), "Debug");
-		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, { 110, 75 + 16 + 3 * 16 }, engine::RGBA::white(), "Quit");
+		int menu_index = 1;
+		const int menu_item_x = 90;
+		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, { menu_item_x, 75 + 16 + menu_index++ * 16 }, engine::RGBA::white(), "New Game");
+		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, { menu_item_x, 75 + 16 + menu_index++ * 16 }, engine::RGBA::white(), "Load Game");
+		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, { menu_item_x, 75 + 16 + menu_index++ * 16 }, engine::RGBA::white(), "Debug");
+		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, { menu_item_x, 75 + 16 + menu_index++ * 16 }, engine::RGBA::white(), "Quit");
 
 		/* Cursor */
-		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, { 110 - 14, 75 + 32 + m_menu_index * 16 }, engine::RGBA::white(), ">");
+		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, { menu_item_x - 14, 75 + 32 + m_menu_index * 16 }, engine::RGBA::white(), ">");
 	}
 
 } // namespace game

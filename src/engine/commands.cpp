@@ -76,7 +76,7 @@ namespace engine {
 					DEBUG_ASSERT(!push_error.has_value(), "Failed to push screen \"%s\". Is it registered?", screen_name.c_str());
 
 					/* Notify scene that it's being paused */
-					screen_stack->top_screen()->initialize(resources, this);
+					screen_stack->top_screen()->initialize(game_data, resources, this);
 					if (Scene* current_scene = scene_manager->current_scene()) {
 						if (pushing_onto_empty_stack) {
 							current_scene->on_pause();

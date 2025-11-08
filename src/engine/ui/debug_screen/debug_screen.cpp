@@ -16,12 +16,12 @@ namespace engine {
 
 	constexpr int FONT_SIZE = 16;
 
-	void DebugScreen::initialize(ResourceManager* resources, CommandList* /*commands*/) {
+	void DebugScreen::initialize(game::GameData* /*game*/, ResourceManager* resources, CommandList* /*commands*/) {
 		m_image_test_page.initialize(resources);
 		m_font_test_page.initialize();
 	}
 
-	void DebugScreen::update(const Input& input, CommandList* commands) {
+	void DebugScreen::update(game::GameData* /*game*/, const Input& input, CommandList* commands) {
 		if (input.keyboard.key_was_pressed_now(VK_ESCAPE)) {
 			commands->pop_screen();
 		}
@@ -49,7 +49,7 @@ namespace engine {
 		}
 	}
 
-	void DebugScreen::draw(Renderer* renderer) const {
+	void DebugScreen::draw(const game::GameData& /*game*/, Renderer* renderer) const {
 		CPUProfilingScope_Engine();
 		const char* title = "unknown";
 		/* Render page */

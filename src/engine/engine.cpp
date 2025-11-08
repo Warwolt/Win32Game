@@ -73,7 +73,7 @@ namespace engine {
 
 		/* Update top-most screen */
 		if (Screen* top_screen = engine->screen_stack.top_screen()) {
-			top_screen->update(engine->input, commands);
+			top_screen->update(engine->game_data, engine->input, commands);
 		}
 
 		/* Show CPU profiling information in window title */
@@ -104,7 +104,7 @@ namespace engine {
 
 		/* Draw current ui screen */
 		if (Screen* top_screen = engine->screen_stack.top_screen()) {
-			top_screen->draw(&engine->renderer);
+			top_screen->draw(*engine->game_data, &engine->renderer);
 		}
 	}
 
