@@ -2,10 +2,7 @@
 
 #include <engine/scene/scene_manager.h>
 
-#include <expected>
-#include <functional>
 #include <memory>
-#include <unordered_map>
 
 using namespace engine;
 
@@ -14,7 +11,7 @@ struct TestScene : public Scene {
 	static int num_instances;
 	TestScene() { num_instances++; }
 	~TestScene() { num_instances--; }
-	void update(const Input&, CommandList*) override {}
+	void update(game::GameData*, const Input&, CommandList*) override {}
 	void draw(Renderer*) const override {}
 };
 
@@ -23,7 +20,7 @@ struct TestScene2 : public Scene {
 	static int num_instances;
 	TestScene2() { num_instances++; }
 	~TestScene2() { num_instances--; }
-	void update(const Input&, CommandList*) override {}
+	void update(game::GameData*, const Input&, CommandList*) override {}
 	void draw(Renderer*) const override {}
 };
 

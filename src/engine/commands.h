@@ -8,6 +8,10 @@
 #include <variant>
 #include <vector>
 
+namespace game {
+	struct GameData;
+}
+
 namespace engine {
 
 	class ResourceManager;
@@ -21,6 +25,7 @@ namespace engine {
 	class CommandList {
 	public:
 		void run_commands(
+			game::GameData* game_data,
 			bool* should_quit,
 			SaveFile* save_file,
 			ResourceManager* resources,

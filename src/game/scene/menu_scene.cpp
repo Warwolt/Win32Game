@@ -7,11 +7,11 @@
 
 namespace game {
 
-	void MenuScene::initialize(engine::ResourceManager* /*resources*/, engine::CommandList* commands) {
+	void MenuScene::initialize(GameData* /*game*/, engine::ResourceManager* /*resources*/, engine::CommandList* commands) {
 		commands->push_screen(MainMenu::NAME);
 	}
 
-	void MenuScene::update(const engine::Input& /*input*/, engine::CommandList* /*commands*/) {
+	void MenuScene::update(GameData* /*game*/, const engine::Input& /*input*/, engine::CommandList* /*commands*/) {
 	}
 
 	void MenuScene::draw(engine::Renderer* renderer) const {

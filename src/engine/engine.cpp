@@ -74,7 +74,7 @@ namespace engine {
 
 		/* Update current scene */
 		if (Scene* current_scene = engine->scene_manager.current_scene()) {
-			current_scene->update(engine->input, commands);
+			current_scene->update(engine->game_data, engine->input, commands);
 		}
 
 		/* Update top-most screen */
@@ -90,6 +90,7 @@ namespace engine {
 
 		/* Process commands */
 		commands->run_commands(
+			engine->game_data,
 			&engine->should_quit,
 			&engine->save_file,
 			&engine->resources,

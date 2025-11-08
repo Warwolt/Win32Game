@@ -14,8 +14,8 @@
 
 namespace game {
 
-	Game initialize(engine::CommandList* commands) {
-		Game game = {};
+	GameData initialize(engine::CommandList* commands) {
+		GameData game = {};
 
 		/* Register scenes */
 		commands->register_scene<MenuScene>();
@@ -32,7 +32,7 @@ namespace game {
 		return game;
 	}
 
-	void update(Game* /*game*/, const engine::Input& input, engine::CommandList* commands) {
+	void update(GameData* /*game*/, const engine::Input& input, engine::CommandList* commands) {
 		CPUProfilingScope_Game();
 
 		/* Toggle fullscreen */
@@ -41,7 +41,7 @@ namespace game {
 		}
 	}
 
-	void draw(engine::Renderer* /*renderer*/, const Game& /*game*/) {
+	void draw(engine::Renderer* /*renderer*/, const GameData& /*game*/) {
 		// CPUProfilingScope_Game();
 	}
 

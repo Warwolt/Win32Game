@@ -18,7 +18,7 @@ constexpr bool PROFILING_IS_ENABLED = false;
 
 struct State {
 	engine::Engine engine;
-	game::Game game;
+	game::GameData game;
 };
 
 static void pump_window_messages(State* state) {
@@ -60,7 +60,9 @@ State* initialize_application(int argc, char** argv, HINSTANCE instance, WNDPROC
 	/* Initialize game */
 	engine::CommandList commands;
 	state->game = game::initialize(&commands);
+	state->engine.game_data = &state->game;
 	commands.run_commands(
+		state->engine.game_data,
 		&state->engine.should_quit,
 		&state->engine.save_file,
 		&state->engine.resources,

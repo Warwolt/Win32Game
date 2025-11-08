@@ -32,7 +32,7 @@ namespace game {
 		m_player_position.y = save_file.try_get<float>("player_pos_y").value_or(0.0f);
 	}
 
-	void GameplayScene::initialize(engine::ResourceManager* resources, engine::CommandList* /*commands*/) {
+	void GameplayScene::initialize(GameData* /*game*/, engine::ResourceManager* resources, engine::CommandList* /*commands*/) {
 		m_sprite_sheet_id = resources->load_image("assets/image/render_test/sprite_sheet.png");
 		const engine::Image& sprite_sheet = resources->image(m_sprite_sheet_id);
 		m_sprite_sheet_size.width = sprite_sheet.width;
@@ -82,7 +82,7 @@ namespace game {
 		DEBUG_ASSERT(!error.has_value(), "Couldn't start animation");
 	}
 
-	void GameplayScene::update(const engine::Input& input, engine::CommandList* commands) {
+	void GameplayScene::update(GameData* /*game*/, const engine::Input& input, engine::CommandList* commands) {
 		/* Show pause menu */
 		if (input.keyboard.key_was_pressed_now(VK_ESCAPE)) {
 			commands->push_screen(PauseMenu::NAME);

@@ -21,8 +21,8 @@ namespace game {
 		void on_unpause() override;
 		void on_save_file_loaded(const engine::SaveFile& save_file) override;
 
-		void initialize(engine::ResourceManager* resources, engine::CommandList* commands) override;
-		void update(const engine::Input& input, engine::CommandList* commands) override;
+		void initialize(GameData* game, engine::ResourceManager* resources, engine::CommandList* commands) override;
+		void update(GameData* game, const engine::Input& input, engine::CommandList* commands) override;
 		void draw(engine::Renderer* renderer) const override;
 
 	private:
@@ -36,8 +36,6 @@ namespace game {
 			engine::Rect clip;
 			bool flip_h;
 		};
-
-		void _read_save_file(const engine::SaveFile& save_file);
 
 		// State
 		bool m_scene_is_paused = false;

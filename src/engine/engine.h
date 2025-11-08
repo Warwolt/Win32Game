@@ -14,6 +14,10 @@
 #include <string>
 #include <vector>
 
+namespace game {
+	struct GameData;
+}
+
 namespace engine {
 
 	struct Input;
@@ -22,6 +26,7 @@ namespace engine {
 	struct Engine {
 		// application
 		bool should_quit = false;
+		game::GameData* game_data = nullptr;
 
 		// input/output
 		InputEvents input_events;
