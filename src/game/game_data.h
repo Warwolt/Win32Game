@@ -4,9 +4,9 @@
 
 namespace game {
 
-    struct GameData {
-        engine::Vec2 player_position;
-        Direction player_direction = Direction::Down;
+	struct GameData {
+		engine::Vec2 player_position;
+		Direction player_direction = Direction::Down;
 	};
 
 } // namespace game

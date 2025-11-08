@@ -1,7 +1,7 @@
 #include <game/ui/main_menu.h>
 
-#include <game/scene/gameplay_scene.h>
 #include <game/game_data.h>
+#include <game/scene/gameplay_scene.h>
 
 #include <engine/commands.h>
 #include <engine/debug/logging.h>
