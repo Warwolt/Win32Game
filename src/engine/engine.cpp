@@ -86,7 +86,6 @@ namespace engine {
 		commands->run_commands(
 			engine->game_data,
 			&engine->should_quit,
-			&engine->save_file,
 			&engine->resources,
 			&engine->scene_manager,
 			&engine->screen_stack,

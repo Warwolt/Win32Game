@@ -16,7 +16,6 @@ namespace engine {
 
 	class ResourceManager;
 	class SceneManager;
-	class SaveFile;
 	class ScreenStack;
 	class Scene;
 	class Screen;
@@ -27,7 +26,6 @@ namespace engine {
 		void run_commands(
 			game::GameData* game_data,
 			bool* should_quit,
-			SaveFile* save_file,
 			ResourceManager* resources,
 			SceneManager* scene_manager,
 			ScreenStack* screen_stack,
@@ -39,7 +37,7 @@ namespace engine {
 
 		/* File */
 		void load_save_file(std::filesystem::path filepath);
-		void write_save_file(std::filesystem::path filepath); // std::function<void(SaveFile*)> update_save_file
+		void write_save_file(std::filesystem::path filepath);
 
 		/* SceneManager */
 		template <typename SceenType>

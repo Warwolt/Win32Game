@@ -51,4 +51,11 @@ namespace game {
 		game->player_position.y = save_file.try_get<float>("player_pos_y").value_or(0.0f);
 	}
 
+	engine::SaveFile on_write_save_file(const GameData& game) {
+		engine::SaveFile save_file;
+		save_file["player_pos_x"] = game.player_position.x;
+		save_file["player_pos_y"] = game.player_position.y;
+		return save_file;
+	}
+
 } // namespace game

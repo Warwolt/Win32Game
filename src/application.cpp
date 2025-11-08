@@ -65,7 +65,6 @@ State* initialize_application(int argc, char** argv, HINSTANCE instance, WNDPROC
 	init_commands.run_commands(
 		state->engine.game_data,
 		&state->engine.should_quit,
-		&state->engine.save_file,
 		&state->engine.resources,
 		&state->engine.scene_manager,
 		&state->engine.screen_stack,
