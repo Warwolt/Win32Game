@@ -23,6 +23,7 @@ Goal:
 # Doing
 
 # Done
+- Add quick save / quick load shortcuts with F5 F9
 - Make CommandList::run_commands take Engine* instead of separte dependencies
 - Create nicer interface for triggering animations that hides dependencies like AnimationLibrary and current time etc. (Add `play_animation` to CommandList? Add AnimationCommands as sub-object to CommandList?)
 - Save file system, save & quit in menu
