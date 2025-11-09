@@ -23,7 +23,7 @@ namespace engine {
 
 		/* Uppercase, left aligned */
 		{
-			RENDERER_LOG(renderer, "Uppercase quick brown fox");
+			RENDERER_LOG(renderer, "Uppercase quick brown fox (left aligned)");
 			Rect text_rect = { 0, 18, text_box_width, text_box_height };
 			DrawTextOptions options = { .debug_draw_box = true };
 			renderer->draw_text(DEFAULT_FONT_ID, font_size, text_rect, RGBA::white(), "THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG.", options);
@@ -31,7 +31,7 @@ namespace engine {
 
 		/* Lowercase, left aligned */
 		{
-			RENDERER_LOG(renderer, "Lowercase quick brown fox");
+			RENDERER_LOG(renderer, "Lowercase quick brown fox (left aligned)");
 			Rect text_rect = { screen_resolution.x / 2, 18, text_box_width, text_box_height };
 			DrawTextOptions options = { .debug_draw_box = true };
 			renderer->draw_text(DEFAULT_FONT_ID, font_size, text_rect, RGBA::white(), "the quick brown fox jumps over the lazy dog.", options);
@@ -39,10 +39,35 @@ namespace engine {
 
 		/* Uppercase, centered */
 		{
-			RENDERER_LOG(renderer, "Uppercase quick brown fox");
+			RENDERER_LOG(renderer, "Uppercase quick brown fox (center aligned)");
 			Rect text_rect = { 0, 18 + 1 + text_box_height, text_box_width, text_box_height };
 			DrawTextOptions options = { .h_alignment = HorizontalAlignment::Center, .debug_draw_box = true };
 			renderer->draw_text(DEFAULT_FONT_ID, font_size, text_rect, RGBA::white(), "THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG.", options);
+		}
+
+		/* Lowercase, centered */
+		{
+			RENDERER_LOG(renderer, "Lowercase quick brown fox (center aligned)");
+			Rect text_rect = { screen_resolution.x / 2, 18 + 1 + text_box_height, text_box_width, text_box_height };
+			DrawTextOptions options = { .h_alignment = HorizontalAlignment::Center, .debug_draw_box = true };
+			renderer->draw_text(DEFAULT_FONT_ID, font_size, text_rect, RGBA::white(), "the quick brown fox jumps over the lazy dog.", options);
+		}
+
+		/* Uppercase, right aligned */
+		// FIXME: text overflows to the right for some reason
+		{
+			RENDERER_LOG(renderer, "Uppercase quick brown fox (right aligned)");
+			Rect text_rect = { 0, 18 + 2 * (1 + text_box_height), text_box_width, text_box_height };
+			DrawTextOptions options = { .h_alignment = HorizontalAlignment::Right, .debug_draw_box = true };
+			renderer->draw_text(DEFAULT_FONT_ID, font_size, text_rect, RGBA::white(), "THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG.", options);
+		}
+
+		/* Lowercase, right aligned */
+		{
+			RENDERER_LOG(renderer, "Lowercase quick brown fox (right aligned)");
+			Rect text_rect = { screen_resolution.x / 2, 18 + 2 * (1 + text_box_height), text_box_width, text_box_height };
+			DrawTextOptions options = { .h_alignment = HorizontalAlignment::Right, .debug_draw_box = true };
+			renderer->draw_text(DEFAULT_FONT_ID, font_size, text_rect, RGBA::white(), "the quick brown fox jumps over the lazy dog.", options);
 		}
 	}
 
