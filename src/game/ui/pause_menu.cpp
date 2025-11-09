@@ -13,8 +13,9 @@ namespace game {
 
 	struct PauseMenuItem {
 		enum {
-			Continue = 0,
-			SaveAndQuit = 1,
+			Continue,
+			SaveGame,
+			Quit,
 			Count,
 		};
 	};
@@ -29,8 +30,11 @@ namespace game {
 				commands->pop_screen();
 			}
 
-			if (m_menu_index == PauseMenuItem::SaveAndQuit) {
+			if (m_menu_index == PauseMenuItem::SaveGame) {
 				commands->write_save_file("build/save_file.json");
+			}
+
+			if (m_menu_index == PauseMenuItem::Quit) {
 				commands->load_scene(MenuScene::NAME);
 			}
 		}
@@ -44,12 +48,13 @@ namespace game {
 	}
 
 	void PauseMenu::draw(const GameData& /*game*/, engine::Renderer* renderer) const {
-		const engine::IVec2 screen_resolution = renderer->screen_resolution();
+		const engine::IVec2 resolution = renderer->screen_resolution();
+		const engine::DrawTextOptions options = { .h_alignment = engine::HorizontalAlignment::Center };
 		const int menu_width = 120;
-		const int menu_height = 100;
+		const int menu_height = 112;
 		const engine::Rect menu_rect = {
-			(screen_resolution.x - menu_width) / 2,
-			(screen_resolution.y - menu_height) / 2,
+			(resolution.x - menu_width) / 2,
+			(resolution.y - menu_height) / 2,
 			menu_width,
 			menu_height,
 		};
@@ -61,15 +66,15 @@ namespace game {
 
 		/* Draw background + title */
 		renderer->draw_rect_fill(menu_rect, engine::RGBA::black());
-		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, title_rect, engine::RGBA::white(), "Paused");
+		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, title_rect, engine::RGBA::white(), "Paused", options);
 
 		/* Draw menu items and cursor */
 		int index = 0;
 		const int item_y = menu_rect.y + 48;
-		const int item_x = menu_rect.x + 20;
-		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, { item_x, item_y + index++ * 16 }, engine::RGBA::white(), "Continue");
-		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, { item_x, item_y + index++ * 16 } /*  */, engine::RGBA::white(), "Save & Quit");
-		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, { item_x - 16, item_y + m_menu_index * 16 }, engine::RGBA::white(), ">");
+		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, { 0, item_y + index++ * 16, resolution.x, 0 }, engine::RGBA::white(), "Continue", options);
+		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, { 0, item_y + index++ * 16, resolution.x, 0 }, engine::RGBA::white(), "Save game", options);
+		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, { 0, item_y + index++ * 16, resolution.x, 0 }, engine::RGBA::white(), "Quit", options);
+		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, { menu_rect.x + 4, item_y + m_menu_index * 16 }, engine::RGBA::white(), ">");
 	}
 
 } // namespace game
