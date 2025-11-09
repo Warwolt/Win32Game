@@ -24,9 +24,9 @@ namespace engine {
 	class DebugScreen : public Screen {
 	public:
 		static constexpr char NAME[] = "DebugScreen";
-		void initialize(ResourceManager* resources, CommandList* commands) override;
-		void update(const Input& input, CommandList* commands) override;
-		void draw(Renderer* renderer) const override;
+		void initialize(game::GameData* game, ResourceManager* resources, CommandList* commands) override;
+		void update(game::GameData* game, const Input& input, CommandList* commands) override;
+		void draw(const game::GameData& game, Renderer* renderer) const override;
 
 	private:
 		int m_page = 0;

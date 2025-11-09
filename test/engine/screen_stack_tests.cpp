@@ -9,8 +9,8 @@ struct TestScreen_A : public Screen {
 	static int num_instances;
 	TestScreen_A() { num_instances++; }
 	~TestScreen_A() { num_instances--; }
-	void update(const Input&, CommandList*) override {}
-	void draw(Renderer*) const override {}
+	void update(game::GameData*, const Input&, CommandList*) override {}
+	void draw(const game::GameData&, Renderer*) const override {}
 };
 
 struct TestScreen_B : public Screen {
@@ -18,8 +18,8 @@ struct TestScreen_B : public Screen {
 	static int num_instances;
 	TestScreen_B() { num_instances++; }
 	~TestScreen_B() { num_instances--; }
-	void update(const Input&, CommandList*) override {}
-	void draw(Renderer*) const override {}
+	void update(game::GameData*, const Input&, CommandList*) override {}
+	void draw(const game::GameData&, Renderer*) const override {}
 };
 
 int TestScreen_A::num_instances = 0;

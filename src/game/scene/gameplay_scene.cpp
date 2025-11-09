@@ -1,10 +1,12 @@
 #include <game/scene/gameplay_scene.h>
 
+#include <game/game_data.h>
 #include <game/ui/pause_menu.h>
 
 #include <engine/commands.h>
 #include <engine/debug/assert.h>
 #include <engine/file/resource_manager.h>
+#include <engine/file/save_file.h>
 #include <engine/graphics/renderer.h>
 #include <engine/input/input.h>
 
@@ -26,7 +28,7 @@ namespace game {
 		m_scene_is_paused = false;
 	}
 
-	void GameplayScene::initialize(engine::ResourceManager* resources, engine::CommandList* /*commands*/) {
+	void GameplayScene::initialize(GameData* game, engine::ResourceManager* resources, engine::CommandList* /*commands*/) {
 		m_sprite_sheet_id = resources->load_image("assets/image/render_test/sprite_sheet.png");
 		const engine::Image& sprite_sheet = resources->image(m_sprite_sheet_id);
 		m_sprite_sheet_size.width = sprite_sheet.width;
@@ -71,12 +73,11 @@ namespace game {
 				.looping = true,
 			}
 		);
-		std::optional<engine::AnimationError> error = m_animation_player.play(m_animation_library, m_walk_animations[Direction::Down], engine::Time::now());
+		DEBUG_ASSERT(!m_animation_player.play(m_animation_library, m_walk_animations[game->player_direction], engine::Time::now()), "Couldn't start animation");
 		m_animation_player.pause();
-		DEBUG_ASSERT(!error.has_value(), "Couldn't start animation");
 	}
 
-	void GameplayScene::update(const engine::Input& input, engine::CommandList* commands) {
+	void GameplayScene::update(GameData* game, const engine::Input& input, engine::CommandList* commands) {
 		/* Show pause menu */
 		if (input.keyboard.key_was_pressed_now(VK_ESCAPE)) {
 			commands->push_screen(PauseMenu::NAME);
@@ -117,39 +118,39 @@ namespace game {
 					input_vector.x += 1;
 					direction = Direction::Right;
 				}
-				just_changed_direction = m_player_dir != direction;
-				m_player_dir = direction;
+				just_changed_direction = game->player_direction != direction;
+				game->player_direction = direction;
 			}
 
 			const float player_speed = 75.0f; // pixels per second
 			const engine::Vec2 player_velocity = player_speed * input_vector;
 			const bool just_changed_velocity = player_velocity != m_player_velocity;
 			m_player_velocity = player_velocity;
-			m_player_position += input.time_delta.in_seconds() * m_player_velocity;
+			game->player_position += input.time_delta.in_seconds() * m_player_velocity;
 
 			if (just_changed_velocity) {
 				/* Stop walking animation */
 				if (m_player_velocity.length() == 0) {
 					m_animation_player.pause();
-					DEBUG_ASSERT(!m_animation_player.set_frame(m_animation_library, input.time_now, 0).has_value(), "Couldn't set walk animation frame");
+					DEBUG_ASSERT(!m_animation_player.set_frame(m_animation_library, input.time_now, 0), "Couldn't set walk animation frame");
 				}
 				/* Start walking animation */
 				else {
-					DEBUG_ASSERT(!m_animation_player.play(m_animation_library, m_walk_animations[m_player_dir], input.time_now).has_value(), "Couldn't play walk animation");
-					DEBUG_ASSERT(!m_animation_player.set_frame(m_animation_library, input.time_now, 1).has_value(), "Couldn't set walk animation frame");
+					DEBUG_ASSERT(!m_animation_player.play(m_animation_library, m_walk_animations[game->player_direction], input.time_now), "Couldn't play walk animation");
+					DEBUG_ASSERT(!m_animation_player.set_frame(m_animation_library, input.time_now, 1), "Couldn't set walk animation frame");
 				}
 			}
 		}
 	}
 
-	void GameplayScene::draw(engine::Renderer* renderer) const {
+	void GameplayScene::draw(const GameData& game, engine::Renderer* renderer) const {
 		renderer->clear_screen(engine::RGBA { 252, 216, 168, 255 });
 
 		constexpr int player_size = 16;
 		const engine::IVec2 world_origin = renderer->screen_resolution() / 2;
 		const engine::IVec2 world_player_pos = {
-			world_origin.x + (int)std::round(m_player_position.x) - player_size / 2,
-			world_origin.y + (int)std::round(m_player_position.y) - player_size / 2,
+			world_origin.x + (int)std::round(game.player_position.x) - player_size / 2,
+			world_origin.y + (int)std::round(game.player_position.y) - player_size / 2,
 		};
 		engine::Rect player_rect = {
 			world_player_pos.x,

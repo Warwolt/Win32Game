@@ -13,6 +13,10 @@
 #include <string>
 #include <vector>
 
+namespace game {
+	struct GameData;
+}
+
 namespace engine {
 
 	struct Input;
@@ -21,6 +25,7 @@ namespace engine {
 	struct Engine {
 		// application
 		bool should_quit = false;
+		game::GameData* game_data = nullptr;
 
 		// input/output
 		InputEvents input_events;
@@ -43,7 +48,7 @@ namespace engine {
 		DeltaTimer frame_timer;
 	};
 
-	std::optional<Engine> initialize(const std::vector<std::string>& args, HINSTANCE instance, WNDPROC wnd_proc);
+	std::optional<Engine> initialize(const std::vector<std::string>& args, HINSTANCE instance, WNDPROC wnd_proc, game::GameData* game_data);
 	void update(Engine* engine, CommandList* commands);
 	void draw(Engine* engine);
 

@@ -18,7 +18,7 @@ constexpr bool PROFILING_IS_ENABLED = false;
 
 struct State {
 	engine::Engine engine;
-	game::Game game;
+	game::GameData game;
 };
 
 static void pump_window_messages(State* state) {
@@ -47,25 +47,28 @@ static void update_input(State* state) {
 
 State* initialize_application(int argc, char** argv, HINSTANCE instance, WNDPROC on_window_event) {
 	State* state = new State {};
+	engine::CommandList init_commands;
+
+	/* Initialize game */
+	state->game = game::initialize(&init_commands);
 
 	/* Initialize engine */
 	std::vector<std::string> args = std::vector<std::string>(argv, argv + argc);
-	std::optional<engine::Engine> engine = engine::initialize(args, instance, on_window_event);
+	std::optional<engine::Engine> engine = engine::initialize(args, instance, on_window_event, &state->game);
 	if (!engine) {
 		MessageBoxA(0, "Failed to initialize engine", "Error", MB_OK | MB_ICONERROR);
 		exit(1);
 	}
 	state->engine = std::move(engine.value());
 
-	/* Initialize game */
-	engine::CommandList commands;
-	state->game = game::initialize(&commands);
-	commands.run_commands(
+	/* Run initial commands */
+	init_commands.run_commands(
+		state->engine.game_data,
 		&state->engine.should_quit,
-		&state->engine.window,
 		&state->engine.resources,
 		&state->engine.scene_manager,
-		&state->engine.screen_stack
+		&state->engine.screen_stack,
+		&state->engine.window
 	);
 
 	LOG_INFO("Initialized");

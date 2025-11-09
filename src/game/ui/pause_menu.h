@@ -7,8 +7,8 @@ namespace game {
 	class PauseMenu : public engine::Screen {
 	public:
 		static constexpr char NAME[] = "PauseMenu";
-		void update(const engine::Input& input, engine::CommandList* commands) override;
-		void draw(engine::Renderer* renderer) const override;
+		void update(GameData* game, const engine::Input& input, engine::CommandList* commands) override;
+		void draw(const GameData& game, engine::Renderer* renderer) const override;
 
 	private:
 		int m_menu_index = 0;

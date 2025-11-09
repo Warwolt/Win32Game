@@ -33,8 +33,9 @@ namespace engine {
 		return engine_args;
 	}
 
-	std::optional<Engine> initialize(const std::vector<std::string>& args, HINSTANCE instance, WNDPROC wnd_proc) {
+	std::optional<Engine> initialize(const std::vector<std::string>& args, HINSTANCE instance, WNDPROC wnd_proc, game::GameData* game_data) {
 		Engine engine = {};
+		engine.game_data = game_data;
 		EngineArgs engine_args = parse_args(args);
 		initialize_logging();
 
@@ -67,12 +68,12 @@ namespace engine {
 
 		/* Update current scene */
 		if (Scene* current_scene = engine->scene_manager.current_scene()) {
-			current_scene->update(engine->input, commands);
+			current_scene->update(engine->game_data, engine->input, commands);
 		}
 
 		/* Update top-most screen */
 		if (Screen* top_screen = engine->screen_stack.top_screen()) {
-			top_screen->update(engine->input, commands);
+			top_screen->update(engine->game_data, engine->input, commands);
 		}
 
 		/* Show CPU profiling information in window title */
@@ -83,11 +84,12 @@ namespace engine {
 
 		/* Process commands */
 		commands->run_commands(
+			engine->game_data,
 			&engine->should_quit,
-			&engine->window,
 			&engine->resources,
 			&engine->scene_manager,
-			&engine->screen_stack
+			&engine->screen_stack,
+			&engine->window
 		);
 	}
 
@@ -96,12 +98,12 @@ namespace engine {
 
 		/* Draw current scene */
 		if (Scene* current_scene = engine->scene_manager.current_scene()) {
-			current_scene->draw(&engine->renderer);
+			current_scene->draw(*engine->game_data, &engine->renderer);
 		}
 
 		/* Draw current ui screen */
 		if (Screen* top_screen = engine->screen_stack.top_screen()) {
-			top_screen->draw(&engine->renderer);
+			top_screen->draw(*engine->game_data, &engine->renderer);
 		}
 	}
 

@@ -8,14 +8,15 @@
 #include <engine/commands.h>
 #include <engine/debug/profiling.h>
 #include <engine/engine.h>
+#include <engine/file/save_file.h>
 #include <engine/graphics/renderer.h>
 #include <engine/input/input.h>
 #include <engine/ui/debug_screen/debug_screen.h>
 
 namespace game {
 
-	Game initialize(engine::CommandList* commands) {
-		Game game = {};
+	GameData initialize(engine::CommandList* commands) {
+		GameData game = {};
 
 		/* Register scenes */
 		commands->register_scene<MenuScene>();
@@ -32,7 +33,7 @@ namespace game {
 		return game;
 	}
 
-	void update(Game* /*game*/, const engine::Input& input, engine::CommandList* commands) {
+	void update(GameData* /*game*/, const engine::Input& input, engine::CommandList* commands) {
 		CPUProfilingScope_Game();
 
 		/* Toggle fullscreen */
@@ -41,8 +42,22 @@ namespace game {
 		}
 	}
 
-	void draw(engine::Renderer* /*renderer*/, const Game& /*game*/) {
+	void draw(engine::Renderer* /*renderer*/, const GameData& /*game*/) {
 		// CPUProfilingScope_Game();
+	}
+
+	void on_save_file_loaded(GameData* game, const engine::SaveFile& save_file) {
+		game->player_position.x = save_file.try_get<float>("player_pos_x").value_or(0.0f);
+		game->player_position.y = save_file.try_get<float>("player_pos_y").value_or(0.0f);
+		game->player_direction = save_file.try_get<Direction>("player_direction").value_or(Direction::Down);
+	}
+
+	engine::SaveFile on_write_save_file(const GameData& game) {
+		engine::SaveFile save_file;
+		save_file["player_pos_x"] = game.player_position.x;
+		save_file["player_pos_y"] = game.player_position.y;
+		save_file["player_direction"] = (int)game.player_direction;
+		return save_file;
 	}
 
 } // namespace game

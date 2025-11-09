@@ -1,10 +1,11 @@
 #pragma once
 
-#include <engine/input/keyboard_stack.h>
+#include <game/direction.h>
 
 #include <engine/animation/animation.h>
 #include <engine/graphics/image_id.h>
 #include <engine/graphics/rect.h>
+#include <engine/input/keyboard_stack.h>
 #include <engine/math/vec2.h>
 #include <engine/scene/scene.h>
 
@@ -20,29 +21,22 @@ namespace game {
 		void on_pause() override;
 		void on_unpause() override;
 
-		void initialize(engine::ResourceManager* resources, engine::CommandList* commands) override;
-		void update(const engine::Input& input, engine::CommandList* commands) override;
-		void draw(engine::Renderer* renderer) const override;
+		void initialize(GameData* game, engine::ResourceManager* resources, engine::CommandList* commands) override;
+		void update(GameData* game, const engine::Input& input, engine::CommandList* commands) override;
+		void draw(const GameData& game, engine::Renderer* renderer) const override;
 
 	private:
-		enum class Direction {
-			Up,
-			Down,
-			Left,
-			Right,
-		};
 		struct SpriteAnimation {
 			engine::Rect clip;
 			bool flip_h;
 		};
 
+		// State
 		bool m_scene_is_paused = false;
 
 		// Movement
 		engine::KeyboardStack m_keyboard_stack;
-		engine::Vec2 m_player_position = {};
 		engine::Vec2 m_player_velocity = {};
-		Direction m_player_dir = Direction::Down;
 
 		// Animation
 		engine::AnimationLibrary<SpriteAnimation> m_animation_library;
