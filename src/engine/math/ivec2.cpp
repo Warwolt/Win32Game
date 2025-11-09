@@ -80,6 +80,10 @@ namespace engine {
 		return Vec2 { this->x / length, this->y / length };
 	}
 
+	bool IVec2::is_zero() const {
+		return this->x == 0 && this->y == 0;
+	}
+
 	IVec2 IVec2::lerp(IVec2 lhs, const IVec2& rhs, float t) {
 		return IVec2 {
 			.x = (int32_t)std::round(engine::lerp((float)lhs.x, (float)rhs.x, t)),

@@ -73,6 +73,10 @@ namespace engine {
 		return Vec2 { this->x / length, this->y / length };
 	}
 
+	bool Vec2::is_zero() const {
+		return this->x == 0 && this->y == 0;
+	}
+
 	Vec2 Vec2::lerp(Vec2 lhs, const Vec2& rhs, float t) {
 		return Vec2 {
 			.x = engine::lerp(lhs.x, rhs.x, t),

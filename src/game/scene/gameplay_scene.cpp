@@ -153,17 +153,16 @@ namespace game {
 			m_player_velocity = player_velocity;
 			game->player_position += input.time_delta.in_seconds() * m_player_velocity;
 
+			/* Stop walking animation */
+			if (m_player_velocity.is_zero()) {
+				play_player_animation(m_walk_animations[game->player_direction]);
+				pause_player_animation();
+				set_player_animation_frame(0);
+			}
 			if (just_changed_velocity) {
-				/* Stop walking animation */
-				if (m_player_velocity.length() == 0) {
-					pause_player_animation();
-					set_player_animation_frame(0);
-				}
 				/* Start walking animation */
-				else {
-					play_player_animation(m_walk_animations[game->player_direction]);
-					set_player_animation_frame(1);
-				}
+				play_player_animation(m_walk_animations[game->player_direction]);
+				set_player_animation_frame(1);
 			}
 		}
 	}

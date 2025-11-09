@@ -24,6 +24,7 @@ namespace engine {
 
 		float length() const;
 		Vec2 normalized() const;
+		bool is_zero() const;
 
 		static Vec2 lerp(Vec2 lhs, const Vec2& rhs, float t);
 	};

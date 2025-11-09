@@ -28,6 +28,7 @@ namespace engine {
 
 		float length() const;
 		Vec2 normalized() const;
+		bool is_zero() const;
 
 		static IVec2 lerp(IVec2 lhs, const IVec2& rhs, float t);
 	};
