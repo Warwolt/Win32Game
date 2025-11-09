@@ -7,13 +7,11 @@ Goal:
   - [ ] Victory screen
 
 # Todo
-- Add DEBUG_ASSERT macro specialized for std::optional<Error> and std::expected<T, Error>
 - Make CommandList::run_commands take Engine* instead of separte dependencies
 - Add "file menu" in debug builds, move hot reloading there, free up F5 key for e.g. quick save
 - Enemies walking around
 - Support importing Aseprite sprite sheets
 - Bug investigation: Probably the crash on hot reload is caused by the re-loaded DLL using new heap compared to the previous DLL. Can we investigate if this really the case? Reference: (https://devblogs.microsoft.com/oldnewthing/20161209-00/?p=94905)
-- Create nicer interface for triggering animations that hides dependencies like AnimationLibrary and current time etc. (Add `play_animation` to CommandList? Add AnimationCommands as sub-object to CommandList?)
 - Draw API: Support for drawing text centered in a box
 - Add keyboard & mouse input test screen, display stream of events and data like e.g. mouse position
 - Try out LDtk Level Editor (https://ldtk.io/) or Tiled (https://www.mapeditor.org/)
@@ -23,9 +21,10 @@ Goal:
 - Add render test screen with lots of images to stress test, get a sense of budget
 
 # Doing
-- Save file system, save & quit in menu
+- Create nicer interface for triggering animations that hides dependencies like AnimationLibrary and current time etc. (Add `play_animation` to CommandList? Add AnimationCommands as sub-object to CommandList?)
 
 # Done
+- Save file system, save & quit in menu
 - Add pause menu in-game
 - Add a little Link sprite that can walk around with keyboard
 - Add support to generate crash dump (https://learn.microsoft.com/en-us/windows/win32/api/minidumpapiset/nf-minidumpapiset-minidumpwritedump)
