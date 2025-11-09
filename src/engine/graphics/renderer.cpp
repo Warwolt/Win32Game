@@ -485,22 +485,41 @@ namespace engine {
 		//          cursor_x = word_width + space_width
 		// }
 
-		for (const std::string& word : split_string_into_words(text)) {
-			/* Check horizontal space */
-			const int32_t word_width = font->text_width(font_size, word);
-			const int32_t horizontal_remainder = rect.width - cursor_x;
-			if (word_width > horizontal_remainder) {
-				/* Go to next row */
-				cursor_x = 0;
-				cursor_y += ascent;
+		const std::vector<std::string> words = split_string_into_words(text);
 
-				/* Check vertical space */
-				const int32_t vertical_remainder = rect.height - cursor_y;
-				if (vertical_remainder < 0) {
-					break;
-				}
+		const int space_width = font->glyph(font_size, ' ').advance_width;
+		auto row_start = words.begin();
+		auto row_end = words.end();
+		int row_width = 0;
+		// get next row
+		for (auto it = row_start; it != words.end(); ++it) {
+			const std::string& word = *it;
+			const int word_width = font->text_width(font_size, word);
+			if (row_width + word_width > rect.width) {
+				row_end = it;
+				break;
 			}
-
+			row_width += word_width;
+			if (it != row_start) {
+				row_width += space_width;
+			}
+		}
+		// set cursor
+		int row_remainder = rect.width - row_width;
+		switch (options.h_alignment) {
+			case HorizontalTextAlignment::Left:
+				cursor_x = 0;
+				break;
+			case HorizontalTextAlignment::Center:
+				cursor_x = row_remainder / 2;
+				break;
+			case HorizontalTextAlignment::Right:
+				cursor_x = row_remainder;
+				break;
+		}
+		// put words in row
+		for (auto it = row_start; it != row_end; ++it) {
+			const std::string& word = *it;
 			/* Draw word */
 			for (char character : word) {
 				/* Render character */
@@ -518,9 +537,8 @@ namespace engine {
 				/* Go to next column */
 				cursor_x += glyph.advance_width;
 			}
-
-			/* Add space character */
-			cursor_x += font->glyph(font_size, ' ').advance_width;
+			/* Add space */
+			cursor_x += space_width;
 		}
 
 		/* Debug render bounding rect */
