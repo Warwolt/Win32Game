@@ -6,7 +6,6 @@
 #include <engine/commands.h>
 #include <engine/debug/assert.h>
 #include <engine/file/resource_manager.h>
-#include <engine/file/save_file.h>
 #include <engine/graphics/renderer.h>
 #include <engine/input/input.h>
 
@@ -15,6 +14,49 @@
 namespace game {
 
 	using namespace std::chrono_literals;
+
+	static std::unordered_map<Direction, engine::AnimationID> setup_walk_animations(engine::AnimationLibrary<SpriteAnimation>* animation_library) {
+		const engine::Time frame_duration = 200ms;
+		const int player_size = 16;
+		std::unordered_map<Direction, engine::AnimationID> walk_animations;
+		walk_animations[Direction::Up] = animation_library->add_animation(
+			{
+				{ SpriteAnimation { .clip = engine::Rect { player_size * 4, 0, player_size, player_size }, .flip_h = false }, frame_duration },
+				{ SpriteAnimation { .clip = engine::Rect { player_size * 5, 0, player_size, player_size }, .flip_h = false }, frame_duration },
+			},
+			{
+				.looping = true,
+			}
+		);
+		walk_animations[Direction::Down] = animation_library->add_animation(
+			{
+				{ SpriteAnimation { .clip = engine::Rect { player_size * 0, 0, player_size, player_size }, .flip_h = false }, frame_duration },
+				{ SpriteAnimation { .clip = engine::Rect { player_size * 1, 0, player_size, player_size }, .flip_h = false }, frame_duration },
+			},
+			{
+				.looping = true,
+			}
+		);
+		walk_animations[Direction::Left] = animation_library->add_animation(
+			{
+				{ SpriteAnimation { .clip = engine::Rect { player_size * 2, 0, player_size, player_size }, .flip_h = true }, frame_duration },
+				{ SpriteAnimation { .clip = engine::Rect { player_size * 3, 0, player_size, player_size }, .flip_h = true }, frame_duration },
+			},
+			{
+				.looping = true,
+			}
+		);
+		walk_animations[Direction::Right] = animation_library->add_animation(
+			{
+				{ SpriteAnimation { .clip = engine::Rect { player_size * 2, 0, player_size, player_size }, .flip_h = false }, frame_duration },
+				{ SpriteAnimation { .clip = engine::Rect { player_size * 3, 0, player_size, player_size }, .flip_h = false }, frame_duration },
+			},
+			{
+				.looping = true,
+			}
+		);
+		return walk_animations;
+	}
 
 	GameplayScene::GameplayScene()
 		: m_keyboard_stack({ VK_UP, VK_DOWN, VK_LEFT, VK_RIGHT }) {
@@ -35,44 +77,7 @@ namespace game {
 		m_sprite_sheet_size.height = sprite_sheet.height;
 
 		// set up animations
-		const engine::Time frame_duration = 200ms;
-		const int player_size = 16;
-		m_walk_animations[Direction::Up] = m_animation_library.add_animation(
-			{
-				{ SpriteAnimation { .clip = engine::Rect { player_size * 4, 0, player_size, player_size }, .flip_h = false }, frame_duration },
-				{ SpriteAnimation { .clip = engine::Rect { player_size * 5, 0, player_size, player_size }, .flip_h = false }, frame_duration },
-			},
-			{
-				.looping = true,
-			}
-		);
-		m_walk_animations[Direction::Down] = m_animation_library.add_animation(
-			{
-				{ SpriteAnimation { .clip = engine::Rect { player_size * 0, 0, player_size, player_size }, .flip_h = false }, frame_duration },
-				{ SpriteAnimation { .clip = engine::Rect { player_size * 1, 0, player_size, player_size }, .flip_h = false }, frame_duration },
-			},
-			{
-				.looping = true,
-			}
-		);
-		m_walk_animations[Direction::Left] = m_animation_library.add_animation(
-			{
-				{ SpriteAnimation { .clip = engine::Rect { player_size * 2, 0, player_size, player_size }, .flip_h = true }, frame_duration },
-				{ SpriteAnimation { .clip = engine::Rect { player_size * 3, 0, player_size, player_size }, .flip_h = true }, frame_duration },
-			},
-			{
-				.looping = true,
-			}
-		);
-		m_walk_animations[Direction::Right] = m_animation_library.add_animation(
-			{
-				{ SpriteAnimation { .clip = engine::Rect { player_size * 2, 0, player_size, player_size }, .flip_h = false }, frame_duration },
-				{ SpriteAnimation { .clip = engine::Rect { player_size * 3, 0, player_size, player_size }, .flip_h = false }, frame_duration },
-			},
-			{
-				.looping = true,
-			}
-		);
+		m_walk_animations = setup_walk_animations(&m_animation_library);
 		DEBUG_ASSERT(!m_animation_player.play(m_animation_library, m_walk_animations[game->player_direction], engine::Time::now()), "Couldn't start animation");
 		m_animation_player.pause();
 	}
@@ -95,6 +100,17 @@ namespace game {
 		m_animation_player.update(m_animation_library, input.time_now);
 
 		/* Update pausable game logic */
+		auto pause_player_animation = [&]() {
+			m_animation_player.pause();
+		};
+		auto play_player_animation = [&](engine::AnimationID animation_id) {
+			std::optional<engine::AnimationError> error = m_animation_player.play(m_animation_library, animation_id, input.time_now);
+			DEBUG_ASSERT(!error, "Couldn't play animation");
+		};
+		auto set_player_animation_frame = [&](int frame) {
+			std::optional<engine::AnimationError> error = m_animation_player.set_frame(m_animation_library, input.time_now, frame);
+			DEBUG_ASSERT(!error, "Couldn't set frame");
+		};
 		{
 			/* Movement */
 			engine::Vec2 input_vector = { 0, 0 };
@@ -131,13 +147,13 @@ namespace game {
 			if (just_changed_velocity) {
 				/* Stop walking animation */
 				if (m_player_velocity.length() == 0) {
-					m_animation_player.pause();
-					DEBUG_ASSERT(!m_animation_player.set_frame(m_animation_library, input.time_now, 0), "Couldn't set walk animation frame");
+					pause_player_animation();
+					set_player_animation_frame(0);
 				}
 				/* Start walking animation */
 				else {
-					DEBUG_ASSERT(!m_animation_player.play(m_animation_library, m_walk_animations[game->player_direction], input.time_now), "Couldn't play walk animation");
-					DEBUG_ASSERT(!m_animation_player.set_frame(m_animation_library, input.time_now, 1), "Couldn't set walk animation frame");
+					play_player_animation(m_walk_animations[game->player_direction]);
+					set_player_animation_frame(1);
 				}
 			}
 		}
