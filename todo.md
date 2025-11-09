@@ -8,7 +8,6 @@ Goal:
 
 # Todo
 - Add "load game" menu that lists save files in some save file directory
-- Make CommandList::run_commands take Engine* instead of separte dependencies
 - Add "file menu" in debug builds, move hot reloading there, free up F5 key for e.g. quick save
 - Enemies walking around
 - Support importing Aseprite sprite sheets
@@ -23,8 +22,8 @@ Goal:
 
 # Doing
 
-
 # Done
+- Make CommandList::run_commands take Engine* instead of separte dependencies
 - Create nicer interface for triggering animations that hides dependencies like AnimationLibrary and current time etc. (Add `play_animation` to CommandList? Add AnimationCommands as sub-object to CommandList?)
 - Save file system, save & quit in menu
 - Add pause menu in-game

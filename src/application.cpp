@@ -62,15 +62,7 @@ State* initialize_application(int argc, char** argv, HINSTANCE instance, WNDPROC
 	state->engine = std::move(engine.value());
 
 	/* Run initial commands */
-	init_commands.run_commands(
-		state->engine.game_data,
-		&state->engine.should_quit,
-		&state->engine.resources,
-		&state->engine.scene_manager,
-		&state->engine.screen_stack,
-		&state->engine.window
-	);
-
+	init_commands.run_commands(&state->engine, state->engine.game_data);
 	LOG_INFO("Initialized");
 	LOG_INFO(PROFILING_IS_ENABLED ? "CPU profiling is enabled" : "CPU profiling is disabled");
 
