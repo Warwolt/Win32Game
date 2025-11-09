@@ -7,6 +7,7 @@ Goal:
   - [ ] Victory screen
 
 # Todo
+- Add input bindings so that both Z and Enter can be used as confirmation
 - Add "load game" menu that lists save files in some save file directory
 - Add "file menu" in debug builds, move hot reloading there, free up F5 key for e.g. quick save
 - Enemies walking around
