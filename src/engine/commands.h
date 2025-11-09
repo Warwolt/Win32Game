@@ -14,23 +14,13 @@ namespace game {
 
 namespace engine {
 
-	class ResourceManager;
-	class SceneManager;
-	class ScreenStack;
+	struct Engine;
 	class Scene;
 	class Screen;
-	class Window;
 
 	class CommandList {
 	public:
-		void run_commands(
-			game::GameData* game_data,
-			bool* should_quit,
-			ResourceManager* resources,
-			SceneManager* scene_manager,
-			ScreenStack* screen_stack,
-			Window* window
-		);
+		void run_commands(Engine* engine, game::GameData* game_data);
 
 		/* App */
 		void quit();

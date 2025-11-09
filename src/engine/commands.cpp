@@ -2,6 +2,7 @@
 
 #include <engine/container/match_variant.h>
 #include <engine/debug/assert.h>
+#include <engine/engine.h>
 #include <engine/file/file.h>
 #include <engine/file/resource_manager.h>
 #include <engine/file/save_file.h>
@@ -13,20 +14,13 @@
 
 namespace engine {
 
-	void CommandList::run_commands(
-		game::GameData* game_data,
-		bool* should_quit,
-		ResourceManager* resources,
-		SceneManager* scene_manager,
-		ScreenStack* screen_stack,
-		Window* window
-	) {
+	void CommandList::run_commands(Engine* engine, game::GameData* game_data) {
 		for (size_t i = 0; i < m_commands.size(); i++) {
 			const Command& command = m_commands[i];
 			MATCH_VARIANT(command) {
 				/* App */
 				MATCH_CASE0(Command_Quit) {
-					*should_quit = true;
+					engine->should_quit = true;
 				}
 
 				/* File */
@@ -54,31 +48,31 @@ namespace engine {
 
 				/* SceneManager */
 				MATCH_CASE(Command_RegisterScene, scene_name, scene_constructor) {
-					scene_manager->register_scene(scene_name, scene_constructor);
+					engine->scene_manager.register_scene(scene_name, scene_constructor);
 				}
 
 				MATCH_CASE(Command_LoadScene, scene_name) {
-					std::optional<SceneManagerError> load_error = scene_manager->load_scene(scene_name);
+					std::optional<SceneManagerError> load_error = engine->scene_manager.load_scene(scene_name);
 					DEBUG_ASSERT(!load_error.has_value(), "Failed to load scene \"%s\". Is it registered?", scene_name.c_str());
-					scene_manager->current_scene()->initialize(game_data, resources, this);
-					screen_stack->clear();
+					engine->scene_manager.current_scene()->initialize(game_data, &engine->resources, this);
+					engine->screen_stack.clear();
 				}
 
 				/* ScreenStack */
 				MATCH_CASE(Command_RegisterScreen, screen_name, screen_constructor) {
-					screen_stack->register_screen(screen_name, screen_constructor);
+					engine->screen_stack.register_screen(screen_name, screen_constructor);
 				}
 
 				MATCH_CASE(Command_PushScreen, screen_name) {
-					const bool pushing_onto_empty_stack = screen_stack->top_screen() == nullptr;
+					const bool pushing_onto_empty_stack = engine->screen_stack.top_screen() == nullptr;
 
 					/* Push screen */
-					std::optional<ScreenStackError> push_error = screen_stack->push_screen(screen_name);
+					std::optional<ScreenStackError> push_error = engine->screen_stack.push_screen(screen_name);
 					DEBUG_ASSERT(!push_error.has_value(), "Failed to push screen \"%s\". Is it registered?", screen_name.c_str());
 
 					/* Notify scene that it's being paused */
-					screen_stack->top_screen()->initialize(game_data, resources, this);
-					if (Scene* current_scene = scene_manager->current_scene()) {
+					engine->screen_stack.top_screen()->initialize(game_data, &engine->resources, this);
+					if (Scene* current_scene = engine->scene_manager.current_scene()) {
 						if (pushing_onto_empty_stack) {
 							current_scene->on_pause();
 						}
@@ -87,11 +81,11 @@ namespace engine {
 
 				MATCH_CASE0(Command_PopScreen) {
 					/* Pop screen */
-					screen_stack->pop_screen();
+					engine->screen_stack.pop_screen();
 
 					/* Notify scene that it's being unpaused */
-					const bool last_screen_popped = screen_stack->top_screen() == nullptr;
-					if (Scene* current_scene = scene_manager->current_scene()) {
+					const bool last_screen_popped = engine->screen_stack.top_screen() == nullptr;
+					if (Scene* current_scene = engine->scene_manager.current_scene()) {
 						if (last_screen_popped) {
 							current_scene->on_unpause();
 						}
@@ -100,11 +94,11 @@ namespace engine {
 
 				/* Window */
 				MATCH_CASE0(Command_ToggleFullscreen) {
-					window->toggle_fullscreen();
+					engine->window.toggle_fullscreen();
 				}
 
 				MATCH_CASE(Command_SetWindowTitle, window_title) {
-					window->set_title(window_title);
+					engine->window.set_title(window_title);
 				}
 			}
 		}
