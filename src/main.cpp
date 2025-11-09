@@ -7,7 +7,7 @@
 #include <dbghelp.h>
 #include <windows.h>
 
-static State* g_state;
+static Application* g_application;
 
 static LONG WINAPI write_crash_dump(EXCEPTION_POINTERS* exception_pointers) {
 	auto now = std::chrono::system_clock::now();
@@ -63,8 +63,8 @@ static LONG WINAPI write_crash_dump(EXCEPTION_POINTERS* exception_pointers) {
 }
 
 static LRESULT CALLBACK on_window_event(HWND window, UINT message, WPARAM w_param, LPARAM l_param) {
-	if (g_state) {
-		return on_window_event(g_state, window, message, w_param, l_param);
+	if (g_application) {
+		return on_window_event(g_application, window, message, w_param, l_param);
 	}
 	return DefWindowProc(window, message, w_param, l_param);
 }
@@ -100,15 +100,15 @@ int WINAPI WinMain(
 	SetUnhandledExceptionFilter(write_crash_dump);
 	SetProcessDPIAware();
 	enable_printf();
-	g_state = initialize_application(__argc, __argv, instance, on_window_event);
+	g_application = initialize_application(__argc, __argv, instance, on_window_event);
 
 	/* Run */
 	bool quit = false;
 	while (!quit) {
-		quit = update_application(g_state);
+		quit = update_application(g_application);
 	}
 
 	/* Quit */
-	shutdown_application(g_state);
+	shutdown_application(g_application);
 	return 0;
 }

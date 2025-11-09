@@ -18,10 +18,10 @@
 	}
 
 struct ApplicationLibrary : public library::Library {
-	LRESULT (*on_window_event)(State* state, HWND window, UINT message, WPARAM w_param, LPARAM l_param);
-	State* (*initialize_application)(int argc, char** argv, HINSTANCE instance, WNDPROC on_window_event);
-	bool (*update_application)(State*);
-	void (*shutdown_application)(State*);
+	LRESULT (*on_window_event)(Application* application, HWND window, UINT message, WPARAM w_param, LPARAM l_param);
+	Application* (*initialize_application)(int argc, char** argv, HINSTANCE instance, WNDPROC on_window_event);
+	bool (*update_application)(Application*);
+	void (*shutdown_application)(Application*);
 
 	std::expected<void, std::string> load_functions(HINSTANCE library_handle) override {
 		LOAD_FUNCTION(library_handle, "on_window_event", this->on_window_event);
@@ -35,7 +35,7 @@ struct ApplicationLibrary : public library::Library {
 static library::LibraryLoader g_loader = library::LibraryLoader(LIBRARY_NAME, "cmake --build build --target Library");
 static ApplicationLibrary g_library;
 
-State* initialize_application(int argc, char** argv, HINSTANCE instance, WNDPROC on_window_event) {
+Application* initialize_application(int argc, char** argv, HINSTANCE instance, WNDPROC on_window_event) {
 	/* Load library */
 	std::expected<void, std::string> load_result = g_loader.load_library(&g_library);
 	if (!load_result) {
@@ -48,7 +48,7 @@ State* initialize_application(int argc, char** argv, HINSTANCE instance, WNDPROC
 	return g_library.initialize_application(argc, argv, instance, on_window_event);
 }
 
-LRESULT CALLBACK on_window_event(State* state, HWND window, UINT message, WPARAM w_param, LPARAM l_param) {
+LRESULT CALLBACK on_window_event(Application* application, HWND window, UINT message, WPARAM w_param, LPARAM l_param) {
 	/* Trigger hot reload */
 	if (message == WM_KEYDOWN && w_param == VK_F5) {
 		std::expected<void, std::string> result = g_loader.trigger_hot_reload();
@@ -58,10 +58,10 @@ LRESULT CALLBACK on_window_event(State* state, HWND window, UINT message, WPARAM
 	}
 
 	/* Handle window event */
-	return g_library.on_window_event(state, window, message, w_param, l_param);
+	return g_library.on_window_event(application, window, message, w_param, l_param);
 }
 
-bool update_application(State* state) {
+bool update_application(Application* application) {
 	/* Update hot reloading */
 	std::expected<void, std::string> result = g_loader.update_hot_reloading(&g_library);
 	if (!result) {
@@ -69,9 +69,9 @@ bool update_application(State* state) {
 	}
 
 	/* Update application */
-	return g_library.update_application(state);
+	return g_library.update_application(application);
 }
 
-void shutdown_application(State* state) {
-	g_library.shutdown_application(state);
+void shutdown_application(Application* application) {
+	g_library.shutdown_application(application);
 }
