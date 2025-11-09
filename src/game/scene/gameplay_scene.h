@@ -13,6 +13,11 @@
 
 namespace game {
 
+	struct SpriteAnimation {
+		engine::Rect clip;
+		bool flip_h;
+	};
+
 	class GameplayScene : public engine::Scene {
 	public:
 		static constexpr char NAME[] = "GameplayScene";
@@ -26,11 +31,6 @@ namespace game {
 		void draw(const GameData& game, engine::Renderer* renderer) const override;
 
 	private:
-		struct SpriteAnimation {
-			engine::Rect clip;
-			bool flip_h;
-		};
-
 		// State
 		bool m_scene_is_paused = false;
 
