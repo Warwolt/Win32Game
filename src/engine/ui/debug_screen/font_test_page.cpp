@@ -41,7 +41,7 @@ namespace engine {
 		{
 			RENDERER_LOG(renderer, "Uppercase quick brown fox");
 			Rect text_rect = { 0, 18 + 1 + text_box_height, text_box_width, text_box_height };
-			DrawTextOptions options = { .h_alignment = HorizontalTextAlignment::Center, .debug_draw_box = true };
+			DrawTextOptions options = { .h_alignment = HorizontalAlignment::Center, .debug_draw_box = true };
 			renderer->draw_text(DEFAULT_FONT_ID, font_size, text_rect, RGBA::white(), "THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG.", options);
 		}
 	}

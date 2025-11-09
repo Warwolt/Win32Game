@@ -38,14 +38,14 @@ namespace engine {
 		RGBA tint = RGBA::white();
 	};
 
-	enum class HorizontalTextAlignment {
+	enum class HorizontalAlignment {
 		Left,
 		Center,
 		Right,
 	};
 
 	struct DrawTextOptions {
-		HorizontalTextAlignment h_alignment = HorizontalTextAlignment::Left;
+		HorizontalAlignment h_alignment = HorizontalAlignment::Left;
 		bool debug_draw_box = false;
 	};
 

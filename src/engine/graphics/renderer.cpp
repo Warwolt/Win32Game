@@ -459,12 +459,13 @@ namespace engine {
 	}
 
 	void Renderer::_put_text(Bitmap* bitmap, Font* font, int32_t font_size, Rect rect, RGBA color, const std::string& text, DrawTextOptions options) {
-		CPUProfilingScope_Render();
 		const int32_t ascent = font->ascent(font_size);
+		const int32_t space_width = font->glyph(font_size, ' ').advance_width;
+
 		int32_t cursor_x = 0;
 		int32_t cursor_y = ascent;
 
-		/* Set default values to bounding rect */
+		/* Bounding rect defaults */
 		if (rect.width == 0) {
 			rect.width = font->text_width(font_size, text);
 		}
@@ -472,73 +473,58 @@ namespace engine {
 			rect.height = font_size + 1;
 		}
 
-		// let words = split_string_into_words(text)
-		// while words non empty {
-		//     let row_words = take words while their widths + spacing fit bounding rect width
-		//     let remainder = bounding_rect_width - row_words_width
-		//     let cursor_x = match horizontal_alignment
-		// 			Left => 0
-		//          Center => remainder / 2
-		//          Right => remainder
-		//     for word in row_words
-		//			put word at cursor_x
-		//          cursor_x = word_width + space_width
-		// }
-
+		/* Render text row-by-row */
 		const std::vector<std::string> words = split_string_into_words(text);
-
-		const int space_width = font->glyph(font_size, ' ').advance_width;
 		auto row_start = words.begin();
-		auto row_end = words.end();
-		int row_width = 0;
-		// get next row
-		for (auto it = row_start; it != words.end(); ++it) {
-			const std::string& word = *it;
-			const int word_width = font->text_width(font_size, word);
-			if (row_width + word_width > rect.width) {
-				row_end = it;
-				break;
+		while (row_start != words.end() && cursor_y < rect.height) {
+			/* Find how many words fit current row */
+			int row_width = 0;
+			auto row_end = row_start;
+			for (; row_end != words.end(); ++row_end) {
+				const std::string& word = *row_end;
+				const int word_width = font->text_width(font_size, word);
+				const int needed_width = (row_width > 0 ? row_width + space_width : row_width) + word_width;
+				if (needed_width > rect.width) {
+					break;
+				}
+				row_width = needed_width;
 			}
-			row_width += word_width;
-			if (it != row_start) {
-				row_width += space_width;
+
+			/* Compute word position based on alignment */
+			const int row_remainder = rect.width - row_width;
+			switch (options.h_alignment) {
+				case HorizontalAlignment::Left: cursor_x = 0; break;
+				case HorizontalAlignment::Center: cursor_x = row_remainder / 2; break;
+				case HorizontalAlignment::Right: cursor_x = row_remainder; break;
 			}
-		}
-		// set cursor
-		int row_remainder = rect.width - row_width;
-		switch (options.h_alignment) {
-			case HorizontalTextAlignment::Left:
-				cursor_x = 0;
-				break;
-			case HorizontalTextAlignment::Center:
-				cursor_x = row_remainder / 2;
-				break;
-			case HorizontalTextAlignment::Right:
-				cursor_x = row_remainder;
-				break;
-		}
-		// put words in row
-		for (auto it = row_start; it != row_end; ++it) {
-			const std::string& word = *it;
-			/* Draw word */
-			for (char character : word) {
-				/* Render character */
-				const engine::Glyph& glyph = font->glyph(font_size, character);
-				for (int32_t y = 0; y < glyph.height; y++) {
-					for (int32_t x = 0; x < glyph.width; x++) {
-						engine::Pixel pixel = engine::Pixel::from_rgb(color);
-						float alpha = (glyph.get(x, y) / 255.0f) * (color.a / 255.0f);
-						int32_t pixel_x = rect.x + cursor_x + glyph.left_side_bearing + x;
-						int32_t pixel_y = rect.y + cursor_y + y + glyph.y_offset;
-						bitmap->put(pixel_x, pixel_y, pixel, alpha);
+
+			/* Put all words in current row */
+			for (auto it = row_start; it != row_end; ++it) {
+				const std::string& word = *it;
+				for (char character : word) {
+					/* Render character */
+					const engine::Glyph& glyph = font->glyph(font_size, character);
+					for (int32_t y = 0; y < glyph.height; y++) {
+						for (int32_t x = 0; x < glyph.width; x++) {
+							engine::Pixel pixel = engine::Pixel::from_rgb(color);
+							float alpha = (glyph.get(x, y) / 255.0f) * (color.a / 255.0f);
+							int32_t pixel_x = rect.x + cursor_x + glyph.left_side_bearing + x;
+							int32_t pixel_y = rect.y + cursor_y + y + glyph.y_offset;
+							bitmap->put(pixel_x, pixel_y, pixel, alpha);
+						}
 					}
+
+					/* Go to next column */
+					cursor_x += glyph.advance_width;
 				}
 
-				/* Go to next column */
-				cursor_x += glyph.advance_width;
+				/* Add space between words */
+				cursor_x += space_width;
 			}
-			/* Add space */
-			cursor_x += space_width;
+
+			/* Advance to next row */
+			cursor_y += ascent;
+			row_start = row_end;
 		}
 
 		/* Debug render bounding rect */
