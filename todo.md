@@ -12,7 +12,6 @@ Goal:
 - Enemies walking around
 - Support importing Aseprite sprite sheets
 - Bug investigation: Probably the crash on hot reload is caused by the re-loaded DLL using new heap compared to the previous DLL. Can we investigate if this really the case? Reference: (https://devblogs.microsoft.com/oldnewthing/20161209-00/?p=94905)
-- Draw API: Support for drawing text centered in a box
 - Add keyboard & mouse input test screen, display stream of events and data like e.g. mouse position
 - Try out LDtk Level Editor (https://ldtk.io/) or Tiled (https://www.mapeditor.org/)
 - Try out FMOD as audio player
@@ -21,6 +20,7 @@ Goal:
 - Add render test screen with lots of images to stress test, get a sense of budget
 
 # Doing
+- Draw API: Support for drawing text centered in a box
 
 # Done
 - Add quick save / quick load shortcuts with F5 F9
