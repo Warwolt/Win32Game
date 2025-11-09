@@ -88,6 +88,15 @@ namespace game {
 			commands->push_screen(PauseMenu::NAME);
 		}
 
+		/* Quick load & quick save*/
+		const std::string quick_save_filepath = "build/quick_save.json";
+		if (input.keyboard.key_was_pressed_now(VK_F5)) {
+			commands->write_save_file(quick_save_filepath);
+		}
+		if (input.keyboard.key_was_pressed_now(VK_F9) && std::filesystem::exists(quick_save_filepath)) {
+			commands->load_save_file(quick_save_filepath);
+		}
+
 		/* Update non-pausable systems */
 		m_keyboard_stack.update(input);
 

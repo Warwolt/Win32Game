@@ -44,13 +44,13 @@ Application* initialize_application(int argc, char** argv, HINSTANCE instance, W
 	}
 
 	/* Initialize app */
-	printf("Hot reloading enabled, hot reload with F5 key\n");
+	printf("Hot reloading enabled, hot reload with F7 key\n");
 	return g_library.initialize_application(argc, argv, instance, on_window_event);
 }
 
 LRESULT CALLBACK on_window_event(Application* application, HWND window, UINT message, WPARAM w_param, LPARAM l_param) {
 	/* Trigger hot reload */
-	if (message == WM_KEYDOWN && w_param == VK_F5) {
+	if (message == WM_KEYDOWN && w_param == VK_F7) {
 		std::expected<void, std::string> result = g_loader.trigger_hot_reload();
 		if (!result) {
 			fprintf(stderr, "Error when triggering library hot reload: %s\n", result.error().c_str());
