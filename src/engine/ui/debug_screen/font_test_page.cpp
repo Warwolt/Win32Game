@@ -54,7 +54,6 @@ namespace engine {
 		}
 
 		/* Uppercase, right aligned */
-		// FIXME: text overflows to the right for some reason
 		{
 			RENDERER_LOG(renderer, "Uppercase quick brown fox (right aligned)");
 			Rect text_rect = { 0, 18 + 2 * (1 + text_box_height), text_box_width, text_box_height };

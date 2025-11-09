@@ -81,12 +81,7 @@ namespace engine {
 		int32_t text_width = 0;
 		for (size_t i = 0; i < text.length(); i++) {
 			const engine::Glyph& glyph = this->glyph(size, text[i]);
-			if (i + 1 == text.length()) {
-				text_width += glyph.width;
-			}
-			else {
-				text_width += glyph.advance_width;
-			}
+			text_width += glyph.advance_width;
 		}
 		return text_width;
 	}

@@ -475,23 +475,23 @@ namespace engine {
 
 		/* Render text row-by-row */
 		const std::vector<std::string> words = split_string_into_words(text);
-		auto row_start = words.begin();
-		while (row_start != words.end() && cursor_y < rect.height) {
+		auto line_start = words.begin();
+		while (line_start != words.end() && cursor_y < rect.height) {
 			/* Find how many words fit current row */
-			int row_width = 0;
-			auto row_end = row_start;
-			for (; row_end != words.end(); ++row_end) {
-				const std::string& word = *row_end;
+			int line_width = 0;
+			auto line_end = line_start;
+			for (; line_end != words.end(); ++line_end) {
+				const std::string& word = *line_end;
 				const int word_width = font->text_width(font_size, word);
-				const int needed_width = (row_width > 0 ? row_width + space_width : row_width) + word_width;
+				const int needed_width = (line_width > 0 ? line_width + space_width : line_width) + word_width;
 				if (needed_width > rect.width) {
 					break;
 				}
-				row_width = needed_width;
+				line_width = needed_width;
 			}
 
 			/* Compute word position based on alignment */
-			const int row_remainder = rect.width - row_width;
+			const int row_remainder = rect.width - line_width;
 			switch (options.h_alignment) {
 				case HorizontalAlignment::Left: cursor_x = 0; break;
 				case HorizontalAlignment::Center: cursor_x = row_remainder / 2; break;
@@ -499,7 +499,7 @@ namespace engine {
 			}
 
 			/* Put all words in current row */
-			for (auto it = row_start; it != row_end; ++it) {
+			for (auto it = line_start; it != line_end; ++it) {
 				const std::string& word = *it;
 				for (char character : word) {
 					/* Render character */
@@ -524,7 +524,7 @@ namespace engine {
 
 			/* Advance to next row */
 			cursor_y += ascent;
-			row_start = row_end;
+			line_start = line_end;
 		}
 
 		/* Debug render bounding rect */
