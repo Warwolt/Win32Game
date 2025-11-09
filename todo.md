@@ -22,9 +22,10 @@ Goal:
 - Add render test screen with lots of images to stress test, get a sense of budget
 
 # Doing
-- Create nicer interface for triggering animations that hides dependencies like AnimationLibrary and current time etc. (Add `play_animation` to CommandList? Add AnimationCommands as sub-object to CommandList?)
+
 
 # Done
+- Create nicer interface for triggering animations that hides dependencies like AnimationLibrary and current time etc. (Add `play_animation` to CommandList? Add AnimationCommands as sub-object to CommandList?)
 - Save file system, save & quit in menu
 - Add pause menu in-game
 - Add a little Link sprite that can walk around with keyboard
