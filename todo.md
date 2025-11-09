@@ -21,9 +21,9 @@ Goal:
 - Add render test screen with lots of images to stress test, get a sense of budget
 
 # Doing
-- Make CommandList::run_commands take Engine* instead of separte dependencies
 
 # Done
+- Make CommandList::run_commands take Engine* instead of separte dependencies
 - Create nicer interface for triggering animations that hides dependencies like AnimationLibrary and current time etc. (Add `play_animation` to CommandList? Add AnimationCommands as sub-object to CommandList?)
 - Save file system, save & quit in menu
 - Add pause menu in-game
