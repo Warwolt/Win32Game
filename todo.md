@@ -7,12 +7,12 @@ Goal:
   - [ ] Victory screen
 
 # Todo
+- Add input bindings so that both Z and Enter can be used as confirmation
 - Add "load game" menu that lists save files in some save file directory
 - Add "file menu" in debug builds, move hot reloading there, free up F5 key for e.g. quick save
 - Enemies walking around
 - Support importing Aseprite sprite sheets
 - Bug investigation: Probably the crash on hot reload is caused by the re-loaded DLL using new heap compared to the previous DLL. Can we investigate if this really the case? Reference: (https://devblogs.microsoft.com/oldnewthing/20161209-00/?p=94905)
-- Draw API: Support for drawing text centered in a box
 - Add keyboard & mouse input test screen, display stream of events and data like e.g. mouse position
 - Try out LDtk Level Editor (https://ldtk.io/) or Tiled (https://www.mapeditor.org/)
 - Try out FMOD as audio player
@@ -23,6 +23,7 @@ Goal:
 # Doing
 
 # Done
+- Draw API: Support for drawing text centered in a box
 - Add quick save / quick load shortcuts with F5 F9
 - Make CommandList::run_commands take Engine* instead of separte dependencies
 - Create nicer interface for triggering animations that hides dependencies like AnimationLibrary and current time etc. (Add `play_animation` to CommandList? Add AnimationCommands as sub-object to CommandList?)

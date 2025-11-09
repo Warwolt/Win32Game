@@ -38,6 +38,17 @@ namespace engine {
 		RGBA tint = RGBA::white();
 	};
 
+	enum class HorizontalAlignment {
+		Left,
+		Center,
+		Right,
+	};
+
+	struct DrawTextOptions {
+		HorizontalAlignment h_alignment = HorizontalAlignment::Left;
+		bool debug_draw_box = false;
+	};
+
 	class Renderer {
 	public:
 		Renderer() = default;
@@ -58,7 +69,7 @@ namespace engine {
 		void draw_triangle_fill(Vertex v1, Vertex v2, Vertex v3);
 		void draw_image(ImageID image_id, IVec2 pos, DrawImageOptions options = {});
 		void draw_image_scaled(ImageID image_id, Rect rect, DrawImageOptions options = {});
-		void draw_text(FontID font_id, int32_t font_size, Rect rect, RGBA color, std::string text);
+		void draw_text(FontID font_id, int32_t font_size, Rect rect, RGBA color, std::string text, DrawTextOptions options = {});
 
 		const Bitmap& bitmap();
 		IVec2 screen_resolution() const;
@@ -104,6 +115,7 @@ namespace engine {
 			Rect rect;
 			RGBA color;
 			std::string text;
+			DrawTextOptions options;
 		};
 		using DrawCommand = std::variant<
 			ClearScreen,
@@ -137,7 +149,7 @@ namespace engine {
 		void _put_triangle_fill(Bitmap* bitmap, Vertex v1, Vertex v2, Vertex v3);
 		void _put_image(Bitmap* bitmap, const Image& image, IVec2 pos, DrawImageOptions options);
 		void _put_image_scaled(Bitmap* bitmap, const Image& image, Rect rect, DrawImageOptions options);
-		void _put_text(Bitmap* bitmap, Font* typeface, int32_t font_size, Rect rect, RGBA color, const std::string& text);
+		void _put_text(Bitmap* bitmap, Font* typeface, int32_t font_size, Rect rect, RGBA color, const std::string& text, DrawTextOptions options);
 	};
 
 } // namespace engine

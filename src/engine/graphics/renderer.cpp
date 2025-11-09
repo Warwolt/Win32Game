@@ -137,8 +137,8 @@ namespace engine {
 		m_draw_data.push_back(DrawData { DrawImage { image_id, rect, options }, _take_current_tag() });
 	}
 
-	void Renderer::draw_text(FontID font_id, int32_t font_size, Rect rect, RGBA color, std::string text) {
-		m_draw_data.push_back(DrawData { DrawText { font_id, font_size, rect, color, text }, _take_current_tag() });
+	void Renderer::draw_text(FontID font_id, int32_t font_size, Rect rect, RGBA color, std::string text, DrawTextOptions options) {
+		m_draw_data.push_back(DrawData { DrawText { font_id, font_size, rect, color, text, options }, _take_current_tag() });
 	}
 
 	const Bitmap& Renderer::bitmap() {
@@ -205,9 +205,9 @@ namespace engine {
 						_put_image_scaled(&m_bitmap, image, rect, options);
 					}
 				}
-				MATCH_CASE(DrawText, font_id, font_size, rect, color, text) {
+				MATCH_CASE(DrawText, font_id, font_size, rect, color, text, options) {
 					Font& font = resources->font(font_id);
-					_put_text(&m_bitmap, &font, font_size, rect, color, text);
+					_put_text(&m_bitmap, &font, font_size, rect, color, text, options);
 				}
 			}
 		}
@@ -458,55 +458,78 @@ namespace engine {
 		}
 	}
 
-	void Renderer::_put_text(Bitmap* bitmap, Font* font, int32_t font_size, Rect rect, RGBA color, const std::string& text) {
-		CPUProfilingScope_Render();
+	void Renderer::_put_text(Bitmap* bitmap, Font* font, int32_t font_size, Rect rect, RGBA color, const std::string& text, DrawTextOptions options) {
 		const int32_t ascent = font->ascent(font_size);
+		const int32_t space_width = font->glyph(font_size, ' ').advance_width;
+
 		int32_t cursor_x = 0;
 		int32_t cursor_y = ascent;
 
+		/* Bounding rect defaults */
 		if (rect.width == 0) {
 			rect.width = font->text_width(font_size, text);
 		}
 		if (rect.height == 0) {
-			rect.height = std::numeric_limits<std::int32_t>::max();
+			rect.height = font_size + 1;
 		}
 
-		for (const std::string& word : split_string_into_words(text)) {
-			/* Check horizontal space */
-			const int32_t word_width = font->text_width(font_size, word);
-			const int32_t horizontal_remainder = rect.width - cursor_x;
-			if (word_width > horizontal_remainder) {
-				/* Go to next row */
-				cursor_x = 0;
-				cursor_y += ascent;
-
-				/* Check vertical space */
-				const int32_t vertical_remainder = rect.height - cursor_y;
-				if (vertical_remainder < 0) {
+		/* Render text row-by-row */
+		const std::vector<std::string> words = split_string_into_words(text);
+		auto line_start = words.begin();
+		while (line_start != words.end() && cursor_y < rect.height) {
+			/* Find how many words fit current row */
+			int line_width = 0;
+			auto line_end = line_start;
+			for (; line_end != words.end(); ++line_end) {
+				const std::string& word = *line_end;
+				const int word_width = font->text_width(font_size, word);
+				const int needed_width = (line_width > 0 ? line_width + space_width : line_width) + word_width;
+				if (needed_width > rect.width) {
 					break;
 				}
+				line_width = needed_width;
 			}
 
-			/* Draw word */
-			for (char character : word) {
-				/* Render character */
-				const engine::Glyph& glyph = font->glyph(font_size, character);
-				for (int32_t y = 0; y < glyph.height; y++) {
-					for (int32_t x = 0; x < glyph.width; x++) {
-						engine::Pixel pixel = engine::Pixel::from_rgb(color);
-						float alpha = (glyph.get(x, y) / 255.0f) * (color.a / 255.0f);
-						int32_t pixel_x = rect.x + cursor_x + glyph.left_side_bearing + x;
-						int32_t pixel_y = rect.y + cursor_y + y + glyph.y_offset;
-						bitmap->put(pixel_x, pixel_y, pixel, alpha);
+			/* Compute word position based on alignment */
+			const int row_remainder = rect.width - line_width;
+			switch (options.h_alignment) {
+				case HorizontalAlignment::Left: cursor_x = 0; break;
+				case HorizontalAlignment::Center: cursor_x = row_remainder / 2; break;
+				case HorizontalAlignment::Right: cursor_x = row_remainder; break;
+			}
+
+			/* Put all words in current row */
+			for (auto it = line_start; it != line_end; ++it) {
+				const std::string& word = *it;
+				for (char character : word) {
+					/* Render character */
+					const engine::Glyph& glyph = font->glyph(font_size, character);
+					for (int32_t y = 0; y < glyph.height; y++) {
+						for (int32_t x = 0; x < glyph.width; x++) {
+							engine::Pixel pixel = engine::Pixel::from_rgb(color);
+							float alpha = (glyph.get(x, y) / 255.0f) * (color.a / 255.0f);
+							int32_t pixel_x = rect.x + cursor_x + glyph.left_side_bearing + x;
+							int32_t pixel_y = rect.y + cursor_y + y + glyph.y_offset;
+							bitmap->put(pixel_x, pixel_y, pixel, alpha);
+						}
 					}
+
+					/* Go to next column */
+					cursor_x += glyph.advance_width;
 				}
 
-				/* Go to next column */
-				cursor_x += glyph.advance_width;
+				/* Add space between words */
+				cursor_x += space_width;
 			}
 
-			/* Add space character */
-			cursor_x += font->glyph(font_size, ' ').advance_width;
+			/* Advance to next row */
+			cursor_y += ascent;
+			line_start = line_end;
+		}
+
+		/* Debug render bounding rect */
+		if (options.debug_draw_box) {
+			_put_rect(bitmap, rect, RGBA::green());
 		}
 	}
 
