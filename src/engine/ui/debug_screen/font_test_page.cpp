@@ -6,52 +6,43 @@
 
 namespace engine {
 
-	void FontDebugPage::initialize() {
-		std::vector<AnimationFrame<int>> frames = {
-			{ 0, 1500ms },
-			{ 1, 1500ms },
-		};
-		m_animation_id = m_animation_library.add_animation(frames, { .looping = true });
-	}
-
 	void FontDebugPage::update(bool opened_now, const Input& input) {
 		if (opened_now) {
-			std::optional<AnimationError> error = m_animation_player.play(m_animation_library, m_animation_id, input.time_now);
-			DEBUG_ASSERT(!error.has_value(), "Couldn't play animation, error %d", (int)error.value());
+			m_render_narrow = false;
 		}
-		m_animation_player.update(m_animation_library, input.time_now);
+		if (input.keyboard.key_was_pressed_now(VK_DOWN) || input.keyboard.key_was_pressed_now(VK_UP)) {
+			m_render_narrow = !m_render_narrow;
+		}
 	}
 
 	void FontDebugPage::draw(Renderer* renderer, IVec2 screen_resolution) const {
-		const int animation_index = m_animation_player.value();
 		const int32_t font_size = 16;
 		const int32_t font_ascent = 12;
-		const int32_t text_box_width = animation_index == 0 ? screen_resolution.x / 2 : screen_resolution.x / 4 + 8;
-		const int32_t text_box_height = animation_index == 0 ? font_ascent * 3 + 8 : font_ascent * 6;
+		const int32_t text_box_width = m_render_narrow ? screen_resolution.x / 4 + 8 : screen_resolution.x / 2;
+		const int32_t text_box_height = m_render_narrow ? font_ascent * 6 : font_ascent * 3 + 8;
 
-		/* Uppercase */
+		/* Uppercase, left aligned */
 		{
 			RENDERER_LOG(renderer, "Uppercase quick brown fox");
 			Rect text_rect = { 0, 18, text_box_width, text_box_height };
-			renderer->draw_text(DEFAULT_FONT_ID, font_size, text_rect, RGBA::white(), "THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG.");
-			renderer->draw_rect(text_rect, RGBA::green());
+			DrawTextOptions options = { .debug_draw_box = true };
+			renderer->draw_text(DEFAULT_FONT_ID, font_size, text_rect, RGBA::white(), "THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG.", options);
 		}
 
-		/* Lowercase */
+		/* Lowercase, left aligned */
 		{
 			RENDERER_LOG(renderer, "Lowercase quick brown fox");
 			Rect text_rect = { screen_resolution.x / 2, 18, text_box_width, text_box_height };
-			renderer->draw_text(DEFAULT_FONT_ID, font_size, text_rect, RGBA::white(), "the quick brown fox jumps over the lazy dog.");
-			renderer->draw_rect(text_rect, RGBA::green());
+			DrawTextOptions options = { .debug_draw_box = true };
+			renderer->draw_text(DEFAULT_FONT_ID, font_size, text_rect, RGBA::white(), "the quick brown fox jumps over the lazy dog.", options);
 		}
 
-		/* Big shaded font */
+		/* Uppercase, centered */
 		{
-			RENDERER_LOG(renderer, "Big shaded sphinx of black quartz");
-			Rect text_rect = { 0, 112, screen_resolution.x - 10, screen_resolution.y };
-			renderer->draw_text(DEFAULT_FONT_ID, 2 * font_size, text_rect + IVec2 { 2, 2 }, RGBA::dark_purple(), "Sphinx of black quartz, judge my vow!");
-			renderer->draw_text(DEFAULT_FONT_ID, 2 * font_size, text_rect + IVec2 { 1, 1 }, RGBA::dark_purple(), "Sphinx of black quartz, judge my vow!");
-			renderer->draw_text(DEFAULT_FONT_ID, 2 * font_size, text_rect + IVec2 { 0, 0 }, RGBA::purple(), "Sphinx of black quartz, judge my vow!");
+			RENDERER_LOG(renderer, "Uppercase quick brown fox");
+			Rect text_rect = { 0, 18 + 1 + text_box_height, text_box_width, text_box_height };
+			DrawTextOptions options = { .h_alignment = HorizontalTextAlignment::Left, .debug_draw_box = true };
+			renderer->draw_text(DEFAULT_FONT_ID, font_size, text_rect, RGBA::white(), "THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG.", options);
 		}
 	}
 

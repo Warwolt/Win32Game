@@ -137,8 +137,8 @@ namespace engine {
 		m_draw_data.push_back(DrawData { DrawImage { image_id, rect, options }, _take_current_tag() });
 	}
 
-	void Renderer::draw_text(FontID font_id, int32_t font_size, Rect rect, RGBA color, std::string text) {
-		m_draw_data.push_back(DrawData { DrawText { font_id, font_size, rect, color, text }, _take_current_tag() });
+	void Renderer::draw_text(FontID font_id, int32_t font_size, Rect rect, RGBA color, std::string text, DrawTextOptions options) {
+		m_draw_data.push_back(DrawData { DrawText { font_id, font_size, rect, color, text, options }, _take_current_tag() });
 	}
 
 	const Bitmap& Renderer::bitmap() {
@@ -205,9 +205,9 @@ namespace engine {
 						_put_image_scaled(&m_bitmap, image, rect, options);
 					}
 				}
-				MATCH_CASE(DrawText, font_id, font_size, rect, color, text) {
+				MATCH_CASE(DrawText, font_id, font_size, rect, color, text, options) {
 					Font& font = resources->font(font_id);
-					_put_text(&m_bitmap, &font, font_size, rect, color, text);
+					_put_text(&m_bitmap, &font, font_size, rect, color, text, options);
 				}
 			}
 		}
@@ -458,18 +458,32 @@ namespace engine {
 		}
 	}
 
-	void Renderer::_put_text(Bitmap* bitmap, Font* font, int32_t font_size, Rect rect, RGBA color, const std::string& text) {
+	void Renderer::_put_text(Bitmap* bitmap, Font* font, int32_t font_size, Rect rect, RGBA color, const std::string& text, DrawTextOptions options) {
 		CPUProfilingScope_Render();
 		const int32_t ascent = font->ascent(font_size);
 		int32_t cursor_x = 0;
 		int32_t cursor_y = ascent;
 
+		/* Set default values to bounding rect */
 		if (rect.width == 0) {
 			rect.width = font->text_width(font_size, text);
 		}
 		if (rect.height == 0) {
-			rect.height = std::numeric_limits<std::int32_t>::max();
+			rect.height = font_size + 1;
 		}
+
+		// let words = split_string_into_words(text)
+		// while words non empty {
+		//     let row_words = take words while their widths + spacing fit bounding rect width
+		//     let remainder = bounding_rect_width - row_words_width
+		//     let cursor_x = match horizontal_alignment
+		// 			Left => 0
+		//          Center => remainder / 2
+		//          Right => remainder
+		//     for word in row_words
+		//			put word at cursor_x
+		//          cursor_x = word_width + space_width
+		// }
 
 		for (const std::string& word : split_string_into_words(text)) {
 			/* Check horizontal space */
@@ -507,6 +521,11 @@ namespace engine {
 
 			/* Add space character */
 			cursor_x += font->glyph(font_size, ' ').advance_width;
+		}
+
+		/* Debug render bounding rect */
+		if (options.debug_draw_box) {
+			_put_rect(bitmap, rect, RGBA::green());
 		}
 	}
 

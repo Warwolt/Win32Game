@@ -11,14 +11,11 @@ namespace engine {
 
 	class FontDebugPage {
 	public:
-		void initialize();
 		void update(bool opened_now, const Input& input);
 		void draw(Renderer* renderer, IVec2 screen_resolution) const;
 
 	private:
-		AnimationLibrary<int> m_animation_library;
-		AnimationPlayer<int> m_animation_player;
-		AnimationID m_animation_id;
+		bool m_render_narrow = false;
 	};
 
 } // namespace engine
