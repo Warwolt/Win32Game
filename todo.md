@@ -23,6 +23,7 @@ Goal:
 # Doing
 
 # Done
+- Move DebugScreen to game namespace
 - Add visual confirmation when pressing "Save" in pause menu
 - Add input bindings so that both Z and Enter can be used as confirmation
 - Draw API: Support for drawing text centered in a box
