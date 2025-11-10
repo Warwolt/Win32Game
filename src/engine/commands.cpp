@@ -4,7 +4,6 @@
 #include <engine/debug/assert.h>
 #include <engine/engine.h>
 #include <engine/file/file.h>
-#include <engine/file/resource_manager.h>
 #include <engine/file/save_file.h>
 #include <engine/graphics/window.h>
 #include <engine/scene/scene_manager.h>
@@ -14,7 +13,7 @@
 
 namespace engine {
 
-	void CommandList::run_commands(Engine* engine, game::GameData* game_data) {
+	void CommandList::run_commands(Engine* engine) {
 		for (size_t i = 0; i < m_commands.size(); i++) {
 			const Command& command = m_commands[i];
 			MATCH_VARIANT(command) {
@@ -31,7 +30,7 @@ namespace engine {
 				/* File */
 				MATCH_CASE(FileCommand_WriteSaveFile, filepath) {
 					/* Write file */
-					SaveFile save_file = game::on_write_save_file(*game_data);
+					SaveFile save_file = game::on_write_save_file(*engine->game_data);
 					bool did_write = write_string_to_file(save_file.to_json_string(), filepath);
 					DEBUG_ASSERT(did_write, "Couldn't open file \"%s\" when writing save file", filepath.string().c_str());
 					LOG_INFO("Wrote save file \"%s\"", filepath.string().c_str());
@@ -47,7 +46,7 @@ namespace engine {
 					DEBUG_ASSERT(save_file.has_value(), "Save file \"%s\" did not contain valid json", filepath.string().c_str());
 
 					/* Send event */
-					game::on_save_file_loaded(game_data, save_file.value());
+					game::on_save_file_loaded(engine->game_data, save_file.value());
 					LOG_INFO("Loaded save file \"%s\"", filepath.string().c_str());
 				}
 
@@ -59,7 +58,7 @@ namespace engine {
 				MATCH_CASE(SceneManagerCommand_LoadScene, scene_name) {
 					std::optional<SceneManagerError> load_error = engine->scene_manager.load_scene(scene_name);
 					DEBUG_ASSERT(!load_error.has_value(), "Failed to load scene \"%s\". Is it registered?", scene_name.c_str());
-					engine->scene_manager.current_scene()->initialize(game_data, &engine->resources, this);
+					engine->scene_manager.current_scene()->initialize(engine->game_data, &engine->resources, this);
 					engine->screen_stack.clear();
 				}
 
@@ -76,7 +75,7 @@ namespace engine {
 					DEBUG_ASSERT(!push_error.has_value(), "Failed to push screen \"%s\". Is it registered?", screen_name.c_str());
 
 					/* Notify scene that it's being paused */
-					engine->screen_stack.top_screen()->initialize(game_data, &engine->resources, this);
+					engine->screen_stack.top_screen()->initialize(engine->game_data, &engine->resources, this);
 					if (Scene* current_scene = engine->scene_manager.current_scene()) {
 						if (pushing_onto_empty_stack) {
 							current_scene->on_pause();

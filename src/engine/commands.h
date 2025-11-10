@@ -21,7 +21,7 @@ namespace engine {
 
 	class CommandList {
 	public:
-		void run_commands(Engine* engine, game::GameData* game_data);
+		void run_commands(Engine* engine);
 
 		/* App */
 		void quit();
