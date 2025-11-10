@@ -18,6 +18,7 @@ Goal:
 - Add audio test screen, display volume of current played sample as a little bar
   - maybe relevant: https://stackoverflow.com/questions/35438815/how-do-i-retrieve-the-current-sample-play-position-from-an-xaudio2-source-voice
 - Add render test screen with lots of images to stress test, get a sense of budget
+- Basic UI system for drawing lists of menu items
 
 # Doing
 
