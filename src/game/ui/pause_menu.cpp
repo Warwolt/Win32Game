@@ -77,7 +77,6 @@ namespace game {
 			menu_width,
 			menu_height,
 		};
-		const int title_width = 6 * 8;
 		const engine::Rect title_rect = {
 			menu_rect.x,
 			menu_rect.y + 16,

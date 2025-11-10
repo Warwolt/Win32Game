@@ -12,6 +12,7 @@ namespace game {
 
 	private:
 		int m_menu_index = 0;
+		bool m_save_file_exists = false;
 	};
 
 } // namespace game
