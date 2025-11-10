@@ -5,17 +5,19 @@
 #include <engine/math/ivec2.h>
 
 namespace engine {
-
 	struct Input;
 	class Renderer;
+}
+
+namespace game {
 
 	class FontDebugPage {
 	public:
-		void update(bool opened_now, const Input& input);
-		void draw(Renderer* renderer, IVec2 screen_resolution) const;
+		void update(bool opened_now, const engine::Input& input);
+		void draw(engine::Renderer* renderer, engine::IVec2 screen_resolution) const;
 
 	private:
 		bool m_render_narrow = false;
 	};
 
-} // namespace engine
+} // namespace game

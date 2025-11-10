@@ -1,21 +1,23 @@
-#include <engine/ui/debug_screen/image_test_page.h>
+#include <game/ui/debug_screen/image_test_page.h>
 
 #include <engine/debug/assert.h>
 #include <engine/file/resource_manager.h>
 #include <engine/graphics/renderer.h>
 #include <engine/input/input.h>
 
-namespace engine {
+namespace game {
 
-	void ImageDebugPage::initialize(ResourceManager* resources) {
+	using namespace std::chrono_literals;
+
+	void ImageDebugPage::initialize(engine::ResourceManager* resources) {
 		m_test_image = resources->load_image("assets/image/render_test/test_image.png");
 		m_sprite_sheet = resources->load_image("assets/image/render_test/sprite_sheet.png");
 
-		const Image& sprite_sheet = resources->image(m_sprite_sheet);
+		const engine::Image& sprite_sheet = resources->image(m_sprite_sheet);
 		m_sprite_sheet_size.width = sprite_sheet.width;
 		m_sprite_sheet_size.height = sprite_sheet.height;
 
-		std::vector<AnimationFrame<SpriteData>> sprite_animation = {
+		std::vector<engine::AnimationFrame<SpriteData>> sprite_animation = {
 			{ { 0, false }, 430ms },
 			{ { 1, false }, 430ms },
 			{ { 0, false }, 430ms },
@@ -39,15 +41,15 @@ namespace engine {
 		m_animation_id = m_animation_library.add_animation(sprite_animation, { .looping = true });
 	}
 
-	void ImageDebugPage::update(bool opened_now, const Input& input) {
+	void ImageDebugPage::update(bool opened_now, const engine::Input& input) {
 		if (opened_now) {
-			std::optional<AnimationError> error = m_animation_player.play(m_animation_library, m_animation_id, input.time_now);
+			std::optional<engine::AnimationError> error = m_animation_player.play(m_animation_library, m_animation_id, input.time_now);
 			DEBUG_ASSERT(!error.has_value(), "Couldn't play animation, error %d", (int)error.value());
 		}
 		m_animation_player.update(m_animation_library, input.time_now);
 	}
 
-	void ImageDebugPage::draw(Renderer* renderer) const {
+	void ImageDebugPage::draw(engine::Renderer* renderer) const {
 		const int32_t image_width = 32;
 		const int32_t image_height = 32;
 
@@ -55,10 +57,10 @@ namespace engine {
 		{
 			const SpriteData& sprite = m_animation_player.value();
 
-			const IVec2 sprite_sheet_pos = { 0, 20 };
+			const engine::IVec2 sprite_sheet_pos = { 0, 20 };
 			const int32_t sprite_width = 16;
 			const int32_t sprite_height = 16;
-			const Rect sprite_clip_rect = Rect {
+			const engine::Rect sprite_clip_rect = {
 				.x = sprite.index * sprite_width,
 				.y = 0,
 				.width = sprite_width,
@@ -68,34 +70,34 @@ namespace engine {
 			/* Draw sprite sheet */
 			RENDERER_LOG(renderer, "Draw sprite sheet");
 			renderer->draw_image(m_sprite_sheet, sprite_sheet_pos);
-			renderer->draw_rect(sprite_clip_rect + sprite_sheet_pos, RGBA::green());
+			renderer->draw_rect(sprite_clip_rect + sprite_sheet_pos, engine::RGBA::green());
 
 			/* Draw sprite */
 			RENDERER_LOG(renderer, "Draw sprite");
-			const IVec2 sprite_pos = sprite_sheet_pos + IVec2 { m_sprite_sheet_size.width + sprite_width, 0 };
+			const engine::IVec2 sprite_pos = sprite_sheet_pos + engine::IVec2 { m_sprite_sheet_size.width + sprite_width, 0 };
 			renderer->draw_image(m_sprite_sheet, sprite_pos, { .clip = sprite_clip_rect, .flip_h = sprite.is_flipped });
 
 			/* Draw sprite sheet scaled */
 			RENDERER_LOG(renderer, "Draw sprite sheet (scaled up)");
 			const int scale = 2;
-			const Rect scaled_sprite_sheet_rect = {
+			const engine::Rect scaled_sprite_sheet_rect = {
 				.x = sprite_sheet_pos.x,
 				.y = sprite_sheet_pos.y + sprite_height,
 				.width = (int32_t)(m_sprite_sheet_size.width * scale),
 				.height = (int32_t)(m_sprite_sheet_size.height * scale),
 			};
-			const Rect scaled_sprite_clip_rect = Rect {
+			const engine::Rect scaled_sprite_clip_rect = {
 				.x = sprite.index * scale * sprite_width,
 				.y = 0,
 				.width = scale * sprite_width,
 				.height = scale * sprite_height,
 			};
 			renderer->draw_image_scaled(m_sprite_sheet, scaled_sprite_sheet_rect);
-			renderer->draw_rect(scaled_sprite_clip_rect + scaled_sprite_sheet_rect.pos(), RGBA::green());
+			renderer->draw_rect(scaled_sprite_clip_rect + scaled_sprite_sheet_rect.pos(), engine::RGBA::green());
 
 			/* Draw scaled sprite */
 			RENDERER_LOG(renderer, "Draw sprite (scaled up)");
-			const Rect scaled_sprite_rect = Rect {
+			const engine::Rect scaled_sprite_rect = {
 				.x = scaled_sprite_sheet_rect.width + 12,
 				.y = scaled_sprite_sheet_rect.y,
 				.width = scale * sprite_width,
@@ -134,25 +136,25 @@ namespace engine {
 			next_row();
 
 			RENDERER_LOG(renderer, "Draw image (tint red 0%)");
-			renderer->draw_image(m_test_image, { column++ * (image_width + 2), 80 + row * (image_height + 2) }, { .tint = RGBA::red().with_alpha(0.0f) });
+			renderer->draw_image(m_test_image, { column++ * (image_width + 2), 80 + row * (image_height + 2) }, { .tint = engine::RGBA::red().with_alpha(0.0f) });
 
 			RENDERER_LOG(renderer, "Draw image (tint red 25%)");
-			renderer->draw_image(m_test_image, { column++ * (image_width + 2), 80 + row * (image_height + 2) }, { .tint = RGBA::red().with_alpha(0.25f) });
+			renderer->draw_image(m_test_image, { column++ * (image_width + 2), 80 + row * (image_height + 2) }, { .tint = engine::RGBA::red().with_alpha(0.25f) });
 
 			RENDERER_LOG(renderer, "Draw image (tint red 50%)");
-			renderer->draw_image(m_test_image, { column++ * (image_width + 2), 80 + row * (image_height + 2) }, { .tint = RGBA::red().with_alpha(0.50f) });
+			renderer->draw_image(m_test_image, { column++ * (image_width + 2), 80 + row * (image_height + 2) }, { .tint = engine::RGBA::red().with_alpha(0.50f) });
 
 			RENDERER_LOG(renderer, "Draw image (tint red 75%)");
-			renderer->draw_image(m_test_image, { column++ * (image_width + 2), 80 + row * (image_height + 2) }, { .tint = RGBA::red().with_alpha(0.75f) });
+			renderer->draw_image(m_test_image, { column++ * (image_width + 2), 80 + row * (image_height + 2) }, { .tint = engine::RGBA::red().with_alpha(0.75f) });
 
 			RENDERER_LOG(renderer, "Draw image (tint red 100%)");
-			renderer->draw_image(m_test_image, { column++ * (image_width + 2), 80 + row * (image_height + 2) }, { .tint = RGBA::red().with_alpha(1.0f) });
+			renderer->draw_image(m_test_image, { column++ * (image_width + 2), 80 + row * (image_height + 2) }, { .tint = engine::RGBA::red().with_alpha(1.0f) });
 
 			RENDERER_LOG(renderer, "Draw image (tint red 100%, opacity 75%)");
-			renderer->draw_image(m_test_image, { column++ * (image_width + 2), 80 + row * (image_height + 2) }, { .alpha = 0.75f, .tint = RGBA::red().with_alpha(1.0f) });
+			renderer->draw_image(m_test_image, { column++ * (image_width + 2), 80 + row * (image_height + 2) }, { .alpha = 0.75f, .tint = engine::RGBA::red().with_alpha(1.0f) });
 
 			RENDERER_LOG(renderer, "Draw image (tint red 100%, opacity 50%)");
-			renderer->draw_image(m_test_image, { column++ * (image_width + 2), 80 + row * (image_height + 2) }, { .alpha = 0.50f, .tint = RGBA::red().with_alpha(1.0f) });
+			renderer->draw_image(m_test_image, { column++ * (image_width + 2), 80 + row * (image_height + 2) }, { .alpha = 0.50f, .tint = engine::RGBA::red().with_alpha(1.0f) });
 		}
 
 		/* draw_image_scaled */
@@ -165,8 +167,8 @@ namespace engine {
 			renderer->draw_image_scaled(m_test_image, { column++ * (2 * image_width + 2), 148, 2 * image_width, 2 * image_height }, { .flip_h = true, .flip_v = true, .alpha = 0.50f });
 
 			RENDERER_LOG(renderer, "Draw image scaled (tint red 100%)");
-			renderer->draw_image_scaled(m_test_image, { column++ * (2 * image_width + 2), 148, 2 * image_width, 2 * image_height }, { .tint = RGBA::red() });
+			renderer->draw_image_scaled(m_test_image, { column++ * (2 * image_width + 2), 148, 2 * image_width, 2 * image_height }, { .tint = engine::RGBA::red() });
 		}
 	}
 
-} // namespace engine
+} // namespace game

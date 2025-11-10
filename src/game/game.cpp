@@ -11,7 +11,7 @@
 #include <engine/file/save_file.h>
 #include <engine/graphics/renderer.h>
 #include <engine/input/input.h>
-#include <engine/ui/debug_screen/debug_screen.h>
+#include <game/ui/debug_screen/debug_screen.h>
 
 namespace game {
 
@@ -30,7 +30,7 @@ namespace game {
 		/* Register screens */
 		commands->register_screen<MainMenu>();
 		commands->register_screen<PauseMenu>();
-		commands->register_screen<engine::DebugScreen>();
+		commands->register_screen<DebugScreen>();
 
 		/* Load first scene */
 		commands->load_scene(MenuScene::NAME);
