@@ -18,7 +18,7 @@ namespace engine {
 	class ScreenStack {
 	public:
 		using ScreenConstructor = std::function<std::unique_ptr<Screen>()>;
-		
+
 		void reset();
 		void register_screen(std::string name, ScreenConstructor constructor);
 		Screen* top_screen();

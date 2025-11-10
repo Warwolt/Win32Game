@@ -47,7 +47,7 @@ namespace engine {
 		// debug
 		DeltaTimer frame_timer;
 	};
-	
+
 	void on_dll_unload(Engine* engine);
 	void on_dll_reloaded(Engine* engine);
 
