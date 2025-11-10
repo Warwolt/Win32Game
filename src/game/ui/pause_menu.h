@@ -1,7 +1,7 @@
 #pragma once
 
-#include <engine/ui/screen.h>
 #include <engine/input/time.h>
+#include <engine/ui/screen.h>
 
 namespace game {
 
