@@ -9,6 +9,7 @@
 #include <engine/input/input.h>
 #include <engine/ui/debug_screen/debug_screen.h>
 
+#include <filesystem>
 #include <windows.h>
 
 namespace game {
@@ -16,7 +17,7 @@ namespace game {
 	struct MainMenuItem {
 		enum {
 			NewGame,
-			LoadGame,
+			Continue,
 			Debug,
 			Quit,
 			Count,
@@ -24,32 +25,39 @@ namespace game {
 	};
 
 	void MainMenu::update(GameData* game, const engine::Input& input, engine::CommandList* commands) {
-		if (input.bindings.action_was_pressed_now("ui_confirm")) {
-			if (m_menu_index == MainMenuItem::NewGame) {
-				*game = GameData {}; // reset game data
-				commands->load_scene(GameplayScene::NAME);
+		/* Check save file */
+		m_save_file_exists = std::filesystem::exists("build/save_file.json");
+
+		/* Update menu */
+		{
+			/* Menu items */
+			if (input.bindings.action_was_pressed_now("ui_confirm")) {
+				if (m_menu_index == MainMenuItem::NewGame) {
+					*game = GameData {}; // reset game data
+					commands->load_scene(GameplayScene::NAME);
+				}
+
+				if (m_menu_index == MainMenuItem::Continue && m_save_file_exists) {
+					commands->load_save_file("build/save_file.json");
+					commands->load_scene(GameplayScene::NAME);
+				}
+
+				if (m_menu_index == MainMenuItem::Debug) {
+					commands->push_screen(engine::DebugScreen::NAME);
+				}
+
+				if (m_menu_index == MainMenuItem::Quit) {
+					commands->quit();
+				}
 			}
 
-			if (m_menu_index == MainMenuItem::LoadGame) {
-				// FIXME: add Load Game Screen that lists all save files?
-				commands->load_save_file("build/save_file.json");
-				commands->load_scene(GameplayScene::NAME);
+			/* Menu navigation */
+			if (input.keyboard.key_was_pressed_now(VK_UP)) {
+				m_menu_index = (MainMenuItem::Count + m_menu_index - 1) % MainMenuItem::Count;
 			}
-
-			if (m_menu_index == MainMenuItem::Debug) {
-				commands->push_screen(engine::DebugScreen::NAME);
+			if (input.keyboard.key_was_pressed_now(VK_DOWN)) {
+				m_menu_index = (MainMenuItem::Count + m_menu_index + 1) % MainMenuItem::Count;
 			}
-
-			if (m_menu_index == MainMenuItem::Quit) {
-				commands->quit();
-			}
-		}
-
-		if (input.keyboard.key_was_pressed_now(VK_UP)) {
-			m_menu_index = (MainMenuItem::Count + m_menu_index - 1) % MainMenuItem::Count;
-		}
-		if (input.keyboard.key_was_pressed_now(VK_DOWN)) {
-			m_menu_index = (MainMenuItem::Count + m_menu_index + 1) % MainMenuItem::Count;
 		}
 	}
 
@@ -64,8 +72,9 @@ namespace game {
 
 		/* Menu items */
 		int menu_index = 1;
+		const engine::RGBA continue_color = m_save_file_exists ? engine::RGBA::white() : engine::RGBA::grey();
 		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, { 0, 75 + 16 + menu_index++ * 16, resolution.x, 0 }, engine::RGBA::white(), "New Game", options);
-		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, { 0, 75 + 16 + menu_index++ * 16, resolution.x, 0 }, engine::RGBA::white(), "Load Game", options);
+		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, { 0, 75 + 16 + menu_index++ * 16, resolution.x, 0 }, continue_color, "Continue", options);
 		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, { 0, 75 + 16 + menu_index++ * 16, resolution.x, 0 }, engine::RGBA::white(), "Debug", options);
 		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, { 0, 75 + 16 + menu_index++ * 16, resolution.x, 0 }, engine::RGBA::white(), "Quit", options);
 
