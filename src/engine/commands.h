@@ -5,9 +5,9 @@
 #include <memory>
 #include <string>
 #include <type_traits>
+#include <unordered_set>
 #include <variant>
 #include <vector>
-#include <unordered_set>
 
 namespace game {
 	struct GameData;

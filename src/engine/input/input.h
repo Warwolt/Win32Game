@@ -1,7 +1,7 @@
 #pragma once
 
-#include <engine/input/input_bindings.h>
 #include <engine/input/gamepad.h>
+#include <engine/input/input_bindings.h>
 #include <engine/input/keyboard.h>
 #include <engine/input/mouse.h>
 #include <engine/input/time.h>
