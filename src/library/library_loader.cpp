@@ -54,7 +54,7 @@ namespace library {
 		return {};
 	}
 
-	std::expected<void, std::string> LibraryLoader::update_hot_reloading(Library* library) {
+	std::expected<void, std::string> LibraryLoader::update_hot_reloading(Library* library, std::function<void()> on_library_unload, std::function<void()> on_library_reload) {
 		if (m_build_process.is_running()) {
 			std::expected<engine::CommandUpdateResult, std::string> update_result = m_build_process.update();
 
@@ -78,11 +78,13 @@ namespace library {
 
 				/* Reload if we actually did rebuild library */
 				if (_library_file_has_changed()) {
+					on_library_unload();
 					FreeLibrary(m_library_handle);
 					std::expected<void, std::string> load_result = load_library(library);
 					if (!load_result) {
 						return std::unexpected(std::format("Loading library failed: {}", load_result.error()));
 					}
+					on_library_reload();
 				}
 				else {
 					printf("No changes detected, skipping library reload.\n");

@@ -4,6 +4,7 @@
 
 #include <expected>
 #include <filesystem>
+#include <functional>
 #include <string>
 #include <windows.h>
 
@@ -21,7 +22,7 @@ namespace library {
 
 		std::expected<void, std::string> load_library(Library* library);
 		std::expected<void, std::string> trigger_hot_reload();
-		std::expected<void, std::string> update_hot_reloading(Library* library);
+		std::expected<void, std::string> update_hot_reloading(Library* library, std::function<void()> on_library_unload, std::function<void()> on_library_reload);
 
 	private:
 		bool _library_file_has_changed() const;

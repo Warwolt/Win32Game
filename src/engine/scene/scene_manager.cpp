@@ -12,12 +12,21 @@ namespace engine {
 			return SceneManagerError::InvalidSceneName;
 		}
 		auto& scene_constructor = it->second;
-		m_active_scene = scene_constructor();
+		m_current_scene = scene_constructor();
+		m_last_scene_name = scene_name;
 		return {};
 	}
 
+	void SceneManager::unload_scene() {
+		m_current_scene.reset();
+	}
+
+	void SceneManager::reload_last_scene() {
+		m_current_scene = m_scene_constructors[m_last_scene_name]();
+	}
+
 	Scene* SceneManager::current_scene() {
-		return m_active_scene.get();
+		return m_current_scene.get();
 	}
 
 } // namespace engine

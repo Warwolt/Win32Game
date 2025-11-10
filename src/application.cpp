@@ -45,30 +45,6 @@ static void update_input(Application* app) {
 	}
 }
 
-Application* initialize_application(int argc, char** argv, HINSTANCE instance, WNDPROC on_window_event) {
-	Application* app = new Application {};
-	engine::CommandList init_commands;
-
-	/* Initialize game */
-	app->game = game::initialize(&init_commands);
-
-	/* Initialize engine */
-	std::vector<std::string> args = std::vector<std::string>(argv, argv + argc);
-	std::optional<engine::Engine> engine = engine::initialize(args, instance, on_window_event, &app->game);
-	if (!engine) {
-		MessageBoxA(0, "Failed to initialize engine", "Error", MB_OK | MB_ICONERROR);
-		exit(1);
-	}
-	app->engine = std::move(engine.value());
-
-	/* Run initial commands */
-	init_commands.run_commands(&app->engine, app->engine.game_data);
-	LOG_INFO("Initialized");
-	LOG_INFO(PROFILING_IS_ENABLED ? "CPU profiling is enabled" : "CPU profiling is disabled");
-
-	return app;
-}
-
 LRESULT CALLBACK on_window_event(
 	Application* app,
 	HWND window,
@@ -137,6 +113,38 @@ LRESULT CALLBACK on_window_event(
 		} break;
 	}
 	return DefWindowProc(window, message, w_param, l_param);
+}
+
+void on_dll_unload(Application* application) {
+	engine::on_dll_unload(&application->engine);
+}
+
+void on_dll_reloaded(Application* application) {
+	engine::on_dll_reloaded(&application->engine);
+}
+
+Application* initialize_application(int argc, char** argv, HINSTANCE instance, WNDPROC on_window_event) {
+	Application* app = new Application {};
+	engine::CommandList init_commands;
+
+	/* Initialize game */
+	app->game = game::initialize(&init_commands);
+
+	/* Initialize engine */
+	std::vector<std::string> args = std::vector<std::string>(argv, argv + argc);
+	std::optional<engine::Engine> engine = engine::initialize(args, instance, on_window_event, &app->game);
+	if (!engine) {
+		MessageBoxA(0, "Failed to initialize engine", "Error", MB_OK | MB_ICONERROR);
+		exit(1);
+	}
+	app->engine = std::move(engine.value());
+
+	/* Run initial commands */
+	init_commands.run_commands(&app->engine);
+	LOG_INFO("Initialized");
+	LOG_INFO(PROFILING_IS_ENABLED ? "CPU profiling is enabled" : "CPU profiling is disabled");
+
+	return app;
 }
 
 bool update_application(Application* app) {

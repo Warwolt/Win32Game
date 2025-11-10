@@ -65,6 +65,7 @@ namespace game {
 		const engine::IVec2 resolution = renderer->screen_resolution();
 		const engine::DrawTextOptions options = { .h_alignment = engine::HorizontalAlignment::Center };
 
+
 		/* Title */
 		renderer->draw_text(engine::DEFAULT_FONT_ID, 32, { 2, 59 + 2, resolution.x, 0 }, engine::RGBA::dark_purple(), "Main Menu", options);
 		renderer->draw_text(engine::DEFAULT_FONT_ID, 32, { 1, 59 + 1, resolution.x, 0 }, engine::RGBA::dark_purple(), "Main Menu", options);

@@ -47,6 +47,9 @@ namespace engine {
 		// debug
 		DeltaTimer frame_timer;
 	};
+	
+	void on_dll_unload(Engine* engine);
+	void on_dll_reloaded(Engine* engine);
 
 	std::optional<Engine> initialize(const std::vector<std::string>& args, HINSTANCE instance, WNDPROC wnd_proc, game::GameData* game_data);
 	void update(Engine* engine, CommandList* commands);
