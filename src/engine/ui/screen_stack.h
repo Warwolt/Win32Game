@@ -6,7 +6,6 @@
 #include <memory>
 #include <optional>
 #include <string>
-#include <type_traits>
 #include <unordered_map>
 #include <vector>
 
@@ -19,7 +18,8 @@ namespace engine {
 	class ScreenStack {
 	public:
 		using ScreenConstructor = std::function<std::unique_ptr<Screen>()>;
-
+		
+		void reset();
 		void register_screen(std::string name, ScreenConstructor constructor);
 		Screen* top_screen();
 		std::optional<ScreenStackError> push_screen(const std::string& screen_name);

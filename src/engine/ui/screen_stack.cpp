@@ -2,6 +2,11 @@
 
 namespace engine {
 
+	void ScreenStack::reset() {
+		m_screen_constructors.clear();
+		m_screens.clear();
+	}
+
 	void ScreenStack::register_screen(std::string name, ScreenConstructor constructor) {
 		m_screen_constructors[name] = constructor;
 	}

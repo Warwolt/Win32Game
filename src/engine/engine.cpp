@@ -34,8 +34,9 @@ namespace engine {
 	}
 
 	void on_dll_unload(Engine* engine) {
-		LOG_DEBUG("DLL unloading, unloading current scene");
-		engine->scene_manager.unload_scene();
+		LOG_INFO("DLL unloading, resetting v-table based classes");
+		engine->scene_manager.reset();
+		engine->screen_stack.reset();
 	}
 
 	void on_dll_reloaded(Engine* engine) {
@@ -44,11 +45,9 @@ namespace engine {
 		// to call into a Scene with invalid v-table after reloading.
 		// By reconstructing the Scene and Screen we make sure the v-table they
 		// are using are valid.
-		LOG_INFO("DLL reloaded, reloading current scene and screen");
-		CommandList commands;
-		engine->scene_manager.reload_last_scene();
-		engine->scene_manager.current_scene()->initialize(engine->game_data, &engine->resources, &commands);
-		commands.run_commands(engine);
+		LOG_INFO("DLL reloaded, re-initializing v-table based classes");
+
+		// TODO we need to make the game re-register stuff
 	}
 
 	std::optional<Engine> initialize(const std::vector<std::string>& args, HINSTANCE instance, WNDPROC wnd_proc, game::GameData* game_data) {
