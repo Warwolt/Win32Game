@@ -21,7 +21,7 @@ namespace engine {
 	}
 
 	void DebugScreen::update(game::GameData* /*game*/, const Input& input, CommandList* commands) {
-		if (input.keyboard.key_was_pressed_now(VK_ESCAPE)) {
+		if (input.bindings.action_was_pressed_now("ui_close")) {
 			commands->pop_screen();
 		}
 

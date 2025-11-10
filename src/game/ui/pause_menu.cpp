@@ -21,11 +21,11 @@ namespace game {
 	};
 
 	void PauseMenu::update(GameData* /*game*/, const engine::Input& input, engine::CommandList* commands) {
-		if (input.keyboard.key_was_pressed_now(VK_ESCAPE)) {
+		if (input.bindings.action_was_pressed_now("ui_close")) {
 			commands->pop_screen();
 		}
 
-		if (input.keyboard.key_was_pressed_now(VK_RETURN)) {
+		if (input.bindings.action_was_pressed_now("ui_confirm")) {
 			if (m_menu_index == PauseMenuItem::Continue) {
 				commands->pop_screen();
 			}

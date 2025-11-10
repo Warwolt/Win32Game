@@ -23,6 +23,11 @@ namespace engine {
 					engine->should_quit = true;
 				}
 
+				/* Input */
+				MATCH_CASE(Command_AddKeyboardBinding, action_name, keys) {
+					engine->input.bindings.add_keyboard_binding(action_name, keys);
+				}
+
 				/* File */
 				MATCH_CASE(Command_WriteSaveFile, filepath) {
 					/* Write file */
@@ -107,6 +112,10 @@ namespace engine {
 
 	void CommandList::quit() {
 		m_commands.push_back(Command_Quit {});
+	}
+
+	void engine::CommandList::add_keyboard_binding(std::string action_name, std::unordered_set<uint32_t> keys) {
+		m_commands.push_back(Command_AddKeyboardBinding { action_name, keys });
 	}
 
 	void CommandList::load_save_file(std::filesystem::path filepath) {

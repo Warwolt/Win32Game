@@ -6,15 +6,10 @@
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
-#include <vector>
 
 namespace engine {
 
 	class Keyboard;
-
-	// Hm, we want to map both Enter and Z key to the same action.
-	// So, each keyboard action maps to one or more keyboard keys.
-	// "ui_confirm" -> [VK_Z, VK_ENTER]
 
 	class InputBindings {
 	public:

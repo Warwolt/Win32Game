@@ -18,6 +18,11 @@ namespace game {
 	GameData initialize(engine::CommandList* commands) {
 		GameData game = {};
 
+		/* Setup bindings */
+		commands->add_keyboard_binding("ui_confirm", { VK_RETURN, 'Z' });
+		commands->add_keyboard_binding("ui_close", { VK_ESCAPE });
+		commands->add_keyboard_binding("show_pause", { VK_ESCAPE });
+
 		/* Register scenes */
 		commands->register_scene<MenuScene>();
 		commands->register_scene<GameplayScene>();
