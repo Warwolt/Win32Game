@@ -7,7 +7,6 @@ Goal:
   - [ ] Victory screen
 
 # Todo
-- Add visual confirmation when pressing "Save" in pause menu
 - Add "load game" menu that lists save files in some save file directory
 - Add "file menu" in debug builds, move hot reloading there, free up F5 key for e.g. quick save
 - Enemies walking around
@@ -21,6 +20,7 @@ Goal:
 - Add render test screen with lots of images to stress test, get a sense of budget
 
 # Doing
+- Add visual confirmation when pressing "Save" in pause menu
 
 # Done
 - Add input bindings so that both Z and Enter can be used as confirmation
