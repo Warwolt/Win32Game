@@ -38,7 +38,7 @@ namespace engine {
 		void register_scene() {
 			static_assert(std::is_default_constructible<SceenType>::value, "SceenType must be default constructible");
 			auto constructor = +[]() { return std::make_unique<SceenType>(); };
-			m_commands.push_back(Command_RegisterScene { SceenType::NAME, constructor });
+			m_commands.push_back(SceneManagerCommand_RegisterScene { SceenType::NAME, constructor });
 		}
 		void load_scene(std::string scene_name);
 
@@ -47,7 +47,7 @@ namespace engine {
 		void register_screen() {
 			static_assert(std::is_default_constructible<ScreenType>::value, "ScreenType must be default constructible");
 			auto constructor = +[]() { return std::make_unique<ScreenType>(); };
-			m_commands.push_back(Command_RegisterScreen { ScreenType::NAME, constructor });
+			m_commands.push_back(ScreenStackCommand_RegisterScreen { ScreenType::NAME, constructor });
 		}
 		void push_screen(std::string screen_name);
 		void pop_screen();
@@ -59,70 +59,64 @@ namespace engine {
 
 	private:
 		/* App */
-		struct Command_Quit {};
+		struct AppCommand_Quit {};
 
 		/* Input */
-		struct Command_AddKeyboardBinding {
+		struct InputCommand_AddKeyboardBinding {
 			std::string action_name;
 			std::unordered_set<uint32_t> keys;
 		};
 
 		/* File */
-		struct Command_LoadSaveFile {
+		struct FileCommand_LoadSaveFile {
 			std::filesystem::path filepath;
 		};
-		struct Command_WriteSaveFile {
+		struct FileCommand_WriteSaveFile {
 			std::filesystem::path filepath;
 		};
 
 		/* SceneManager */
-		struct Command_RegisterScene {
+		struct SceneManagerCommand_RegisterScene {
 			std::string scene_name;
 			std::function<std::unique_ptr<Scene>()> scene_constructor;
 		};
-		struct Command_LoadScene {
+		struct SceneManagerCommand_LoadScene {
 			std::string scene_name;
 		};
 
 		/* ScreenStack */
-		struct Command_RegisterScreen {
+		struct ScreenStackCommand_RegisterScreen {
 			std::string screen_name;
 			std::function<std::unique_ptr<Screen>()> screen_constructor;
 		};
-		struct Command_PushScreen {
+		struct ScreenStackCommand_PushScreen {
 			std::string screen_name;
 		};
-		struct Command_PopScreen {};
+		struct ScreenStackCommand_PopScreen {};
 
 		/* Window */
-		struct Command_ToggleFullscreen {};
-		struct Command_SetWindowTitle {
+		struct WindowCommand_ToggleFullscreen {};
+		struct WindowCommand_SetWindowTitle {
 			std::string window_title;
 		};
 
 		using Command = std::variant<
-			/* App */
-			Command_Quit,
+			AppCommand_Quit,
 
-			/* Input */
-			Command_AddKeyboardBinding,
+			InputCommand_AddKeyboardBinding,
 
-			/* File */
-			Command_LoadSaveFile,
-			Command_WriteSaveFile,
+			FileCommand_LoadSaveFile,
+			FileCommand_WriteSaveFile,
 
-			/* SceneManager */
-			Command_RegisterScene,
-			Command_LoadScene,
+			SceneManagerCommand_RegisterScene,
+			SceneManagerCommand_LoadScene,
 
-			/* ScreenStack */
-			Command_RegisterScreen,
-			Command_PushScreen,
-			Command_PopScreen,
+			ScreenStackCommand_RegisterScreen,
+			ScreenStackCommand_PushScreen,
+			ScreenStackCommand_PopScreen,
 
-			/* Window */
-			Command_ToggleFullscreen,
-			Command_SetWindowTitle>;
+			WindowCommand_ToggleFullscreen,
+			WindowCommand_SetWindowTitle>;
 
 		std::vector<Command> m_commands;
 	};

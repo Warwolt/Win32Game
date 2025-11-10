@@ -19,17 +19,17 @@ namespace engine {
 			const Command& command = m_commands[i];
 			MATCH_VARIANT(command) {
 				/* App */
-				MATCH_CASE0(Command_Quit) {
+				MATCH_CASE0(AppCommand_Quit) {
 					engine->should_quit = true;
 				}
 
 				/* Input */
-				MATCH_CASE(Command_AddKeyboardBinding, action_name, keys) {
+				MATCH_CASE(InputCommand_AddKeyboardBinding, action_name, keys) {
 					engine->input.bindings.add_keyboard_binding(action_name, keys);
 				}
 
 				/* File */
-				MATCH_CASE(Command_WriteSaveFile, filepath) {
+				MATCH_CASE(FileCommand_WriteSaveFile, filepath) {
 					/* Write file */
 					SaveFile save_file = game::on_write_save_file(*game_data);
 					bool did_write = write_string_to_file(save_file.to_json_string(), filepath);
@@ -37,7 +37,7 @@ namespace engine {
 					LOG_INFO("Wrote save file \"%s\"", filepath.string().c_str());
 				}
 
-				MATCH_CASE(Command_LoadSaveFile, filepath) {
+				MATCH_CASE(FileCommand_LoadSaveFile, filepath) {
 					/* Read file */
 					std::optional<std::string> file_content = read_string_from_file(filepath);
 					DEBUG_ASSERT(file_content.has_value(), "Couldn't read save file \"%s\"", filepath.string().c_str());
@@ -52,11 +52,11 @@ namespace engine {
 				}
 
 				/* SceneManager */
-				MATCH_CASE(Command_RegisterScene, scene_name, scene_constructor) {
+				MATCH_CASE(SceneManagerCommand_RegisterScene, scene_name, scene_constructor) {
 					engine->scene_manager.register_scene(scene_name, scene_constructor);
 				}
 
-				MATCH_CASE(Command_LoadScene, scene_name) {
+				MATCH_CASE(SceneManagerCommand_LoadScene, scene_name) {
 					std::optional<SceneManagerError> load_error = engine->scene_manager.load_scene(scene_name);
 					DEBUG_ASSERT(!load_error.has_value(), "Failed to load scene \"%s\". Is it registered?", scene_name.c_str());
 					engine->scene_manager.current_scene()->initialize(game_data, &engine->resources, this);
@@ -64,11 +64,11 @@ namespace engine {
 				}
 
 				/* ScreenStack */
-				MATCH_CASE(Command_RegisterScreen, screen_name, screen_constructor) {
+				MATCH_CASE(ScreenStackCommand_RegisterScreen, screen_name, screen_constructor) {
 					engine->screen_stack.register_screen(screen_name, screen_constructor);
 				}
 
-				MATCH_CASE(Command_PushScreen, screen_name) {
+				MATCH_CASE(ScreenStackCommand_PushScreen, screen_name) {
 					const bool pushing_onto_empty_stack = engine->screen_stack.top_screen() == nullptr;
 
 					/* Push screen */
@@ -84,7 +84,7 @@ namespace engine {
 					}
 				}
 
-				MATCH_CASE0(Command_PopScreen) {
+				MATCH_CASE0(ScreenStackCommand_PopScreen) {
 					/* Pop screen */
 					engine->screen_stack.pop_screen();
 
@@ -98,11 +98,11 @@ namespace engine {
 				}
 
 				/* Window */
-				MATCH_CASE0(Command_ToggleFullscreen) {
+				MATCH_CASE0(WindowCommand_ToggleFullscreen) {
 					engine->window.toggle_fullscreen();
 				}
 
-				MATCH_CASE(Command_SetWindowTitle, window_title) {
+				MATCH_CASE(WindowCommand_SetWindowTitle, window_title) {
 					engine->window.set_title(window_title);
 				}
 			}
@@ -111,39 +111,39 @@ namespace engine {
 	}
 
 	void CommandList::quit() {
-		m_commands.push_back(Command_Quit {});
+		m_commands.push_back(AppCommand_Quit {});
 	}
 
 	void engine::CommandList::add_keyboard_binding(std::string action_name, std::unordered_set<uint32_t> keys) {
-		m_commands.push_back(Command_AddKeyboardBinding { action_name, keys });
+		m_commands.push_back(InputCommand_AddKeyboardBinding { action_name, keys });
 	}
 
 	void CommandList::load_save_file(std::filesystem::path filepath) {
-		m_commands.push_back(Command_LoadSaveFile { filepath });
+		m_commands.push_back(FileCommand_LoadSaveFile { filepath });
 	}
 
 	void CommandList::write_save_file(std::filesystem::path filepath) {
-		m_commands.push_back(Command_WriteSaveFile { filepath });
+		m_commands.push_back(FileCommand_WriteSaveFile { filepath });
 	}
 
 	void CommandList::toggle_fullscreen() {
-		m_commands.push_back(Command_ToggleFullscreen {});
+		m_commands.push_back(WindowCommand_ToggleFullscreen {});
 	}
 
 	void CommandList::set_window_title(std::string window_title) {
-		m_commands.push_back(Command_SetWindowTitle { window_title });
+		m_commands.push_back(WindowCommand_SetWindowTitle { window_title });
 	}
 
 	void CommandList::load_scene(std::string scene_name) {
-		m_commands.push_back(Command_LoadScene { scene_name });
+		m_commands.push_back(SceneManagerCommand_LoadScene { scene_name });
 	}
 
 	void CommandList::push_screen(std::string screen_name) {
-		m_commands.push_back(Command_PushScreen { screen_name });
+		m_commands.push_back(ScreenStackCommand_PushScreen { screen_name });
 	}
 
 	void CommandList::pop_screen() {
-		m_commands.push_back(Command_PopScreen {});
+		m_commands.push_back(ScreenStackCommand_PopScreen {});
 	}
 
 } // namespace engine
