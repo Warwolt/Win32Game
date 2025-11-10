@@ -12,7 +12,7 @@ namespace engine {
 	void InputBindings::update(const Keyboard& keyboard) {
 		for (auto& [action_name, action_keys] : m_keyboard_actions_keys) {
 			bool action_is_pressed = std::any_of(action_keys.begin(), action_keys.end(), [&](uint32_t key) { return keyboard.key_is_pressed(key); });
-            m_keyboard_action_states[action_name].update(action_is_pressed);
+			m_keyboard_action_states[action_name].update(action_is_pressed);
 		}
 	}
 
