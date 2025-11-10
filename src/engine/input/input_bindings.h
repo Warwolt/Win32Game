@@ -6,6 +6,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <unordered_set>
 
 namespace engine {
 
@@ -17,7 +18,7 @@ namespace engine {
 
 	class InputBindings {
 	public:
-		void add_keyboard_binding(std::string action_name, uint32_t key);
+		void add_keyboard_binding(std::string action_name, std::unordered_set<uint32_t> keys);
 		void update(const Keyboard& keyboard);
 
 		bool action_is_pressed(const std::string& action_name) const;
@@ -26,8 +27,8 @@ namespace engine {
 		bool action_was_released_now(const std::string& action_name) const;
 
 	private:
-		std::unordered_map<std::string, std::vector<uint32_t>> m_keyboard_actions;
-		std::unordered_map<uint32_t, engine::Button> m_key_states;
+		std::unordered_map<std::string, std::unordered_set<uint32_t>> m_keyboard_actions_keys;
+		std::unordered_map<std::string, engine::Button> m_keyboard_action_states;
 	};
 
 } // namespace engine
