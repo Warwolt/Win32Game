@@ -84,7 +84,7 @@ namespace game {
 
 	void GameplayScene::update(GameData* game, const engine::Input& input, engine::CommandList* commands) {
 		/* Show pause menu */
-		if (input.keyboard.key_was_pressed_now(VK_ESCAPE)) {
+		if (input.bindings.action_was_pressed_now("show_pause")) {
 			commands->push_screen(PauseMenu::NAME);
 		}
 

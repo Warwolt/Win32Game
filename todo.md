@@ -7,7 +7,7 @@ Goal:
   - [ ] Victory screen
 
 # Todo
-- Add input bindings so that both Z and Enter can be used as confirmation
+- Add visual confirmation when pressing "Save" in pause menu
 - Add "load game" menu that lists save files in some save file directory
 - Add "file menu" in debug builds, move hot reloading there, free up F5 key for e.g. quick save
 - Enemies walking around
@@ -23,6 +23,7 @@ Goal:
 # Doing
 
 # Done
+- Add input bindings so that both Z and Enter can be used as confirmation
 - Draw API: Support for drawing text centered in a box
 - Add quick save / quick load shortcuts with F5 F9
 - Make CommandList::run_commands take Engine* instead of separte dependencies

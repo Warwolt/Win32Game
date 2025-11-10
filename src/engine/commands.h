@@ -5,6 +5,7 @@
 #include <memory>
 #include <string>
 #include <type_traits>
+#include <unordered_set>
 #include <variant>
 #include <vector>
 
@@ -24,6 +25,9 @@ namespace engine {
 
 		/* App */
 		void quit();
+
+		/* Input */
+		void add_keyboard_binding(std::string action_name, std::unordered_set<uint32_t> keys);
 
 		/* File */
 		void load_save_file(std::filesystem::path filepath);
@@ -56,6 +60,12 @@ namespace engine {
 	private:
 		/* App */
 		struct Command_Quit {};
+
+		/* Input */
+		struct Command_AddKeyboardBinding {
+			std::string action_name;
+			std::unordered_set<uint32_t> keys;
+		};
 
 		/* File */
 		struct Command_LoadSaveFile {
@@ -93,6 +103,9 @@ namespace engine {
 		using Command = std::variant<
 			/* App */
 			Command_Quit,
+
+			/* Input */
+			Command_AddKeyboardBinding,
 
 			/* File */
 			Command_LoadSaveFile,

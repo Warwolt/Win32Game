@@ -40,6 +40,7 @@ set(SRC
     src/engine/graphics/window.cpp
     src/engine/input/button.cpp
     src/engine/input/gamepad.cpp
+    src/engine/input/input_bindings.cpp
     src/engine/input/input.cpp
     src/engine/input/keyboard_stack.cpp
     src/engine/input/keyboard.cpp
@@ -65,6 +66,7 @@ set(SRC
 set(TEST_SRC
     test/engine/animation_player_tests.cpp
     test/engine/button_tests.cpp
+    test/engine/input_bindings_tests.cpp
     test/engine/keyboard_tests.cpp
     test/engine/moving_average_tests.cpp
     test/engine/save_file_tests.cpp

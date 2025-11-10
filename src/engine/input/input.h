@@ -1,10 +1,10 @@
 #pragma once
 
 #include <engine/input/gamepad.h>
+#include <engine/input/input_bindings.h>
 #include <engine/input/keyboard.h>
 #include <engine/input/mouse.h>
 #include <engine/input/time.h>
-#include <engine/math/ivec2.h>
 
 namespace engine {
 
@@ -19,6 +19,7 @@ namespace engine {
 		Gamepad gamepad;
 		Keyboard keyboard;
 		Mouse mouse;
+		InputBindings bindings;
 		Time time_now;
 		Time time_delta;
 	};

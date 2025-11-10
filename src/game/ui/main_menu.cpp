@@ -24,7 +24,7 @@ namespace game {
 	};
 
 	void MainMenu::update(GameData* game, const engine::Input& input, engine::CommandList* commands) {
-		if (input.keyboard.key_was_pressed_now(VK_RETURN)) {
+		if (input.bindings.action_was_pressed_now("ui_confirm")) {
 			if (m_menu_index == MainMenuItem::NewGame) {
 				*game = GameData {}; // reset game data
 				commands->load_scene(GameplayScene::NAME);
