@@ -20,9 +20,9 @@ Goal:
 - Add render test screen with lots of images to stress test, get a sense of budget
 
 # Doing
-- Add visual confirmation when pressing "Save" in pause menu
 
 # Done
+- Add visual confirmation when pressing "Save" in pause menu
 - Add input bindings so that both Z and Enter can be used as confirmation
 - Draw API: Support for drawing text centered in a box
 - Add quick save / quick load shortcuts with F5 F9
