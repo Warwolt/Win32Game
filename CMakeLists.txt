@@ -50,15 +50,15 @@ set(SRC
     src/engine/math/moving_average.cpp
     src/engine/math/vec2.cpp
     src/engine/scene/scene_manager.cpp
-    src/engine/ui/debug_screen/debug_screen.cpp
-    src/engine/ui/debug_screen/font_test_page.cpp
-    src/engine/ui/debug_screen/geometry_test_page.cpp
-    src/engine/ui/debug_screen/image_test_page.cpp
     src/engine/ui/screen_stack.cpp
     src/engine/utility/string_utility.cpp
     src/game/game.cpp
     src/game/scene/gameplay_scene.cpp
     src/game/scene/menu_scene.cpp
+    src/game/ui/debug_screen/debug_screen.cpp
+    src/game/ui/debug_screen/font_test_page.cpp
+    src/game/ui/debug_screen/geometry_test_page.cpp
+    src/game/ui/debug_screen/image_test_page.cpp
     src/game/ui/main_menu.cpp
     src/game/ui/pause_menu.cpp
 )

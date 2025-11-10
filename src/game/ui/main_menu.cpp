@@ -7,7 +7,7 @@
 #include <engine/debug/logging.h>
 #include <engine/graphics/renderer.h>
 #include <engine/input/input.h>
-#include <engine/ui/debug_screen/debug_screen.h>
+#include <game/ui/debug_screen/debug_screen.h>
 
 #include <filesystem>
 #include <windows.h>
@@ -43,7 +43,7 @@ namespace game {
 				}
 
 				if (m_menu_index == MainMenuItem::Debug) {
-					commands->push_screen(engine::DebugScreen::NAME);
+					commands->push_screen(DebugScreen::NAME);
 				}
 
 				if (m_menu_index == MainMenuItem::Quit) {

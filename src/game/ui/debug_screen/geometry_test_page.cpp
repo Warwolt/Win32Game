@@ -1,4 +1,4 @@
-#include <engine/ui/debug_screen/geometry_test_page.h>
+#include <game/ui/debug_screen/geometry_test_page.h>
 
 #include <engine/debug/profiling.h>
 #include <engine/file/resource_manager.h>
@@ -12,13 +12,13 @@
 #include <array>
 #include <format>
 
-namespace engine {
+namespace game {
 
-	void GeometryTestPage::update(const Input& input) {
+	void GeometryTestPage::update(const engine::Input& input) {
 		m_alpha = (uint8_t)std::clamp(m_alpha + 16 * input.mouse.mouse_wheel_delta, 0, 255);
 	}
 
-	void GeometryTestPage::draw(Renderer* renderer, IVec2 screen_resolution) const {
+	void GeometryTestPage::draw(engine::Renderer* renderer, engine::IVec2 screen_resolution) const {
 		CPUProfilingScope_Engine();
 		enum class FillMode {
 			Outline,
@@ -34,31 +34,31 @@ namespace engine {
 		const engine::RGBA color = { 0, 255, 0, m_alpha };
 		const int32_t grid_size = 32;
 		const int32_t grid_spacing = 8;
-		IVec2 grid_pos = { -1, 0 };
+		engine::IVec2 grid_pos = { -1, 0 };
 
-		auto next_grid_pos = [screen_resolution, grid_size, grid_spacing](IVec2 pos) {
+		auto next_grid_pos = [screen_resolution, grid_size, grid_spacing](engine::IVec2 pos) {
 			int32_t window_grid_width = screen_resolution.x / (grid_size + grid_spacing);
 			if (pos.x > window_grid_width - 2) {
-				return IVec2 { 0, pos.y + 1 };
+				return engine::IVec2 { 0, pos.y + 1 };
 			}
-			return IVec2 { pos.x + 1, pos.y };
+			return engine::IVec2 { pos.x + 1, pos.y };
 		};
 
 		// helper that maps a normalized device coordinate vector into screen
 		// coordinates aligned on a grid for nice display.
-		auto get_pos = [grid_size, grid_spacing](Vec2 ndc_vec, IVec2 grid_pos) -> IVec2 {
-			IVec2 spacing_offset = grid_spacing * IVec2 { grid_pos.x, grid_pos.y + 1 };
-			IVec2 grid_offset = grid_size * grid_pos;
+		auto get_pos = [grid_size, grid_spacing](engine::Vec2 ndc_vec, engine::IVec2 grid_pos) -> engine::IVec2 {
+			engine::IVec2 spacing_offset = grid_spacing * engine::IVec2 { grid_pos.x, grid_pos.y + 1 };
+			engine::IVec2 grid_offset = grid_size * grid_pos;
 			int y_offset = 16;
 			return spacing_offset + grid_offset +
-				IVec2::from_vec2(Vec2 {
+				engine::IVec2::from_vec2(engine::Vec2 {
 					.x = grid_size * (ndc_vec.x + 1.0f) / 2.0f,
 					.y = y_offset + grid_size * (1.0f - ndc_vec.y) / 2.0f,
 				});
 		};
 
-		auto get_color = [this](RGBA color, ColorMode mode) {
-			return mode == ColorMode::Mono ? RGBA { 0, 255, 0, m_alpha } : color;
+		auto get_color = [this](engine::RGBA color, ColorMode mode) {
+			return mode == ColorMode::Mono ? engine::RGBA { 0, 255, 0, m_alpha } : color;
 		};
 
 		/* Draw line */
@@ -67,8 +67,8 @@ namespace engine {
 			{
 				RENDERER_LOG(renderer, std::format("Draw horizontal line ({})", color_mode == ColorMode::Gradient ? "Gradient" : "Mono"));
 				grid_pos = next_grid_pos(grid_pos);
-				Vertex start = { .pos = get_pos({ -1.0f, 0.0f }, grid_pos), .color = get_color({ 255, 0, 0, m_alpha }, color_mode) };
-				Vertex end = { .pos = get_pos({ 1.0f, 0.0f }, grid_pos), .color = get_color({ 0, 0, 255, m_alpha }, color_mode) };
+				engine::Vertex start = { .pos = get_pos({ -1.0f, 0.0f }, grid_pos), .color = get_color({ 255, 0, 0, m_alpha }, color_mode) };
+				engine::Vertex end = { .pos = get_pos({ 1.0f, 0.0f }, grid_pos), .color = get_color({ 0, 0, 255, m_alpha }, color_mode) };
 				renderer->draw_line(start, end);
 			}
 
@@ -76,8 +76,8 @@ namespace engine {
 			{
 				RENDERER_LOG(renderer, std::format("Draw slope -0.5 line ({})", color_mode == ColorMode::Gradient ? "Gradient" : "Mono"));
 				grid_pos = next_grid_pos(grid_pos);
-				Vertex start = { .pos = get_pos({ -1.0f, 0.5f }, grid_pos), .color = get_color({ 255, 0, 0, m_alpha }, color_mode) };
-				Vertex end = { .pos = get_pos({ 1.0f, -0.5f }, grid_pos), .color = get_color({ 0, 0, 255, m_alpha }, color_mode) };
+				engine::Vertex start = { .pos = get_pos({ -1.0f, 0.5f }, grid_pos), .color = get_color({ 255, 0, 0, m_alpha }, color_mode) };
+				engine::Vertex end = { .pos = get_pos({ 1.0f, -0.5f }, grid_pos), .color = get_color({ 0, 0, 255, m_alpha }, color_mode) };
 				renderer->draw_line(start, end);
 			}
 
@@ -85,8 +85,8 @@ namespace engine {
 			{
 				RENDERER_LOG(renderer, std::format("Draw slope -1 line ({})", color_mode == ColorMode::Gradient ? "Gradient" : "Mono"));
 				grid_pos = next_grid_pos(grid_pos);
-				Vertex start = { .pos = get_pos({ -1.0f, 1.0f }, grid_pos), .color = get_color({ 255, 0, 0, m_alpha }, color_mode) };
-				Vertex end = { .pos = get_pos({ 1.0f, -1.0f }, grid_pos), .color = get_color({ 0, 0, 255, m_alpha }, color_mode) };
+				engine::Vertex start = { .pos = get_pos({ -1.0f, 1.0f }, grid_pos), .color = get_color({ 255, 0, 0, m_alpha }, color_mode) };
+				engine::Vertex end = { .pos = get_pos({ 1.0f, -1.0f }, grid_pos), .color = get_color({ 0, 0, 255, m_alpha }, color_mode) };
 				renderer->draw_line(start, end);
 			}
 
@@ -94,8 +94,8 @@ namespace engine {
 			{
 				RENDERER_LOG(renderer, std::format("Draw slope -2 line ({})", color_mode == ColorMode::Gradient ? "Gradient" : "Mono"));
 				grid_pos = next_grid_pos(grid_pos);
-				Vertex start = { .pos = get_pos({ -0.5f, 1.0f }, grid_pos), .color = get_color({ 255, 0, 0, m_alpha }, color_mode) };
-				Vertex end = { .pos = get_pos({ 0.5f, -1.0f }, grid_pos), .color = get_color({ 0, 0, 255, m_alpha }, color_mode) };
+				engine::Vertex start = { .pos = get_pos({ -0.5f, 1.0f }, grid_pos), .color = get_color({ 255, 0, 0, m_alpha }, color_mode) };
+				engine::Vertex end = { .pos = get_pos({ 0.5f, -1.0f }, grid_pos), .color = get_color({ 0, 0, 255, m_alpha }, color_mode) };
 				renderer->draw_line(start, end);
 			}
 
@@ -103,8 +103,8 @@ namespace engine {
 			{
 				RENDERER_LOG(renderer, std::format("Draw slope inf line ({})", color_mode == ColorMode::Gradient ? "Gradient" : "Mono"));
 				grid_pos = next_grid_pos(grid_pos);
-				Vertex start = { .pos = get_pos({ 0.0f, 1.0f }, grid_pos), .color = get_color({ 255, 0, 0, m_alpha }, color_mode) };
-				Vertex end = { .pos = get_pos({ 0.0f, -1.0f }, grid_pos), .color = get_color({ 0, 0, 255, m_alpha }, color_mode) };
+				engine::Vertex start = { .pos = get_pos({ 0.0f, 1.0f }, grid_pos), .color = get_color({ 255, 0, 0, m_alpha }, color_mode) };
+				engine::Vertex end = { .pos = get_pos({ 0.0f, -1.0f }, grid_pos), .color = get_color({ 0, 0, 255, m_alpha }, color_mode) };
 				renderer->draw_line(start, end);
 			}
 
@@ -112,8 +112,8 @@ namespace engine {
 			{
 				RENDERER_LOG(renderer, std::format("Draw slope +2 line ({})", color_mode == ColorMode::Gradient ? "Gradient" : "Mono"));
 				grid_pos = next_grid_pos(grid_pos);
-				Vertex start = { .pos = get_pos({ 0.5f, 1.0f }, grid_pos), .color = get_color({ 255, 0, 0, m_alpha }, color_mode) };
-				Vertex end = { .pos = get_pos({ -0.5f, -1.0f }, grid_pos), .color = get_color({ 0, 0, 255, m_alpha }, color_mode) };
+				engine::Vertex start = { .pos = get_pos({ 0.5f, 1.0f }, grid_pos), .color = get_color({ 255, 0, 0, m_alpha }, color_mode) };
+				engine::Vertex end = { .pos = get_pos({ -0.5f, -1.0f }, grid_pos), .color = get_color({ 0, 0, 255, m_alpha }, color_mode) };
 				renderer->draw_line(start, end);
 			}
 		}
@@ -123,8 +123,8 @@ namespace engine {
 		for (FillMode mode : fill_modes) {
 			RENDERER_LOG(renderer, std::format("Draw rect ({})", mode == FillMode::Outline ? "Outline" : "Filled"));
 			grid_pos = next_grid_pos(grid_pos);
-			IVec2 pos = get_pos(Vec2 { -1.0f, 1.0f }, grid_pos);
-			Rect rect = {
+			engine::IVec2 pos = get_pos(engine::Vec2 { -1.0f, 1.0f }, grid_pos);
+			engine::Rect rect = {
 				.x = pos.x,
 				.y = pos.y,
 				.width = grid_size,
@@ -139,7 +139,7 @@ namespace engine {
 		for (FillMode mode : fill_modes) {
 			RENDERER_LOG(renderer, std::format("Draw circle ({})", mode == FillMode::Outline ? "Outline" : "Filled"));
 			grid_pos = next_grid_pos(grid_pos);
-			IVec2 center = get_pos(Vec2 { 0.0f, 0.0f }, grid_pos);
+			engine::IVec2 center = get_pos(engine::Vec2 { 0.0f, 0.0f }, grid_pos);
 			if (mode == FillMode::Outline) renderer->draw_circle(center, grid_size / 2, color);
 			if (mode == FillMode::Filled) renderer->draw_circle_fill(center, grid_size / 2, color);
 		}
@@ -150,9 +150,9 @@ namespace engine {
 			for (FillMode mode : fill_modes) {
 				RENDERER_LOG(renderer, std::format("Draw isoceles triangle pointing up ({}, {})", color_mode == ColorMode::Gradient ? "Gradient" : "Mono", mode == FillMode::Outline ? "Outline" : "Filled"));
 				grid_pos = next_grid_pos(grid_pos);
-				Vertex left = { .pos = get_pos(Vec2 { -1.0f, -1.0f }, grid_pos), .color = get_color({ 255, 0, 0, m_alpha }, color_mode) };
-				Vertex top = { .pos = get_pos(Vec2 { 0.0f, 1.0f }, grid_pos), .color = get_color({ 0, 255, 0, m_alpha }, color_mode) };
-				Vertex right = { .pos = get_pos(Vec2 { 1.0f, -1.0f }, grid_pos), .color = get_color({ 0, 0, 255, m_alpha }, color_mode) };
+				engine::Vertex left = { .pos = get_pos(engine::Vec2 { -1.0f, -1.0f }, grid_pos), .color = get_color({ 255, 0, 0, m_alpha }, color_mode) };
+				engine::Vertex top = { .pos = get_pos(engine::Vec2 { 0.0f, 1.0f }, grid_pos), .color = get_color({ 0, 255, 0, m_alpha }, color_mode) };
+				engine::Vertex right = { .pos = get_pos(engine::Vec2 { 1.0f, -1.0f }, grid_pos), .color = get_color({ 0, 0, 255, m_alpha }, color_mode) };
 				if (mode == FillMode::Outline) renderer->draw_triangle(left, top, right);
 				if (mode == FillMode::Filled) renderer->draw_triangle_fill(left, top, right);
 			}
@@ -163,9 +163,9 @@ namespace engine {
 			for (FillMode mode : fill_modes) {
 				RENDERER_LOG(renderer, std::format("Draw isoceles triangle pointing right ({}, {})", color_mode == ColorMode::Gradient ? "Gradient" : "Mono", mode == FillMode::Outline ? "Outline" : "Filled"));
 				grid_pos = next_grid_pos(grid_pos);
-				Vertex left = { .pos = get_pos(Vec2 { -1.0f, -1.0f }, grid_pos), .color = get_color({ 255, 0, 0, m_alpha }, color_mode) };
-				Vertex top = { .pos = get_pos(Vec2 { -1.0f, 1.0f }, grid_pos), .color = get_color({ 0, 255, 0, m_alpha }, color_mode) };
-				Vertex right = { .pos = get_pos(Vec2 { 1.0f, 0.0f }, grid_pos), .color = get_color({ 0, 0, 255, m_alpha }, color_mode) };
+				engine::Vertex left = { .pos = get_pos(engine::Vec2 { -1.0f, -1.0f }, grid_pos), .color = get_color({ 255, 0, 0, m_alpha }, color_mode) };
+				engine::Vertex top = { .pos = get_pos(engine::Vec2 { -1.0f, 1.0f }, grid_pos), .color = get_color({ 0, 255, 0, m_alpha }, color_mode) };
+				engine::Vertex right = { .pos = get_pos(engine::Vec2 { 1.0f, 0.0f }, grid_pos), .color = get_color({ 0, 0, 255, m_alpha }, color_mode) };
 				if (mode == FillMode::Outline) renderer->draw_triangle(left, top, right);
 				if (mode == FillMode::Filled) renderer->draw_triangle_fill(left, top, right);
 			}
@@ -176,9 +176,9 @@ namespace engine {
 			for (FillMode mode : fill_modes) {
 				RENDERER_LOG(renderer, std::format("Draw scelene triangle ({}, {})", color_mode == ColorMode::Gradient ? "Gradient" : "Mono", mode == FillMode::Outline ? "Outline" : "Filled"));
 				grid_pos = next_grid_pos(grid_pos);
-				Vertex left = { .pos = get_pos(Vec2 { -0.5f, -1.0f }, grid_pos), .color = get_color({ 255, 0, 0, m_alpha }, color_mode) };
-				Vertex top = { .pos = get_pos(Vec2 { 0.0f, 1.0f }, grid_pos), .color = get_color({ 0, 255, 0, m_alpha }, color_mode) };
-				Vertex right = { .pos = get_pos(Vec2 { 1.0f, -0.5f }, grid_pos), .color = get_color({ 0, 0, 255, m_alpha }, color_mode) };
+				engine::Vertex left = { .pos = get_pos(engine::Vec2 { -0.5f, -1.0f }, grid_pos), .color = get_color({ 255, 0, 0, m_alpha }, color_mode) };
+				engine::Vertex top = { .pos = get_pos(engine::Vec2 { 0.0f, 1.0f }, grid_pos), .color = get_color({ 0, 255, 0, m_alpha }, color_mode) };
+				engine::Vertex right = { .pos = get_pos(engine::Vec2 { 1.0f, -0.5f }, grid_pos), .color = get_color({ 0, 0, 255, m_alpha }, color_mode) };
 				if (mode == FillMode::Outline) renderer->draw_triangle(left, top, right);
 				if (mode == FillMode::Filled) renderer->draw_triangle_fill(left, top, right);
 			}

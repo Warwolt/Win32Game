@@ -1,4 +1,4 @@
-#include <engine/ui/debug_screen/debug_screen.h>
+#include <game/ui/debug_screen/debug_screen.h>
 
 #include <engine/commands.h>
 #include <engine/debug/profiling.h>
@@ -12,15 +12,15 @@
 #include <algorithm>
 #include <format>
 
-namespace engine {
+namespace game {
 
 	constexpr int FONT_SIZE = 16;
 
-	void DebugScreen::initialize(game::GameData* /*game*/, ResourceManager* resources, CommandList* /*commands*/) {
+	void DebugScreen::initialize(GameData* /*game*/, engine::ResourceManager* resources, engine::CommandList* /*commands*/) {
 		m_image_test_page.initialize(resources);
 	}
 
-	void DebugScreen::update(game::GameData* /*game*/, const Input& input, CommandList* commands) {
+	void DebugScreen::update(GameData* /*game*/, const engine::Input& input, engine::CommandList* commands) {
 		if (input.bindings.action_was_pressed_now("ui_close")) {
 			commands->pop_screen();
 		}
@@ -48,7 +48,7 @@ namespace engine {
 		}
 	}
 
-	void DebugScreen::draw(const game::GameData& /*game*/, Renderer* renderer) const {
+	void DebugScreen::draw(const game::GameData& /*game*/, engine::Renderer* renderer) const {
 		CPUProfilingScope_Engine();
 		const char* title = "unknown";
 		/* Render page */
@@ -65,7 +65,7 @@ namespace engine {
 			m_font_test_page.draw(renderer, renderer->screen_resolution());
 		}
 		/* Render page title */
-		renderer->draw_text(DEFAULT_FONT_ID, FONT_SIZE, { 0, 0 }, RGBA::white(), std::format("test page {}/{}: {}", (int)m_page + 1, (int)DebugScreenPage::Count, title));
+		renderer->draw_text(engine::DEFAULT_FONT_ID, FONT_SIZE, { 0, 0 }, engine::RGBA::white(), std::format("test page {}/{}: {}", (int)m_page + 1, (int)DebugScreenPage::Count, title));
 	}
 
 } // namespace engine
