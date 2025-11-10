@@ -12,6 +12,8 @@ DLL hot reload crash investigation notes:
   - Issue is most likely that the vtable for the virtual Scene methods point into memory of previous DLL load
   - Windows does not guarantee that DLL code is loaded into same part of memory, so sometimes our pointers are invalidated
   - We need to somehow re-initialize any data using vtable on reload. This could mean e.g. re-constructing the current Scene and Screen
+    - Tried doing Scene reloading, but the constructor closures also cause issues because of captured data.
+    - Safest approach would probably be to not use any vtables at all in the Application data!
 
 # Todo
 - Add "load game" menu that lists save files in some save file directory
