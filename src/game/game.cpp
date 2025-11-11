@@ -4,6 +4,7 @@
 #include <game/scene/menu_scene.h>
 #include <game/ui/main_menu.h>
 #include <game/ui/pause_menu.h>
+#include <game/ui/debug_screen/debug_screen.h>
 
 #include <engine/commands.h>
 #include <engine/debug/profiling.h>
@@ -11,9 +12,14 @@
 #include <engine/file/save_file.h>
 #include <engine/graphics/renderer.h>
 #include <engine/input/input.h>
-#include <game/ui/debug_screen/debug_screen.h>
+#include <engine/scene/scene_manager.h>
 
 namespace game {
+
+	void register_scenes(engine::SceneManager* scene_manager) {
+		scene_manager->register_scene(MenuScene::NAME, +[](){ return std::make_unique<MenuScene>(); });
+		scene_manager->register_scene(GameplayScene::NAME, +[](){ return std::make_unique<GameplayScene>(); });
+	}
 
 	GameData initialize(engine::CommandList* commands) {
 		GameData game = {};
@@ -24,8 +30,8 @@ namespace game {
 		commands->add_keyboard_binding("show_pause", { VK_ESCAPE });
 
 		/* Register scenes */
-		commands->register_scene<MenuScene>();
-		commands->register_scene<GameplayScene>();
+		// commands->register_scene<MenuScene>();
+		// commands->register_scene<GameplayScene>();
 
 		/* Register screens */
 		commands->register_screen<MainMenu>();
@@ -33,7 +39,7 @@ namespace game {
 		commands->register_screen<DebugScreen>();
 
 		/* Load first scene */
-		commands->load_scene(MenuScene::NAME);
+		// commands->load_scene(MenuScene::NAME);
 
 		return game;
 	}

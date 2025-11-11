@@ -124,37 +124,38 @@ void on_dll_unload(Application* application) {
 }
 
 void on_dll_reloaded(Application* application) {
-	// FIXME: we need a game::register_scenes() function
-	engine::CommandList commands;
-	commands.register_scene<game::GameplayScene>();
-	commands.register_scene<game::MenuScene>();
-	commands.run_commands(&application->engine);
-
+	game::register_scenes(&application->engine.scene_manager);
 	application->engine.scene_manager.HOT_RELOAD_patch_vtables();
 }
 
 Application* initialize_application(int argc, char** argv, HINSTANCE instance, WNDPROC on_window_event) {
-	Application* app = new Application {};
+	Application* application = new Application {};
 	engine::CommandList init_commands;
 
 	/* Initialize game */
-	app->game = game::initialize(&init_commands);
+	application->game = game::initialize(&init_commands);
 
 	/* Initialize engine */
 	std::vector<std::string> args = std::vector<std::string>(argv, argv + argc);
-	std::optional<engine::Engine> engine = engine::initialize(args, instance, on_window_event, &app->game);
+	std::optional<engine::Engine> engine = engine::initialize(args, instance, on_window_event, &application->game);
 	if (!engine) {
 		MessageBoxA(0, "Failed to initialize engine", "Error", MB_OK | MB_ICONERROR);
 		exit(1);
 	}
-	app->engine = std::move(engine.value());
+	application->engine = std::move(engine.value());
+
+	// Initialize game part 2, fixme move all game init to after engine init
+	game::register_scenes(&application->engine.scene_manager);
+	// FIXME: we need some way for game to declare which scene is the main scene to load
+	application->engine.scene_manager.load_scene("MenuScene");
+	application->engine.scene_manager.current_scene()->initialize(application->engine.game_data, &application->engine.resources, &init_commands);
 
 	/* Run initial commands */
-	init_commands.run_commands(&app->engine);
+	init_commands.run_commands(&application->engine);
 	LOG_INFO("Initialized");
 	LOG_INFO(PROFILING_IS_ENABLED ? "CPU profiling is enabled" : "CPU profiling is disabled");
 
-	return app;
+	return application;
 }
 
 bool update_application(Application* app) {
