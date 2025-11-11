@@ -145,10 +145,8 @@ Application* initialize_application(int argc, char** argv, HINSTANCE instance, W
 	application->engine = std::move(engine.value());
 
 	// Initialize game part 2, fixme move all game init to after engine init
-	game::register_scenes(&application->engine.scene_manager);
-	// FIXME: we need some way for game to declare which scene is the main scene to load
-	application->engine.scene_manager.load_scene("MenuScene");
-	application->engine.scene_manager.current_scene()->initialize(application->engine.game_data, &application->engine.resources, &init_commands);
+	std::string main_scene = game::register_scenes(&application->engine.scene_manager);
+	init_commands.load_scene(main_scene);
 
 	/* Run initial commands */
 	init_commands.run_commands(&application->engine);

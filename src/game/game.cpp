@@ -16,9 +16,10 @@
 
 namespace game {
 
-	void register_scenes(engine::SceneManager* scene_manager) {
+	std::string register_scenes(engine::SceneManager* scene_manager) {
 		scene_manager->register_scene<MenuScene>();
 		scene_manager->register_scene<GameplayScene>();
+		return MenuScene::NAME;
 	}
 
 	GameData initialize(engine::CommandList* commands) {
