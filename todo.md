@@ -16,6 +16,7 @@ DLL hot reload crash investigation notes:
     - Safest approach would probably be to not use any vtables at all in the Application data!
 
 # Todo
+- Refactor SceneManager and ScreenStack to work without vtables
 - Add "load game" menu that lists save files in some save file directory
 - Add "file menu" in debug builds, move hot reloading there, free up F5 key for e.g. quick save
 - Enemies walking around
