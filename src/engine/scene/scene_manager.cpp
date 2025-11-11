@@ -9,8 +9,13 @@ namespace engine {
 	}
 
 	void SceneManager::HOT_RELOAD_patch_vtables() {
+		// 2025-11-11
+		// Because hot reloading the DLL might move where code is in memory, we
+		// have to patch the vtable so that the function pointers point to the
+		// current code locations, otherwise we might crash.
 		if (m_current_scene) {
 			if (std::unique_ptr<Scene> dummy_scene = _try_create_scene(m_current_scene_name)) {
+				// Assume that __vfptr member is first member of Scene
 				void** current_vfptr = (void**)m_current_scene.get();
 				void** new_vfptr = (void**)dummy_scene.get();
 				*current_vfptr = *new_vfptr;
