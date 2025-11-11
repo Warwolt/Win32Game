@@ -37,12 +37,6 @@ namespace engine {
 		void load_scene(std::string scene_name);
 
 		/* ScreenStack */
-		template <typename ScreenType>
-		void register_screen() {
-			static_assert(std::is_default_constructible<ScreenType>::value, "ScreenType must be default constructible");
-			auto constructor = +[]() { return std::make_unique<ScreenType>(); };
-			m_commands.push_back(ScreenStackCommand_RegisterScreen { ScreenType::NAME, constructor });
-		}
 		void push_screen(std::string screen_name);
 		void pop_screen();
 
@@ -75,10 +69,6 @@ namespace engine {
 		};
 
 		/* ScreenStack */
-		struct ScreenStackCommand_RegisterScreen {
-			std::string screen_name;
-			std::function<std::unique_ptr<Screen>()> screen_constructor;
-		};
 		struct ScreenStackCommand_PushScreen {
 			std::string screen_name;
 		};
@@ -100,7 +90,6 @@ namespace engine {
 
 			SceneManagerCommand_LoadScene,
 
-			ScreenStackCommand_RegisterScreen,
 			ScreenStackCommand_PushScreen,
 			ScreenStackCommand_PopScreen,
 

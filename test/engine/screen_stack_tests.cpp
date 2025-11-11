@@ -46,7 +46,7 @@ TEST(ScreenStackTests, PushScreen_RegisteredScreen_ScreenGetsShown) {
 	ScreenStack screen_stack;
 
 	/* Register screen */
-	screen_stack.register_screen(TestScreen_A::NAME, []() { return std::make_unique<TestScreen_A>(); });
+	screen_stack.register_screen<TestScreen_A>();
 	EXPECT_EQ(TestScreen_A::num_instances, 0);
 
 	/* Push screen */
@@ -60,7 +60,7 @@ TEST(ScreenStackTests, PushScreen_SameScreenAlreadyShown_DoesNothing) {
 	ScreenStack screen_stack;
 
 	/* Register screen */
-	screen_stack.register_screen(TestScreen_A::NAME, []() { return std::make_unique<TestScreen_A>(); });
+	screen_stack.register_screen<TestScreen_A>();
 	EXPECT_EQ(TestScreen_A::num_instances, 0);
 
 	/* Push screen */
@@ -78,8 +78,8 @@ TEST(SceneManagerTests, PushScreen_InterleaveScreens) {
 	ScreenStack screen_stack;
 
 	/* Register two screens */
-	screen_stack.register_screen(TestScreen_A::NAME, []() { return std::make_unique<TestScreen_A>(); });
-	screen_stack.register_screen(TestScreen_B::NAME, []() { return std::make_unique<TestScreen_B>(); });
+	screen_stack.register_screen<TestScreen_A>();
+	screen_stack.register_screen<TestScreen_B>();
 	EXPECT_EQ(TestScreen_A::num_instances, 0);
 	EXPECT_EQ(TestScreen_B::num_instances, 0);
 
@@ -106,7 +106,7 @@ TEST(ScreenManagerTests, PushScreen_PopScreen) {
 	ScreenStack screen_stack;
 
 	/* Register screen */
-	screen_stack.register_screen(TestScreen_A::NAME, []() { return std::make_unique<TestScreen_A>(); });
+	screen_stack.register_screen<TestScreen_A>();
 	EXPECT_EQ(TestScreen_A::num_instances, 0);
 
 	/* Push screen */

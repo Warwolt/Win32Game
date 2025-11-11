@@ -22,6 +22,12 @@ namespace game {
 		return MenuScene::NAME;
 	}
 
+	void register_screens(engine::ScreenStack* screen_stack) {
+		screen_stack->register_screen<MainMenu>();
+		screen_stack->register_screen<PauseMenu>();
+		screen_stack->register_screen<DebugScreen>();
+	}
+
 	GameData initialize(engine::CommandList* commands) {
 		GameData game = {};
 
@@ -29,18 +35,6 @@ namespace game {
 		commands->add_keyboard_binding("ui_confirm", { VK_RETURN, 'Z' });
 		commands->add_keyboard_binding("ui_close", { VK_ESCAPE });
 		commands->add_keyboard_binding("show_pause", { VK_ESCAPE });
-
-		/* Register scenes */
-		// commands->register_scene<MenuScene>();
-		// commands->register_scene<GameplayScene>();
-
-		/* Register screens */
-		commands->register_screen<MainMenu>();
-		commands->register_screen<PauseMenu>();
-		commands->register_screen<DebugScreen>();
-
-		/* Load first scene */
-		// commands->load_scene(MenuScene::NAME);
 
 		return game;
 	}

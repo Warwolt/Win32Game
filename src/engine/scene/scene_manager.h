@@ -21,10 +21,10 @@ namespace engine {
 		void HOT_RELOAD_unregister_all_scenes();
 		void HOT_RELOAD_patch_vtables();
 
-		template <typename SceenType>
+		template <typename SceneType>
 		void register_scene() {
-			static_assert(std::is_default_constructible<SceenType>::value, "SceenType must be default constructible");
-			m_scene_constructors[SceenType::NAME] = +[]() { return std::make_unique<SceenType>(); };
+			static_assert(std::is_default_constructible<SceneType>::value, "SceneType must be default constructible");
+			m_scene_constructors[SceneType::NAME] = +[]() { return std::make_unique<SceneType>(); };
 		}
 
 		std::optional<SceneManagerError> load_scene(const std::string& scene_name);

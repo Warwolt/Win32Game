@@ -10,6 +10,7 @@ namespace engine {
 	class Renderer;
 	class SaveFile;
 	class SceneManager;
+	class ScreenStack;
 } // namespace engine
 
 namespace game {
@@ -18,6 +19,7 @@ namespace game {
 	engine::SaveFile on_write_save_file(const GameData& game);
 
 	std::string register_scenes(engine::SceneManager* scene_manager);
+	void register_screens(engine::ScreenStack* screen_stack);
 	GameData initialize(engine::CommandList* commands); // FIXME: get rid of CommandList here completely
 	void update(GameData* game, const engine::Input& input, engine::CommandList* commands);
 	void draw(engine::Renderer* renderer, const GameData& game);

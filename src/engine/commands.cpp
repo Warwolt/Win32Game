@@ -59,10 +59,6 @@ namespace engine {
 				}
 
 				/* ScreenStack */
-				MATCH_CASE(ScreenStackCommand_RegisterScreen, screen_name, screen_constructor) {
-					engine->screen_stack.register_screen(screen_name, screen_constructor);
-				}
-
 				MATCH_CASE(ScreenStackCommand_PushScreen, screen_name) {
 					const bool pushing_onto_empty_stack = engine->screen_stack.top_screen() == nullptr;
 

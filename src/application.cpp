@@ -147,6 +147,7 @@ Application* initialize_application(int argc, char** argv, HINSTANCE instance, W
 	// Initialize game part 2, fixme move all game init to after engine init
 	std::string main_scene = game::register_scenes(&application->engine.scene_manager);
 	init_commands.load_scene(main_scene);
+	game::register_screens(&application->engine.screen_stack);
 
 	/* Run initial commands */
 	init_commands.run_commands(&application->engine);
