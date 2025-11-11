@@ -133,10 +133,6 @@ void on_dll_reloaded(Application* application) {
 
 Application* initialize_application(int argc, char** argv, HINSTANCE instance, WNDPROC on_window_event) {
 	Application* application = new Application {};
-	engine::CommandList init_commands;
-
-	/* Initialize game */
-	application->game = game::initialize(&init_commands);
 
 	/* Initialize engine */
 	std::vector<std::string> args = std::vector<std::string>(argv, argv + argc);
@@ -147,13 +143,16 @@ Application* initialize_application(int argc, char** argv, HINSTANCE instance, W
 	}
 	application->engine = std::move(engine.value());
 
-	// Initialize game part 2, fixme move all game init to after engine init
-	std::string main_scene = game::register_scenes(&application->engine.scene_manager);
-	init_commands.load_scene(main_scene);
+	/* Initialize game */
+	std::string main_scene_name = game::register_scenes(&application->engine.scene_manager);
 	game::register_screens(&application->engine.screen_stack);
+	game::register_input_bindings(&application->engine.input.bindings);
 
-	/* Run initial commands */
+	/* Load main scene */
+	engine::CommandList init_commands;
+	init_commands.load_scene(main_scene_name);
 	init_commands.run_commands(&application->engine);
+
 	LOG_INFO("Initialized");
 	LOG_INFO(PROFILING_IS_ENABLED ? "CPU profiling is enabled" : "CPU profiling is disabled");
 

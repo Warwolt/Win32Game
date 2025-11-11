@@ -28,15 +28,10 @@ namespace game {
 		screen_stack->register_screen<DebugScreen>();
 	}
 
-	GameData initialize(engine::CommandList* commands) {
-		GameData game = {};
-
-		/* Setup bindings */
-		commands->add_keyboard_binding("ui_confirm", { VK_RETURN, 'Z' });
-		commands->add_keyboard_binding("ui_close", { VK_ESCAPE });
-		commands->add_keyboard_binding("show_pause", { VK_ESCAPE });
-
-		return game;
+	void register_input_bindings(engine::InputBindings* input_bindings) {
+		input_bindings->add_keyboard_binding("ui_confirm", { VK_RETURN, 'Z' });
+		input_bindings->add_keyboard_binding("ui_close", { VK_ESCAPE });
+		input_bindings->add_keyboard_binding("show_pause", { VK_ESCAPE });
 	}
 
 	void update(GameData* /*game*/, const engine::Input& input, engine::CommandList* commands) {
