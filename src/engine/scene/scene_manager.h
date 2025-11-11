@@ -32,7 +32,7 @@ namespace engine {
 
 	private:
 		std::unique_ptr<Scene> _try_create_scene(const std::string& scene_name);
-		std::string m_current_scene_name;
+		std::string m_HOT_RELOAD_scene_name;
 		std::unique_ptr<Scene> m_current_scene;
 		std::unordered_map<std::string, SceneConstructor> m_scene_constructors;
 	};

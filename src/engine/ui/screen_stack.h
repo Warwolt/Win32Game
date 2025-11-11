@@ -19,6 +19,9 @@ namespace engine {
 	public:
 		using ScreenConstructor = std::function<std::unique_ptr<Screen>()>;
 
+		void HOT_RELOAD_unregister_all_screens();
+		void HOT_RELOAD_patch_vtables();
+
 		template <typename ScreenType>
 		void register_screen() {
 			static_assert(std::is_default_constructible<ScreenType>::value, "ScreenType must be default constructible");

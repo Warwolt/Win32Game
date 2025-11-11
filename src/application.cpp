@@ -121,11 +121,14 @@ LRESULT CALLBACK on_window_event(
 
 void on_dll_unload(Application* application) {
 	application->engine.scene_manager.HOT_RELOAD_unregister_all_scenes();
+	application->engine.screen_stack.HOT_RELOAD_unregister_all_screens();
 }
 
 void on_dll_reloaded(Application* application) {
 	game::register_scenes(&application->engine.scene_manager);
+	game::register_screens(&application->engine.screen_stack);
 	application->engine.scene_manager.HOT_RELOAD_patch_vtables();
+	application->engine.screen_stack.HOT_RELOAD_patch_vtables();
 }
 
 Application* initialize_application(int argc, char** argv, HINSTANCE instance, WNDPROC on_window_event) {
