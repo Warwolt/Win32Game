@@ -5,6 +5,10 @@
 #include <engine/engine.h>
 #include <game/game.h>
 
+// temporary
+#include <game/scene/gameplay_scene.h>
+#include <game/scene/menu_scene.h>
+
 #include <windows.h>
 #include <windowsx.h>
 
@@ -116,11 +120,17 @@ LRESULT CALLBACK on_window_event(
 }
 
 void on_dll_unload(Application* application) {
-	//
+	application->engine.scene_manager.HOT_RELOAD_unregister_all_scenes();
 }
 
 void on_dll_reloaded(Application* application) {
-	//
+	// FIXME: we need a game::register_scenes() function
+	engine::CommandList commands;
+	commands.register_scene<game::GameplayScene>();
+	commands.register_scene<game::MenuScene>();
+	commands.run_commands(&application->engine);
+
+	application->engine.scene_manager.HOT_RELOAD_patch_vtables();
 }
 
 Application* initialize_application(int argc, char** argv, HINSTANCE instance, WNDPROC on_window_event) {
