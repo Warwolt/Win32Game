@@ -2,9 +2,9 @@
 
 #include <game/scene/gameplay_scene.h>
 #include <game/scene/menu_scene.h>
+#include <game/ui/debug_screen/debug_screen.h>
 #include <game/ui/main_menu.h>
 #include <game/ui/pause_menu.h>
-#include <game/ui/debug_screen/debug_screen.h>
 
 #include <engine/commands.h>
 #include <engine/debug/profiling.h>
