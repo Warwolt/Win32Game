@@ -2,6 +2,7 @@
 
 #include <game/scene/gameplay_scene.h>
 #include <game/scene/menu_scene.h>
+#include <game/ui/debug_screen/debug_screen.h>
 #include <game/ui/main_menu.h>
 #include <game/ui/pause_menu.h>
 
@@ -11,31 +12,26 @@
 #include <engine/file/save_file.h>
 #include <engine/graphics/renderer.h>
 #include <engine/input/input.h>
-#include <game/ui/debug_screen/debug_screen.h>
+#include <engine/scene/scene_manager.h>
 
 namespace game {
 
-	GameData initialize(engine::CommandList* commands) {
-		GameData game = {};
+	std::string register_scenes(engine::SceneManager* scene_manager) {
+		scene_manager->register_scene<MenuScene>();
+		scene_manager->register_scene<GameplayScene>();
+		return MenuScene::NAME;
+	}
 
-		/* Setup bindings */
-		commands->add_keyboard_binding("ui_confirm", { VK_RETURN, 'Z' });
-		commands->add_keyboard_binding("ui_close", { VK_ESCAPE });
-		commands->add_keyboard_binding("show_pause", { VK_ESCAPE });
+	void register_screens(engine::ScreenStack* screen_stack) {
+		screen_stack->register_screen<MainMenu>();
+		screen_stack->register_screen<PauseMenu>();
+		screen_stack->register_screen<DebugScreen>();
+	}
 
-		/* Register scenes */
-		commands->register_scene<MenuScene>();
-		commands->register_scene<GameplayScene>();
-
-		/* Register screens */
-		commands->register_screen<MainMenu>();
-		commands->register_screen<PauseMenu>();
-		commands->register_screen<DebugScreen>();
-
-		/* Load first scene */
-		commands->load_scene(MenuScene::NAME);
-
-		return game;
+	void register_input_bindings(engine::InputBindings* input_bindings) {
+		input_bindings->add_keyboard_binding("ui_confirm", { VK_RETURN, 'Z' });
+		input_bindings->add_keyboard_binding("ui_close", { VK_ESCAPE });
+		input_bindings->add_keyboard_binding("show_pause", { VK_ESCAPE });
 	}
 
 	void update(GameData* /*game*/, const engine::Input& input, engine::CommandList* commands) {

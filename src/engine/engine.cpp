@@ -83,7 +83,7 @@ namespace engine {
 		commands->set_window_title(window_title_with_fps);
 
 		/* Process commands */
-		commands->run_commands(engine, engine->game_data);
+		commands->run_commands(engine);
 	}
 
 	void draw(Engine* engine) {

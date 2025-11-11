@@ -6,7 +6,6 @@
 #include <memory>
 #include <optional>
 #include <string>
-#include <type_traits>
 #include <unordered_map>
 #include <vector>
 
@@ -20,7 +19,15 @@ namespace engine {
 	public:
 		using ScreenConstructor = std::function<std::unique_ptr<Screen>()>;
 
-		void register_screen(std::string name, ScreenConstructor constructor);
+		void HOT_RELOAD_unregister_all_screens();
+		void HOT_RELOAD_patch_vtables();
+
+		template <typename ScreenType>
+		void register_screen() {
+			static_assert(std::is_default_constructible<ScreenType>::value, "ScreenType must be default constructible");
+			m_screen_constructors[ScreenType::NAME] = +[]() { return std::make_unique<ScreenType>(); };
+		}
+
 		Screen* top_screen();
 		std::optional<ScreenStackError> push_screen(const std::string& screen_name);
 		void pop_screen();

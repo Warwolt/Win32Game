@@ -8,8 +8,6 @@
 #include <windows.h>
 #include <windowsx.h>
 
-#include <format>
-
 #ifdef TRACY_ENABLE
 constexpr bool PROFILING_IS_ENABLED = true;
 #else
@@ -43,30 +41,6 @@ static void update_input(Application* app) {
 	if (keyboard.key_is_pressed(VK_MENU) && keyboard.key_was_pressed_now(VK_F4)) {
 		app->engine.should_quit = true;
 	}
-}
-
-Application* initialize_application(int argc, char** argv, HINSTANCE instance, WNDPROC on_window_event) {
-	Application* app = new Application {};
-	engine::CommandList init_commands;
-
-	/* Initialize game */
-	app->game = game::initialize(&init_commands);
-
-	/* Initialize engine */
-	std::vector<std::string> args = std::vector<std::string>(argv, argv + argc);
-	std::optional<engine::Engine> engine = engine::initialize(args, instance, on_window_event, &app->game);
-	if (!engine) {
-		MessageBoxA(0, "Failed to initialize engine", "Error", MB_OK | MB_ICONERROR);
-		exit(1);
-	}
-	app->engine = std::move(engine.value());
-
-	/* Run initial commands */
-	init_commands.run_commands(&app->engine, app->engine.game_data);
-	LOG_INFO("Initialized");
-	LOG_INFO(PROFILING_IS_ENABLED ? "CPU profiling is enabled" : "CPU profiling is disabled");
-
-	return app;
 }
 
 LRESULT CALLBACK on_window_event(
@@ -137,6 +111,46 @@ LRESULT CALLBACK on_window_event(
 		} break;
 	}
 	return DefWindowProc(window, message, w_param, l_param);
+}
+
+void on_dll_unload(Application* application) {
+	application->engine.scene_manager.HOT_RELOAD_unregister_all_scenes();
+	application->engine.screen_stack.HOT_RELOAD_unregister_all_screens();
+}
+
+void on_dll_reloaded(Application* application) {
+	game::register_scenes(&application->engine.scene_manager);
+	game::register_screens(&application->engine.screen_stack);
+	application->engine.scene_manager.HOT_RELOAD_patch_vtables();
+	application->engine.screen_stack.HOT_RELOAD_patch_vtables();
+}
+
+Application* initialize_application(int argc, char** argv, HINSTANCE instance, WNDPROC on_window_event) {
+	Application* application = new Application {};
+
+	/* Initialize engine */
+	std::vector<std::string> args = std::vector<std::string>(argv, argv + argc);
+	std::optional<engine::Engine> engine = engine::initialize(args, instance, on_window_event, &application->game);
+	if (!engine) {
+		MessageBoxA(0, "Failed to initialize engine", "Error", MB_OK | MB_ICONERROR);
+		exit(1);
+	}
+	application->engine = std::move(engine.value());
+
+	/* Initialize game */
+	std::string main_scene_name = game::register_scenes(&application->engine.scene_manager);
+	game::register_screens(&application->engine.screen_stack);
+	game::register_input_bindings(&application->engine.input.bindings);
+
+	/* Load main scene */
+	engine::CommandList init_commands;
+	init_commands.load_scene(main_scene_name);
+	init_commands.run_commands(&application->engine);
+
+	LOG_INFO("Initialized");
+	LOG_INFO(PROFILING_IS_ENABLED ? "CPU profiling is enabled" : "CPU profiling is disabled");
+
+	return application;
 }
 
 bool update_application(Application* app) {

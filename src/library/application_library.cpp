@@ -19,12 +19,16 @@
 
 struct ApplicationLibrary : public library::Library {
 	LRESULT (*on_window_event)(Application* application, HWND window, UINT message, WPARAM w_param, LPARAM l_param);
+	void (*on_dll_unload)(Application*);
+	void (*on_dll_reloaded)(Application*);
 	Application* (*initialize_application)(int argc, char** argv, HINSTANCE instance, WNDPROC on_window_event);
 	bool (*update_application)(Application*);
 	void (*shutdown_application)(Application*);
 
 	std::expected<void, std::string> load_functions(HINSTANCE library_handle) override {
 		LOAD_FUNCTION(library_handle, "on_window_event", this->on_window_event);
+		LOAD_FUNCTION(library_handle, "on_dll_unload", this->on_dll_unload);
+		LOAD_FUNCTION(library_handle, "on_dll_reloaded", this->on_dll_reloaded);
 		LOAD_FUNCTION(library_handle, "initialize_application", this->initialize_application);
 		LOAD_FUNCTION(library_handle, "update_application", this->update_application);
 		LOAD_FUNCTION(library_handle, "shutdown_application", this->shutdown_application);
@@ -61,9 +65,21 @@ LRESULT CALLBACK on_window_event(Application* application, HWND window, UINT mes
 	return g_library.on_window_event(application, window, message, w_param, l_param);
 }
 
+void on_dll_unload(Application* application) {
+	g_library.on_dll_unload(application);
+}
+
+void on_dll_reloaded(Application* application) {
+	g_library.on_dll_reloaded(application);
+}
+
 bool update_application(Application* application) {
 	/* Update hot reloading */
-	std::expected<void, std::string> result = g_loader.update_hot_reloading(&g_library);
+	std::expected<void, std::string> result = g_loader.update_hot_reloading(
+		&g_library,
+		[&] { on_dll_unload(application); },
+		[&] { on_dll_reloaded(application); }
+	);
 	if (!result) {
 		fprintf(stderr, "Error when updating hot reloading: %s\n", result.error().c_str());
 	}
