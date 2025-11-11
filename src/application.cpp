@@ -116,11 +116,11 @@ LRESULT CALLBACK on_window_event(
 }
 
 void on_dll_unload(Application* application) {
-	engine::on_dll_unload(&application->engine);
+	//
 }
 
 void on_dll_reloaded(Application* application) {
-	engine::on_dll_reloaded(&application->engine);
+	//
 }
 
 Application* initialize_application(int argc, char** argv, HINSTANCE instance, WNDPROC on_window_event) {
