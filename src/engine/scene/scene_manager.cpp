@@ -23,10 +23,6 @@ namespace engine {
 		}
 	}
 
-	void SceneManager::register_scene(std::string name, SceneConstructor constructor) {
-		m_scene_constructors[name] = constructor;
-	}
-
 	std::optional<SceneManagerError> SceneManager::load_scene(const std::string& scene_name) {
 		std::unique_ptr<Scene> scene = _try_create_scene(scene_name);
 		if (!scene) {

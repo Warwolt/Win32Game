@@ -51,10 +51,6 @@ namespace engine {
 				}
 
 				/* SceneManager */
-				MATCH_CASE(SceneManagerCommand_RegisterScene, scene_name, scene_constructor) {
-					engine->scene_manager.register_scene(scene_name, scene_constructor);
-				}
-
 				MATCH_CASE(SceneManagerCommand_LoadScene, scene_name) {
 					std::optional<SceneManagerError> load_error = engine->scene_manager.load_scene(scene_name);
 					DEBUG_ASSERT(!load_error.has_value(), "Failed to load scene \"%s\". Is it registered?", scene_name.c_str());

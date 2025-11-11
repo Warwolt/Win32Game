@@ -48,7 +48,7 @@ TEST(SceneManagerTests, LoadScene_RegisteredScene_SceneGetsLoaded) {
 	SceneManager scene_manager;
 
 	/* Register scene */
-	scene_manager.register_scene(TestScene::NAME, []() { return std::make_unique<TestScene>(); });
+	scene_manager.register_scene<TestScene>();
 	EXPECT_EQ(TestScene::num_instances, 0);
 
 	/* Load scene */
@@ -62,8 +62,8 @@ TEST(SceneManagerTests, LoadScene_TwoRegisteredScenes_CanSwapBetweenThem) {
 	SceneManager scene_manager;
 
 	/* Register two scenes */
-	scene_manager.register_scene(TestScene::NAME, []() { return std::make_unique<TestScene>(); });
-	scene_manager.register_scene(TestScene2::NAME, []() { return std::make_unique<TestScene2>(); });
+	scene_manager.register_scene<TestScene>();
+	scene_manager.register_scene<TestScene2>();
 	EXPECT_EQ(TestScene::num_instances, 0);
 	EXPECT_EQ(TestScene2::num_instances, 0);
 
