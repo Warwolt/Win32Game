@@ -5,14 +5,8 @@
 #include <engine/engine.h>
 #include <game/game.h>
 
-// temporary
-#include <game/scene/gameplay_scene.h>
-#include <game/scene/menu_scene.h>
-
 #include <windows.h>
 #include <windowsx.h>
-
-#include <format>
 
 #ifdef TRACY_ENABLE
 constexpr bool PROFILING_IS_ENABLED = true;

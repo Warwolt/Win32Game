@@ -6,15 +6,6 @@ Goal:
   - [ ] Game over screen
   - [ ] Victory screen
 
-DLL hot reload crash investigation notes:
-- 2025-11-10:
-  - Crash happens _sometimes_ immediately after hot reload when trying to call method on std::unique_ptr<engine::Scene>
-  - Issue is most likely that the vtable for the virtual Scene methods point into memory of previous DLL load
-  - Windows does not guarantee that DLL code is loaded into same part of memory, so sometimes our pointers are invalidated
-  - We need to somehow re-initialize any data using vtable on reload. This could mean e.g. re-constructing the current Scene and Screen
-    - Tried doing Scene reloading, but the constructor closures also cause issues because of captured data.
-    - Safest approach would probably be to not use any vtables at all in the Application data!
-
 # Todo
 - Refactor SceneManager and ScreenStack to work without vtables
 - Add "load game" menu that lists save files in some save file directory
@@ -32,6 +23,7 @@ DLL hot reload crash investigation notes:
 # Doing
 
 # Done
+- Fix DLL hot reload crashes by patching the vtable of active Scene and Screen objects
 - Move DebugScreen to game namespace
 - Add visual confirmation when pressing "Save" in pause menu
 - Add input bindings so that both Z and Enter can be used as confirmation
