@@ -30,6 +30,7 @@ namespace engine {
 		}
 	};
 
+	// FIXME: rename this to `Typeface`, since it collects various sizes, a typeface at specific size is a font
 	class Font {
 	public:
 		Font() = default;
@@ -39,9 +40,10 @@ namespace engine {
 		Font& operator=(Font&& other) noexcept;
 
 		static std::optional<Font> from_path(std::filesystem::path path);
-		Glyph& glyph(int32_t size, char codepoint);
-		int32_t ascent(int32_t size);
-		int32_t text_width(int32_t size, const std::string& text);
+		void add_font(int32_t size);
+		const Glyph& glyph(int32_t size, char codepoint) const;
+		int32_t ascent(int32_t size) const;
+		int32_t text_width(int32_t size, const std::string& text) const;
 
 	private:
 		struct FontData {
@@ -51,8 +53,8 @@ namespace engine {
 			std::unordered_map<char, Glyph> glyphs;
 		};
 
-		FontData& _get_or_make_font_data(int32_t size);
-		Glyph _make_glyph(const FontData& font, char codepoint) const;
+		const FontData& _get_font_data(int32_t size) const;
+		Glyph _make_glyph(float font_scale, char codepoint) const;
 
 		std::vector<uint8_t> m_file_data;
 		stbtt_fontinfo m_font_info = {};
