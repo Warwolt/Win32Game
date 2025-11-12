@@ -10,8 +10,8 @@
 namespace game {
 
 	void MenuScene::initialize(GameData* /*game*/, engine::ResourceManager* resources, engine::CommandList* commands) {
-		resources->font(engine::DEFAULT_FONT_ID).add_font(16);
-		resources->font(engine::DEFAULT_FONT_ID).add_font(32);
+		resources->typeface(engine::DEFAULT_FONT_ID).add_font(16);
+		resources->typeface(engine::DEFAULT_FONT_ID).add_font(32);
 		commands->push_screen(MainMenu::NAME);
 	}
 

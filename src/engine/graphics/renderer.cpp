@@ -206,7 +206,7 @@ namespace engine {
 					}
 				}
 				MATCH_CASE(DrawText, font_id, font_size, rect, color, text, options) {
-					Typeface& font = resources->font(font_id);
+					Typeface& font = resources->typeface(font_id);
 					_put_text(&m_bitmap, &font, font_size, rect, color, text, options);
 				}
 			}
