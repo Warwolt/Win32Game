@@ -69,17 +69,16 @@ namespace engine {
 		int ascent;
 		stbtt_GetFontVMetrics(&m_font_info, &ascent, nullptr, nullptr);
 		ascent = (int)std::round(ascent * scale);
+		std::unordered_map<char, Glyph> glyphs;
+		for (char codepoint = ' '; codepoint < '~'; codepoint++) {
+			glyphs[codepoint] = _make_glyph(scale, codepoint);
+		}
 		m_fonts[size] = {
 			.size = size,
 			.ascent = ascent,
 			.scale = scale,
-			.glyphs = {},
+			.glyphs = std::move(glyphs),
 		};
-		Font& font_data = m_fonts[size];
-		for (char codepoint = ' '; codepoint < '~'; codepoint++) {
-			font_data.glyphs[codepoint] = _make_glyph(font_data.scale, codepoint);
-		}
-		m_fonts[size] = font_data;
 	}
 
 	const Glyph& Typeface::glyph(int32_t size, char codepoint) const {
