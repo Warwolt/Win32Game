@@ -57,7 +57,7 @@ namespace engine {
 
 		std::vector<uint8_t> m_file_data;
 		stbtt_fontinfo m_font_info = {};
-		std::unordered_map<int32_t, Font> m_font_data;
+		std::unordered_map<int32_t, Font> m_fonts;
 	};
 
 } // namespace engine

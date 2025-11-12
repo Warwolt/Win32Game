@@ -9,13 +9,13 @@ namespace engine {
 	Typeface::Typeface(const Typeface& other) noexcept {
 		m_file_data = other.m_file_data;
 		stbtt_InitFont(&m_font_info, m_file_data.data(), 0);
-		m_font_data = other.m_font_data;
+		m_fonts = other.m_fonts;
 	}
 
 	Typeface& Typeface::operator=(const Typeface& other) noexcept {
 		m_file_data = other.m_file_data;
 		stbtt_InitFont(&m_font_info, m_file_data.data(), 0);
-		m_font_data = other.m_font_data;
+		m_fonts = other.m_fonts;
 		return *this;
 	}
 
@@ -24,7 +24,7 @@ namespace engine {
 			m_file_data = std::move(other.m_file_data);
 			stbtt_InitFont(&m_font_info, m_file_data.data(), 0);
 			other.m_font_info = {};
-			m_font_data = std::move(other.m_font_data);
+			m_fonts = std::move(other.m_fonts);
 		}
 	}
 
@@ -33,7 +33,7 @@ namespace engine {
 			m_file_data = std::move(other.m_file_data);
 			stbtt_InitFont(&m_font_info, m_file_data.data(), 0);
 			other.m_font_info = {};
-			m_font_data = std::move(other.m_font_data);
+			m_fonts = std::move(other.m_fonts);
 		}
 		return *this;
 	}
@@ -69,17 +69,17 @@ namespace engine {
 		int ascent;
 		stbtt_GetFontVMetrics(&m_font_info, &ascent, nullptr, nullptr);
 		ascent = (int)std::round(ascent * scale);
-		m_font_data[size] = {
+		m_fonts[size] = {
 			.size = size,
 			.ascent = ascent,
 			.scale = scale,
 			.glyphs = {},
 		};
-		Font& font_data = m_font_data[size];
+		Font& font_data = m_fonts[size];
 		for (char codepoint = ' '; codepoint < '~'; codepoint++) {
 			font_data.glyphs[codepoint] = _make_glyph(font_data.scale, codepoint);
 		}
-		m_font_data[size] = font_data;
+		m_fonts[size] = font_data;
 	}
 
 	const Glyph& Typeface::glyph(int32_t size, char codepoint) const {
@@ -102,12 +102,11 @@ namespace engine {
 	}
 
 	const Typeface::Font& Typeface::_get_font(int32_t size) const {
-		auto it = m_font_data.find(size);
-		DEBUG_ASSERT(it != m_font_data.end(), "Couldn't find typeface with size %d. Did you call `Font::add_font`?", size);
+		auto it = m_fonts.find(size);
+		DEBUG_ASSERT(it != m_fonts.end(), "Couldn't find typeface with size %d. Did you call `Font::add_font`?", size);
 		return it->second;
 	}
 
-	// FIXME: this should just take `float font_scale` instead of `font`
 	Glyph Typeface::_make_glyph(float font_scale, char codepoint) const {
 		int advance_width, left_side_bearing;
 		stbtt_GetCodepointHMetrics(&m_font_info, codepoint, &advance_width, &left_side_bearing);
