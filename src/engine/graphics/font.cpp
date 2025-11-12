@@ -103,7 +103,7 @@ namespace engine {
 
 	const Typeface::Font& Typeface::_get_font(int32_t size) const {
 		auto it = m_fonts.find(size);
-		DEBUG_ASSERT(it != m_fonts.end(), "Couldn't find typeface with size %d. Did you call `Font::add_font`?", size);
+		DEBUG_ASSERT(it != m_fonts.end(), "Couldn't find typeface with size %d. Did you call `Typeface::add_font`?", size);
 		return it->second;
 	}
 
