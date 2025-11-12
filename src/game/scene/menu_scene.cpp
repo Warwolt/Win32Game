@@ -3,9 +3,9 @@
 #include <game/ui/main_menu.h>
 
 #include <engine/commands.h>
-#include <engine/graphics/renderer.h>
 #include <engine/file/resource_manager.h>
 #include <engine/graphics/font.h>
+#include <engine/graphics/renderer.h>
 
 namespace game {
 

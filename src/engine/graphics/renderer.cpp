@@ -206,7 +206,7 @@ namespace engine {
 					}
 				}
 				MATCH_CASE(DrawText, font_id, font_size, rect, color, text, options) {
-					Font& font = resources->font(font_id);
+					Typeface& font = resources->font(font_id);
 					_put_text(&m_bitmap, &font, font_size, rect, color, text, options);
 				}
 			}
@@ -458,7 +458,7 @@ namespace engine {
 		}
 	}
 
-	void Renderer::_put_text(Bitmap* bitmap, Font* font, int32_t font_size, Rect rect, RGBA color, const std::string& text, DrawTextOptions options) {
+	void Renderer::_put_text(Bitmap* bitmap, Typeface* font, int32_t font_size, Rect rect, RGBA color, const std::string& text, DrawTextOptions options) {
 		const int32_t ascent = font->ascent(font_size);
 		const int32_t space_width = font->glyph(font_size, ' ').advance_width;
 
