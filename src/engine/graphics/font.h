@@ -30,33 +30,34 @@ namespace engine {
 		}
 	};
 
-	class Font {
+	class Typeface {
 	public:
-		Font() = default;
-		Font(const Font& other) noexcept;
-		Font& operator=(const Font& other) noexcept;
-		Font(Font&& other) noexcept;
-		Font& operator=(Font&& other) noexcept;
+		Typeface() = default;
+		Typeface(const Typeface& other) noexcept;
+		Typeface& operator=(const Typeface& other) noexcept;
+		Typeface(Typeface&& other) noexcept;
+		Typeface& operator=(Typeface&& other) noexcept;
 
-		static std::optional<Font> from_path(std::filesystem::path path);
-		Glyph& glyph(int32_t size, char codepoint);
-		int32_t ascent(int32_t size);
-		int32_t text_width(int32_t size, const std::string& text);
+		static std::optional<Typeface> from_path(std::filesystem::path path);
+		void add_font(int32_t size);
+		const Glyph& glyph(int32_t size, char codepoint) const;
+		int32_t ascent(int32_t size) const;
+		int32_t text_width(int32_t size, const std::string& text) const;
 
 	private:
-		struct FontData {
+		struct Font {
 			int32_t size;
 			int32_t ascent;
 			float scale;
 			std::unordered_map<char, Glyph> glyphs;
 		};
 
-		FontData& _get_or_make_font_data(int32_t size);
-		Glyph _make_glyph(const FontData& font, char codepoint) const;
+		const Font& _get_font(int32_t size) const;
+		Glyph _make_glyph(float font_scale, char codepoint) const;
 
 		std::vector<uint8_t> m_file_data;
 		stbtt_fontinfo m_font_info = {};
-		std::unordered_map<int32_t, FontData> m_font_data;
+		std::unordered_map<int32_t, Font> m_fonts;
 	};
 
 } // namespace engine
