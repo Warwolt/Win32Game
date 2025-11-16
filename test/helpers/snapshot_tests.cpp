@@ -65,7 +65,8 @@ namespace testing {
 	static std::string report_header_html(std::string title) {
 		const auto now = std::chrono::zoned_time(std::chrono::current_zone(), std::chrono::system_clock::now());
 		const std::string timestamp = std::format("{:%Y-%m-%d %H:%M}", now);
-		return std::format(header_template, title, timestamp);
+		return R"(<h1 style="margin-bottom: 0">)" + title + "</h1>" +
+			R"(<p style="margin-top: 0">)" + timestamp + "</p>";
 	}
 
 	static std::string snapshot_stats_html(int num_passed, int num_failed) {
