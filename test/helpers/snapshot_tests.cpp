@@ -10,9 +10,21 @@
 
 namespace testing {
 
+	enum class SnapshotTestResult {
+		Passed,
+		Failed,
+		Updated,
+	};
+
+	struct SnapshotTestCase {
+		std::string name;
+		SnapshotTestResult result;
+	};
+
 	struct SnapshotTestSuite {
 		std::string name;
 		std::filesystem::path path;
+		std::vector<SnapshotTestCase> tests;
 	};
 
 	struct SnapshotTestContext {
@@ -70,13 +82,23 @@ namespace testing {
 	}
 
 	static std::string snapshot_report_html() {
-		// FIXME: this should count the TEST CASES not the TEST SUITES !
-		const int num_failed_snapshots = (int)g_context.failed_suites.size();
-		const int num_passed_snapshots = (int)g_context.all_suites.size() - num_failed_snapshots;
+		int total_num_passed = 0;
+		int total_num_failed = 0;
+
+		for (const SnapshotTestSuite& suite : g_context.all_suites) {
+			for (const SnapshotTestCase& test : suite.tests) {
+				if (test.result == SnapshotTestResult::Failed) {
+					total_num_failed++;
+				}
+				else {
+					total_num_passed++;
+				}
+			}
+		}
 
 		std::string html_body;
 		html_body += report_header_html("Snapshot Test Report");
-		html_body += snapshot_stats_html(num_passed_snapshots, num_failed_snapshots);
+		html_body += snapshot_stats_html(total_num_passed, total_num_failed);
 		html_body += snapshot_list_html("Failed snapshots", g_context.failed_suites);
 		html_body += snapshot_list_html("All snapshots", g_context.all_suites);
 		return std::format(html_template, html_body);
@@ -84,18 +106,30 @@ namespace testing {
 
 	static std::string snapshot_suite_html(const SnapshotTestSuite& suite) {
 		std::string html_body;
-		html_body += report_header_html(suite.name);
+		html_body += report_header_html("Snapshot Result: " + suite.name);
+		// html_body += snapshot_stats_html(suite., num_failed_snapshots);
 		return std::format(html_template, html_body);
 	}
 
 	void initialize_snapshot_tests() {
 		g_context.all_suites = {
-			{ "Test Suite Name 1", "test_suite_name_1/index.html" },
+			{
+				"Test Suite Name 1",
+				"test_suite_name_1/index.html",
+				{
+					{ "Test Case 1", SnapshotTestResult::Failed },
+					{ "Test Case 2", SnapshotTestResult::Passed },
+					{ "Test Case 3", SnapshotTestResult::Updated },
+				},
+			},
 			{ "Test Suite Name 2", "test_suite_name_2/index.html" },
 			{ "Test Suite Name 3", "test_suite_name_3/index.html" },
 		};
 		g_context.failed_suites = {
-			{ "Test Suite Name 1", "test_suite_name_1/index.html" },
+			{
+				"Test Suite Name 1",
+				"test_suite_name_1/index.html",
+			},
 		};
 	}
 
