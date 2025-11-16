@@ -95,7 +95,9 @@ namespace testing {
 		std::string html_body;
 		html_body += report_header_html("Snapshot Test Report");
 		html_body += snapshot_stats_html(total_num_passed, total_num_failed);
-		html_body += snapshot_list_html("Failures", g_context.failed_suites, true);
+		if (!g_context.failed_suites.empty()) {
+			html_body += snapshot_list_html("Failures", g_context.failed_suites, true);
+		}
 		html_body += snapshot_list_html("Snapshots", g_context.all_suites, false);
 		return std::format(html_template, html_body);
 	}
@@ -119,16 +121,18 @@ namespace testing {
 		html_body += snapshot_stats_html(total_num_passed, total_num_failed);
 
 		/* List failed snapshots */
-		html_body += "<h2>Failures</h2>";
-		html_body += "<ul>";
-		for (const SnapshotTestCase& test : suite.tests) {
-			if (test.result == SnapshotTestResult::Failed) {
-				html_body += "<li>";
-				html_body += std::format(R"(<a href="#{}">{}</a>)", test.name,  test.name);
-				html_body += "</li>";
+		if (total_num_failed > 0) {
+			html_body += "<h2>Failures</h2>";
+			html_body += "<ul>";
+			for (const SnapshotTestCase& test : suite.tests) {
+				if (test.result == SnapshotTestResult::Failed) {
+					html_body += "<li>";
+					html_body += std::format(R"(<a href="#{}">{}</a>)", test.name, test.name);
+					html_body += "</li>";
+				}
 			}
+			html_body += "</ul>";
 		}
-		html_body += "</ul>";
 
 		/* Display snapshots */
 		html_body += "<h2>Snapshots</h2>";
@@ -171,10 +175,10 @@ namespace testing {
 		return std::format(html_template, html_body);
 	}
 
-	void report_failed_snapshot(std::string test_suite_name, std::string test_name) {
+	static void report_snapshot(std::string test_suite_name, std::string test_name, SnapshotTestResult test_result) {
 		SnapshotTestCase test_case = {
 			.name = test_name,
-			.result = SnapshotTestResult::Failed,
+			.result = test_result,
 		};
 		auto it = std::find_if(g_context.all_suites.begin(), g_context.all_suites.end(), [&](const SnapshotTestSuite& suite) { return suite.name == test_suite_name; });
 		if (it == g_context.all_suites.end()) {
@@ -187,6 +191,18 @@ namespace testing {
 		else {
 			it->tests.push_back(test_case);
 		}
+	}
+
+	void report_failed_snapshot(std::string test_suite_name, std::string test_name) {
+		report_snapshot(test_suite_name, test_name, SnapshotTestResult::Failed);
+	}
+
+	void report_passed_snapshot(std::string test_suite_name, std::string test_name) {
+		report_snapshot(test_suite_name, test_name, SnapshotTestResult::Passed);
+	}
+
+	void report_updated_snapshot(std::string test_suite_name, std::string test_name) {
+		report_snapshot(test_suite_name, test_name, SnapshotTestResult::Updated);
 	}
 
 	void generate_snapshot_report() {

@@ -36,6 +36,7 @@ namespace engine {
 		int32_t height() const;
 		IVec2 size() const;
 		const Pixel* data() const;
+		bool operator==(const Bitmap& rhs) const = default;
 
 	private:
 		int32_t m_width = 0;
