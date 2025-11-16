@@ -10,6 +10,16 @@
 
 namespace testing {
 
+	struct SnapshotTestSuite {
+		std::string name;
+		std::filesystem::path path;
+	};
+
+	struct SnapshotTestContext {
+		std::vector<SnapshotTestSuite> all_suites;
+		std::vector<SnapshotTestSuite> failed_suites;
+	} g_context;
+
 	constexpr char html_template[] = R"(
 <!DOCTYPE html>
 <html lang="en">
@@ -23,7 +33,7 @@ namespace testing {
 </html>)";
 
 	constexpr char header_template[] = R"(
-<h1 style="margin-bottom: 0">Snapshot Test Report</h1>
+<h1 style="margin-bottom: 0">{}</h1>
 <p style="margin-top: 0">{}</p>
 )";
 
@@ -35,8 +45,8 @@ namespace testing {
 </p>
 )";
 
-	constexpr char failed_snapshots_template[] = R"(
-<h2>Failed snapshots</h2>
+	constexpr char snapshot_list_template[] = R"(
+<h2>{}</h2>
 <ul>{}</ul>
 )";
 
@@ -45,61 +55,65 @@ namespace testing {
 <ul>{}</ul>
 )";
 
-	static std::string report_header_html() {
+	static std::string report_header_html(std::string title) {
 		const auto now = std::chrono::zoned_time(std::chrono::current_zone(), std::chrono::system_clock::now());
 		const std::string timestamp = std::format("{:%Y-%m-%d %H:%M}", now);
-		return std::format(header_template, timestamp);
+		return std::format(header_template, title, timestamp);
 	}
 
 	static std::string snapshot_stats_html() {
-		const int passed_snapshots = 0;
-		const int failed_snapshots = 0;
-		return std::format(snapshot_stats_template, passed_snapshots, failed_snapshots);
+		const size_t num_failed_snapshots = g_context.failed_suites.size();
+		const size_t num_passed_snapshots = g_context.all_suites.size() - num_failed_snapshots;
+		return std::format(snapshot_stats_template, num_passed_snapshots, num_failed_snapshots);
 	}
 
-	static std::string failed_snapshots_html() {
-		const std::vector<std::string> failed_suite_names = {
-			"Test suite name 1",
-		};
-
+	static std::string snapshot_list_html(std::string title, const std::vector<SnapshotTestSuite>& suites) {
 		std::string list_items;
-		for (const std::string& name : failed_suite_names) {
-			list_items += std::format("<li>{}</li>", name);
+		for (const SnapshotTestSuite& suite : suites) {
+			list_items += std::format("<li><a href=\"{}\">{}</a></li>", suite.path.string(), suite.name);
 		}
 
-		return std::format(failed_snapshots_template, list_items);
-	}
-
-	static std::string all_snapshots_html() {
-		const std::vector<std::string> all_suite_names = {
-			"Test suite name 1",
-			"Test suite name 2",
-			"Test suite name 3",
-		};
-
-		std::string list_items;
-		for (const std::string& name : all_suite_names) {
-			list_items += std::format("<li>{}</li>", name);
-		}
-
-		return std::format(all_snapshots_template, list_items);
+		return std::format(snapshot_list_template, title, list_items);
 	}
 
 	static std::string snapshot_report_html() {
 		std::string html_body;
-		html_body += report_header_html();
+		html_body += report_header_html("Snapshot Test Report");
 		html_body += snapshot_stats_html();
-		html_body += failed_snapshots_html();
-		html_body += all_snapshots_html();
+		html_body += snapshot_list_html("Failed snapshots", g_context.failed_suites);
+		html_body += snapshot_list_html("All snapshots", g_context.all_suites);
 		return std::format(html_template, html_body);
 	}
 
+	static std::string snapshot_suite_html() {
+		std::string html_body;
+		html_body += report_header_html("Test Suite Name 1");
+		return std::format(html_template, html_body);
+	}
+
+	void initialize_snapshot_tests() {
+		g_context.all_suites = {
+			{ "Test suite name 1", "test_suite_name_1/index.html" },
+			{ "Test suite name 2", "test_suite_name_2/index.html" },
+			{ "Test suite name 3", "test_suite_name_3/index.html" },
+		};
+		g_context.failed_suites = {
+			{ "Test suite name 1", "test_suite_name_1/index.html" },
+		};
+	}
+
 	void generate_snapshot_report() {
-		std::ofstream report_file;
 		std::filesystem::create_directory("snapshot_report");
+		std::ofstream report_file;
 		report_file.open("snapshot_report/index.html");
 		report_file << snapshot_report_html() << std::endl;
 		report_file.close();
+
+		std::filesystem::create_directory("snapshot_report/test_suite_name_1");
+		std::ofstream suite_file;
+		suite_file.open("snapshot_report/test_suite_name_1/index.html");
+		suite_file << snapshot_suite_html() << std::endl;
+		suite_file.close();
 	}
 
 } // namespace testing
