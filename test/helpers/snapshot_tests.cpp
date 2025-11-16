@@ -98,7 +98,7 @@ namespace testing {
 		html_body += report_header_html("Snapshot Test Report");
 		html_body += snapshot_stats_html(total_num_passed, total_num_failed);
 		html_body += snapshot_list_html("Failed snapshots", g_context.failed_suites, true);
-		html_body += snapshot_list_html("All snapshots", g_context.all_suites, false);
+		html_body += snapshot_list_html("Snapshots", g_context.all_suites, false);
 		return std::format(html_template, html_body);
 	}
 
@@ -138,13 +138,27 @@ namespace testing {
 				"Test Suite Name 1",
 				"test_suite_name_1/index.html",
 				{
-					{ "Test Case Apple", SnapshotTestResult::Failed },
-					{ "Test Case Banana", SnapshotTestResult::Passed },
-					{ "Test Case Coconut", SnapshotTestResult::Updated },
+					{ "Apple", SnapshotTestResult::Failed },
+					{ "Banana", SnapshotTestResult::Passed },
+					{ "Coconut", SnapshotTestResult::Updated },
 				},
 			},
-			{ "Test Suite Name 2", "test_suite_name_2/index.html" },
-			{ "Test Suite Name 3", "test_suite_name_3/index.html" },
+			{
+				"Test Suite Name 2",
+				"test_suite_name_2/index.html",
+				{
+					{ "Alice", SnapshotTestResult::Passed },
+					{ "Bob", SnapshotTestResult::Passed },
+				},
+			},
+			{
+				"Test Suite Name 3",
+				"test_suite_name_3/index.html",
+				{
+					{ "Axe", SnapshotTestResult::Passed },
+					{ "Bow", SnapshotTestResult::Passed },
+				},
+			},
 		};
 
 		for (const SnapshotTestSuite& suite : g_context.all_suites) {
