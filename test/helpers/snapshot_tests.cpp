@@ -97,7 +97,7 @@ namespace testing {
 		std::string html_body;
 		html_body += report_header_html("Snapshot Test Report");
 		html_body += snapshot_stats_html(total_num_passed, total_num_failed);
-		html_body += snapshot_list_html("Failed snapshots", g_context.failed_suites, true);
+		html_body += snapshot_list_html("Failures", g_context.failed_suites, true);
 		html_body += snapshot_list_html("Snapshots", g_context.all_suites, false);
 		return std::format(html_template, html_body);
 	}
@@ -117,16 +117,16 @@ namespace testing {
 		/* Add page header */
 		std::string html_body;
 		html_body += report_header_html("Snapshot Test Report: " + suite.name);
-		html_body += "<a href=\"../index.html\">Back to summary</a>";
+		html_body += R"(<a href="../index.html">Back to summary</a>)";
 		html_body += snapshot_stats_html(total_num_passed, total_num_failed);
 
 		/* List failed snapshots */
-		html_body += "<h2>Failed snapshots</h2>";
+		html_body += "<h2>Failures</h2>";
 		html_body += "<ul>";
 		for (const SnapshotTestCase& test : suite.tests) {
 			if (test.result == SnapshotTestResult::Failed) {
 				html_body += "<li>";
-				html_body += test.name;
+				html_body += std::format(R"(<a href="#{}">{}</a>)", test.name,  test.name);
 				html_body += "</li>";
 			}
 		}
@@ -162,7 +162,7 @@ namespace testing {
 					break;
 
 				case SnapshotTestResult::Updated:
-					html_body += std::format("<img src=\"{}\" style=\"border: 2px solid {}\">", diff_path, "#00C500");
+					html_body += std::format("<img src=\"{}\" style=\"border: 2px solid {}\">", diff_path, "#C5C500");
 					html_body += "<p style=\"margin: 1em\">➡️</p>";
 					html_body += std::format("<img src=\"{}\" style=\"border: 2px solid {}\">", snapshot_path, "#00C500");
 					break;
