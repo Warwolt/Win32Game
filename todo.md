@@ -20,6 +20,7 @@ Goal:
 - Basic UI system for drawing lists of menu items
 
 # Doing
+- Add snapshot testing for graphical functionality
 
 # Done
 - Rename Font to Typeface, require game to generate glyphs for desired font sizes up-front instead of on-demand.
