@@ -1,5 +1,3 @@
-#pragma once
-
 #include <test/helpers/snapshot_tests.h>
 
 #include <chrono>
@@ -173,35 +171,26 @@ namespace testing {
 		return std::format(html_template, html_body);
 	}
 
-	void initialize_snapshot_tests() {
-		g_context.all_suites = {
-			{
-				"Test Suite Name 1",
-				"test_suite_name_1/index.html",
-				{
-					{ "Apple", SnapshotTestResult::Failed },
-					{ "Banana", SnapshotTestResult::Passed },
-					{ "Coconut", SnapshotTestResult::Updated },
-				},
-			},
-			{
-				"Test Suite Name 2",
-				"test_suite_name_2/index.html",
-				{
-					{ "Alice", SnapshotTestResult::Passed },
-					{ "Bob", SnapshotTestResult::Passed },
-				},
-			},
-			{
-				"Test Suite Name 3",
-				"test_suite_name_3/index.html",
-				{
-					{ "Axe", SnapshotTestResult::Passed },
-					{ "Bow", SnapshotTestResult::Passed },
-				},
-			},
+	void report_failed_snapshot(std::string test_suite_name, std::string test_name) {
+		SnapshotTestCase test_case = {
+			.name = test_name,
+			.result = SnapshotTestResult::Failed,
 		};
+		auto it = std::find_if(g_context.all_suites.begin(), g_context.all_suites.end(), [&](const SnapshotTestSuite& suite) { return suite.name == test_suite_name; });
+		if (it == g_context.all_suites.end()) {
+			g_context.all_suites.push_back(SnapshotTestSuite {
+				.name = test_suite_name,
+				.path = test_suite_name + "/index.html",
+				.tests = { test_case },
+			});
+		}
+		else {
+			it->tests.push_back(test_case);
+		}
+	}
 
+	void generate_snapshot_report() {
+		/* Copy over failed tests */
 		for (const SnapshotTestSuite& suite : g_context.all_suites) {
 			for (const SnapshotTestCase& test : suite.tests) {
 				if (test.result == SnapshotTestResult::Failed) {
@@ -210,9 +199,7 @@ namespace testing {
 				}
 			}
 		}
-	}
 
-	void generate_snapshot_report() {
 		/* Create report HTML file */
 		std::filesystem::create_directory("snapshot_report");
 		std::ofstream report_file;
@@ -228,6 +215,10 @@ namespace testing {
 			suite_file.open("snapshot_report" / suite.path);
 			suite_file << snapshot_suite_html(suite) << std::endl;
 			suite_file.close();
+		}
+
+		if (!g_context.all_suites.empty()) {
+			printf("\nSnapshot test report updated: %s\n", "./snapshot_report/index.html");
 		}
 	}
 
