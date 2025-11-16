@@ -114,12 +114,14 @@ namespace testing {
 			}
 		}
 
+		/* Add page header */
 		std::string html_body;
 		html_body += report_header_html("Snapshot Test Report: " + suite.name);
 		html_body += "<a href=\"../index.html\">Back to summary</a>";
 		html_body += snapshot_stats_html(total_num_passed, total_num_failed);
-		html_body += "<h2>Failed snapshots</h2>";
 
+		/* List failed snapshots */
+		html_body += "<h2>Failed snapshots</h2>";
 		html_body += "<ul>";
 		for (const SnapshotTestCase& test : suite.tests) {
 			if (test.result == SnapshotTestResult::Failed) {
@@ -127,6 +129,25 @@ namespace testing {
 				html_body += test.name;
 				html_body += "</li>";
 			}
+		}
+		html_body += "</ul>";
+
+		/* Display snapshots */
+		html_body += "<h2>Snapshots</h2>";
+		for (const SnapshotTestCase& test : suite.tests) {
+			/* Test name */
+			html_body += std::format("<h3 id=\"{}\">", test.name);
+			html_body += test.name;
+			if (test.result == SnapshotTestResult::Failed) {
+				html_body += " (failed)";
+			}
+			if (test.result == SnapshotTestResult::Updated) {
+				html_body += " (updated)";
+			}
+			html_body += "</h3>";
+
+			/* Snapshot */
+			html_body += "<img src=\"../../test/snapshots/test_suite_name_1/test_case_name_1.png\" style=\"border: 2px solid #00C500\">";
 		}
 
 		return std::format(html_template, html_body);
