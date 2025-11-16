@@ -44,24 +44,6 @@ namespace testing {
   </body>
 </html>)";
 
-	constexpr char header_template[] = R"(
-<h1 style="margin-bottom: 0">{}</h1>
-<p style="margin-top: 0">{}</p>
-)";
-
-	constexpr char snapshot_stats_template[] = R"(
-<p>
-  ✅ Passed snapshots: {}
-  <br />
-  ❌ Failed snapshots: {}
-</p>
-)";
-
-	constexpr char snapshot_list_template[] = R"(
-<h2>{}</h2>
-<ul>{}</ul>
-)";
-
 	static std::string report_header_html(std::string title) {
 		const auto now = std::chrono::zoned_time(std::chrono::current_zone(), std::chrono::system_clock::now());
 		const std::string timestamp = std::format("{:%Y-%m-%d %H:%M}", now);
@@ -70,16 +52,18 @@ namespace testing {
 	}
 
 	static std::string snapshot_stats_html(int num_passed, int num_failed) {
-		return std::format(snapshot_stats_template, num_passed, num_failed);
+		return "<p>✅ Passed snapshots: " + std::to_string(num_passed) +
+			"<br/>❌ Failed snapshots: " + std::to_string(num_failed) + "</p>";
 	}
 
 	static std::string snapshot_list_html(std::string title, const std::vector<SnapshotTestSuite>& suites) {
-		std::string list_items;
+		std::string list_html;
 		for (const SnapshotTestSuite& suite : suites) {
-			list_items += std::format("<li><a href=\"{}\">{}</a></li>", suite.path.string(), suite.name);
+			list_html += std::format("<li><a href=\"{}\">{}</a></li>", suite.path.string(), suite.name);
 		}
 
-		return std::format(snapshot_list_template, title, list_items);
+		return "<h2>" + title + "</h2>" +
+			"<ul>" + list_html + "</ul>";
 	}
 
 	static std::string snapshot_report_html() {
