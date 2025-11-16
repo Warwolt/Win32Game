@@ -50,21 +50,14 @@ namespace testing {
 <ul>{}</ul>
 )";
 
-	constexpr char all_snapshots_template[] = R"(
-<h2>All snapshots</h2>
-<ul>{}</ul>
-)";
-
 	static std::string report_header_html(std::string title) {
 		const auto now = std::chrono::zoned_time(std::chrono::current_zone(), std::chrono::system_clock::now());
 		const std::string timestamp = std::format("{:%Y-%m-%d %H:%M}", now);
 		return std::format(header_template, title, timestamp);
 	}
 
-	static std::string snapshot_stats_html() {
-		const size_t num_failed_snapshots = g_context.failed_suites.size();
-		const size_t num_passed_snapshots = g_context.all_suites.size() - num_failed_snapshots;
-		return std::format(snapshot_stats_template, num_passed_snapshots, num_failed_snapshots);
+	static std::string snapshot_stats_html(int num_passed, int num_failed) {
+		return std::format(snapshot_stats_template, num_passed, num_failed);
 	}
 
 	static std::string snapshot_list_html(std::string title, const std::vector<SnapshotTestSuite>& suites) {
@@ -77,9 +70,13 @@ namespace testing {
 	}
 
 	static std::string snapshot_report_html() {
+		// FIXME: this should count the TEST CASES not the TEST SUITES !
+		const int num_failed_snapshots = (int)g_context.failed_suites.size();
+		const int num_passed_snapshots = (int)g_context.all_suites.size() - num_failed_snapshots;
+
 		std::string html_body;
 		html_body += report_header_html("Snapshot Test Report");
-		html_body += snapshot_stats_html();
+		html_body += snapshot_stats_html(num_passed_snapshots, num_failed_snapshots);
 		html_body += snapshot_list_html("Failed snapshots", g_context.failed_suites);
 		html_body += snapshot_list_html("All snapshots", g_context.all_suites);
 		return std::format(html_template, html_body);
