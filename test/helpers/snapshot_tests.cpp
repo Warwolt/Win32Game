@@ -103,10 +103,32 @@ namespace testing {
 	}
 
 	static std::string snapshot_suite_html(const SnapshotTestSuite& suite) {
+		int total_num_passed = 0;
+		int total_num_failed = 0;
+		for (const SnapshotTestCase& test : suite.tests) {
+			if (test.result == SnapshotTestResult::Failed) {
+				total_num_failed++;
+			}
+			else {
+				total_num_passed++;
+			}
+		}
+
 		std::string html_body;
 		html_body += report_header_html("Snapshot Test Report: " + suite.name);
 		html_body += "<a href=\"../index.html\">Back to summary</a>";
-		html_body += snapshot_stats_html(0, 0);
+		html_body += snapshot_stats_html(total_num_passed, total_num_failed);
+		html_body += "<h2>Failed snapshots</h2>";
+
+		html_body += "<ul>";
+		for (const SnapshotTestCase& test : suite.tests) {
+			if (test.result == SnapshotTestResult::Failed) {
+				html_body += "<li>";
+				html_body += test.name;
+				html_body += "</li>";
+			}
+		}
+
 		return std::format(html_template, html_body);
 	}
 
@@ -116,9 +138,9 @@ namespace testing {
 				"Test Suite Name 1",
 				"test_suite_name_1/index.html",
 				{
-					{ "Test Case 1", SnapshotTestResult::Failed },
-					{ "Test Case 2", SnapshotTestResult::Passed },
-					{ "Test Case 3", SnapshotTestResult::Updated },
+					{ "Test Case Apple", SnapshotTestResult::Failed },
+					{ "Test Case Banana", SnapshotTestResult::Passed },
+					{ "Test Case Coconut", SnapshotTestResult::Updated },
 				},
 			},
 			{ "Test Suite Name 2", "test_suite_name_2/index.html" },
