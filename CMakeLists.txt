@@ -64,6 +64,7 @@ set(SRC
 )
 
 set(TEST_SRC
+    test/helpers/snapshot_tests.cpp
     test/engine/animation_player_tests.cpp
     test/engine/button_tests.cpp
     test/engine/input_bindings_tests.cpp
