@@ -147,7 +147,27 @@ namespace testing {
 			html_body += "</h3>";
 
 			/* Snapshot */
-			html_body += "<img src=\"../../test/snapshots/test_suite_name_1/test_case_name_1.png\" style=\"border: 2px solid #00C500\">";
+			html_body += "<div style=\"display: flex; align-items: center\">";
+			std::string snapshot_path = "../../test/snapshots/test_suite_name_1/test_case_name_1.png";
+			std::string diff_path = "../../test/snapshots/test_suite_name_1/test_case_name_1.png";
+			switch (test.result) {
+				case SnapshotTestResult::Passed:
+					html_body += std::format("<img src=\"{}\" style=\"border: 2px solid {}\">", snapshot_path, "#00C500");
+					break;
+
+				case SnapshotTestResult::Failed:
+					html_body += std::format("<img src=\"{}\" style=\"border: 2px solid {}\">", snapshot_path, "#00C500");
+					html_body += "<p style=\"margin: 1em\">➡️</p>";
+					html_body += std::format("<img src=\"{}\" style=\"border: 2px solid {}\">", diff_path, "#e33119");
+					break;
+
+				case SnapshotTestResult::Updated:
+					html_body += std::format("<img src=\"{}\" style=\"border: 2px solid {}\">", diff_path, "#00C500");
+					html_body += "<p style=\"margin: 1em\">➡️</p>";
+					html_body += std::format("<img src=\"{}\" style=\"border: 2px solid {}\">", snapshot_path, "#00C500");
+					break;
+			}
+			html_body += "</div>";
 		}
 
 		return std::format(html_template, html_body);
