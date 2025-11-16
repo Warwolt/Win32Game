@@ -68,7 +68,7 @@ namespace testing {
 					continue;
 				}
 				list_html += "<li>";
-				list_html += test.name;
+				list_html += R"(<a href=")" + suite.path.string() + "#" + test.name + "\">" + test.name + "</a>";
 				list_html += "</li>";
 			}
 			if (!suite.tests.empty()) list_html += "</ul>";
@@ -105,6 +105,7 @@ namespace testing {
 	static std::string snapshot_suite_html(const SnapshotTestSuite& suite) {
 		std::string html_body;
 		html_body += report_header_html("Snapshot Test Report: " + suite.name);
+		html_body += "<a href=\"../index.html\">Back to summary</a>";
 		html_body += snapshot_stats_html(0, 0);
 		return std::format(html_template, html_body);
 	}
