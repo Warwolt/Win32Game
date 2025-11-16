@@ -56,16 +56,23 @@ namespace testing {
 			"<br/>❌ Failed snapshots: " + std::to_string(num_failed) + "</p>";
 	}
 
-	static std::string snapshot_list_html(std::string title, const std::vector<SnapshotTestSuite>& suites) {
+	static std::string snapshot_list_html(std::string title, const std::vector<SnapshotTestSuite>& suites, bool only_failed) {
 		std::string list_html;
 		list_html += "<ul>";
 		for (const SnapshotTestSuite& suite : suites) {
-			list_html += std::string() +
-				"<li>" +
-				R"(<a href=")" + suite.path.string() + "\">" +
-				suite.name +
-				"</a>" +
-				"</li>";
+			list_html += "<li>";
+			list_html += R"(<a href=")" + suite.path.string() + "\">" + suite.name + "</a>";
+			if (!suite.tests.empty()) list_html += "<ul>";
+			for (const SnapshotTestCase& test : suite.tests) {
+				if (only_failed && test.result != SnapshotTestResult::Failed) {
+					continue;
+				}
+				list_html += "<li>";
+				list_html += test.name;
+				list_html += "</li>";
+			}
+			if (!suite.tests.empty()) list_html += "</ul>";
+			list_html += "</li>";
 		}
 		list_html += "</ul>";
 
@@ -90,8 +97,8 @@ namespace testing {
 		std::string html_body;
 		html_body += report_header_html("Snapshot Test Report");
 		html_body += snapshot_stats_html(total_num_passed, total_num_failed);
-		html_body += snapshot_list_html("Failed snapshots", g_context.failed_suites);
-		html_body += snapshot_list_html("All snapshots", g_context.all_suites);
+		html_body += snapshot_list_html("Failed snapshots", g_context.failed_suites, true);
+		html_body += snapshot_list_html("All snapshots", g_context.all_suites, false);
 		return std::format(html_template, html_body);
 	}
 
@@ -116,12 +123,15 @@ namespace testing {
 			{ "Test Suite Name 2", "test_suite_name_2/index.html" },
 			{ "Test Suite Name 3", "test_suite_name_3/index.html" },
 		};
-		g_context.failed_suites = {
-			{
-				"Test Suite Name 1",
-				"test_suite_name_1/index.html",
-			},
-		};
+
+		for (const SnapshotTestSuite& suite : g_context.all_suites) {
+			for (const SnapshotTestCase& test : suite.tests) {
+				if (test.result == SnapshotTestResult::Failed) {
+					g_context.failed_suites.push_back(suite);
+					break;
+				}
+			}
+		}
 	}
 
 	void generate_snapshot_report() {
