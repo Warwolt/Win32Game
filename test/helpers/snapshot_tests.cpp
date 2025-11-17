@@ -46,6 +46,22 @@ namespace testing {
   </body>
 </html>)";
 
+	std::string snapshot_directory(std::string test_suite_name) {
+		return "test/snapshots/" + test_suite_name;
+	}
+
+	static std::string snapshot_report_directory(std::string test_suite_name) {
+		return "snapshot_report/" + test_suite_name;
+	}
+
+	std::string snapshot_filepath(std::string test_suite_name, std::string test_name) {
+		return snapshot_directory(test_suite_name) + "/" + test_name + ".png";
+	}
+
+	static std::string snapshot_diff_filepath(std::string test_suite_name, std::string test_name) {
+		return snapshot_report_directory(test_suite_name) + "/" + test_name + ".png";
+	}
+
 	static std::string report_header_html(std::string title) {
 		const auto now = std::chrono::zoned_time(std::chrono::current_zone(), std::chrono::system_clock::now());
 		const std::string timestamp = std::format("{:%Y-%m-%d %H:%M}", now);
@@ -161,7 +177,7 @@ namespace testing {
 			/* Snapshot */
 			html_body += "<div style=\"display: flex; align-items: center\">";
 			std::string snapshot_path = "../../" + snapshot_filepath(suite.name, test.name);
-			std::string diff_path = "../../test/snapshots/test_suite_name_1/test_case_name_1.png";
+			std::string diff_path = "../../" + snapshot_diff_filepath(suite.name, test.name);
 			switch (test.result) {
 				case SnapshotTestResult::Passed:
 					html_body += std::format("<img src=\"{}\" style=\"border: 2px solid {}\">", snapshot_path, "#00C500");
@@ -203,14 +219,6 @@ namespace testing {
 		}
 	}
 
-	std::string snapshot_directory(std::string test_suite_name) {
-		return "test/snapshots/" + test_suite_name;
-	}
-
-	std::string snapshot_filepath(std::string test_suite_name, std::string test_name) {
-		return snapshot_directory(test_suite_name) + "/" + test_name + ".png";
-	}
-
 	void report_failed_snapshot(std::string test_suite_name, std::string test_name) {
 		report_snapshot(test_suite_name, test_name, SnapshotTestResult::Failed);
 	}
@@ -230,6 +238,12 @@ namespace testing {
 	void save_snapshot(const engine::Image& snapshot, std::string test_suite_name, std::string test_name) {
 		std::filesystem::create_directories(snapshot_directory(test_suite_name));
 		int _result = stbi_write_png(snapshot_filepath(test_suite_name, test_name).c_str(), snapshot.width, snapshot.height, 4, snapshot.pixels.data(), snapshot.width * 4);
+		DEBUG_ASSERT(_result != 0, "stbi_write_png failed");
+	}
+
+	void save_snapshot_diff(const engine::Image& snapshot, std::string test_suite_name, std::string test_name) {
+		std::filesystem::create_directories(snapshot_report_directory(test_suite_name));
+		int _result = stbi_write_png(snapshot_diff_filepath(test_suite_name, test_name).c_str(), snapshot.width, snapshot.height, 4, snapshot.pixels.data(), snapshot.width * 4);
 		DEBUG_ASSERT(_result != 0, "stbi_write_png failed");
 	}
 
