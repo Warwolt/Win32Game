@@ -20,9 +20,9 @@ Goal:
 - Basic UI system for drawing lists of menu items
 
 # Doing
-- Add snapshot testing for graphical functionality
 
 # Done
+- Add snapshot testing for testing graphical functionality
 - Rename Font to Typeface, require game to generate glyphs for desired font sizes up-front instead of on-demand.
 - Fix DLL hot reload crashes by patching the vtable of active Scene and Screen objects
 - Move DebugScreen to game namespace
