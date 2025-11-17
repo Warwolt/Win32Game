@@ -1,8 +1,8 @@
 #pragma once
 
+#include <engine/graphics/image.h>
 #include <engine/graphics/rect.h>
 #include <engine/graphics/rgba.h>
-#include <engine/graphics/image.h>
 
 #include <cmath>
 #include <stdint.h>
