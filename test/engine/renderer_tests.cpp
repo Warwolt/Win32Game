@@ -23,6 +23,12 @@ TEST(RendererTests, ClearScreen_Turquoise) {
 			if (_current_image.pixels == _snapshot_image->pixels) {
 				testing::report_passed_snapshot(_test_suite_name, _test_name);
 			}
+			else if (testing::should_update_snapshots()) {
+				printf("[   INFO   ] Updating snapshot file \"%s\"\n", testing::snapshot_filepath(_test_suite_name, _test_name).c_str());
+				testing::report_updated_snapshot(_test_suite_name, _test_name);
+				testing::save_snapshot_diff(_snapshot_image.value(), _test_suite_name, _test_name);
+				testing::save_snapshot(_current_image, _test_suite_name, _test_name);
+			}
 			else {
 				testing::report_failed_snapshot(_test_suite_name, _test_name);
 				testing::save_snapshot_diff(_current_image, _test_suite_name, _test_name);

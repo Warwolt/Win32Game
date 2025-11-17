@@ -4,7 +4,10 @@
 
 int main(int argc, char** argv) {
 	testing::InitGoogleTest(&argc, argv);
+	testing::initialize_snapshot_tests(argc, argv);
+
 	int result = RUN_ALL_TESTS();
 	testing::generate_snapshot_report();
+
 	return result;
 }

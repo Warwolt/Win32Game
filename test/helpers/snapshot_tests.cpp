@@ -30,6 +30,7 @@ namespace testing {
 	};
 
 	struct SnapshotTestContext {
+		bool should_update_snapshots = false;
 		std::vector<SnapshotTestSuite> all_suites;
 		std::vector<SnapshotTestSuite> failed_suites;
 	} g_context;
@@ -219,6 +220,10 @@ namespace testing {
 		}
 	}
 
+	bool should_update_snapshots() {
+		return g_context.should_update_snapshots;
+	}
+
 	void report_failed_snapshot(std::string test_suite_name, std::string test_name) {
 		report_snapshot(test_suite_name, test_name, SnapshotTestResult::Failed);
 	}
@@ -245,6 +250,14 @@ namespace testing {
 		std::filesystem::create_directories(snapshot_report_directory(test_suite_name));
 		int _result = stbi_write_png(snapshot_diff_filepath(test_suite_name, test_name).c_str(), snapshot.width, snapshot.height, 4, snapshot.pixels.data(), snapshot.width * 4);
 		DEBUG_ASSERT(_result != 0, "stbi_write_png failed");
+	}
+
+	void initialize_snapshot_tests(int argc, char** argv) {
+		for (int i = 0; i < argc; i++) {
+			if (std::string(argv[i]) == "--update-snapshots") {
+				g_context.should_update_snapshots = true;
+			}
+		}
 	}
 
 	void generate_snapshot_report() {
