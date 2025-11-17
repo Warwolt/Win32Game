@@ -86,4 +86,9 @@ namespace engine {
 		return m_typefaces.at(id.value);
 	}
 
+	const Typeface& ResourceManager::typeface(FontID id) const {
+		DEBUG_ASSERT(m_typefaces.contains(id.value), "Trying to access non-existing typeface using id %d", id.value);
+		return m_typefaces.at(id.value);
+	}
+
 } // namespace engine

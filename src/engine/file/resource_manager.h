@@ -18,6 +18,7 @@ namespace engine {
 		FontID load_font(std::filesystem::path filepath);
 		const Image& image(ImageID id) const;
 		Typeface& typeface(FontID id);
+		const Typeface& typeface(FontID id) const;
 
 	private:
 		int m_next_image_id = 1;
