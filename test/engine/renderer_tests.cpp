@@ -11,7 +11,7 @@ TEST(RendererTests, ClearScreen_Turquoise) {
 	Renderer renderer = Renderer::with_bitmap(256, 240);
 	ResourceManager resources;
 
-	renderer.clear_screen({ 0, 0, 127, 255 });
+	renderer.clear_screen({ 0, 127, 127, 255 });
 	renderer.render(resources);
 
 	// EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
@@ -26,7 +26,7 @@ TEST(RendererTests, ClearScreen_Turquoise) {
 			else {
 				testing::report_failed_snapshot(_test_suite_name, _test_name);
 				testing::save_snapshot_diff(_current_image, _test_suite_name, _test_name);
-				FAIL() << "actual image in test did not match snapshot image, see test report for more info";
+				ADD_FAILURE() << "actual image in test did not match snapshot image, see test report for more info";
 			}
 		}
 		else {
