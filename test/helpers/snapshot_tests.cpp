@@ -160,7 +160,7 @@ namespace testing {
 
 			/* Snapshot */
 			html_body += "<div style=\"display: flex; align-items: center\">";
-			std::string snapshot_path = "../../test/snapshots/test_suite_name_1/test_case_name_1.png";
+			std::string snapshot_path = "../../" + snapshot_filepath(suite.name, test.name);
 			std::string diff_path = "../../test/snapshots/test_suite_name_1/test_case_name_1.png";
 			switch (test.result) {
 				case SnapshotTestResult::Passed:

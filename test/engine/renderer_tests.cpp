@@ -7,28 +7,14 @@
 
 using namespace engine;
 
-#define EXPECT_SNAPSHOT_EQ(actual_bitmap)                                                                       \
-	do {                                                                                                        \
-		std::optional<engine::Bitmap> snapshot = {};                                                            \
-		const char* test_suite_name = testing::UnitTest::GetInstance()->current_test_info()->test_suite_name(); \
-		const char* test_name = testing::UnitTest::GetInstance()->current_test_info()->name();                  \
-		if ((actual_bitmap) == snapshot) {                                                                      \
-			testing::report_passed_snapshot(test_suite_name, test_name);                                        \
-		}                                                                                                       \
-		else {                                                                                                  \
-			testing::report_failed_snapshot(test_suite_name, test_name);                                        \
-			FAIL() << #actual_bitmap << " did not match snapshot, see test report for more info.";              \
-		}                                                                                                       \
-	} while (0)
-
-TEST(RendererTests, HelloWorld) {
+TEST(RendererTests, ClearScreen_Turquoise) {
 	Renderer renderer = Renderer::with_bitmap(256, 240);
 	ResourceManager resources;
 
 	renderer.clear_screen({ 0, 127, 127, 255 });
 	renderer.render(resources);
 
-	// EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image())
+	// EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
 	do {
 		const char* _test_suite_name = testing::UnitTest::GetInstance()->current_test_info()->test_suite_name();
 		const char* _test_name = testing::UnitTest::GetInstance()->current_test_info()->name();
