@@ -180,19 +180,19 @@ namespace testing {
 			std::string diff_path = "../../" + snapshot_diff_filepath(suite.name, test.name);
 			switch (test.result) {
 				case SnapshotTestResult::Passed:
-					html_body += std::format("<img src=\"{}\" style=\"border: 2px solid {}\">", snapshot_path, "#00C500");
+					html_body += std::format("<img src=\"{}\">", snapshot_path);
 					break;
 
 				case SnapshotTestResult::Failed:
-					html_body += std::format("<img src=\"{}\" style=\"border: 2px solid {}\">", snapshot_path, "#00C500");
+					html_body += std::format("<img src=\"{}\">", snapshot_path);
 					html_body += "<p style=\"margin: 1em\">➡️</p>";
-					html_body += std::format("<img src=\"{}\" style=\"border: 2px solid {}\">", diff_path, "#e33119");
+					html_body += std::format("<img src=\"{}\">", diff_path);
 					break;
 
 				case SnapshotTestResult::Updated:
-					html_body += std::format("<img src=\"{}\" style=\"border: 2px solid {}\">", diff_path, "#C5C500");
+					html_body += std::format("<img src=\"{}\">", diff_path);
 					html_body += "<p style=\"margin: 1em\">➡️</p>";
-					html_body += std::format("<img src=\"{}\" style=\"border: 2px solid {}\">", snapshot_path, "#00C500");
+					html_body += std::format("<img src=\"{}\">", snapshot_path);
 					break;
 			}
 			html_body += "</div>";
