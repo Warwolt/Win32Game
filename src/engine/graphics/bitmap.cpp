@@ -79,4 +79,20 @@ namespace engine {
 		return m_data.data();
 	}
 
+	Bitmap::iterator Bitmap::begin() {
+		return m_data.begin();
+	}
+
+	Bitmap::iterator Bitmap::end() {
+		return m_data.end();
+	}
+
+	Bitmap::const_iterator Bitmap::begin() const {
+		return m_data.begin();
+	}
+
+	Bitmap::const_iterator Bitmap::end() const {
+		return m_data.end();
+	}
+
 } // namespace engine

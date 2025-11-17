@@ -24,6 +24,9 @@ namespace engine {
 
 	class Bitmap {
 	public:
+		using iterator = std::vector<Pixel>::iterator;
+		using const_iterator = std::vector<Pixel>::const_iterator;
+
 		Bitmap() = default;
 		static Bitmap with_size(int32_t width, int32_t height);
 
@@ -36,6 +39,12 @@ namespace engine {
 		int32_t height() const;
 		IVec2 size() const;
 		const Pixel* data() const;
+
+		iterator begin();
+		iterator end();
+		const_iterator begin() const;
+		const_iterator end() const;
+
 		bool operator==(const Bitmap& rhs) const = default;
 
 	private:
