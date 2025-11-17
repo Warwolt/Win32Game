@@ -49,14 +49,9 @@ namespace testing {
 			R"(<p style="margin-top: 0">)" + timestamp + "</p>";
 	}
 
-	static std::string snapshot_stats_html(int num_passed, int num_failed, int num_suites) {
-		int total_num = num_passed + num_failed;
-		return "<p>" +
-			std::to_string(total_num) + " snapshot" + (total_num == 1 ? "" : "s") + " from " +
-			std::to_string(num_suites) + " test suite" + (num_suites == 1 ? "" : "s") + " ran." +
-			"</p>" +
-			"<p>✅ Passed snapshots: " + std::to_string(num_passed) +
-			"<br/>❌ Failed snapshots: " + std::to_string(num_failed) + "</p>";
+	static std::string snapshot_stats_html(int num_passed_snapshots, int num_failed_snapshots) {
+		return "<p>✅ Passed snapshots: " + std::to_string(num_passed_snapshots) +
+			"<br/>❌ Failed snapshots: " + std::to_string(num_failed_snapshots) + "</p>";
 	}
 
 	static std::string snapshot_list_html(std::string title, const std::vector<SnapshotTestSuite>& suites, bool only_failed) {
@@ -84,22 +79,28 @@ namespace testing {
 	}
 
 	static std::string snapshot_report_html() {
-		int total_num_passed = 0;
-		int total_num_failed = 0;
+		int num_passed_snapshots = 0;
+		int num_failed_snapshots = 0;
 		for (const SnapshotTestSuite& suite : g_context.all_suites) {
 			for (const SnapshotTestCase& test : suite.tests) {
 				if (test.result == SnapshotTestResult::Failed) {
-					total_num_failed++;
+					num_failed_snapshots++;
 				}
 				else {
-					total_num_passed++;
+					num_passed_snapshots++;
 				}
 			}
 		}
+		const int num_snapshots = num_passed_snapshots + num_failed_snapshots;
+		const int num_suites = (int)g_context.all_suites.size();
 
 		std::string html_body;
 		html_body += report_header_html("Snapshot Test Report");
-		html_body += snapshot_stats_html(total_num_passed, total_num_failed, (int)g_context.all_suites.size());
+		html_body += "<p>" +
+			std::to_string(num_snapshots) + " snapshot" + (num_snapshots == 1 ? "" : "s") + " from " +
+			std::to_string(num_suites) + " test suite" + (num_suites == 1 ? "" : "s") + " ran." +
+			"</p>";
+		html_body += snapshot_stats_html(num_passed_snapshots, num_failed_snapshots);
 		if (!g_context.failed_suites.empty()) {
 			html_body += snapshot_list_html("Failures", g_context.failed_suites, true);
 		}
@@ -108,14 +109,14 @@ namespace testing {
 	}
 
 	static std::string snapshot_suite_html(const SnapshotTestSuite& suite) {
-		int total_num_passed = 0;
-		int total_num_failed = 0;
+		int num_passed_snapshots = 0;
+		int num_failed_snapshots = 0;
 		for (const SnapshotTestCase& test : suite.tests) {
 			if (test.result == SnapshotTestResult::Failed) {
-				total_num_failed++;
+				num_failed_snapshots++;
 			}
 			else {
-				total_num_passed++;
+				num_passed_snapshots++;
 			}
 		}
 
@@ -123,10 +124,10 @@ namespace testing {
 		std::string html_body;
 		html_body += report_header_html("Snapshot Test Report: " + suite.name);
 		html_body += R"(<a href="../index.html">Back to summary</a>)";
-		html_body += snapshot_stats_html(total_num_passed, total_num_failed, 1);
+		html_body += snapshot_stats_html(num_passed_snapshots, num_failed_snapshots);
 
 		/* List failed snapshots */
-		if (total_num_failed > 0) {
+		if (num_failed_snapshots > 0) {
 			html_body += "<h2>Failures</h2>";
 			html_body += "<ul>";
 			for (const SnapshotTestCase& test : suite.tests) {
