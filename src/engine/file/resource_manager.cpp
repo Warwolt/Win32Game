@@ -15,7 +15,7 @@ namespace engine {
 				Image {
 					.width = 2,
 					.height = 2,
-					.data = {
+					.pixels = {
 						RGBA::black(),
 						RGBA::purple(),
 						RGBA::purple(),

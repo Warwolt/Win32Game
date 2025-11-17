@@ -28,6 +28,14 @@ namespace engine {
 		return bitmap;
 	}
 
+	Image Bitmap::to_image() const {
+		Image image = { .width = m_width, .height = m_height };
+		for (const Pixel& pixel : m_data) {
+			image.pixels.push_back({ pixel.r, pixel.g, pixel.b, 255 });
+		}
+		return image;
+	}
+
 	void Bitmap::clear(Pixel color) {
 		std::fill(m_data.begin(), m_data.end(), color);
 	}
@@ -77,22 +85,6 @@ namespace engine {
 
 	const Pixel* Bitmap::data() const {
 		return m_data.data();
-	}
-
-	Bitmap::iterator Bitmap::begin() {
-		return m_data.begin();
-	}
-
-	Bitmap::iterator Bitmap::end() {
-		return m_data.end();
-	}
-
-	Bitmap::const_iterator Bitmap::begin() const {
-		return m_data.begin();
-	}
-
-	Bitmap::const_iterator Bitmap::end() const {
-		return m_data.end();
 	}
 
 } // namespace engine
