@@ -1,5 +1,9 @@
 #include <test/helpers/snapshot_tests.h>
 
+#include <engine/debug/assert.h>
+
+#include <stb_image/stb_image_write.h>
+
 #include <chrono>
 #include <filesystem>
 #include <format>
@@ -199,6 +203,14 @@ namespace testing {
 		}
 	}
 
+	std::string snapshot_directory(std::string test_suite_name) {
+		return "test/snapshots/" + test_suite_name;
+	}
+
+	std::string snapshot_filepath(std::string test_suite_name, std::string test_name) {
+		return snapshot_directory(test_suite_name) + "/" + test_name + ".png";
+	}
+
 	void report_failed_snapshot(std::string test_suite_name, std::string test_name) {
 		report_snapshot(test_suite_name, test_name, SnapshotTestResult::Failed);
 	}
@@ -209,6 +221,16 @@ namespace testing {
 
 	void report_updated_snapshot(std::string test_suite_name, std::string test_name) {
 		report_snapshot(test_suite_name, test_name, SnapshotTestResult::Updated);
+	}
+
+	std::optional<engine::Image> load_snapshot(std::string test_suite_name, std::string test_name) {
+		return engine::Image::from_path(snapshot_filepath(test_suite_name, test_name));
+	}
+
+	void save_snapshot(const engine::Image& snapshot, std::string test_suite_name, std::string test_name) {
+		std::filesystem::create_directories(snapshot_directory(test_suite_name));
+		int _result = stbi_write_png(snapshot_filepath(test_suite_name, test_name).c_str(), snapshot.width, snapshot.height, 4, snapshot.pixels.data(), snapshot.width * 4);
+		DEBUG_ASSERT(_result != 0, "stbi_write_png failed");
 	}
 
 	void generate_snapshot_report() {

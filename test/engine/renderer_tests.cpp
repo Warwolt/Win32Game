@@ -2,24 +2,51 @@
 
 #include <test/helpers/snapshot_tests.h>
 
+#include <engine/file/resource_manager.h>
 #include <engine/graphics/renderer.h>
 
 using namespace engine;
 
-#define EXPECT_SNAPSHOT_EQ(expr)                                                                                                                                                  \
-	engine::Bitmap snapshot = {};                                                                                                                                                 \
-	if ((expr) == snapshot) {                                                                                                                                                     \
-		testing::report_passed_snapshot(testing::UnitTest::GetInstance()->current_test_info()->test_suite_name(), testing::UnitTest::GetInstance()->current_test_info()->name()); \
-	}                                                                                                                                                                             \
-	else {                                                                                                                                                                        \
-		testing::report_failed_snapshot(testing::UnitTest::GetInstance()->current_test_info()->test_suite_name(), testing::UnitTest::GetInstance()->current_test_info()->name()); \
-		FAIL() << #expr << " did not match snapshot, see test report for more info.";                                                                                             \
-	}
+#define EXPECT_SNAPSHOT_EQ(actual_bitmap)                                                                       \
+	do {                                                                                                        \
+		std::optional<engine::Bitmap> snapshot = {};                                                            \
+		const char* test_suite_name = testing::UnitTest::GetInstance()->current_test_info()->test_suite_name(); \
+		const char* test_name = testing::UnitTest::GetInstance()->current_test_info()->name();                  \
+		if ((actual_bitmap) == snapshot) {                                                                      \
+			testing::report_passed_snapshot(test_suite_name, test_name);                                        \
+		}                                                                                                       \
+		else {                                                                                                  \
+			testing::report_failed_snapshot(test_suite_name, test_name);                                        \
+			FAIL() << #actual_bitmap << " did not match snapshot, see test report for more info.";              \
+		}                                                                                                       \
+	} while (0)
 
 TEST(RendererTests, HelloWorld) {
 	Renderer renderer = Renderer::with_bitmap(256, 240);
+	ResourceManager resources;
 
-	// run drawing stuff here
+	renderer.clear_screen({ 0, 127, 127, 255 });
+	renderer.render(resources);
 
-	EXPECT_SNAPSHOT_EQ(renderer.bitmap());
+	// EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image())
+	do {
+		const char* _test_suite_name = testing::UnitTest::GetInstance()->current_test_info()->test_suite_name();
+		const char* _test_name = testing::UnitTest::GetInstance()->current_test_info()->name();
+		const engine::Image _current_image = renderer.bitmap().to_image();
+		if (std::optional<engine::Image> _snapshot_image = testing::load_snapshot(_test_suite_name, _test_name)) {
+			if (_current_image.pixels == _snapshot_image->pixels) {
+				testing::report_passed_snapshot(_test_suite_name, _test_name);
+			}
+			else {
+				testing::report_failed_snapshot(_test_suite_name, _test_name);
+				FAIL() << "renderer.bitmap() did not match snapshot, see test report for more info";
+			}
+		}
+		else {
+			printf("[   INFO   ] No snapshot found, saving new file \"%s\"\n", testing::snapshot_filepath(_test_suite_name, _test_name).c_str());
+			testing::report_passed_snapshot(_test_suite_name, _test_name);
+			testing::save_snapshot(_current_image, _test_suite_name, _test_name);
+		}
+
+	} while (0);
 }

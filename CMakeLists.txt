@@ -131,6 +131,7 @@ if(BUILD_TESTS)
     add_executable(Tests test/main.cpp ${TEST_SRC})
     target_include_directories(Tests PUBLIC src test)
     target_link_libraries(Tests PUBLIC gtest gmock Source)
+    set_property(TARGET Tests PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
 endif()
 
 # Profiling
