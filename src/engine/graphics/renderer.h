@@ -74,7 +74,7 @@ namespace engine {
 		const Bitmap& bitmap();
 		IVec2 screen_resolution() const;
 
-		void render(ResourceManager* resources);
+		void render(const ResourceManager& resources);
 
 	private:
 		struct ClearScreen {
@@ -149,7 +149,7 @@ namespace engine {
 		void _put_triangle_fill(Bitmap* bitmap, Vertex v1, Vertex v2, Vertex v3);
 		void _put_image(Bitmap* bitmap, const Image& image, IVec2 pos, DrawImageOptions options);
 		void _put_image_scaled(Bitmap* bitmap, const Image& image, Rect rect, DrawImageOptions options);
-		void _put_text(Bitmap* bitmap, Typeface* typeface, int32_t font_size, Rect rect, RGBA color, const std::string& text, DrawTextOptions options);
+		void _put_text(Bitmap* bitmap, const Typeface& typeface, int32_t font_size, Rect rect, RGBA color, const std::string& text, DrawTextOptions options);
 	};
 
 } // namespace engine

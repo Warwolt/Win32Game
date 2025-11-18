@@ -28,6 +28,14 @@ namespace engine {
 		return bitmap;
 	}
 
+	Image Bitmap::to_image() const {
+		Image image = { .width = m_width, .height = m_height };
+		for (const Pixel& pixel : m_data) {
+			image.pixels.push_back({ pixel.r, pixel.g, pixel.b, 255 });
+		}
+		return image;
+	}
+
 	void Bitmap::clear(Pixel color) {
 		std::fill(m_data.begin(), m_data.end(), color);
 	}

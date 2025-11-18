@@ -1,5 +1,6 @@
 #pragma once
 
+#include <engine/graphics/image.h>
 #include <engine/graphics/rect.h>
 #include <engine/graphics/rgba.h>
 
@@ -26,6 +27,7 @@ namespace engine {
 	public:
 		Bitmap() = default;
 		static Bitmap with_size(int32_t width, int32_t height);
+		Image to_image() const;
 
 		void clear(Pixel color);
 		void resize(int32_t width, int32_t height);
@@ -36,6 +38,7 @@ namespace engine {
 		int32_t height() const;
 		IVec2 size() const;
 		const Pixel* data() const;
+		bool operator==(const Bitmap& rhs) const = default;
 
 	private:
 		int32_t m_width = 0;

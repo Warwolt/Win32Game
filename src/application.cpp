@@ -106,7 +106,7 @@ LRESULT CALLBACK on_window_event(
 			/* Render*/
 			game::draw(&app->engine.renderer, app->game);
 			engine::draw(&app->engine);
-			app->engine.renderer.render(&app->engine.resources);
+			app->engine.renderer.render(app->engine.resources);
 			app->engine.window.render_wm_paint(app->engine.renderer.bitmap());
 		} break;
 	}
@@ -170,7 +170,7 @@ bool update_application(Application* app) {
 		engine::draw(&app->engine);
 
 		/* Render */
-		app->engine.renderer.render(&app->engine.resources);
+		app->engine.renderer.render(app->engine.resources);
 		app->engine.window.render(app->engine.renderer.bitmap());
 
 		/* Yield CPU to not stall OS */

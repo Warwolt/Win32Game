@@ -12,7 +12,7 @@ namespace engine {
 	struct Image {
 		int width = 0;
 		int height = 0;
-		std::vector<RGBA> data;
+		std::vector<RGBA> pixels;
 
 		static std::optional<Image> from_path(std::filesystem::path path);
 		RGBA sample(Vec2 uv) const;

@@ -64,11 +64,13 @@ set(SRC
 )
 
 set(TEST_SRC
+    test/helpers/snapshot_tests.cpp
     test/engine/animation_player_tests.cpp
     test/engine/button_tests.cpp
     test/engine/input_bindings_tests.cpp
     test/engine/keyboard_tests.cpp
     test/engine/moving_average_tests.cpp
+    test/engine/renderer_tests.cpp
     test/engine/save_file_tests.cpp
     test/engine/scene_manager_tests.cpp
     test/engine/screen_stack_tests.cpp
@@ -129,6 +131,7 @@ if(BUILD_TESTS)
     add_executable(Tests test/main.cpp ${TEST_SRC})
     target_include_directories(Tests PUBLIC src test)
     target_link_libraries(Tests PUBLIC gtest gmock Source)
+    set_property(TARGET Tests PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
 endif()
 
 # Profiling

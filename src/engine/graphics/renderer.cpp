@@ -149,7 +149,7 @@ namespace engine {
 		return m_bitmap.size();
 	}
 
-	void Renderer::render(ResourceManager* resources) {
+	void Renderer::render(const ResourceManager& resources) {
 		CPUProfilingScope_Render();
 		TracyPlot("DrawCommands", (int64_t)m_draw_data.size());
 
@@ -194,7 +194,7 @@ namespace engine {
 				}
 				MATCH_CASE(DrawImage, image_id, rect, const_options) {
 					DrawImageOptions options = const_options;
-					const Image& image = resources->image(image_id);
+					const Image& image = resources.image(image_id);
 					if (rect.empty()) {
 						if (options.clip.empty()) {
 							options.clip = Rect { 0, 0, image.width, image.height };
@@ -206,8 +206,8 @@ namespace engine {
 					}
 				}
 				MATCH_CASE(DrawText, font_id, font_size, rect, color, text, options) {
-					Typeface& font = resources->typeface(font_id);
-					_put_text(&m_bitmap, &font, font_size, rect, color, text, options);
+					const Typeface& font = resources.typeface(font_id);
+					_put_text(&m_bitmap, font, font_size, rect, color, text, options);
 				}
 			}
 		}
@@ -458,16 +458,16 @@ namespace engine {
 		}
 	}
 
-	void Renderer::_put_text(Bitmap* bitmap, Typeface* font, int32_t font_size, Rect rect, RGBA color, const std::string& text, DrawTextOptions options) {
-		const int32_t ascent = font->ascent(font_size);
-		const int32_t space_width = font->glyph(font_size, ' ').advance_width;
+	void Renderer::_put_text(Bitmap* bitmap, const Typeface& font, int32_t font_size, Rect rect, RGBA color, const std::string& text, DrawTextOptions options) {
+		const int32_t ascent = font.ascent(font_size);
+		const int32_t space_width = font.glyph(font_size, ' ').advance_width;
 
 		int32_t cursor_x = 0;
 		int32_t cursor_y = ascent;
 
 		/* Bounding rect defaults */
 		if (rect.width == 0) {
-			rect.width = font->text_width(font_size, text);
+			rect.width = font.text_width(font_size, text);
 		}
 		if (rect.height == 0) {
 			rect.height = font_size + 1;
@@ -482,7 +482,7 @@ namespace engine {
 			auto line_end = line_start;
 			for (; line_end != words.end(); ++line_end) {
 				const std::string& word = *line_end;
-				const int word_width = font->text_width(font_size, word);
+				const int word_width = font.text_width(font_size, word);
 				const int needed_width = (line_width > 0 ? line_width + space_width : line_width) + word_width;
 				if (needed_width > rect.width) {
 					break;
@@ -503,7 +503,7 @@ namespace engine {
 				const std::string& word = *it;
 				for (char character : word) {
 					/* Render character */
-					const engine::Glyph& glyph = font->glyph(font_size, character);
+					const engine::Glyph& glyph = font.glyph(font_size, character);
 					for (int32_t y = 0; y < glyph.height; y++) {
 						for (int32_t x = 0; x < glyph.width; x++) {
 							engine::Pixel pixel = engine::Pixel::from_rgb(color);
