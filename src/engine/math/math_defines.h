@@ -1,5 +1,6 @@
 #pragma once
 
+// clang-format off
 #define M_E        (float)2.71828182845904523536   // e
 #define M_LOG2E    (float)1.44269504088896340736   // log2(e)
 #define M_LOG10E   (float)0.434294481903251827651  // log10(e)
@@ -13,3 +14,5 @@
 #define M_2_SQRTPI (float)1.12837916709551257390   // 2/sqrt(pi)
 #define M_SQRT2    (float)1.41421356237309504880   // sqrt(2)
 #define M_SQRT1_2  (float)0.707106781186547524401  // 1/sqrt(2)
+#define M_SQRT3_2  (float)0.86602540378            // sqrt(3)/2
+// clang-format on

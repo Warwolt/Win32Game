@@ -65,7 +65,7 @@ TEST(RendererTests, DrawLine_FixedColors) {
 	for (Vec2 end : positions) {
 		IVec2 pos1 = center + IVec2 { (int)(length / 2 * end.x), (int)(length / 2 * end.y) };
 		IVec2 pos2 = center + IVec2 { -(int)(length / 2 * end.x), -(int)(length / 2 * end.y) };
-		renderer.draw_line(pos1, pos2, RGBA::purple());
+		renderer.draw_line(pos1, pos2, RGBA::green());
 	}
 
 	renderer.render(resources);
@@ -78,6 +78,69 @@ TEST(RendererTests, DrawRect) {
 
 	Rect rect = { BITMAP_WIDTH / 4, BITMAP_HEIGHT / 4, BITMAP_WIDTH / 2, BITMAP_HEIGHT / 2 };
 	renderer.draw_rect(rect, RGBA::green());
+
+	renderer.render(resources);
+	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
+}
+
+TEST(RendererTests, DrawRectFill) {
+	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
+	ResourceManager resources;
+
+	Rect rect = { BITMAP_WIDTH / 4, BITMAP_HEIGHT / 4, BITMAP_WIDTH / 2, BITMAP_HEIGHT / 2 };
+	renderer.draw_rect_fill(rect, RGBA::green());
+
+	renderer.render(resources);
+	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
+}
+
+TEST(RendererTests, DrawCircle) {
+	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
+	ResourceManager resources;
+
+	IVec2 center = { BITMAP_WIDTH / 2, BITMAP_HEIGHT / 2 };
+	renderer.draw_circle(center, 75, RGBA::green());
+
+	renderer.render(resources);
+	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
+}
+
+TEST(RendererTests, DrawCircleFill) {
+	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
+	ResourceManager resources;
+
+	IVec2 center = { BITMAP_WIDTH / 2, BITMAP_HEIGHT / 2 };
+	renderer.draw_circle_fill(center, 75, RGBA::green());
+
+	renderer.render(resources);
+	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
+}
+
+TEST(RendererTests, DrawTriangle_EquilateralTriangle) {
+	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
+	ResourceManager resources;
+
+	IVec2 center = { BITMAP_WIDTH / 2, BITMAP_HEIGHT / 2 };
+	int length = 75;
+	Vertex v1 = { center + IVec2 { length * 0, length * -1 }, RGBA::red() };
+	Vertex v2 = { center + IVec2 { (int)(length * -M_SQRT3_2), (int)(length * 0.5f) }, RGBA::green() };
+	Vertex v3 = { center + IVec2 { (int)(length * M_SQRT3_2), (int)(length * 0.5f) }, RGBA::blue() };
+	renderer.draw_triangle(v1, v2, v3);
+
+	renderer.render(resources);
+	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
+}
+
+TEST(RendererTests, DrawTriangleFill_EquilateralTriangle) {
+	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
+	ResourceManager resources;
+
+	IVec2 center = { BITMAP_WIDTH / 2, BITMAP_HEIGHT / 2 };
+	int length = 75;
+	Vertex v1 = { center + IVec2 { length * 0, length * -1 }, RGBA::red() };
+	Vertex v2 = { center + IVec2 { (int)(length * -M_SQRT3_2), (int)(length * 0.5f) }, RGBA::green() };
+	Vertex v3 = { center + IVec2 { (int)(length * M_SQRT3_2), (int)(length * 0.5f) }, RGBA::blue() };
+	renderer.draw_triangle_fill(v1, v2, v3);
 
 	renderer.render(resources);
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
