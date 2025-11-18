@@ -54,3 +54,20 @@ TEST(RendererTests, DrawLine_InterpolateColors) {
 	renderer.render(resources);
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
 }
+
+TEST(RendererTests, DrawLine_FixedColors) {
+	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
+	ResourceManager resources;
+
+	const IVec2 center = { BITMAP_WIDTH / 2, BITMAP_HEIGHT / 2 };
+	const Vec2 positions[] = { { 0, 1 }, { M_SQRT1_2, M_SQRT1_2 }, { 1, 0 }, { M_SQRT1_2, -M_SQRT1_2 } };
+	const int length = 150;
+	for (Vec2 end : positions) {
+		IVec2 pos1 = center + IVec2 { (int)(length / 2 * end.x), (int)(length / 2 * end.y) };
+		IVec2 pos2 = center + IVec2 { -(int)(length / 2 * end.x), -(int)(length / 2 * end.y) };
+		renderer.draw_line(pos1, pos2, RGBA::purple());
+	}
+
+	renderer.render(resources);
+	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
+}
