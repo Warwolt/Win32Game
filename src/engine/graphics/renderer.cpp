@@ -9,6 +9,8 @@
 #include <engine/math/math.h>
 #include <engine/utility/string_utility.h>
 
+#include <engine/debug/logging.h>
+
 #include <cmath>
 #include <utility>
 
@@ -52,31 +54,28 @@ namespace engine {
 		//  ,                         ,
 		// ,                           ,
 		// '-------------o-------------'
-		std::vector<IVec2> octant_points = circle_octant_points(radius);
-		IVec2 prev_point = IVec2 { octant_points[0].x, octant_points[0].y };
-		std::vector<IVec2> half_circle_points = { prev_point };
-		for (IVec2 point : octant_points) {
-			int32_t delta_y = point.y - prev_point.y;
-			if (delta_y == 0) {
-				half_circle_points.back() = point;
+		std::vector<IVec2> octant = circle_octant_points(radius);
+		std::vector<IVec2> half_circle;
+		int prev_y = INT32_MIN;
+
+		// Add octant points
+		for (IVec2 point : octant) {
+			if (point.y != prev_y) {
+				half_circle.push_back(point);
+				prev_y = point.y;
 			}
-			else {
-				half_circle_points.push_back(point);
-			}
-			prev_point = point;
 		}
 
-		prev_point = IVec2 { octant_points[0].y, octant_points[0].x };
-		half_circle_points.push_back(prev_point);
-		for (IVec2 point : octant_points) {
-			IVec2 flip_point = { point.y, point.x };
-			int32_t delta_y = flip_point.y - prev_point.y;
-			if (delta_y != 0) {
-				half_circle_points.push_back(flip_point);
+		// Mirror octant, iterate reverse order to get monotonically decreasing y value
+		for (int i = (int)octant.size() - 1; i >= 0; i--) {
+			IVec2 point = { octant[i].y, octant[i].x }; // flipped (x,y)
+			if (point.y != prev_y) {
+				half_circle.push_back(point);
+				prev_y = point.y;
 			}
-			prev_point = flip_point;
 		}
-		return half_circle_points;
+
+		return half_circle;
 	}
 
 	Renderer Renderer::with_bitmap(int32_t width, int32_t height) {
