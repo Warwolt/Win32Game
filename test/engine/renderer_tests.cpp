@@ -13,7 +13,7 @@ using namespace engine;
 constexpr int BITMAP_WIDTH = 256;
 constexpr int BITMAP_HEIGHT = 240;
 
-TEST(RendererTests, ClearScreen_Turquoise) {
+TEST(RendererTests, ClearScreen) {
 	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
 	ResourceManager resources;
 
@@ -67,6 +67,17 @@ TEST(RendererTests, DrawLine_FixedColors) {
 		IVec2 pos2 = center + IVec2 { -(int)(length / 2 * end.x), -(int)(length / 2 * end.y) };
 		renderer.draw_line(pos1, pos2, RGBA::purple());
 	}
+
+	renderer.render(resources);
+	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
+}
+
+TEST(RendererTests, DrawRect) {
+	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
+	ResourceManager resources;
+
+	Rect rect = { BITMAP_WIDTH / 4, BITMAP_HEIGHT / 4, BITMAP_WIDTH / 2, BITMAP_HEIGHT / 2 };
+	renderer.draw_rect(rect, RGBA::green());
 
 	renderer.render(resources);
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
