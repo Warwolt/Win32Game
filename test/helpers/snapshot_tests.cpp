@@ -163,6 +163,11 @@ namespace testing {
 
 		/* Display snapshots */
 		html_body += "<h2>Snapshots</h2>";
+		html_body += "<ul>";
+		for (const SnapshotTestCase& test : suite.tests) {
+			html_body += "<li><a href=#" + test.name + ">" + test.name + "</a></li>";
+		}
+		html_body += "</ul>";
 		for (const SnapshotTestCase& test : suite.tests) {
 			/* Test name */
 			html_body += std::format("<h3 id=\"{}\">", test.name);
@@ -177,19 +182,19 @@ namespace testing {
 			std::string diff_path = "../../" + snapshot_diff_filepath(suite.name, test.name);
 			switch (test.result) {
 				case SnapshotTestResult::Passed:
-					html_body += std::format("<img src=\"{}\" style=\"image-rendering: pixelated;\">", snapshot_path);
+					html_body += std::format("<img src=\"{}\" style=\"image-rendering: pixelated; zoom: 1;\">", snapshot_path);
 					break;
 
 				case SnapshotTestResult::Failed:
-					html_body += std::format("<img src=\"{}\" style=\"image-rendering: pixelated;\">", snapshot_path);
+					html_body += std::format("<img src=\"{}\" style=\"image-rendering: pixelated; zoom: 1;\">", snapshot_path);
 					html_body += "<p style=\"margin: 1em\">➡️</p>";
-					html_body += std::format("<img src=\"{}\" style=\"image-rendering: pixelated;\">", diff_path);
+					html_body += std::format("<img src=\"{}\" style=\"image-rendering: pixelated; zoom: 1;\">", diff_path);
 					break;
 
 				case SnapshotTestResult::Updated:
-					html_body += std::format("<img src=\"{}\" style=\"image-rendering: pixelated;\">", diff_path);
+					html_body += std::format("<img src=\"{}\" style=\"image-rendering: pixelated; zoom: 1;\">", diff_path);
 					html_body += "<p style=\"margin: 1em\">➡️</p>";
-					html_body += std::format("<img src=\"{}\" style=\"image-rendering: pixelated;\">", snapshot_path);
+					html_body += std::format("<img src=\"{}\" style=\"image-rendering: pixelated; zoom: 1;\">", snapshot_path);
 					break;
 			}
 			html_body += "</div>";
