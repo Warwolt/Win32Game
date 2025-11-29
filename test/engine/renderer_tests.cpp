@@ -262,19 +262,67 @@ TEST_F(RendererTests, DrawTriangleFill_EquilateralTriangle_HalfAlpha) {
 TEST_F(RendererTests, DrawImage) {
 	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
 
-	IVec2 center = { BITMAP_WIDTH / 2, BITMAP_HEIGHT / 2 };
 	const Image& image = m_resources.image(m_test_image_id);
-	renderer.draw_image(m_test_image_id, center - IVec2 { image.width / 2, image.height / 2 });
+	IVec2 center = { BITMAP_WIDTH / 2, BITMAP_HEIGHT / 2 };
+	IVec2 image_size = { image.width, image.height };
+	renderer.draw_image(m_test_image_id, center - image_size / 2);
 
 	renderer.render(m_resources);
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
 }
 
-// - draw image clipped
-// - draw image flipped horizontally
-// - draw image flipped vertically
-// - draw image half alpha
-// - draw image tinted
+TEST_F(RendererTests, DrawImage_Flipped) {
+	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
+
+	const Image& image = m_resources.image(m_test_image_id);
+	IVec2 center = { BITMAP_WIDTH / 2, BITMAP_HEIGHT / 2 };
+	IVec2 image_size = { image.width, image.height };
+	renderer.draw_image(m_test_image_id, center - image_size / 2, { .flip_h = true, .flip_v = true });
+
+	renderer.render(m_resources);
+	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
+}
+TEST_F(RendererTests, DrawImage_Clipped) {
+	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
+
+	const Image& image = m_resources.image(m_test_image_id);
+	IVec2 center = { BITMAP_WIDTH / 2, BITMAP_HEIGHT / 2 };
+	IVec2 image_size = { image.width, image.height };
+	Rect clip_rect = {
+		.x = 0,
+		.y = 0,
+		.width = image.width / 2,
+		.height = image.height / 2,
+	};
+	renderer.draw_image(m_test_image_id, center - image_size / 4, { .clip = clip_rect });
+
+	renderer.render(m_resources);
+	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
+}
+
+TEST_F(RendererTests, DrawImage_HalfAlpha) {
+	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
+
+	const Image& image = m_resources.image(m_test_image_id);
+	IVec2 center = { BITMAP_WIDTH / 2, BITMAP_HEIGHT / 2 };
+	IVec2 image_size = { image.width, image.height };
+	renderer.draw_image(m_test_image_id, center - image_size / 2, { .alpha = 0.5f });
+
+	renderer.render(m_resources);
+	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
+}
+
+TEST_F(RendererTests, DrawImage_TintedRed) {
+	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
+
+	const Image& image = m_resources.image(m_test_image_id);
+	IVec2 center = { BITMAP_WIDTH / 2, BITMAP_HEIGHT / 2 };
+	IVec2 image_size = { image.width, image.height };
+	renderer.draw_image(m_test_image_id, center - image_size / 2, { .tint = RGBA { 255, 0, 0, 128 } });
+
+	renderer.render(m_resources);
+	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
+}
 
 // - draw image scaled
 // - draw image scaled clipped
