@@ -33,6 +33,7 @@ namespace testing {
 		bool should_update_snapshots = false;
 		std::vector<SnapshotTestSuite> all_suites;
 		std::vector<SnapshotTestSuite> failed_suites;
+		std::vector<SnapshotTestSuite> updated_suites;
 	} g_context;
 
 	constexpr char html_template[] = R"(
@@ -124,6 +125,9 @@ namespace testing {
 		html_body += snapshot_stats_html(num_passed_snapshots, num_failed_snapshots);
 		if (!g_context.failed_suites.empty()) {
 			html_body += snapshot_list_html("Failures", g_context.failed_suites, true);
+		}
+		if (!g_context.updated_suites.empty()) {
+			html_body += snapshot_list_html("Updates", g_context.updated_suites, true);
 		}
 		html_body += snapshot_list_html("Snapshots", g_context.all_suites, false);
 		return std::format(html_template, html_body);
@@ -282,11 +286,21 @@ namespace testing {
 	void generate_snapshot_report() {
 		/* Copy over failed tests */
 		for (const SnapshotTestSuite& suite : g_context.all_suites) {
+			bool has_any_failures = false;
+			bool has_any_updates = false;
 			for (const SnapshotTestCase& test : suite.tests) {
 				if (test.result == SnapshotTestResult::Failed) {
-					g_context.failed_suites.push_back(suite);
-					break;
+					has_any_failures = true;
 				}
+				if (test.result == SnapshotTestResult::Updated) {
+					has_any_updates = true;
+				}
+			}
+			if (has_any_failures) {
+				g_context.failed_suites.push_back(suite);
+			}
+			else if (has_any_updates) {
+				g_context.updated_suites.push_back(suite);
 			}
 		}
 
