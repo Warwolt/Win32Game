@@ -46,36 +46,38 @@ namespace engine {
 		return octant_points;
 	}
 
-	static std::vector<IVec2> half_circle_points(int32_t radius) {
-		/* Compute half circle*/
+	static std::vector<IVec2> quarter_circle_points(int32_t radius) {
+		/* Compute quarter circle*/
 		//         , - ~ ~ ~ - ,
-		//     , '               ' ,
-		//   ,                       ,
-		//  ,                         ,
-		// ,                           ,
+		//     , '       |       ' ,
+		//   ,           |           ,
+		//  ,            |            ,
+		// ,             |             ,
 		// '-------------o-------------'
 		std::vector<IVec2> octant = circle_octant_points(radius);
-		std::vector<IVec2> half_circle;
+		std::vector<IVec2> quarter_circle;
 		int prev_y = INT32_MIN;
 
 		// Add octant points
 		for (IVec2 point : octant) {
 			if (point.y != prev_y) {
-				half_circle.push_back(point);
+				quarter_circle.push_back(point);
 				prev_y = point.y;
 			}
 		}
 
-		// Mirror octant, iterate reverse order to get monotonically decreasing y value
+		// Mirror octant
+		// iterate reverse order to get monotonically
+		// decreasing y value in the flipped point
 		for (int i = (int)octant.size() - 1; i >= 0; i--) {
 			IVec2 point = { octant[i].y, octant[i].x }; // flipped (x,y)
 			if (point.y != prev_y) {
-				half_circle.push_back(point);
+				quarter_circle.push_back(point);
 				prev_y = point.y;
 			}
 		}
 
-		return half_circle;
+		return quarter_circle;
 	}
 
 	Renderer Renderer::with_bitmap(int32_t width, int32_t height) {
@@ -324,7 +326,7 @@ namespace engine {
 
 	void Renderer::_put_circle_fill(Bitmap* bitmap, IVec2 center, int32_t radius, RGBA color) {
 		CPUProfilingScope_Render();
-		for (IVec2 point : half_circle_points(radius)) {
+		for (IVec2 point : quarter_circle_points(radius)) {
 			IVec2 bottom_left = center + IVec2 { -point.x, point.y };
 			IVec2 bottom_right = center + IVec2 { point.x, point.y };
 			_put_line(bitmap, Vertex { .pos = bottom_left, .color = color }, Vertex { .pos = bottom_right, .color = color }, nullptr);
