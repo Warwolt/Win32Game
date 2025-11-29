@@ -132,12 +132,16 @@ namespace testing {
 	static std::string snapshot_suite_html(const SnapshotTestSuite& suite) {
 		int num_passed_snapshots = 0;
 		int num_failed_snapshots = 0;
+		int num_updated_snapshots = 0;
 		for (const SnapshotTestCase& test : suite.tests) {
 			if (test.result == SnapshotTestResult::Failed) {
 				num_failed_snapshots++;
 			}
 			else {
 				num_passed_snapshots++;
+				if (test.result == SnapshotTestResult::Updated) {
+					num_updated_snapshots++;
+				}
 			}
 		}
 
@@ -153,6 +157,20 @@ namespace testing {
 			html_body += "<ul>";
 			for (const SnapshotTestCase& test : suite.tests) {
 				if (test.result == SnapshotTestResult::Failed) {
+					html_body += "<li>";
+					html_body += std::format(R"(<a href="#{}">{}</a>)", test.name, test.name);
+					html_body += "</li>";
+				}
+			}
+			html_body += "</ul>";
+		}
+
+		/* List updated snapshots*/
+		if (num_updated_snapshots > 0) {
+			html_body += "<h2>Updates</h2>";
+			html_body += "<ul>";
+			for (const SnapshotTestCase& test : suite.tests) {
+				if (test.result == SnapshotTestResult::Updated) {
 					html_body += "<li>";
 					html_body += std::format(R"(<a href="#{}">{}</a>)", test.name, test.name);
 					html_body += "</li>";
