@@ -14,19 +14,27 @@ using namespace engine;
 constexpr int BITMAP_WIDTH = 256;
 constexpr int BITMAP_HEIGHT = 240;
 
-TEST(RendererTests, ClearScreen) {
+class RendererTests : public testing::Test {
+public:
+	ResourceManager m_resources;
+	ImageID m_test_image_id;
+
+	RendererTests() {
+		m_test_image_id = m_resources.load_image("assets/image/render_test/test_image.png");
+	}
+};
+
+TEST_F(RendererTests, ClearScreen) {
 	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
-	ResourceManager resources;
 
 	renderer.clear_screen(RGBA::turquoise());
 
-	renderer.render(resources);
+	renderer.render(m_resources);
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
 }
 
-TEST(RendererTests, DrawPoint) {
+TEST_F(RendererTests, DrawPoint) {
 	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
-	ResourceManager resources;
 
 	for (int x = 0; x < BITMAP_WIDTH / 2; x++) {
 		IVec2 position = { 2 * x, (uint8_t)(BITMAP_HEIGHT / 2 - 20) };
@@ -34,13 +42,12 @@ TEST(RendererTests, DrawPoint) {
 		renderer.draw_point(Vertex { position + IVec2 { 0, 1 * 20 }, { 0, 255, 0, 255 } });
 	}
 
-	renderer.render(resources);
+	renderer.render(m_resources);
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
 }
 
-TEST(RendererTests, DrawPoint_HalfAlpha) {
+TEST_F(RendererTests, DrawPoint_HalfAlpha) {
 	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
-	ResourceManager resources;
 
 	for (int x = 0; x < BITMAP_WIDTH / 2; x++) {
 		IVec2 position = { 2 * x, (uint8_t)(BITMAP_HEIGHT / 2 - 20) };
@@ -48,13 +55,12 @@ TEST(RendererTests, DrawPoint_HalfAlpha) {
 		renderer.draw_point(Vertex { position + IVec2 { 0, 1 * 20 }, { 0, 255, 0, 127 } });
 	}
 
-	renderer.render(resources);
+	renderer.render(m_resources);
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
 }
 
-TEST(RendererTests, DrawLine_InterpolateColors) {
+TEST_F(RendererTests, DrawLine_InterpolateColors) {
 	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
-	ResourceManager resources;
 
 	const IVec2 center = { BITMAP_WIDTH / 2, BITMAP_HEIGHT / 2 };
 	const Vec2 positions[] = { { 0, 1 }, { M_SQRT1_2, M_SQRT1_2 }, { 1, 0 }, { M_SQRT1_2, -M_SQRT1_2 } };
@@ -65,13 +71,12 @@ TEST(RendererTests, DrawLine_InterpolateColors) {
 		renderer.draw_line(Vertex { pos1, RGBA::red() }, Vertex { pos2, RGBA::green() });
 	}
 
-	renderer.render(resources);
+	renderer.render(m_resources);
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
 }
 
-TEST(RendererTests, DrawLine_InterpolateColors_HalfAlpha) {
+TEST_F(RendererTests, DrawLine_InterpolateColors_HalfAlpha) {
 	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
-	ResourceManager resources;
 
 	const IVec2 center = { BITMAP_WIDTH / 2, BITMAP_HEIGHT / 2 };
 	const Vec2 positions[] = { { 0, 1 }, { M_SQRT1_2, M_SQRT1_2 }, { 1, 0 }, { M_SQRT1_2, -M_SQRT1_2 } };
@@ -82,13 +87,12 @@ TEST(RendererTests, DrawLine_InterpolateColors_HalfAlpha) {
 		renderer.draw_line(Vertex { pos1, RGBA::red().with_alpha(0.5f) }, Vertex { pos2, RGBA::green().with_alpha(0.5f) });
 	}
 
-	renderer.render(resources);
+	renderer.render(m_resources);
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
 }
 
-TEST(RendererTests, DrawLine_FixedColors) {
+TEST_F(RendererTests, DrawLine_FixedColors) {
 	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
-	ResourceManager resources;
 
 	const IVec2 center = { BITMAP_WIDTH / 2, BITMAP_HEIGHT / 2 };
 	const Vec2 positions[] = { { 0, 1 }, { M_SQRT1_2, M_SQRT1_2 }, { 1, 0 }, { M_SQRT1_2, -M_SQRT1_2 } };
@@ -99,13 +103,12 @@ TEST(RendererTests, DrawLine_FixedColors) {
 		renderer.draw_line(pos1, pos2, RGBA::green());
 	}
 
-	renderer.render(resources);
+	renderer.render(m_resources);
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
 }
 
-TEST(RendererTests, DrawLine_FixedColors_HalfAlpha) {
+TEST_F(RendererTests, DrawLine_FixedColors_HalfAlpha) {
 	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
-	ResourceManager resources;
 
 	const IVec2 center = { BITMAP_WIDTH / 2, BITMAP_HEIGHT / 2 };
 	const Vec2 positions[] = { { 0, 1 }, { M_SQRT1_2, M_SQRT1_2 }, { 1, 0 }, { M_SQRT1_2, -M_SQRT1_2 } };
@@ -116,101 +119,92 @@ TEST(RendererTests, DrawLine_FixedColors_HalfAlpha) {
 		renderer.draw_line(pos1, pos2, RGBA::green().with_alpha(0.5f));
 	}
 
-	renderer.render(resources);
+	renderer.render(m_resources);
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
 }
 
-TEST(RendererTests, DrawRect) {
+TEST_F(RendererTests, DrawRect) {
 	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
-	ResourceManager resources;
 
 	Rect rect = { BITMAP_WIDTH / 4, BITMAP_HEIGHT / 4, BITMAP_WIDTH / 2, BITMAP_HEIGHT / 2 };
 	renderer.draw_rect(rect, RGBA::green());
 
-	renderer.render(resources);
+	renderer.render(m_resources);
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
 }
 
-TEST(RendererTests, DrawRect_HalfAlpha) {
+TEST_F(RendererTests, DrawRect_HalfAlpha) {
 	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
-	ResourceManager resources;
 
 	Rect rect = { BITMAP_WIDTH / 4, BITMAP_HEIGHT / 4, BITMAP_WIDTH / 2, BITMAP_HEIGHT / 2 };
 	renderer.draw_rect(rect, RGBA::green().with_alpha(0.5f));
 
-	renderer.render(resources);
+	renderer.render(m_resources);
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
 }
 
-TEST(RendererTests, DrawRectFill) {
+TEST_F(RendererTests, DrawRectFill) {
 	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
-	ResourceManager resources;
 
 	Rect rect = { BITMAP_WIDTH / 4, BITMAP_HEIGHT / 4, BITMAP_WIDTH / 2, BITMAP_HEIGHT / 2 };
 	renderer.draw_rect_fill(rect, RGBA::green());
 
-	renderer.render(resources);
+	renderer.render(m_resources);
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
 }
 
-TEST(RendererTests, DrawRectFill_HalfAlpha) {
+TEST_F(RendererTests, DrawRectFill_HalfAlpha) {
 	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
-	ResourceManager resources;
 
 	Rect rect = { BITMAP_WIDTH / 4, BITMAP_HEIGHT / 4, BITMAP_WIDTH / 2, BITMAP_HEIGHT / 2 };
 	renderer.draw_rect_fill(rect, RGBA::green().with_alpha(0.5f));
 
-	renderer.render(resources);
+	renderer.render(m_resources);
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
 }
 
-TEST(RendererTests, DrawCircle) {
+TEST_F(RendererTests, DrawCircle) {
 	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
-	ResourceManager resources;
 
 	IVec2 center = { BITMAP_WIDTH / 2, BITMAP_HEIGHT / 2 };
 	renderer.draw_circle(center, 75, RGBA::green());
 
-	renderer.render(resources);
+	renderer.render(m_resources);
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
 }
 
-TEST(RendererTests, DrawCircle_HalfAlpha) {
+TEST_F(RendererTests, DrawCircle_HalfAlpha) {
 	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
-	ResourceManager resources;
 
 	IVec2 center = { BITMAP_WIDTH / 2, BITMAP_HEIGHT / 2 };
 	renderer.draw_circle(center, 75, RGBA::green().with_alpha(0.5f));
 
-	renderer.render(resources);
+	renderer.render(m_resources);
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
 }
 
-TEST(RendererTests, DrawCircleFill) {
+TEST_F(RendererTests, DrawCircleFill) {
 	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
-	ResourceManager resources;
 
 	IVec2 center = { BITMAP_WIDTH / 2, BITMAP_HEIGHT / 2 };
 	renderer.draw_circle_fill(center, 75, RGBA::green());
 
-	renderer.render(resources);
+	renderer.render(m_resources);
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
 }
 
-TEST(RendererTests, DrawCircleFill_HalfAlpha) {
+TEST_F(RendererTests, DrawCircleFill_HalfAlpha) {
 	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
-	ResourceManager resources;
 
 	IVec2 center = { BITMAP_WIDTH / 2, BITMAP_HEIGHT / 2 };
 	renderer.draw_circle_fill(center, 75, RGBA::green().with_alpha(0.5f));
 
-	renderer.render(resources);
+	renderer.render(m_resources);
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
 }
 
-TEST(RendererTests, DrawTriangle_EquilateralTriangle) {
+TEST_F(RendererTests, DrawTriangle_EquilateralTriangle) {
 	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
-	ResourceManager resources;
 
 	IVec2 center = { BITMAP_WIDTH / 2, BITMAP_HEIGHT / 2 };
 	int length = 75;
@@ -219,13 +213,12 @@ TEST(RendererTests, DrawTriangle_EquilateralTriangle) {
 	Vertex v3 = { center + IVec2 { (int)(length * M_SQRT3_2), (int)(length * 0.5f) }, RGBA::blue() };
 	renderer.draw_triangle(v1, v2, v3);
 
-	renderer.render(resources);
+	renderer.render(m_resources);
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
 }
 
-TEST(RendererTests, DrawTriangle_EquilateralTriangle_HalfAlpha) {
+TEST_F(RendererTests, DrawTriangle_EquilateralTriangle_HalfAlpha) {
 	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
-	ResourceManager resources;
 
 	IVec2 center = { BITMAP_WIDTH / 2, BITMAP_HEIGHT / 2 };
 	int length = 75;
@@ -234,13 +227,12 @@ TEST(RendererTests, DrawTriangle_EquilateralTriangle_HalfAlpha) {
 	Vertex v3 = { center + IVec2 { (int)(length * M_SQRT3_2), (int)(length * 0.5f) }, RGBA::blue().with_alpha(0.5f) };
 	renderer.draw_triangle(v1, v2, v3);
 
-	renderer.render(resources);
+	renderer.render(m_resources);
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
 }
 
-TEST(RendererTests, DrawTriangleFill_EquilateralTriangle) {
+TEST_F(RendererTests, DrawTriangleFill_EquilateralTriangle) {
 	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
-	ResourceManager resources;
 
 	IVec2 center = { BITMAP_WIDTH / 2, BITMAP_HEIGHT / 2 };
 	int length = 75;
@@ -249,13 +241,12 @@ TEST(RendererTests, DrawTriangleFill_EquilateralTriangle) {
 	Vertex v3 = { center + IVec2 { (int)(length * M_SQRT3_2), (int)(length * 0.5f) }, RGBA::blue() };
 	renderer.draw_triangle_fill(v1, v2, v3);
 
-	renderer.render(resources);
+	renderer.render(m_resources);
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
 }
 
-TEST(RendererTests, DrawTriangleFill_EquilateralTriangle_HalfAlpha) {
+TEST_F(RendererTests, DrawTriangleFill_EquilateralTriangle_HalfAlpha) {
 	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
-	ResourceManager resources;
 
 	IVec2 center = { BITMAP_WIDTH / 2, BITMAP_HEIGHT / 2 };
 	int length = 75;
@@ -264,6 +255,36 @@ TEST(RendererTests, DrawTriangleFill_EquilateralTriangle_HalfAlpha) {
 	Vertex v3 = { center + IVec2 { (int)(length * M_SQRT3_2), (int)(length * 0.5f) }, RGBA::blue().with_alpha(0.5f) };
 	renderer.draw_triangle_fill(v1, v2, v3);
 
-	renderer.render(resources);
+	renderer.render(m_resources);
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
 }
+
+TEST_F(RendererTests, DrawImage) {
+	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
+
+	IVec2 center = { BITMAP_WIDTH / 2, BITMAP_HEIGHT / 2 };
+	const Image& image = m_resources.image(m_test_image_id);
+	renderer.draw_image(m_test_image_id, center - IVec2 { image.width / 2, image.height / 2 });
+
+	renderer.render(m_resources);
+	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
+}
+
+// - draw image clipped
+// - draw image flipped horizontally
+// - draw image flipped vertically
+// - draw image half alpha
+// - draw image tinted
+
+// - draw image scaled
+// - draw image scaled clipped
+// - draw image scaled flipped horizontally
+// - draw image scaled flipped vertically
+// - draw image scaled half alpha
+// - draw image scaled tinted
+
+// - draw text
+// - draw text left aligned
+// - draw text center aligned
+// - draw text right aligned
+// - draw text multiline
