@@ -271,6 +271,30 @@ TEST_F(RendererTests, DrawImage) {
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
 }
 
+TEST_F(RendererTests, DrawImage_HalfAlpha) {
+	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
+
+	const Image& image = m_resources.image(m_test_image_id);
+	IVec2 center = { BITMAP_WIDTH / 2, BITMAP_HEIGHT / 2 };
+	IVec2 image_size = { image.width, image.height };
+	renderer.draw_image(m_test_image_id, center - image_size / 2, { .alpha = 0.5f });
+
+	renderer.render(m_resources);
+	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
+}
+
+TEST_F(RendererTests, DrawImage_TintedRed) {
+	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
+
+	const Image& image = m_resources.image(m_test_image_id);
+	IVec2 center = { BITMAP_WIDTH / 2, BITMAP_HEIGHT / 2 };
+	IVec2 image_size = { image.width, image.height };
+	renderer.draw_image(m_test_image_id, center - image_size / 2, { .tint = RGBA { 255, 0, 0, 128 } });
+
+	renderer.render(m_resources);
+	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
+}
+
 TEST_F(RendererTests, DrawImage_Flipped) {
 	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
 
@@ -355,30 +379,6 @@ TEST_F(RendererTests, DrawImage_Clipped_BottomRight) {
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
 }
 
-TEST_F(RendererTests, DrawImage_HalfAlpha) {
-	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
-
-	const Image& image = m_resources.image(m_test_image_id);
-	IVec2 center = { BITMAP_WIDTH / 2, BITMAP_HEIGHT / 2 };
-	IVec2 image_size = { image.width, image.height };
-	renderer.draw_image(m_test_image_id, center - image_size / 2, { .alpha = 0.5f });
-
-	renderer.render(m_resources);
-	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
-}
-
-TEST_F(RendererTests, DrawImage_TintedRed) {
-	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
-
-	const Image& image = m_resources.image(m_test_image_id);
-	IVec2 center = { BITMAP_WIDTH / 2, BITMAP_HEIGHT / 2 };
-	IVec2 image_size = { image.width, image.height };
-	renderer.draw_image(m_test_image_id, center - image_size / 2, { .tint = RGBA { 255, 0, 0, 128 } });
-
-	renderer.render(m_resources);
-	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
-}
-
 TEST_F(RendererTests, DrawImageScaled) {
 	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
 
@@ -393,6 +393,33 @@ TEST_F(RendererTests, DrawImageScaled) {
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
 }
 
+TEST_F(RendererTests, DrawImageScaled_HalfAlpha) {
+	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
+
+	const Image& image = m_resources.image(m_test_image_id);
+	int scale = 2;
+	IVec2 center = { BITMAP_WIDTH / 2, BITMAP_HEIGHT / 2 };
+	IVec2 scaled_image_size = { scale * image.width, scale * image.height };
+	Rect scaled_rect = Rect { center.x, center.y, scaled_image_size.x, scaled_image_size.y } - scaled_image_size / 2;
+	renderer.draw_image_scaled(m_test_image_id, scaled_rect, { .alpha = 0.5f });
+
+	renderer.render(m_resources);
+	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
+}
+
+TEST_F(RendererTests, DrawImageScaled_TintedRed) {
+	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
+
+	const Image& image = m_resources.image(m_test_image_id);
+	int scale = 2;
+	IVec2 center = { BITMAP_WIDTH / 2, BITMAP_HEIGHT / 2 };
+	IVec2 scaled_image_size = { scale * image.width, scale * image.height };
+	Rect scaled_rect = Rect { center.x, center.y, scaled_image_size.x, scaled_image_size.y } - scaled_image_size / 2;
+	renderer.draw_image_scaled(m_test_image_id, scaled_rect, { .tint = RGBA { 255, 0, 0, 127 } });
+
+	renderer.render(m_resources);
+	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
+}
 TEST_F(RendererTests, DrawImageScaled_Flipped) {
 	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
 
@@ -486,9 +513,6 @@ TEST_F(RendererTests, DrawImageScaled_Clipped_BottomRight) {
 	renderer.render(m_resources);
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
 }
-// - draw image scaled clipped
-// - draw image scaled half alpha
-// - draw image scaled tinted
 
 // - draw text
 // - draw text left aligned
