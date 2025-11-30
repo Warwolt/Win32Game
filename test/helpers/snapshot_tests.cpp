@@ -46,6 +46,11 @@ namespace testing {
       a {{
         color: blue;
       }}
+
+      img {{
+        image-rendering: pixelated;
+		zoom: 1;
+      }}
     </style>
   </head>
   <body>
@@ -212,19 +217,19 @@ namespace testing {
 			std::string diff_path = "../../" + snapshot_diff_filepath(suite.name, test.name);
 			switch (test.result) {
 				case SnapshotTestResult::Passed:
-					html_body += std::format("<img src=\"{}\" style=\"image-rendering: pixelated; zoom: 1;\">", snapshot_path);
+					html_body += std::format("<img src=\"{}\">", snapshot_path);
 					break;
 
 				case SnapshotTestResult::Failed:
-					html_body += std::format("<img src=\"{}\" style=\"image-rendering: pixelated; zoom: 1;\">", snapshot_path);
+					html_body += std::format("<img src=\"{}\">", snapshot_path);
 					html_body += "<p style=\"margin: 1em\">➡️</p>";
-					html_body += std::format("<img src=\"{}\" style=\"image-rendering: pixelated; zoom: 1;\">", diff_path);
+					html_body += std::format("<img src=\"{}\">", diff_path);
 					break;
 
 				case SnapshotTestResult::Updated:
-					html_body += std::format("<img src=\"{}\" style=\"image-rendering: pixelated; zoom: 1;\">", diff_path);
+					html_body += std::format("<img src=\"{}\">", diff_path);
 					html_body += "<p style=\"margin: 1em\">➡️</p>";
-					html_body += std::format("<img src=\"{}\" style=\"image-rendering: pixelated; zoom: 1;\">", snapshot_path);
+					html_body += std::format("<img src=\"{}\">", snapshot_path);
 					break;
 			}
 			html_body += "</div>";
