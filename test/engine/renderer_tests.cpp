@@ -13,14 +13,22 @@ using namespace engine;
 
 constexpr int BITMAP_WIDTH = 256;
 constexpr int BITMAP_HEIGHT = 240;
+constexpr int TEST_FONT_SIZE = 16;
+constexpr char LOREM_IPSUM[] = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer tempor placerat tellus in dapibus. Etiam suscipit ex risus, eu faucibus ipsum vestibulum id. Vivamus imperdiet dui id ligula pretium, at aliquam eros ornare. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.";
 
 class RendererTests : public testing::Test {
 public:
 	ResourceManager m_resources;
 	ImageID m_test_image_id;
+	FontID m_test_font_id;
 
-	RendererTests() {
+	void SetUp() override {
 		m_test_image_id = m_resources.load_image("assets/image/render_test/test_image.png");
+		ASSERT_NE(m_test_image_id, INVALID_IMAGE_ID) << "Failed to load test image!";
+
+		m_test_font_id = m_resources.load_font("assets/font/ModernDOS8x16.ttf");
+		ASSERT_NE(m_test_font_id, INVALID_FONT_ID) << "Failed to load test font!";
+		m_resources.typeface(m_test_font_id).add_font(TEST_FONT_SIZE);
 	}
 };
 
@@ -514,8 +522,47 @@ TEST_F(RendererTests, DrawImageScaled_Clipped_BottomRight) {
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
 }
 
-// - draw text
-// - draw text left aligned
-// - draw text center aligned
-// - draw text right aligned
-// - draw text multiline
+TEST_F(RendererTests, DrawFont_HorizontallyLeftAligned) {
+	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
+
+	Rect text_rect = {
+		.x = BITMAP_WIDTH / 8,
+		.y = 0,
+		.width = 3 * BITMAP_WIDTH / 4,
+		.height = BITMAP_HEIGHT,
+	};
+	renderer.draw_text(m_test_font_id, TEST_FONT_SIZE, text_rect, RGBA::white(), LOREM_IPSUM, { .h_alignment = HorizontalAlignment::Left, .debug_draw_box = true });
+
+	renderer.render(m_resources);
+	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
+}
+
+TEST_F(RendererTests, DrawFont_HorizontallyCenterAligned) {
+	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
+
+	Rect text_rect = {
+		.x = BITMAP_WIDTH / 8,
+		.y = 0,
+		.width = 3 * BITMAP_WIDTH / 4,
+		.height = BITMAP_HEIGHT,
+	};
+	renderer.draw_text(m_test_font_id, TEST_FONT_SIZE, text_rect, RGBA::white(), LOREM_IPSUM, { .h_alignment = HorizontalAlignment::Center, .debug_draw_box = true });
+
+	renderer.render(m_resources);
+	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
+}
+
+TEST_F(RendererTests, DrawFont_HorizontallyRightAligned) {
+	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
+
+	Rect text_rect = {
+		.x = BITMAP_WIDTH / 8,
+		.y = 0,
+		.width = 3 * BITMAP_WIDTH / 4,
+		.height = BITMAP_HEIGHT,
+	};
+	renderer.draw_text(m_test_font_id, TEST_FONT_SIZE, text_rect, RGBA::white(), LOREM_IPSUM, { .h_alignment = HorizontalAlignment::Right, .debug_draw_box = true });
+
+	renderer.render(m_resources);
+	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
+}

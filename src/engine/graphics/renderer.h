@@ -15,7 +15,7 @@
 
 // Adds a tag to the renderer for the current file and line
 #define RENDERER_LOG(renderer, message) \
-	renderer->add_tag(std::format("{}:{}: {}", engine::filename_from_path(__FILE__), __LINE__, message))
+	(renderer)->add_tag(std::format("{}:{}: {}", engine::filename_from_path(__FILE__), __LINE__, message))
 
 namespace engine {
 

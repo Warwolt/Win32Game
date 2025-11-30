@@ -4,6 +4,7 @@ namespace engine {
 
 	struct FontID {
 		int value;
+		bool operator==(const FontID& rhs) const = default;
 	};
 
 	constexpr FontID INVALID_FONT_ID = FontID(0);
