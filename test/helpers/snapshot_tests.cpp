@@ -33,6 +33,7 @@ namespace testing {
 		bool should_update_snapshots = false;
 		std::vector<SnapshotTestSuite> all_suites;
 		std::vector<SnapshotTestSuite> failed_suites;
+		std::vector<SnapshotTestSuite> updated_suites;
 	} g_context;
 
 	constexpr char html_template[] = R"(
@@ -41,9 +42,19 @@ namespace testing {
   <head>
     <meta charset="UTF-8" />
     <title>Snapshot Test Report</title>
+    <style>
+      a {{
+        color: blue;
+      }}
+
+      img {{
+        image-rendering: pixelated;
+		zoom: 1;
+      }}
+    </style>
   </head>
   <body>
-	{}
+    {}
   </body>
 </html>)";
 
@@ -77,11 +88,11 @@ namespace testing {
 
 	static std::string snapshot_list_html(std::string title, const std::vector<SnapshotTestSuite>& suites, bool only_failed) {
 		std::string list_html;
-		list_html += "<ul>";
+		list_html += "<ol>";
 		for (const SnapshotTestSuite& suite : suites) {
 			list_html += "<li>";
 			list_html += R"(<a href=")" + suite.path.string() + "\">" + suite.name + "</a>";
-			if (!suite.tests.empty()) list_html += "<ul>";
+			if (!suite.tests.empty()) list_html += "<ol>";
 			for (const SnapshotTestCase& test : suite.tests) {
 				if (only_failed && test.result != SnapshotTestResult::Failed) {
 					continue;
@@ -90,10 +101,10 @@ namespace testing {
 				list_html += R"(<a href=")" + suite.path.string() + "#" + test.name + "\">" + test.name + "</a>";
 				list_html += "</li>";
 			}
-			if (!suite.tests.empty()) list_html += "</ul>";
+			if (!suite.tests.empty()) list_html += "</ol>";
 			list_html += "</li>";
 		}
-		list_html += "</ul>";
+		list_html += "</ol>";
 
 		return "<h2>" + title + "</h2>" +
 			list_html;
@@ -125,6 +136,9 @@ namespace testing {
 		if (!g_context.failed_suites.empty()) {
 			html_body += snapshot_list_html("Failures", g_context.failed_suites, true);
 		}
+		if (!g_context.updated_suites.empty()) {
+			html_body += snapshot_list_html("Updates", g_context.updated_suites, true);
+		}
 		html_body += snapshot_list_html("Snapshots", g_context.all_suites, false);
 		return std::format(html_template, html_body);
 	}
@@ -132,12 +146,16 @@ namespace testing {
 	static std::string snapshot_suite_html(const SnapshotTestSuite& suite) {
 		int num_passed_snapshots = 0;
 		int num_failed_snapshots = 0;
+		int num_updated_snapshots = 0;
 		for (const SnapshotTestCase& test : suite.tests) {
 			if (test.result == SnapshotTestResult::Failed) {
 				num_failed_snapshots++;
 			}
 			else {
 				num_passed_snapshots++;
+				if (test.result == SnapshotTestResult::Updated) {
+					num_updated_snapshots++;
+				}
 			}
 		}
 
@@ -150,7 +168,7 @@ namespace testing {
 		/* List failed snapshots */
 		if (num_failed_snapshots > 0) {
 			html_body += "<h2>Failures</h2>";
-			html_body += "<ul>";
+			html_body += "<ol>";
 			for (const SnapshotTestCase& test : suite.tests) {
 				if (test.result == SnapshotTestResult::Failed) {
 					html_body += "<li>";
@@ -158,17 +176,39 @@ namespace testing {
 					html_body += "</li>";
 				}
 			}
-			html_body += "</ul>";
+			html_body += "</ol>";
+		}
+
+		/* List updated snapshots*/
+		if (num_updated_snapshots > 0) {
+			html_body += "<h2>Updates</h2>";
+			html_body += "<ol>";
+			for (const SnapshotTestCase& test : suite.tests) {
+				if (test.result == SnapshotTestResult::Updated) {
+					html_body += "<li>";
+					html_body += std::format(R"(<a href="#{}">{}</a>)", test.name, test.name);
+					html_body += "</li>";
+				}
+			}
+			html_body += "</ol>";
 		}
 
 		/* Display snapshots */
 		html_body += "<h2>Snapshots</h2>";
+		html_body += "<ol>";
 		for (const SnapshotTestCase& test : suite.tests) {
+			html_body += "<li><a href=#" + test.name + ">" + test.name + "</a></li>";
+		}
+		html_body += "</ol>";
+		for (size_t i = 0; i < suite.tests.size(); i++) {
+			const SnapshotTestCase& test = suite.tests[i];
 			/* Test name */
 			html_body += std::format("<h3 id=\"{}\">", test.name);
 			html_body += test.result == SnapshotTestResult::Failed ? "❌ " : "✅ ";
+			html_body += std::format("{}. ", i + 1);
 			html_body += test.name;
-			html_body += test.result == SnapshotTestResult::Failed ? " (failed)" : test.result == SnapshotTestResult::Updated ? " (updated)" : "";
+			if (test.result == SnapshotTestResult::Failed) html_body += " (failed)";
+			if (test.result == SnapshotTestResult::Updated) html_body += " (updated)";
 			html_body += "</h3>";
 
 			/* Snapshot */
@@ -259,11 +299,21 @@ namespace testing {
 	void generate_snapshot_report() {
 		/* Copy over failed tests */
 		for (const SnapshotTestSuite& suite : g_context.all_suites) {
+			bool has_any_failures = false;
+			bool has_any_updates = false;
 			for (const SnapshotTestCase& test : suite.tests) {
 				if (test.result == SnapshotTestResult::Failed) {
-					g_context.failed_suites.push_back(suite);
-					break;
+					has_any_failures = true;
 				}
+				if (test.result == SnapshotTestResult::Updated) {
+					has_any_updates = true;
+				}
+			}
+			if (has_any_failures) {
+				g_context.failed_suites.push_back(suite);
+			}
+			else if (has_any_updates) {
+				g_context.updated_suites.push_back(suite);
 			}
 		}
 

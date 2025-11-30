@@ -9,6 +9,8 @@
 #include <engine/math/math.h>
 #include <engine/utility/string_utility.h>
 
+#include <engine/debug/logging.h>
+
 #include <cmath>
 #include <utility>
 
@@ -44,39 +46,38 @@ namespace engine {
 		return octant_points;
 	}
 
-	static std::vector<IVec2> half_circle_points(int32_t radius) {
-		/* Compute half circle*/
+	static std::vector<IVec2> quarter_circle_points(int32_t radius) {
+		/* Compute quarter circle*/
 		//         , - ~ ~ ~ - ,
-		//     , '               ' ,
-		//   ,                       ,
-		//  ,                         ,
-		// ,                           ,
+		//     , '       |       ' ,
+		//   ,           |           ,
+		//  ,            |            ,
+		// ,             |             ,
 		// '-------------o-------------'
-		std::vector<IVec2> octant_points = circle_octant_points(radius);
-		IVec2 prev_point = IVec2 { octant_points[0].x, octant_points[0].y };
-		std::vector<IVec2> half_circle_points = { prev_point };
-		for (IVec2 point : octant_points) {
-			int32_t delta_y = point.y - prev_point.y;
-			if (delta_y == 0) {
-				half_circle_points.back() = point;
+		std::vector<IVec2> octant = circle_octant_points(radius);
+		std::vector<IVec2> quarter_circle;
+		int prev_y = INT32_MIN;
+
+		// Add octant points
+		for (IVec2 point : octant) {
+			if (point.y != prev_y) {
+				quarter_circle.push_back(point);
+				prev_y = point.y;
 			}
-			else {
-				half_circle_points.push_back(point);
-			}
-			prev_point = point;
 		}
 
-		prev_point = IVec2 { octant_points[0].y, octant_points[0].x };
-		half_circle_points.push_back(prev_point);
-		for (IVec2 point : octant_points) {
-			IVec2 flip_point = { point.y, point.x };
-			int32_t delta_y = flip_point.y - prev_point.y;
-			if (delta_y != 0) {
-				half_circle_points.push_back(flip_point);
+		// Mirror octant
+		// iterate reverse order to get monotonically
+		// decreasing y value in the flipped point
+		for (int i = (int)octant.size() - 1; i >= 0; i--) {
+			IVec2 point = { octant[i].y, octant[i].x }; // flipped (x,y)
+			if (point.y != prev_y) {
+				quarter_circle.push_back(point);
+				prev_y = point.y;
 			}
-			prev_point = flip_point;
 		}
-		return half_circle_points;
+
+		return quarter_circle;
 	}
 
 	Renderer Renderer::with_bitmap(int32_t width, int32_t height) {
@@ -325,7 +326,7 @@ namespace engine {
 
 	void Renderer::_put_circle_fill(Bitmap* bitmap, IVec2 center, int32_t radius, RGBA color) {
 		CPUProfilingScope_Render();
-		for (IVec2 point : half_circle_points(radius)) {
+		for (IVec2 point : quarter_circle_points(radius)) {
 			IVec2 bottom_left = center + IVec2 { -point.x, point.y };
 			IVec2 bottom_right = center + IVec2 { point.x, point.y };
 			_put_line(bitmap, Vertex { .pos = bottom_left, .color = color }, Vertex { .pos = bottom_right, .color = color }, nullptr);
@@ -411,14 +412,16 @@ namespace engine {
 			options.clip.height = rect.height;
 		}
 		// bottom left
+		IVec2 clip_bottom_left = { options.clip.x, options.clip.y + options.clip.height - 1 };
 		Vec2 uv0 = {
-			.x = engine::clamp((float)options.clip.x / (float)(image.width - 1), 0.0f, 1.0f),
-			.y = engine::clamp((float)options.clip.y / (float)(image.height), 0.0f, 1.0f),
+			.x = engine::clamp((float)clip_bottom_left.x / (float)(image.width - 1), 0.0f, 1.0f),
+			.y = engine::clamp(1.0f - (float)clip_bottom_left.y / (float)(image.height - 1), 0.0f, 1.0f),
 		};
 		// top right
+		IVec2 clip_top_right = { options.clip.x + options.clip.width - 1, options.clip.y };
 		Vec2 uv1 = {
-			.x = engine::clamp((float)(options.clip.x + options.clip.width - 1) / (float)(image.width - 1), 0.0f, 1.0f),
-			.y = engine::clamp((float)(options.clip.y + options.clip.height) / (float)(image.height), 0.0f, 1.0f),
+			.x = engine::clamp((float)(clip_top_right.x) / (float)(image.width - 1), 0.0f, 1.0f),
+			.y = engine::clamp(1.0f - (float)(clip_top_right.y) / (float)(image.height - 1), 0.0f, 1.0f),
 		};
 
 		/* Draw image line by line */
