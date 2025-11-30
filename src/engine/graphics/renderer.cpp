@@ -412,14 +412,16 @@ namespace engine {
 			options.clip.height = rect.height;
 		}
 		// bottom left
+		IVec2 clip_bottom_left = { options.clip.x, options.clip.y + options.clip.height - 1 };
 		Vec2 uv0 = {
-			.x = engine::clamp((float)options.clip.x / (float)(image.width - 1), 0.0f, 1.0f),
-			.y = engine::clamp((float)options.clip.y / (float)(image.height), 0.0f, 1.0f),
+			.x = engine::clamp((float)clip_bottom_left.x / (float)(image.width - 1), 0.0f, 1.0f),
+			.y = engine::clamp(1.0f - (float)clip_bottom_left.y / (float)(image.height - 1), 0.0f, 1.0f),
 		};
 		// top right
+		IVec2 clip_top_right = { options.clip.x + options.clip.width - 1, options.clip.y };
 		Vec2 uv1 = {
-			.x = engine::clamp((float)(options.clip.x + options.clip.width - 1) / (float)(image.width - 1), 0.0f, 1.0f),
-			.y = engine::clamp((float)(options.clip.y + options.clip.height) / (float)(image.height), 0.0f, 1.0f),
+			.x = engine::clamp((float)(clip_top_right.x) / (float)(image.width - 1), 0.0f, 1.0f),
+			.y = engine::clamp(1.0f - (float)(clip_top_right.y) / (float)(image.height - 1), 0.0f, 1.0f),
 		};
 
 		/* Draw image line by line */

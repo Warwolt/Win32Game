@@ -282,6 +282,7 @@ TEST_F(RendererTests, DrawImage_Flipped) {
 	renderer.render(m_resources);
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
 }
+
 TEST_F(RendererTests, DrawImage_Clipped) {
 	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
 
@@ -324,10 +325,55 @@ TEST_F(RendererTests, DrawImage_TintedRed) {
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
 }
 
-// - draw image scaled
+TEST_F(RendererTests, DrawImageScaled) {
+	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
+
+	const Image& image = m_resources.image(m_test_image_id);
+	int scale = 2;
+	IVec2 center = { BITMAP_WIDTH / 2, BITMAP_HEIGHT / 2 };
+	IVec2 scaled_image_size = { scale * image.width, scale * image.height };
+	Rect scaled_rect = Rect { center.x, center.y, scaled_image_size.x, scaled_image_size.y } - scaled_image_size / 2;
+	renderer.draw_image_scaled(m_test_image_id, scaled_rect);
+
+	renderer.render(m_resources);
+	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
+}
+
+TEST_F(RendererTests, DrawImageScaled_Flipped) {
+	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
+
+	const Image& image = m_resources.image(m_test_image_id);
+	int scale = 2;
+	IVec2 center = { BITMAP_WIDTH / 2, BITMAP_HEIGHT / 2 };
+	IVec2 scaled_image_size = { scale * image.width, scale * image.height };
+	Rect scaled_rect = Rect { center.x, center.y, scaled_image_size.x, scaled_image_size.y } - scaled_image_size / 2;
+	renderer.draw_image_scaled(m_test_image_id, scaled_rect, { .flip_h = true, .flip_v = true });
+
+	renderer.render(m_resources);
+	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
+}
+
+TEST_F(RendererTests, DrawImageScaled_Clipped) {
+	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
+
+	const Image& image = m_resources.image(m_test_image_id);
+	int scale = 2;
+	IVec2 center = { BITMAP_WIDTH / 2, BITMAP_HEIGHT / 2 };
+	IVec2 scaled_image_size = { scale * image.width, scale * image.height };
+	Rect scaled_rect = Rect { center.x, center.y, scaled_image_size.x, scaled_image_size.y } - scaled_image_size / 2;
+	Rect clip_rect = {
+		.x = 0,
+		.y = 0,
+		.width = image.width / 2,
+		.height = image.height / 2,
+	};
+	renderer.draw_image_scaled(m_test_image_id, scaled_rect, { .clip = clip_rect });
+
+	renderer.render(m_resources);
+	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
+}
+
 // - draw image scaled clipped
-// - draw image scaled flipped horizontally
-// - draw image scaled flipped vertically
 // - draw image scaled half alpha
 // - draw image scaled tinted
 
