@@ -133,7 +133,7 @@ namespace engine {
 		};
 
 		Bitmap m_bitmap;
-		std::string m_last_tag; // for debuggin
+		std::string m_last_tag; // for debugging
 		std::string m_current_tag;
 		std::vector<DrawData> m_draw_data;
 

@@ -1,6 +1,5 @@
 #include <gtest/gtest.h>
 
-#include <test/helpers/parameterized_tests.h>
 #include <test/helpers/snapshot_tests.h>
 
 #include <engine/file/resource_manager.h>
