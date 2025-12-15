@@ -7,6 +7,7 @@ Goal:
   - [ ] Victory screen
 
 # Todo
+- The snapshot tests should clean up non-used snapshot images somehow
 - Add "load game" menu that lists save files in some save file directory
 - Add "file menu" in debug builds, move hot reloading there, free up F5 key for e.g. quick save
 - Enemies walking around
@@ -20,6 +21,7 @@ Goal:
 - Basic UI system for drawing lists of menu items
 
 # Doing
+- Simple CSS box model based UI system
 
 # Done
 - Add snapshot testing for testing graphical functionality
