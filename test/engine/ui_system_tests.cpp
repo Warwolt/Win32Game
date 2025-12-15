@@ -16,28 +16,54 @@ using namespace engine;
 namespace engine::ui {
 
 	struct Margin {
-        int32_t value;
 		int32_t left;
 		int32_t right;
 		int32_t top;
 		int32_t bottom;
+
+		Margin& with_value(int32_t value) {
+			this->left = value;
+			this->right = value;
+			this->top = value;
+			this->bottom = value;
+			return *this;
+		}
 	};
 
 	struct Border {
-        int32_t value;
 		int32_t left;
 		int32_t right;
 		int32_t top;
 		int32_t bottom;
 		RGBA color;
+
+		Border& with_value(int32_t value) {
+			this->left = value;
+			this->right = value;
+			this->top = value;
+			this->bottom = value;
+			return *this;
+		}
+
+		Border& with_color(RGBA value) {
+			this->color = value;
+			return *this;
+		}
 	};
 
 	struct Padding {
-        int32_t value;
 		int32_t left;
 		int32_t right;
 		int32_t top;
 		int32_t bottom;
+
+		Padding& with_value(int32_t value) {
+			this->left = value;
+			this->right = value;
+			this->top = value;
+			this->bottom = value;
+			return *this;
+		}
 	};
 
 	struct Box {
@@ -203,23 +229,10 @@ TEST_F(UISystemTests, TextElement_TopLeft_RedBackground_BlackBorder) {
 	renderer.clear_screen(RGBA::white());
 
 	ui::Style style = {
-		.margin = {
-			.left = 1,
-			.right = 1,
-			.top = 1,
-			.bottom = 0,
-		},
-		.border = {
-			.left = 1,
-			.right = 1,
-			.top = 1,
-			.bottom = 1,
-			.color = RGBA::black(),
-		},
-		.padding = {
-			.left = 1,
-		},
-        .background_color = RGBA::red(),
+		.margin = ui::Margin().with_value(1),
+		.border = ui::Border().with_value(1).with_color(RGBA::black()),
+		.padding = { .left = 1 },
+		.background_color = RGBA::red(),
 	};
 	ui.text("Hello world", style);
 
