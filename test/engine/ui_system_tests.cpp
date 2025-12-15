@@ -16,6 +16,7 @@ using namespace engine;
 namespace engine::ui {
 
 	struct Margin {
+        int32_t value;
 		int32_t left;
 		int32_t right;
 		int32_t top;
@@ -23,14 +24,16 @@ namespace engine::ui {
 	};
 
 	struct Border {
+        int32_t value;
 		int32_t left;
 		int32_t right;
 		int32_t top;
 		int32_t bottom;
-        RGBA color;
+		RGBA color;
 	};
 
 	struct Padding {
+        int32_t value;
 		int32_t left;
 		int32_t right;
 		int32_t top;
@@ -39,10 +42,22 @@ namespace engine::ui {
 
 	struct Box {
 		IVec2 position;
-        RGBA color;
+		RGBA color;
 		Padding padding;
 		Border border;
 		Margin margin;
+	};
+
+	struct Style {
+		// box
+		Margin margin;
+		Border border;
+		Padding padding;
+		RGBA background_color;
+		// text
+		FontID font_id;
+		int32_t font_size;
+		RGBA font_color;
 	};
 
 	struct Element;
@@ -73,7 +88,7 @@ namespace engine::ui {
 	};
 
 	struct Document {
-		// tree of elements
+		Element root;
 	};
 
 	// The application programmer interface
@@ -86,63 +101,49 @@ namespace engine::ui {
 
 		// void begin_box();
 		// void end_box();
-		void text(std::string text);
+		void text(std::string text, Style = {});
 		// void image();
 
 		void draw(Renderer* renderer) const;
 
 	private:
-		void _draw_element(Renderer* renderer) const;
+		void _draw_element(Renderer* renderer, const Element& element) const;
 
 		IVec2 m_window_size;
+		Document m_document;
 	};
 
 	void UISystem::set_window_size(int32_t width, int32_t height) {
 		m_window_size = { width, height };
 	}
 
-	void UISystem::text(std::string text) {
-		//
-	}
-
-	void UISystem::draw(Renderer* renderer) const {
-		_draw_element(renderer);
-	}
-
-	void UISystem::_draw_element(Renderer* renderer) const {
-		Element element = {
+	void UISystem::text(std::string text, Style style) {
+		m_document.root = Element {
 			.content = Text {
-				.text = "Hello world",
-				.font_id = FontID(2),
-				.font_size = 16,
-				.font_color = RGBA::black(),
+				.text = text,
+				.font_id = style.font_id.value ? style.font_id : DEFAULT_FONT_ID,
+				.font_size = style.font_size ? style.font_size : 16,
+				.font_color = style.font_color ? style.font_color : RGBA::black(),
 			},
 			.box = {
 				.position = { 0, 0 },
-                .color = RGBA::red(),
-				.padding = {
-					.left = 1,
-				},
-				.border = {
-					.left = 1,
-					.right = 1,
-					.top = 1,
-					.bottom = 1,
-                    .color = RGBA::black(),
-				},
-				.margin = {
-					.left = 1,
-					.right = 1,
-					.top = 1,
-					.bottom = 0,
-				},
+				.color = style.background_color,
+				.padding = style.padding,
+				.border = style.border,
+				.margin = style.margin,
 			}
 		};
+	}
 
-		Margin& margin = element.box.margin;
-		Border& border = element.box.border;
-		Padding& padding = element.box.padding;
-		Text& content = std::get<Text>(element.content);
+	void UISystem::draw(Renderer* renderer) const {
+		_draw_element(renderer, m_document.root);
+	}
+
+	void UISystem::_draw_element(Renderer* renderer, const Element& element) const {
+		const Margin& margin = element.box.margin;
+		const Border& border = element.box.border;
+		const Padding& padding = element.box.padding;
+		const Text& content = std::get<Text>(element.content);
 
 		int32_t box_width = m_window_size.x - margin.left - margin.right;
 		int32_t box_height = content.font_size;
@@ -187,12 +188,11 @@ public:
 	FontID m_test_font_id;
 
 	void SetUp() override {
+		m_resources = ResourceManager::initialize("assets/font/ModernDOS8x16.ttf").value();
+		m_resources.typeface(DEFAULT_FONT_ID).add_font(TEST_FONT_SIZE);
+
 		m_test_image_id = m_resources.load_image("assets/image/render_test/test_image.png");
 		ASSERT_NE(m_test_image_id, INVALID_IMAGE_ID) << "Failed to load test image!";
-
-		m_test_font_id = m_resources.load_font("assets/font/ModernDOS8x16.ttf");
-		ASSERT_NE(m_test_font_id, INVALID_FONT_ID) << "Failed to load test font!";
-		m_resources.typeface(m_test_font_id).add_font(TEST_FONT_SIZE);
 	}
 };
 
@@ -202,7 +202,26 @@ TEST_F(UISystemTests, TextElement_TopLeft_RedBackground_BlackBorder) {
 	ui.set_window_size(BITMAP_WIDTH, BITMAP_HEIGHT);
 	renderer.clear_screen(RGBA::white());
 
-	ui.text("Hello world");
+	ui::Style style = {
+		.margin = {
+			.left = 1,
+			.right = 1,
+			.top = 1,
+			.bottom = 0,
+		},
+		.border = {
+			.left = 1,
+			.right = 1,
+			.top = 1,
+			.bottom = 1,
+			.color = RGBA::black(),
+		},
+		.padding = {
+			.left = 1,
+		},
+        .background_color = RGBA::red(),
+	};
+	ui.text("Hello world", style);
 
 	ui.draw(&renderer);
 	renderer.render(m_resources);
