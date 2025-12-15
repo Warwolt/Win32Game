@@ -16,24 +16,24 @@ using namespace engine;
 namespace engine::ui {
 
 	struct Margin {
-		uint32_t left;
-		uint32_t right;
-		uint32_t top;
-		uint32_t bottom;
+		int32_t left;
+		int32_t right;
+		int32_t top;
+		int32_t bottom;
 	};
 
 	struct Border {
-		uint32_t left;
-		uint32_t right;
-		uint32_t top;
-		uint32_t bottom;
+		int32_t left;
+		int32_t right;
+		int32_t top;
+		int32_t bottom;
 	};
 
 	struct Padding {
-		uint32_t left;
-		uint32_t right;
-		uint32_t top;
-		uint32_t bottom;
+		int32_t left;
+		int32_t right;
+		int32_t top;
+		int32_t bottom;
 	};
 
 	struct Box {
@@ -75,6 +75,8 @@ namespace engine::ui {
 	// The application programmer interface
 	class UISystem {
 	public:
+		void set_window_size(int32_t width, int32_t height);
+
 		// void begin_frame();
 		// void end_frame();
 
@@ -83,14 +85,43 @@ namespace engine::ui {
 		void text(std::string text);
 		// void image();
 
-		// draw_ui(Renderer* renderer);
+		void draw(Renderer* renderer);
 
 	private:
 		// _layout_pass();
+
+		IVec2 m_window_size;
 	};
+
+	void UISystem::set_window_size(int32_t width, int32_t height) {
+		m_window_size = { width, height };
+	}
 
 	void UISystem::text(std::string text) {
 		//
+	}
+
+	void UISystem::draw(Renderer* renderer) {
+		FontID font_id = FontID(2);
+		int32_t font_size = 16;
+		int32_t margin_top = font_size;
+		int32_t border_left = 1;
+		int32_t border_right = 1;
+		int32_t border_top = 1;
+		int32_t border_bottom = 1;
+
+		IVec2 position = { 0, 0 };
+		int32_t box_width = m_window_size.x;
+        int32_t box_height = font_size;
+
+		/* Draw border */
+		renderer->draw_rect({ position.x, position.y, box_width, box_height }, RGBA::black());
+
+		/* Draw background */
+		renderer->draw_rect_fill({ position.x + border_left, position.y + border_top, box_width - border_left - border_right, box_height - border_top - border_bottom }, RGBA::red());
+
+		/* Draw content */
+		renderer->draw_text(font_id, 16, { position.x + border_left, position.y + border_top}, RGBA::black(), "Hello world");
 	}
 
 } // namespace engine::ui
@@ -115,12 +146,14 @@ public:
 	}
 };
 
-TEST_F(UISystemTests, TextElement_TopLeft) {
+TEST_F(UISystemTests, TextElement_TopLeft_RedBackground_BlackBorder) {
 	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
 	ui::UISystem ui = ui::UISystem();
+	ui.set_window_size(BITMAP_WIDTH, BITMAP_HEIGHT);
 
 	renderer.clear_screen(RGBA::white());
 	ui.text("Hello world");
+	ui.draw(&renderer);
 
 	renderer.render(m_resources);
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
