@@ -50,6 +50,7 @@ namespace testing {
       img {{
         image-rendering: pixelated;
 		zoom: 1;
+		border: 1px solid black;
       }}
     </style>
   </head>

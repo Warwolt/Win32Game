@@ -74,6 +74,7 @@ set(TEST_SRC
     test/engine/save_file_tests.cpp
     test/engine/scene_manager_tests.cpp
     test/engine/screen_stack_tests.cpp
+    test/engine/ui_system_tests.cpp
 )
 
 set(INC
