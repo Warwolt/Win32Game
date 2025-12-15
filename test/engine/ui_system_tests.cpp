@@ -27,6 +27,7 @@ namespace engine::ui {
 		int32_t right;
 		int32_t top;
 		int32_t bottom;
+        RGBA color;
 	};
 
 	struct Padding {
@@ -38,6 +39,7 @@ namespace engine::ui {
 
 	struct Box {
 		IVec2 position;
+        RGBA color;
 		Padding padding;
 		Border border;
 		Margin margin;
@@ -49,6 +51,8 @@ namespace engine::ui {
 	struct Text {
 		std::string text;
 		FontID font_id;
+		int32_t font_size;
+		RGBA font_color;
 	};
 
 	// <img>
@@ -85,10 +89,10 @@ namespace engine::ui {
 		void text(std::string text);
 		// void image();
 
-		void draw(Renderer* renderer);
+		void draw(Renderer* renderer) const;
 
 	private:
-		// _layout_pass();
+		void _draw_element(Renderer* renderer) const;
 
 		IVec2 m_window_size;
 	};
@@ -101,27 +105,73 @@ namespace engine::ui {
 		//
 	}
 
-	void UISystem::draw(Renderer* renderer) {
-		FontID font_id = FontID(2);
-		int32_t font_size = 16;
-		int32_t margin_top = font_size;
-		int32_t border_left = 1;
-		int32_t border_right = 1;
-		int32_t border_top = 1;
-		int32_t border_bottom = 1;
+	void UISystem::draw(Renderer* renderer) const {
+		_draw_element(renderer);
+	}
 
-		IVec2 position = { 0, 0 };
-		int32_t box_width = m_window_size.x;
-        int32_t box_height = font_size;
+	void UISystem::_draw_element(Renderer* renderer) const {
+		Element element = {
+			.content = Text {
+				.text = "Hello world",
+				.font_id = FontID(2),
+				.font_size = 16,
+				.font_color = RGBA::black(),
+			},
+			.box = {
+				.position = { 0, 0 },
+                .color = RGBA::red(),
+				.padding = {
+					.left = 1,
+				},
+				.border = {
+					.left = 1,
+					.right = 1,
+					.top = 1,
+					.bottom = 1,
+                    .color = RGBA::black(),
+				},
+				.margin = {
+					.left = 1,
+					.right = 1,
+					.top = 1,
+					.bottom = 0,
+				},
+			}
+		};
 
-		/* Draw border */
-		renderer->draw_rect({ position.x, position.y, box_width, box_height }, RGBA::black());
+		Margin& margin = element.box.margin;
+		Border& border = element.box.border;
+		Padding& padding = element.box.padding;
+		Text& content = std::get<Text>(element.content);
 
-		/* Draw background */
-		renderer->draw_rect_fill({ position.x + border_left, position.y + border_top, box_width - border_left - border_right, box_height - border_top - border_bottom }, RGBA::red());
+		int32_t box_width = m_window_size.x - margin.left - margin.right;
+		int32_t box_height = content.font_size;
 
-		/* Draw content */
-		renderer->draw_text(font_id, 16, { position.x + border_left, position.y + border_top}, RGBA::black(), "Hello world");
+		Rect border_rect = {
+			.x = margin.left,
+			.y = margin.top,
+			.width = box_width,
+			.height = box_height,
+		};
+
+		Rect background_rect = {
+			.x = border_rect.x + border.left,
+			.y = border_rect.y + border.top,
+			.width = border_rect.width - border.left - border.right,
+			.height = border_rect.height - border.top - border.bottom,
+		};
+
+		Rect content_rect = {
+			.x = background_rect.x + padding.left,
+			.y = background_rect.y + padding.top,
+			.width = background_rect.width - padding.left - padding.right,
+			.height = background_rect.height - padding.top - padding.bottom,
+		};
+
+		/* Draw */
+		renderer->draw_rect(border_rect, border.color); // border
+		renderer->draw_rect_fill(background_rect, element.box.color); // background
+		renderer->draw_text(content.font_id, content.font_size, content_rect, content.font_color, content.text); // content
 	}
 
 } // namespace engine::ui
@@ -150,11 +200,11 @@ TEST_F(UISystemTests, TextElement_TopLeft_RedBackground_BlackBorder) {
 	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
 	ui::UISystem ui = ui::UISystem();
 	ui.set_window_size(BITMAP_WIDTH, BITMAP_HEIGHT);
-
 	renderer.clear_screen(RGBA::white());
-	ui.text("Hello world");
-	ui.draw(&renderer);
 
+	ui.text("Hello world");
+
+	ui.draw(&renderer);
 	renderer.render(m_resources);
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
 }
