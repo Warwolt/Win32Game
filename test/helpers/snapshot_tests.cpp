@@ -2,7 +2,9 @@
 
 #include <engine/debug/assert.h>
 
+#include <gtest/gtest.h>
 #include <stb_image/stb_image_write.h>
+
 
 #include <chrono>
 #include <filesystem>
@@ -306,7 +308,14 @@ namespace testing {
 
 		/* Clean up snapshots */
 		if (should_clean_snapshots) {
-			std::filesystem::remove_all(snapshot_directory_root());
+			testing::UnitTest* unit_test = testing::UnitTest::GetInstance();
+			const bool gtest_filter_enabled = unit_test->test_suite_to_run_count() < unit_test->total_test_suite_count();
+			if (gtest_filter_enabled) {
+				printf("\033[31mWARNING: --gtest_filter set, ignoring --clean-snapshots\n\033[0m");
+			}
+			else {
+				std::filesystem::remove_all(snapshot_directory_root());
+			}
 		}
 	}
 
