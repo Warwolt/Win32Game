@@ -47,7 +47,7 @@ namespace testing {
 	void save_snapshot(const engine::Image& snapshot, std::string test_suite_name, std::string test_name);
 	void save_snapshot_diff(const engine::Image& snapshot, std::string test_suite_name, std::string test_name);
 
-	void initialize_snapshot_tests(int argc, char** argv);
+	void initialize_snapshot_tests(int argc, char** argv, bool gtest_filter_enabled);
 	void generate_snapshot_report();
 
 } // namespace testing
