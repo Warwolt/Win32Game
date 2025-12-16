@@ -2,11 +2,13 @@
 
 #include <test/helpers/snapshot_tests.h>
 
+#include <engine/debug/assert.h>
 #include <engine/file/resource_manager.h>
 #include <engine/graphics/font_id.h>
 #include <engine/graphics/image_id.h>
 #include <engine/graphics/renderer.h>
 #include <engine/math/ivec2.h>
+
 
 #include <optional>
 #include <variant>
@@ -91,6 +93,8 @@ namespace engine::ui {
 	// <p>
 	struct Text {
 		std::string text;
+		int32_t width;
+		int32_t height;
 		FontID font_id;
 		int32_t font_size;
 		RGBA font_color;
@@ -122,14 +126,13 @@ namespace engine::ui {
 	public:
 		void set_window_size(int32_t width, int32_t height);
 
-		// void begin_frame();
-		// void end_frame();
-
 		// void begin_box();
 		// void end_box();
 		void text(std::string text, Style = {});
 		// void image();
 
+		void begin_frame();
+		void end_frame(const ResourceManager& resources);
 		void draw(Renderer* renderer) const;
 
 	private:
@@ -163,6 +166,26 @@ namespace engine::ui {
 		);
 	}
 
+	void UISystem::begin_frame() {
+		// TODO handle input stuff here
+	}
+
+	void UISystem::end_frame(const ResourceManager& resources) {
+		// layout pass
+		for (Element& element : m_document.root_elements) {
+			const Margin& margin = element.box.margin;
+			const Border& border = element.box.border;
+			const Padding& padding = element.box.padding;
+			if (Text* content = std::get_if<Text>(&element.content)) {
+				const Typeface& typeface = resources.typeface(content->font_id);
+				const int32_t ascent = typeface.ascent(content->font_size);
+				const int32_t descent = typeface.descent(content->font_size);
+				content->width = m_window_size.x - margin.left - margin.right - border.left - border.right - padding.left - padding.right;
+				content->height = ascent - descent;
+			}
+		}
+	}
+
 	void UISystem::draw(Renderer* renderer) const {
 		IVec2 cursor = { 0, 0 };
 		for (const Element& element : m_document.root_elements) {
@@ -178,32 +201,35 @@ namespace engine::ui {
 
 		// FIXME: We need to compute the box in the layout pass
 		//
-		// The box height needs to be based on the text and font we're using
-		// If we just use `font_size` we'll clip characters like 'g' and 'j'
-		// Also, for multiple-line text we're not getting the right height.
+		// The box height needs to be based on the text and font we're using If we just use
+		// `font_size` we'll clip characters like 'g' and 'j' Also, for multiple-line text we're not
+		// getting the right height.
 		//
-		// Big question: how do we share the Font with the UISystem?
-		// Font is owned by the ResourceManager
-		// Generally we want to avoid dependency injection in constructors and prefer to pass
-		// dependencies as arguments to the methods that need them.
+		// Big question: How do we share the Font with the UISystem? Font is owned by the
+		// ResourceManager Generally we want to avoid dependency injection in constructors and
+		// prefer to pass dependencies as arguments to the methods that need them.
 		//
-		// But, at what exact timing do we _need_ the ResourceManager?
-		// When do we do the layout pass?
+		// But, at what exact timing do we _need_ the ResourceManager? When do we do the layout
+		// pass?
 		//
-		// How does the timing of the layout pass affect our ability to handle input?
-		// We have to know the size and position of a box to be able to tell if the mouse is clicking it.
+		// How does the timing of the layout pass affect our ability to handle input? We have to
+		// know the size and position of a box to be able to tell if the mouse is clicking it.
 		//
 		// Ideally we should be able to do all this in the same frame, without needing to keep any
 		// state and do diffing between frames.
 		//
-		int32_t box_width = m_window_size.x - margin.left - margin.right;
-		int32_t box_height = content.font_size;
-
+		// We could maybe keep "double buffer" the `Document` data structure?
+		// Each frame, we're updating one of the documents, and keeping a previous document around.
+		// Any queries on document state (e.g. if an element was clicked) refer to the _previous_ frame.
+		//
+		// Since we're re-computing the whole Document each frame _anyway_ there's no copy cost.
+		// We just have a doc 1 and doc 2 and "current document" will just flip back and forth.
+		//
 		Rect border_rect = {
 			.x = cursor->x + margin.left,
 			.y = cursor->y + margin.top,
-			.width = box_width,
-			.height = box_height,
+			.width = content.width + border.left + border.right,
+			.height = content.height + border.top + border.bottom,
 		};
 
 		Rect background_rect = {
@@ -214,7 +240,7 @@ namespace engine::ui {
 		};
 
 		Rect content_rect = {
-			.x = background_rect.x + padding.left,
+			.x = background_rect.x + padding.left + 1,
 			.y = background_rect.y + padding.top,
 			.width = background_rect.width - padding.left - padding.right,
 			.height = m_window_size.y,
@@ -226,7 +252,7 @@ namespace engine::ui {
 		renderer->draw_text(content.font_id, content.font_size, content_rect, content.font_color, content.text); // content
 
 		/* Update cursor */
-		cursor->y += box_height + margin.top + margin.bottom;
+		cursor->y += margin.top + margin.bottom + border.top + border.bottom + padding.top + padding.bottom + content.height;
 	}
 
 } // namespace engine::ui
@@ -256,14 +282,15 @@ TEST_F(UISystemTests, TextElement_SingleLineParagraph) {
 	ui.set_window_size(BITMAP_WIDTH, BITMAP_HEIGHT);
 	renderer.clear_screen(RGBA::white());
 
+	ui.begin_frame();
 	ui::Style style = {
 		.margin = ui::Margin().with_value(1),
 		.border = ui::Border().with_value(1).with_color(RGBA::black()),
-		.padding = { .left = 1 },
 		.background_color = RGBA::red(),
 		.font_size = TEST_FONT_SIZE,
 	};
 	ui.text("The quick brown fox.", style);
+	ui.end_frame(m_resources);
 
 	ui.draw(&renderer);
 	renderer.render(m_resources);
@@ -276,15 +303,16 @@ TEST_F(UISystemTests, TextElement_TwoSingleLineParagraphs) {
 	ui.set_window_size(BITMAP_WIDTH, BITMAP_HEIGHT);
 	renderer.clear_screen(RGBA::white());
 
+	ui.begin_frame();
 	ui::Style style = {
 		.margin = ui::Margin().with_value(1),
 		.border = ui::Border().with_value(1).with_color(RGBA::black()),
-		.padding = { .left = 1 },
 		.background_color = RGBA::red(),
 		.font_size = TEST_FONT_SIZE,
 	};
 	ui.text("The quick brown fox.", style);
 	ui.text("Jumps over the lazy dog.", style);
+	ui.end_frame(m_resources);
 
 	ui.draw(&renderer);
 	renderer.render(m_resources);

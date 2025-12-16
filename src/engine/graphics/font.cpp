@@ -67,8 +67,10 @@ namespace engine {
 	void Typeface::add_font(int32_t size) {
 		float scale = stbtt_ScaleForPixelHeight(&m_font_info, (float)size);
 		int ascent;
-		stbtt_GetFontVMetrics(&m_font_info, &ascent, nullptr, nullptr);
+		int descent;
+		stbtt_GetFontVMetrics(&m_font_info, &ascent, &descent, nullptr);
 		ascent = (int)std::round(ascent * scale);
+		descent = (int)std::round(descent * scale);
 		std::unordered_map<char, Glyph> glyphs;
 		for (char codepoint = ' '; codepoint < '~'; codepoint++) {
 			glyphs[codepoint] = _make_glyph(scale, codepoint);
@@ -76,6 +78,7 @@ namespace engine {
 		m_fonts[size] = {
 			.size = size,
 			.ascent = ascent,
+			.descent = descent,
 			.scale = scale,
 			.glyphs = std::move(glyphs),
 		};
@@ -89,6 +92,11 @@ namespace engine {
 	int32_t Typeface::ascent(int32_t size) const {
 		const Font& font = _get_font(size);
 		return font.ascent;
+	}
+
+	int32_t Typeface::descent(int32_t size) const {
+		const Font& font = _get_font(size);
+		return font.descent;
 	}
 
 	int32_t Typeface::text_width(int32_t size, const std::string& text) const {

@@ -2,6 +2,7 @@
 
 #include <engine/graphics/font.h>
 
+#include <engine/graphics/font.h>
 #include <stb_truetype/stb_truetype.h>
 
 #include <filesystem>
@@ -42,12 +43,14 @@ namespace engine {
 		void add_font(int32_t size);
 		const Glyph& glyph(int32_t size, char codepoint) const;
 		int32_t ascent(int32_t size) const;
+		int32_t descent(int32_t size) const;
 		int32_t text_width(int32_t size, const std::string& text) const;
 
 	private:
 		struct Font {
 			int32_t size;
 			int32_t ascent;
+			int32_t descent;
 			float scale;
 			std::unordered_map<char, Glyph> glyphs;
 		};
