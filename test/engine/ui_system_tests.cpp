@@ -261,7 +261,7 @@ public:
 	}
 };
 
-TEST_F(UISystemTests, TextElement_SingleLineParagraph_WithBorder) {
+TEST_F(UISystemTests, TextElement_SingleLineParagraph) {
 	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
 	ui::UISystem ui = ui::UISystem();
 	ui.set_window_size(BITMAP_WIDTH, BITMAP_HEIGHT);
@@ -281,7 +281,7 @@ TEST_F(UISystemTests, TextElement_SingleLineParagraph_WithBorder) {
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
 }
 
-TEST_F(UISystemTests, TextElement_SingleLineParagraph_WithBorder_WithPadding) {
+TEST_F(UISystemTests, TextElement_SingleLineParagraph_WithPadding) {
 	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
 	ui::UISystem ui = ui::UISystem();
 	ui.set_window_size(BITMAP_WIDTH, BITMAP_HEIGHT);
@@ -302,7 +302,7 @@ TEST_F(UISystemTests, TextElement_SingleLineParagraph_WithBorder_WithPadding) {
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
 }
 
-TEST_F(UISystemTests, TextElement_TwoSingleLineParagraphs_WithBorder) {
+TEST_F(UISystemTests, TextElement_TwoSingleLineParagraphs) {
 	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
 	ui::UISystem ui = ui::UISystem();
 	ui.set_window_size(BITMAP_WIDTH, BITMAP_HEIGHT);
@@ -323,7 +323,7 @@ TEST_F(UISystemTests, TextElement_TwoSingleLineParagraphs_WithBorder) {
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
 }
 
-TEST_F(UISystemTests, TextElement_MultilineParagraph_WithBorder) {
+TEST_F(UISystemTests, TextElement_MultilineParagraph) {
 	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
 	ui::UISystem ui = ui::UISystem();
 	ui.set_window_size(BITMAP_WIDTH, BITMAP_HEIGHT);
@@ -343,7 +343,7 @@ TEST_F(UISystemTests, TextElement_MultilineParagraph_WithBorder) {
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
 }
 
-TEST_F(UISystemTests, TextElement_TwoMultilineParagraphs_WithBorder) {
+TEST_F(UISystemTests, TextElement_TwoMultilineParagraphs) {
 	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
 	ui::UISystem ui = ui::UISystem();
 	ui.set_window_size(BITMAP_WIDTH, BITMAP_HEIGHT);
