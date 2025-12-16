@@ -65,7 +65,7 @@ namespace game {
 			m_font_test_page.draw(renderer, renderer->screen_resolution());
 		}
 		/* Render page title */
-		renderer->draw_text(engine::DEFAULT_FONT_ID, FONT_SIZE, { 0, 0 }, engine::RGBA::white(), std::format("test page {}/{}: {}", (int)m_page + 1, (int)DebugScreenPage::Count, title));
+		renderer->draw_text(engine::DEFAULT_FONT_ID, FONT_SIZE, { 0, 0 }, engine::Color::white(), std::format("test page {}/{}: {}", (int)m_page + 1, (int)DebugScreenPage::Count, title));
 	}
 
 } // namespace game

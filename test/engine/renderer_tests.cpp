@@ -35,7 +35,7 @@ public:
 TEST_F(RendererTests, ClearScreen) {
 	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
 
-	renderer.clear_screen(RGBA::turquoise());
+	renderer.clear_screen(Color::turquoise());
 
 	renderer.render(m_resources);
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
@@ -76,7 +76,7 @@ TEST_F(RendererTests, DrawLine_InterpolateColors) {
 	for (Vec2 end : positions) {
 		IVec2 pos1 = center + IVec2 { (int)(length / 2 * end.x), (int)(length / 2 * end.y) };
 		IVec2 pos2 = center + IVec2 { -(int)(length / 2 * end.x), -(int)(length / 2 * end.y) };
-		renderer.draw_line(Vertex { pos1, RGBA::red() }, Vertex { pos2, RGBA::green() });
+		renderer.draw_line(Vertex { pos1, Color::red() }, Vertex { pos2, Color::green() });
 	}
 
 	renderer.render(m_resources);
@@ -92,7 +92,7 @@ TEST_F(RendererTests, DrawLine_InterpolateColors_HalfAlpha) {
 	for (Vec2 end : positions) {
 		IVec2 pos1 = center + IVec2 { (int)(length / 2 * end.x), (int)(length / 2 * end.y) };
 		IVec2 pos2 = center + IVec2 { -(int)(length / 2 * end.x), -(int)(length / 2 * end.y) };
-		renderer.draw_line(Vertex { pos1, RGBA::red().with_alpha(0.5f) }, Vertex { pos2, RGBA::green().with_alpha(0.5f) });
+		renderer.draw_line(Vertex { pos1, Color::red().with_alpha(0.5f) }, Vertex { pos2, Color::green().with_alpha(0.5f) });
 	}
 
 	renderer.render(m_resources);
@@ -108,7 +108,7 @@ TEST_F(RendererTests, DrawLine_FixedColors) {
 	for (Vec2 end : positions) {
 		IVec2 pos1 = center + IVec2 { (int)(length / 2 * end.x), (int)(length / 2 * end.y) };
 		IVec2 pos2 = center + IVec2 { -(int)(length / 2 * end.x), -(int)(length / 2 * end.y) };
-		renderer.draw_line(pos1, pos2, RGBA::green());
+		renderer.draw_line(pos1, pos2, Color::green());
 	}
 
 	renderer.render(m_resources);
@@ -124,7 +124,7 @@ TEST_F(RendererTests, DrawLine_FixedColors_HalfAlpha) {
 	for (Vec2 end : positions) {
 		IVec2 pos1 = center + IVec2 { (int)(length / 2 * end.x), (int)(length / 2 * end.y) };
 		IVec2 pos2 = center + IVec2 { -(int)(length / 2 * end.x), -(int)(length / 2 * end.y) };
-		renderer.draw_line(pos1, pos2, RGBA::green().with_alpha(0.5f));
+		renderer.draw_line(pos1, pos2, Color::green().with_alpha(0.5f));
 	}
 
 	renderer.render(m_resources);
@@ -135,7 +135,7 @@ TEST_F(RendererTests, DrawRect) {
 	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
 
 	Rect rect = { BITMAP_WIDTH / 4, BITMAP_HEIGHT / 4, BITMAP_WIDTH / 2, BITMAP_HEIGHT / 2 };
-	renderer.draw_rect(rect, RGBA::green());
+	renderer.draw_rect(rect, Color::green());
 
 	renderer.render(m_resources);
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
@@ -145,7 +145,7 @@ TEST_F(RendererTests, DrawRect_HalfAlpha) {
 	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
 
 	Rect rect = { BITMAP_WIDTH / 4, BITMAP_HEIGHT / 4, BITMAP_WIDTH / 2, BITMAP_HEIGHT / 2 };
-	renderer.draw_rect(rect, RGBA::green().with_alpha(0.5f));
+	renderer.draw_rect(rect, Color::green().with_alpha(0.5f));
 
 	renderer.render(m_resources);
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
@@ -155,7 +155,7 @@ TEST_F(RendererTests, DrawRectFill) {
 	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
 
 	Rect rect = { BITMAP_WIDTH / 4, BITMAP_HEIGHT / 4, BITMAP_WIDTH / 2, BITMAP_HEIGHT / 2 };
-	renderer.draw_rect_fill(rect, RGBA::green());
+	renderer.draw_rect_fill(rect, Color::green());
 
 	renderer.render(m_resources);
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
@@ -165,7 +165,7 @@ TEST_F(RendererTests, DrawRectFill_HalfAlpha) {
 	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
 
 	Rect rect = { BITMAP_WIDTH / 4, BITMAP_HEIGHT / 4, BITMAP_WIDTH / 2, BITMAP_HEIGHT / 2 };
-	renderer.draw_rect_fill(rect, RGBA::green().with_alpha(0.5f));
+	renderer.draw_rect_fill(rect, Color::green().with_alpha(0.5f));
 
 	renderer.render(m_resources);
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
@@ -175,7 +175,7 @@ TEST_F(RendererTests, DrawCircle) {
 	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
 
 	IVec2 center = { BITMAP_WIDTH / 2, BITMAP_HEIGHT / 2 };
-	renderer.draw_circle(center, 75, RGBA::green());
+	renderer.draw_circle(center, 75, Color::green());
 
 	renderer.render(m_resources);
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
@@ -185,7 +185,7 @@ TEST_F(RendererTests, DrawCircle_HalfAlpha) {
 	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
 
 	IVec2 center = { BITMAP_WIDTH / 2, BITMAP_HEIGHT / 2 };
-	renderer.draw_circle(center, 75, RGBA::green().with_alpha(0.5f));
+	renderer.draw_circle(center, 75, Color::green().with_alpha(0.5f));
 
 	renderer.render(m_resources);
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
@@ -195,7 +195,7 @@ TEST_F(RendererTests, DrawCircleFill) {
 	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
 
 	IVec2 center = { BITMAP_WIDTH / 2, BITMAP_HEIGHT / 2 };
-	renderer.draw_circle_fill(center, 75, RGBA::green());
+	renderer.draw_circle_fill(center, 75, Color::green());
 
 	renderer.render(m_resources);
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
@@ -205,7 +205,7 @@ TEST_F(RendererTests, DrawCircleFill_HalfAlpha) {
 	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
 
 	IVec2 center = { BITMAP_WIDTH / 2, BITMAP_HEIGHT / 2 };
-	renderer.draw_circle_fill(center, 75, RGBA::green().with_alpha(0.5f));
+	renderer.draw_circle_fill(center, 75, Color::green().with_alpha(0.5f));
 
 	renderer.render(m_resources);
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
@@ -216,9 +216,9 @@ TEST_F(RendererTests, DrawTriangle_EquilateralTriangle) {
 
 	IVec2 center = { BITMAP_WIDTH / 2, BITMAP_HEIGHT / 2 };
 	int length = 75;
-	Vertex v1 = { center + IVec2 { length * 0, length * -1 }, RGBA::red() };
-	Vertex v2 = { center + IVec2 { (int)(length * -M_SQRT3_2), (int)(length * 0.5f) }, RGBA::green() };
-	Vertex v3 = { center + IVec2 { (int)(length * M_SQRT3_2), (int)(length * 0.5f) }, RGBA::blue() };
+	Vertex v1 = { center + IVec2 { length * 0, length * -1 }, Color::red() };
+	Vertex v2 = { center + IVec2 { (int)(length * -M_SQRT3_2), (int)(length * 0.5f) }, Color::green() };
+	Vertex v3 = { center + IVec2 { (int)(length * M_SQRT3_2), (int)(length * 0.5f) }, Color::blue() };
 	renderer.draw_triangle(v1, v2, v3);
 
 	renderer.render(m_resources);
@@ -230,9 +230,9 @@ TEST_F(RendererTests, DrawTriangle_EquilateralTriangle_HalfAlpha) {
 
 	IVec2 center = { BITMAP_WIDTH / 2, BITMAP_HEIGHT / 2 };
 	int length = 75;
-	Vertex v1 = { center + IVec2 { length * 0, length * -1 }, RGBA::red().with_alpha(0.5f) };
-	Vertex v2 = { center + IVec2 { (int)(length * -M_SQRT3_2), (int)(length * 0.5f) }, RGBA::green().with_alpha(0.5f) };
-	Vertex v3 = { center + IVec2 { (int)(length * M_SQRT3_2), (int)(length * 0.5f) }, RGBA::blue().with_alpha(0.5f) };
+	Vertex v1 = { center + IVec2 { length * 0, length * -1 }, Color::red().with_alpha(0.5f) };
+	Vertex v2 = { center + IVec2 { (int)(length * -M_SQRT3_2), (int)(length * 0.5f) }, Color::green().with_alpha(0.5f) };
+	Vertex v3 = { center + IVec2 { (int)(length * M_SQRT3_2), (int)(length * 0.5f) }, Color::blue().with_alpha(0.5f) };
 	renderer.draw_triangle(v1, v2, v3);
 
 	renderer.render(m_resources);
@@ -244,9 +244,9 @@ TEST_F(RendererTests, DrawTriangleFill_EquilateralTriangle) {
 
 	IVec2 center = { BITMAP_WIDTH / 2, BITMAP_HEIGHT / 2 };
 	int length = 75;
-	Vertex v1 = { center + IVec2 { length * 0, length * -1 }, RGBA::red() };
-	Vertex v2 = { center + IVec2 { (int)(length * -M_SQRT3_2), (int)(length * 0.5f) }, RGBA::green() };
-	Vertex v3 = { center + IVec2 { (int)(length * M_SQRT3_2), (int)(length * 0.5f) }, RGBA::blue() };
+	Vertex v1 = { center + IVec2 { length * 0, length * -1 }, Color::red() };
+	Vertex v2 = { center + IVec2 { (int)(length * -M_SQRT3_2), (int)(length * 0.5f) }, Color::green() };
+	Vertex v3 = { center + IVec2 { (int)(length * M_SQRT3_2), (int)(length * 0.5f) }, Color::blue() };
 	renderer.draw_triangle_fill(v1, v2, v3);
 
 	renderer.render(m_resources);
@@ -258,9 +258,9 @@ TEST_F(RendererTests, DrawTriangleFill_EquilateralTriangle_HalfAlpha) {
 
 	IVec2 center = { BITMAP_WIDTH / 2, BITMAP_HEIGHT / 2 };
 	int length = 75;
-	Vertex v1 = { center + IVec2 { length * 0, length * -1 }, RGBA::red().with_alpha(0.5f) };
-	Vertex v2 = { center + IVec2 { (int)(length * -M_SQRT3_2), (int)(length * 0.5f) }, RGBA::green().with_alpha(0.5f) };
-	Vertex v3 = { center + IVec2 { (int)(length * M_SQRT3_2), (int)(length * 0.5f) }, RGBA::blue().with_alpha(0.5f) };
+	Vertex v1 = { center + IVec2 { length * 0, length * -1 }, Color::red().with_alpha(0.5f) };
+	Vertex v2 = { center + IVec2 { (int)(length * -M_SQRT3_2), (int)(length * 0.5f) }, Color::green().with_alpha(0.5f) };
+	Vertex v3 = { center + IVec2 { (int)(length * M_SQRT3_2), (int)(length * 0.5f) }, Color::blue().with_alpha(0.5f) };
 	renderer.draw_triangle_fill(v1, v2, v3);
 
 	renderer.render(m_resources);
@@ -297,7 +297,7 @@ TEST_F(RendererTests, DrawImage_TintedRed) {
 	const Image& image = m_resources.image(m_test_image_id);
 	IVec2 center = { BITMAP_WIDTH / 2, BITMAP_HEIGHT / 2 };
 	IVec2 image_size = { image.width, image.height };
-	renderer.draw_image(m_test_image_id, center - image_size / 2, { .tint = RGBA { 255, 0, 0, 128 } });
+	renderer.draw_image(m_test_image_id, center - image_size / 2, { .tint = Color { 255, 0, 0, 128 } });
 
 	renderer.render(m_resources);
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
@@ -423,7 +423,7 @@ TEST_F(RendererTests, DrawImageScaled_TintedRed) {
 	IVec2 center = { BITMAP_WIDTH / 2, BITMAP_HEIGHT / 2 };
 	IVec2 scaled_image_size = { scale * image.width, scale * image.height };
 	Rect scaled_rect = Rect { center.x, center.y, scaled_image_size.x, scaled_image_size.y } - scaled_image_size / 2;
-	renderer.draw_image_scaled(m_test_image_id, scaled_rect, { .tint = RGBA { 255, 0, 0, 127 } });
+	renderer.draw_image_scaled(m_test_image_id, scaled_rect, { .tint = Color { 255, 0, 0, 127 } });
 
 	renderer.render(m_resources);
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
@@ -531,7 +531,7 @@ TEST_F(RendererTests, DrawFont_HorizontallyLeftAligned) {
 		.width = 3 * BITMAP_WIDTH / 4,
 		.height = BITMAP_HEIGHT,
 	};
-	renderer.draw_text(m_test_font_id, TEST_FONT_SIZE, text_rect, RGBA::white(), LOREM_IPSUM, { .h_alignment = HorizontalAlignment::Left, .debug_draw_box = true });
+	renderer.draw_text(m_test_font_id, TEST_FONT_SIZE, text_rect, Color::white(), LOREM_IPSUM, { .h_alignment = HorizontalAlignment::Left, .debug_draw_box = true });
 
 	renderer.render(m_resources);
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
@@ -546,7 +546,7 @@ TEST_F(RendererTests, DrawFont_HorizontallyCenterAligned) {
 		.width = 3 * BITMAP_WIDTH / 4,
 		.height = BITMAP_HEIGHT,
 	};
-	renderer.draw_text(m_test_font_id, TEST_FONT_SIZE, text_rect, RGBA::white(), LOREM_IPSUM, { .h_alignment = HorizontalAlignment::Center, .debug_draw_box = true });
+	renderer.draw_text(m_test_font_id, TEST_FONT_SIZE, text_rect, Color::white(), LOREM_IPSUM, { .h_alignment = HorizontalAlignment::Center, .debug_draw_box = true });
 
 	renderer.render(m_resources);
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
@@ -561,7 +561,7 @@ TEST_F(RendererTests, DrawFont_HorizontallyRightAligned) {
 		.width = 3 * BITMAP_WIDTH / 4,
 		.height = BITMAP_HEIGHT,
 	};
-	renderer.draw_text(m_test_font_id, TEST_FONT_SIZE, text_rect, RGBA::white(), LOREM_IPSUM, { .h_alignment = HorizontalAlignment::Right, .debug_draw_box = true });
+	renderer.draw_text(m_test_font_id, TEST_FONT_SIZE, text_rect, Color::white(), LOREM_IPSUM, { .h_alignment = HorizontalAlignment::Right, .debug_draw_box = true });
 
 	renderer.render(m_resources);
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());

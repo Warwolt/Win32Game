@@ -16,10 +16,10 @@ namespace engine {
 					.width = 2,
 					.height = 2,
 					.pixels = {
-						RGBA::black(),
-						RGBA::purple(),
-						RGBA::purple(),
-						RGBA::black(),
+						Color::black(),
+						Color::purple(),
+						Color::purple(),
+						Color::black(),
 					},
 				},
 			}
