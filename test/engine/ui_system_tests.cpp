@@ -297,6 +297,27 @@ TEST_F(UISystemTests, TextElement_SingleLineParagraph) {
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
 }
 
+TEST_F(UISystemTests, TextElement_MultilineParagraph) {
+	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
+	ui::UISystem ui = ui::UISystem();
+	ui.set_window_size(BITMAP_WIDTH, BITMAP_HEIGHT);
+	renderer.clear_screen(RGBA::white());
+
+	ui.begin_frame();
+	ui::Style style = {
+		.margin = ui::Margin().with_value(1),
+		.border = ui::Border().with_value(1).with_color(RGBA::black()),
+		.background_color = RGBA::red(),
+		.font_size = TEST_FONT_SIZE,
+	};
+	ui.text("The quick brown fox jumps over the lazy dog.", style);
+	ui.end_frame(m_resources);
+
+	ui.draw(&renderer);
+	renderer.render(m_resources);
+	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
+}
+
 TEST_F(UISystemTests, TextElement_TwoSingleLineParagraphs) {
 	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
 	ui::UISystem ui = ui::UISystem();

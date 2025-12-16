@@ -463,6 +463,8 @@ namespace engine {
 
 	void Renderer::_put_text(Bitmap* bitmap, const Typeface& font, int32_t font_size, Rect rect, RGBA color, const std::string& text, DrawTextOptions options) {
 		const int32_t ascent = font.ascent(font_size);
+		const int32_t descent = font.descent(font_size);
+		const int32_t line_height = ascent - descent;
 		const int32_t space_width = font.glyph(font_size, ' ').advance_width;
 
 		int32_t cursor_x = 0;
@@ -526,7 +528,7 @@ namespace engine {
 			}
 
 			/* Advance to next row */
-			cursor_y += ascent;
+			cursor_y += line_height;
 			line_start = line_end;
 		}
 
