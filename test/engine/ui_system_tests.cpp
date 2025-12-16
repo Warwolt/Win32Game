@@ -36,7 +36,7 @@ namespace engine::ui {
 		int32_t right;
 		int32_t top;
 		int32_t bottom;
-		RGBA color;
+		Color color;
 
 		Border& with_value(int32_t value) {
 			this->left = value;
@@ -46,7 +46,7 @@ namespace engine::ui {
 			return *this;
 		}
 
-		Border& with_color(RGBA value) {
+		Border& with_color(Color value) {
 			this->color = value;
 			return *this;
 		}
@@ -69,7 +69,7 @@ namespace engine::ui {
 
 	struct Box {
 		IVec2 position;
-		RGBA color;
+		Color color;
 		Padding padding;
 		Border border;
 		Margin margin;
@@ -80,11 +80,11 @@ namespace engine::ui {
 		Margin margin;
 		Border border;
 		Padding padding;
-		RGBA background_color;
+		Color background_color;
 		// text
 		FontID font_id;
 		int32_t font_size;
-		RGBA font_color;
+		Color font_color;
 	};
 
 	struct Element;
@@ -96,7 +96,7 @@ namespace engine::ui {
 		int32_t height;
 		FontID font_id;
 		int32_t font_size;
-		RGBA font_color;
+		Color font_color;
 	};
 
 	// <img>
@@ -152,7 +152,7 @@ namespace engine::ui {
 					.text = text,
 					.font_id = style.font_id.value ? style.font_id : DEFAULT_FONT_ID,
 					.font_size = style.font_size ? style.font_size : 16,
-					.font_color = style.font_color ? style.font_color : RGBA::black(),
+					.font_color = style.font_color ? style.font_color : Color::black(),
 				},
 				.box = {
 					.position = { 0, 0 },
@@ -265,13 +265,13 @@ TEST_F(UISystemTests, TextElement_SingleLineParagraph) {
 	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
 	ui::UISystem ui = ui::UISystem();
 	ui.set_window_size(BITMAP_WIDTH, BITMAP_HEIGHT);
-	renderer.clear_screen(RGBA::white());
+	renderer.clear_screen(Color::white());
 
 	ui.begin_frame();
 	ui::Style style = {
 		.margin = ui::Margin().with_value(1),
-		.border = ui::Border().with_value(1).with_color(RGBA::black()),
-		.background_color = RGBA::red(),
+		.border = ui::Border().with_value(1).with_color(Color::black()),
+		.background_color = Color::red(),
 		.font_size = TEST_FONT_SIZE,
 	};
 	ui.text("The quick brown fox.", style);
@@ -286,14 +286,14 @@ TEST_F(UISystemTests, TextElement_SingleLineParagraph_WithPadding) {
 	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
 	ui::UISystem ui = ui::UISystem();
 	ui.set_window_size(BITMAP_WIDTH, BITMAP_HEIGHT);
-	renderer.clear_screen(RGBA::white());
+	renderer.clear_screen(Color::white());
 
 	ui.begin_frame();
 	ui::Style style = {
 		.margin = ui::Margin().with_value(1),
-		.border = ui::Border().with_value(1).with_color(RGBA::black()),
+		.border = ui::Border().with_value(1).with_color(Color::black()),
 		.padding = ui::Padding().with_value(10),
-		.background_color = RGBA::red(),
+		.background_color = Color::red(),
 		.font_size = TEST_FONT_SIZE,
 	};
 	ui.text("The quick brown fox.", style);
@@ -308,13 +308,13 @@ TEST_F(UISystemTests, TextElement_MultilineParagraph) {
 	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
 	ui::UISystem ui = ui::UISystem();
 	ui.set_window_size(BITMAP_WIDTH, BITMAP_HEIGHT);
-	renderer.clear_screen(RGBA::white());
+	renderer.clear_screen(Color::white());
 
 	ui.begin_frame();
 	ui::Style style = {
 		.margin = ui::Margin().with_value(1),
-		.border = ui::Border().with_value(1).with_color(RGBA::black()),
-		.background_color = RGBA::red(),
+		.border = ui::Border().with_value(1).with_color(Color::black()),
+		.background_color = Color::red(),
 		.font_size = TEST_FONT_SIZE,
 	};
 	ui.text("The quick brown fox jumps over the lazy dog.", style);
@@ -329,13 +329,13 @@ TEST_F(UISystemTests, TextElement_TwoSingleLineParagraphs) {
 	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
 	ui::UISystem ui = ui::UISystem();
 	ui.set_window_size(BITMAP_WIDTH, BITMAP_HEIGHT);
-	renderer.clear_screen(RGBA::white());
+	renderer.clear_screen(Color::white());
 
 	ui.begin_frame();
 	ui::Style style = {
 		.margin = ui::Margin().with_value(1),
-		.border = ui::Border().with_value(1).with_color(RGBA::black()),
-		.background_color = RGBA::red(),
+		.border = ui::Border().with_value(1).with_color(Color::black()),
+		.background_color = Color::red(),
 		.font_size = TEST_FONT_SIZE,
 	};
 	ui.text("The quick brown fox.", style);
@@ -351,13 +351,13 @@ TEST_F(UISystemTests, TextElement_TwoMultilineParagraphs) {
 	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
 	ui::UISystem ui = ui::UISystem();
 	ui.set_window_size(BITMAP_WIDTH, BITMAP_HEIGHT);
-	renderer.clear_screen(RGBA::white());
+	renderer.clear_screen(Color::white());
 
 	ui.begin_frame();
 	ui::Style style = {
 		.margin = ui::Margin().with_value(1),
-		.border = ui::Border().with_value(1).with_color(RGBA::black()),
-		.background_color = RGBA::red(),
+		.border = ui::Border().with_value(1).with_color(Color::black()),
+		.background_color = Color::red(),
 		.font_size = TEST_FONT_SIZE,
 	};
 	ui.text("The quick brown fox jumps over the lazy dog.", style);
