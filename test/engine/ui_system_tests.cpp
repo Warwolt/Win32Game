@@ -261,7 +261,7 @@ public:
 	}
 };
 
-TEST_F(UISystemTests, TextElement_SingleLineParagraph) {
+TEST_F(UISystemTests, TextElement_SingleLineParagraph_WithBorder) {
 	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
 	ui::UISystem ui = ui::UISystem();
 	ui.set_window_size(BITMAP_WIDTH, BITMAP_HEIGHT);
@@ -271,7 +271,6 @@ TEST_F(UISystemTests, TextElement_SingleLineParagraph) {
 	ui::Style style = {
 		.margin = ui::Margin().with_value(1),
 		.border = ui::Border().with_value(1).with_color(Color::black()),
-		.background_color = Color::red(),
 		.font_size = TEST_FONT_SIZE,
 	};
 	ui.text("The quick brown fox.", style);
@@ -282,7 +281,7 @@ TEST_F(UISystemTests, TextElement_SingleLineParagraph) {
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
 }
 
-TEST_F(UISystemTests, TextElement_SingleLineParagraph_WithPadding) {
+TEST_F(UISystemTests, TextElement_SingleLineParagraph_WithBorder_WithPadding) {
 	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
 	ui::UISystem ui = ui::UISystem();
 	ui.set_window_size(BITMAP_WIDTH, BITMAP_HEIGHT);
@@ -293,7 +292,6 @@ TEST_F(UISystemTests, TextElement_SingleLineParagraph_WithPadding) {
 		.margin = ui::Margin().with_value(1),
 		.border = ui::Border().with_value(1).with_color(Color::black()),
 		.padding = ui::Padding().with_value(10),
-		.background_color = Color::red(),
 		.font_size = TEST_FONT_SIZE,
 	};
 	ui.text("The quick brown fox.", style);
@@ -304,7 +302,7 @@ TEST_F(UISystemTests, TextElement_SingleLineParagraph_WithPadding) {
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
 }
 
-TEST_F(UISystemTests, TextElement_MultilineParagraph) {
+TEST_F(UISystemTests, TextElement_TwoSingleLineParagraphs_WithBorder) {
 	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
 	ui::UISystem ui = ui::UISystem();
 	ui.set_window_size(BITMAP_WIDTH, BITMAP_HEIGHT);
@@ -314,28 +312,6 @@ TEST_F(UISystemTests, TextElement_MultilineParagraph) {
 	ui::Style style = {
 		.margin = ui::Margin().with_value(1),
 		.border = ui::Border().with_value(1).with_color(Color::black()),
-		.background_color = Color::red(),
-		.font_size = TEST_FONT_SIZE,
-	};
-	ui.text("The quick brown fox jumps over the lazy dog.", style);
-	ui.end_frame(m_resources);
-
-	ui.draw(&renderer);
-	renderer.render(m_resources);
-	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
-}
-
-TEST_F(UISystemTests, TextElement_TwoSingleLineParagraphs) {
-	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
-	ui::UISystem ui = ui::UISystem();
-	ui.set_window_size(BITMAP_WIDTH, BITMAP_HEIGHT);
-	renderer.clear_screen(Color::white());
-
-	ui.begin_frame();
-	ui::Style style = {
-		.margin = ui::Margin().with_value(1),
-		.border = ui::Border().with_value(1).with_color(Color::black()),
-		.background_color = Color::red(),
 		.font_size = TEST_FONT_SIZE,
 	};
 	ui.text("The quick brown fox.", style);
@@ -347,7 +323,7 @@ TEST_F(UISystemTests, TextElement_TwoSingleLineParagraphs) {
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
 }
 
-TEST_F(UISystemTests, TextElement_TwoMultilineParagraphs) {
+TEST_F(UISystemTests, TextElement_MultilineParagraph_WithBorder) {
 	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
 	ui::UISystem ui = ui::UISystem();
 	ui.set_window_size(BITMAP_WIDTH, BITMAP_HEIGHT);
@@ -357,7 +333,26 @@ TEST_F(UISystemTests, TextElement_TwoMultilineParagraphs) {
 	ui::Style style = {
 		.margin = ui::Margin().with_value(1),
 		.border = ui::Border().with_value(1).with_color(Color::black()),
-		.background_color = Color::red(),
+		.font_size = TEST_FONT_SIZE,
+	};
+	ui.text("The quick brown fox jumps over the lazy dog.", style);
+	ui.end_frame(m_resources);
+
+	ui.draw(&renderer);
+	renderer.render(m_resources);
+	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
+}
+
+TEST_F(UISystemTests, TextElement_TwoMultilineParagraphs_WithBorder) {
+	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
+	ui::UISystem ui = ui::UISystem();
+	ui.set_window_size(BITMAP_WIDTH, BITMAP_HEIGHT);
+	renderer.clear_screen(Color::white());
+
+	ui.begin_frame();
+	ui::Style style = {
+		.margin = ui::Margin().with_value(1),
+		.border = ui::Border().with_value(1).with_color(Color::black()),
 		.font_size = TEST_FONT_SIZE,
 	};
 	ui.text("The quick brown fox jumps over the lazy dog.", style);
