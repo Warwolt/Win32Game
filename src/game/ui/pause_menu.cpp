@@ -68,7 +68,7 @@ namespace game {
 	void PauseMenu::draw(const GameData& /*game*/, engine::Renderer* renderer) const {
 		const engine::IVec2 resolution = renderer->screen_resolution();
 
-		const engine::DrawTextOptions options = { .h_alignment = engine::HorizontalAlignment::Center };
+		const engine::DrawTextOptions options = { .alignment = engine::Alignment::Center };
 		const int menu_width = 120;
 		const int menu_height = 112;
 		const engine::Rect menu_rect = {

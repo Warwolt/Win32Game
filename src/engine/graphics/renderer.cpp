@@ -497,10 +497,10 @@ namespace engine {
 
 			/* Compute word position based on alignment */
 			const int row_remainder = rect.width - line_width;
-			switch (options.h_alignment) {
-				case HorizontalAlignment::Left: cursor_x = 0; break;
-				case HorizontalAlignment::Center: cursor_x = row_remainder / 2; break;
-				case HorizontalAlignment::Right: cursor_x = row_remainder; break;
+			switch (options.alignment) {
+				case Alignment::Left: cursor_x = 0; break;
+				case Alignment::Center: cursor_x = row_remainder / 2; break;
+				case Alignment::Right: cursor_x = row_remainder; break;
 			}
 
 			/* Put all words in current row */

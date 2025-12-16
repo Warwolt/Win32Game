@@ -530,7 +530,7 @@ TEST_F(RendererTests, DrawFont_HorizontallyLeftAligned) {
 		.width = 3 * BITMAP_WIDTH / 4,
 		.height = BITMAP_HEIGHT,
 	};
-	renderer.draw_text(m_test_font_id, TEST_FONT_SIZE, text_rect, Color::white(), LOREM_IPSUM, { .h_alignment = HorizontalAlignment::Left, .debug_draw_box = true });
+	renderer.draw_text(m_test_font_id, TEST_FONT_SIZE, text_rect, Color::white(), LOREM_IPSUM, { .alignment = Alignment::Left, .debug_draw_box = true });
 
 	renderer.render(m_resources);
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
@@ -545,7 +545,7 @@ TEST_F(RendererTests, DrawFont_HorizontallyCenterAligned) {
 		.width = 3 * BITMAP_WIDTH / 4,
 		.height = BITMAP_HEIGHT,
 	};
-	renderer.draw_text(m_test_font_id, TEST_FONT_SIZE, text_rect, Color::white(), LOREM_IPSUM, { .h_alignment = HorizontalAlignment::Center, .debug_draw_box = true });
+	renderer.draw_text(m_test_font_id, TEST_FONT_SIZE, text_rect, Color::white(), LOREM_IPSUM, { .alignment = Alignment::Center, .debug_draw_box = true });
 
 	renderer.render(m_resources);
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
@@ -560,7 +560,7 @@ TEST_F(RendererTests, DrawFont_HorizontallyRightAligned) {
 		.width = 3 * BITMAP_WIDTH / 4,
 		.height = BITMAP_HEIGHT,
 	};
-	renderer.draw_text(m_test_font_id, TEST_FONT_SIZE, text_rect, Color::white(), LOREM_IPSUM, { .h_alignment = HorizontalAlignment::Right, .debug_draw_box = true });
+	renderer.draw_text(m_test_font_id, TEST_FONT_SIZE, text_rect, Color::white(), LOREM_IPSUM, { .alignment = Alignment::Right, .debug_draw_box = true });
 
 	renderer.render(m_resources);
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());

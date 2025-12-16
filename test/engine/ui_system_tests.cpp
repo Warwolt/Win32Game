@@ -2,7 +2,6 @@
 
 #include <test/helpers/snapshot_tests.h>
 
-#include <engine/debug/assert.h>
 #include <engine/file/resource_manager.h>
 #include <engine/graphics/font_id.h>
 #include <engine/graphics/image_id.h>
@@ -85,6 +84,7 @@ namespace engine::ui {
 		FontID font_id;
 		int32_t font_size;
 		Color font_color;
+		Alignment text_alignment;
 	};
 
 	struct Element;
@@ -97,6 +97,7 @@ namespace engine::ui {
 		FontID font_id;
 		int32_t font_size;
 		Color font_color;
+		Alignment alignment;
 	};
 
 	// <img>
@@ -153,7 +154,7 @@ namespace engine::ui {
 					.font_id = style.font_id.value ? style.font_id : DEFAULT_FONT_ID,
 					.font_size = style.font_size ? style.font_size : 16,
 					.font_color = style.font_color ? style.font_color : Color::black(),
-				},
+					.alignment = style.text_alignment },
 				.box = {
 					.position = { 0, 0 },
 					.color = style.background_color,
@@ -234,7 +235,7 @@ namespace engine::ui {
 		/* Draw */
 		renderer->draw_rect(border_rect, border.color); // border
 		renderer->draw_rect_fill(background_rect, element.box.color); // background
-		renderer->draw_text(content.font_id, content.font_size, content_rect, content.font_color, content.text); // content
+		renderer->draw_text(content.font_id, content.font_size, content_rect, content.font_color, content.text, { .alignment = content.alignment }); // content
 
 		/* Update cursor */
 		cursor->y += margin.top + margin.bottom + border.top + border.bottom + padding.top + padding.bottom + content.height;
@@ -293,6 +294,50 @@ TEST_F(UISystemTests, TextElement_SingleLineParagraph_WithPadding) {
 		.border = ui::Border().with_value(1).with_color(Color::black()),
 		.padding = ui::Padding().with_value(10),
 		.font_size = TEST_FONT_SIZE,
+	};
+	ui.text("The quick brown fox.", style);
+	ui.end_frame(m_resources);
+
+	ui.draw(&renderer);
+	renderer.render(m_resources);
+	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
+}
+
+TEST_F(UISystemTests, TextElement_SingleLineParagraph_WithPadding_Centered) {
+	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
+	ui::UISystem ui = ui::UISystem();
+	ui.set_window_size(BITMAP_WIDTH, BITMAP_HEIGHT);
+	renderer.clear_screen(Color::white());
+
+	ui.begin_frame();
+	ui::Style style = {
+		.margin = ui::Margin().with_value(1),
+		.border = ui::Border().with_value(1).with_color(Color::black()),
+		.padding = ui::Padding().with_value(10),
+		.font_size = TEST_FONT_SIZE,
+		.text_alignment = Alignment::Center,
+	};
+	ui.text("The quick brown fox.", style);
+	ui.end_frame(m_resources);
+
+	ui.draw(&renderer);
+	renderer.render(m_resources);
+	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
+}
+
+TEST_F(UISystemTests, TextElement_SingleLineParagraph_WithPadding_RightAligned) {
+	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
+	ui::UISystem ui = ui::UISystem();
+	ui.set_window_size(BITMAP_WIDTH, BITMAP_HEIGHT);
+	renderer.clear_screen(Color::white());
+
+	ui.begin_frame();
+	ui::Style style = {
+		.margin = ui::Margin().with_value(1),
+		.border = ui::Border().with_value(1).with_color(Color::black()),
+		.padding = ui::Padding().with_value(10),
+		.font_size = TEST_FONT_SIZE,
+		.text_alignment = Alignment::Right,
 	};
 	ui.text("The quick brown fox.", style);
 	ui.end_frame(m_resources);

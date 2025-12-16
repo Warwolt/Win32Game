@@ -38,14 +38,14 @@ namespace engine {
 		Color tint = Color::white();
 	};
 
-	enum class HorizontalAlignment {
+	enum class Alignment {
 		Left,
 		Center,
 		Right,
 	};
 
 	struct DrawTextOptions {
-		HorizontalAlignment h_alignment = HorizontalAlignment::Left;
+		Alignment alignment = Alignment::Left;
 		bool debug_draw_box = false;
 	};
 
