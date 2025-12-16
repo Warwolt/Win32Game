@@ -85,27 +85,27 @@ namespace game {
 		};
 
 		/* Draw background */
-		renderer->draw_rect_fill(menu_rect, engine::RGBA::black());
+		renderer->draw_rect_fill(menu_rect, engine::Color::black());
 
 		if (m_state == State::ShowPauseMenu) {
 			/* Draw title */
-			renderer->draw_text(engine::DEFAULT_FONT_ID, 16, title_rect, engine::RGBA::white(), "Paused", options);
+			renderer->draw_text(engine::DEFAULT_FONT_ID, 16, title_rect, engine::Color::white(), "Paused", options);
 
 			/* Draw menu items */
 			int index = 0;
 			const int item_y = menu_rect.y + 48;
-			renderer->draw_text(engine::DEFAULT_FONT_ID, 16, { 0, item_y + index++ * 16, resolution.x, 0 }, engine::RGBA::white(), "Continue", options);
-			renderer->draw_text(engine::DEFAULT_FONT_ID, 16, { 0, item_y + index++ * 16, resolution.x, 0 }, engine::RGBA::white(), "Save game", options);
-			renderer->draw_text(engine::DEFAULT_FONT_ID, 16, { 0, item_y + index++ * 16, resolution.x, 0 }, engine::RGBA::white(), "Quit", options);
+			renderer->draw_text(engine::DEFAULT_FONT_ID, 16, { 0, item_y + index++ * 16, resolution.x, 0 }, engine::Color::white(), "Continue", options);
+			renderer->draw_text(engine::DEFAULT_FONT_ID, 16, { 0, item_y + index++ * 16, resolution.x, 0 }, engine::Color::white(), "Save game", options);
+			renderer->draw_text(engine::DEFAULT_FONT_ID, 16, { 0, item_y + index++ * 16, resolution.x, 0 }, engine::Color::white(), "Quit", options);
 
 			/* Draw cursor*/
-			renderer->draw_text(engine::DEFAULT_FONT_ID, 16, { menu_rect.x + 4, item_y + m_menu_index * 16 }, engine::RGBA::white(), ">");
+			renderer->draw_text(engine::DEFAULT_FONT_ID, 16, { menu_rect.x + 4, item_y + m_menu_index * 16 }, engine::Color::white(), ">");
 		}
 
 		if (m_state == State::ShowSaveConfirmation) {
 			/* Draw saved message */
 			const engine::Rect message_rect = { menu_rect.x, menu_rect.y + (menu_rect.height - 16) / 2, menu_rect.width, menu_rect.height };
-			renderer->draw_text(engine::DEFAULT_FONT_ID, 16, message_rect, engine::RGBA::yellow(), "Game saved!", options);
+			renderer->draw_text(engine::DEFAULT_FONT_ID, 16, message_rect, engine::Color::yellow(), "Game saved!", options);
 		}
 	}
 

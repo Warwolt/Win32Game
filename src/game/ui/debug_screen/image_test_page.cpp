@@ -70,7 +70,7 @@ namespace game {
 			/* Draw sprite sheet */
 			RENDERER_LOG(renderer, "Draw sprite sheet");
 			renderer->draw_image(m_sprite_sheet, sprite_sheet_pos);
-			renderer->draw_rect(sprite_clip_rect + sprite_sheet_pos, engine::RGBA::green());
+			renderer->draw_rect(sprite_clip_rect + sprite_sheet_pos, engine::Color::green());
 
 			/* Draw sprite */
 			RENDERER_LOG(renderer, "Draw sprite");
@@ -93,7 +93,7 @@ namespace game {
 				.height = scale * sprite_height,
 			};
 			renderer->draw_image_scaled(m_sprite_sheet, scaled_sprite_sheet_rect);
-			renderer->draw_rect(scaled_sprite_clip_rect + scaled_sprite_sheet_rect.pos(), engine::RGBA::green());
+			renderer->draw_rect(scaled_sprite_clip_rect + scaled_sprite_sheet_rect.pos(), engine::Color::green());
 
 			/* Draw scaled sprite */
 			RENDERER_LOG(renderer, "Draw sprite (scaled up)");
@@ -136,25 +136,25 @@ namespace game {
 			next_row();
 
 			RENDERER_LOG(renderer, "Draw image (tint red 0%)");
-			renderer->draw_image(m_test_image, { column++ * (image_width + 2), 80 + row * (image_height + 2) }, { .tint = engine::RGBA::red().with_alpha(0.0f) });
+			renderer->draw_image(m_test_image, { column++ * (image_width + 2), 80 + row * (image_height + 2) }, { .tint = engine::Color::red().with_alpha(0.0f) });
 
 			RENDERER_LOG(renderer, "Draw image (tint red 25%)");
-			renderer->draw_image(m_test_image, { column++ * (image_width + 2), 80 + row * (image_height + 2) }, { .tint = engine::RGBA::red().with_alpha(0.25f) });
+			renderer->draw_image(m_test_image, { column++ * (image_width + 2), 80 + row * (image_height + 2) }, { .tint = engine::Color::red().with_alpha(0.25f) });
 
 			RENDERER_LOG(renderer, "Draw image (tint red 50%)");
-			renderer->draw_image(m_test_image, { column++ * (image_width + 2), 80 + row * (image_height + 2) }, { .tint = engine::RGBA::red().with_alpha(0.50f) });
+			renderer->draw_image(m_test_image, { column++ * (image_width + 2), 80 + row * (image_height + 2) }, { .tint = engine::Color::red().with_alpha(0.50f) });
 
 			RENDERER_LOG(renderer, "Draw image (tint red 75%)");
-			renderer->draw_image(m_test_image, { column++ * (image_width + 2), 80 + row * (image_height + 2) }, { .tint = engine::RGBA::red().with_alpha(0.75f) });
+			renderer->draw_image(m_test_image, { column++ * (image_width + 2), 80 + row * (image_height + 2) }, { .tint = engine::Color::red().with_alpha(0.75f) });
 
 			RENDERER_LOG(renderer, "Draw image (tint red 100%)");
-			renderer->draw_image(m_test_image, { column++ * (image_width + 2), 80 + row * (image_height + 2) }, { .tint = engine::RGBA::red().with_alpha(1.0f) });
+			renderer->draw_image(m_test_image, { column++ * (image_width + 2), 80 + row * (image_height + 2) }, { .tint = engine::Color::red().with_alpha(1.0f) });
 
 			RENDERER_LOG(renderer, "Draw image (tint red 100%, opacity 75%)");
-			renderer->draw_image(m_test_image, { column++ * (image_width + 2), 80 + row * (image_height + 2) }, { .alpha = 0.75f, .tint = engine::RGBA::red().with_alpha(1.0f) });
+			renderer->draw_image(m_test_image, { column++ * (image_width + 2), 80 + row * (image_height + 2) }, { .alpha = 0.75f, .tint = engine::Color::red().with_alpha(1.0f) });
 
 			RENDERER_LOG(renderer, "Draw image (tint red 100%, opacity 50%)");
-			renderer->draw_image(m_test_image, { column++ * (image_width + 2), 80 + row * (image_height + 2) }, { .alpha = 0.50f, .tint = engine::RGBA::red().with_alpha(1.0f) });
+			renderer->draw_image(m_test_image, { column++ * (image_width + 2), 80 + row * (image_height + 2) }, { .alpha = 0.50f, .tint = engine::Color::red().with_alpha(1.0f) });
 		}
 
 		/* draw_image_scaled */
@@ -167,7 +167,7 @@ namespace game {
 			renderer->draw_image_scaled(m_test_image, { column++ * (2 * image_width + 2), 148, 2 * image_width, 2 * image_height }, { .flip_h = true, .flip_v = true, .alpha = 0.50f });
 
 			RENDERER_LOG(renderer, "Draw image scaled (tint red 100%)");
-			renderer->draw_image_scaled(m_test_image, { column++ * (2 * image_width + 2), 148, 2 * image_width, 2 * image_height }, { .tint = engine::RGBA::red() });
+			renderer->draw_image_scaled(m_test_image, { column++ * (2 * image_width + 2), 148, 2 * image_width, 2 * image_height }, { .tint = engine::Color::red() });
 		}
 	}
 

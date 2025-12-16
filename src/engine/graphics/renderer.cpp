@@ -90,7 +90,7 @@ namespace engine {
 		m_current_tag = tag;
 	}
 
-	void Renderer::clear_screen(RGBA color) {
+	void Renderer::clear_screen(Color color) {
 		m_draw_data.push_back(DrawData { ClearScreen { color }, _take_current_tag() });
 	}
 
@@ -102,23 +102,23 @@ namespace engine {
 		m_draw_data.push_back(DrawData { DrawLine { v1, v2 }, _take_current_tag() });
 	}
 
-	void Renderer::draw_line(IVec2 pos1, IVec2 pos2, RGBA color) {
+	void Renderer::draw_line(IVec2 pos1, IVec2 pos2, Color color) {
 		m_draw_data.push_back(DrawData { DrawLine { Vertex { .pos = pos1, .color = color }, Vertex { .pos = pos2, .color = color } }, _take_current_tag() });
 	}
 
-	void Renderer::draw_rect(Rect rect, RGBA color) {
+	void Renderer::draw_rect(Rect rect, Color color) {
 		m_draw_data.push_back(DrawData { DrawRect { rect, color, false }, _take_current_tag() });
 	}
 
-	void Renderer::draw_rect_fill(Rect rect, RGBA color) {
+	void Renderer::draw_rect_fill(Rect rect, Color color) {
 		m_draw_data.push_back(DrawData { DrawRect { rect, color, true }, _take_current_tag() });
 	}
 
-	void Renderer::draw_circle(IVec2 center, int32_t radius, RGBA color) {
+	void Renderer::draw_circle(IVec2 center, int32_t radius, Color color) {
 		m_draw_data.push_back(DrawData { DrawCircle { center, radius, color, false }, _take_current_tag() });
 	}
 
-	void Renderer::draw_circle_fill(IVec2 center, int32_t radius, RGBA color) {
+	void Renderer::draw_circle_fill(IVec2 center, int32_t radius, Color color) {
 		m_draw_data.push_back(DrawData { DrawCircle { center, radius, color, true }, _take_current_tag() });
 	}
 
@@ -138,7 +138,7 @@ namespace engine {
 		m_draw_data.push_back(DrawData { DrawImage { image_id, rect, options }, _take_current_tag() });
 	}
 
-	void Renderer::draw_text(FontID font_id, int32_t font_size, Rect rect, RGBA color, std::string text, DrawTextOptions options) {
+	void Renderer::draw_text(FontID font_id, int32_t font_size, Rect rect, Color color, std::string text, DrawTextOptions options) {
 		m_draw_data.push_back(DrawData { DrawText { font_id, font_size, rect, color, text, options }, _take_current_tag() });
 	}
 
@@ -222,9 +222,9 @@ namespace engine {
 		return std::exchange(m_current_tag, std::string());
 	}
 
-	void Renderer::_clear_screen(Bitmap* bitmap, RGBA color) {
+	void Renderer::_clear_screen(Bitmap* bitmap, Color color) {
 		CPUProfilingScope_Render();
-		bitmap->clear(Pixel::from_rgb(color));
+		bitmap->clear(Pixel::from_color(color));
 	}
 
 	void Renderer::_put_point(Bitmap* bitmap, Vertex v1) {
@@ -251,12 +251,12 @@ namespace engine {
 				? ((float)(cursor.pos.x - v1.pos.x) / (float)(v2.pos.x - v1.pos.x))
 				: ((float)(cursor.pos.y - v1.pos.y) / (float)(v2.pos.y - v1.pos.y));
 			if (image) {
-				cursor.color = image->sample(Vec2::lerp(v1.uv, v2.uv, t)) * RGBA::lerp(v1.color, v2.color, t);
+				cursor.color = image->sample(Vec2::lerp(v1.uv, v2.uv, t)) * Color::lerp(v1.color, v2.color, t);
 			}
 			else {
-				cursor.color = RGBA::lerp(v1.color, v2.color, t);
+				cursor.color = Color::lerp(v1.color, v2.color, t);
 			}
-			bitmap->put(cursor.pos.x, cursor.pos.y, Pixel::from_rgb(cursor.color), cursor.color.a / 255.0f);
+			bitmap->put(cursor.pos.x, cursor.pos.y, Pixel::from_color(cursor.color), cursor.color.a / 255.0f);
 
 			/* Step to next point */
 			if (2 * error >= delta_y) {
@@ -276,7 +276,7 @@ namespace engine {
 		}
 	}
 
-	void Renderer::_put_rect(Bitmap* bitmap, Rect rect, RGBA color) {
+	void Renderer::_put_rect(Bitmap* bitmap, Rect rect, Color color) {
 		CPUProfilingScope_Render();
 		IVec2 top_left = { rect.x, rect.y };
 		IVec2 top_right = { rect.x + rect.width - 1, rect.y };
@@ -298,9 +298,9 @@ namespace engine {
 		_put_line(bitmap, right_start, right_end, nullptr);
 	}
 
-	void Renderer::_put_rect_fill(Bitmap* bitmap, Rect rect, RGBA color) {
+	void Renderer::_put_rect_fill(Bitmap* bitmap, Rect rect, Color color) {
 		CPUProfilingScope_Render();
-		Pixel pixel = Pixel::from_rgb(color);
+		Pixel pixel = Pixel::from_color(color);
 		for (int32_t y = rect.y; y < rect.y + rect.height; y++) {
 			for (int32_t x = rect.x; x < rect.x + rect.width; x++) {
 				bitmap->put(x, y, pixel, color.a / 255.0f);
@@ -308,9 +308,9 @@ namespace engine {
 		}
 	}
 
-	void Renderer::_put_circle(Bitmap* bitmap, IVec2 center, int32_t radius, RGBA color) {
+	void Renderer::_put_circle(Bitmap* bitmap, IVec2 center, int32_t radius, Color color) {
 		CPUProfilingScope_Render();
-		Pixel pixel = Pixel::from_rgb(color);
+		Pixel pixel = Pixel::from_color(color);
 		float alpha = color.a / 255.0f;
 		for (IVec2 point : circle_octant_points(radius)) {
 			bitmap->put(center.x + point.x, center.y + point.y, pixel, alpha);
@@ -324,7 +324,7 @@ namespace engine {
 		}
 	}
 
-	void Renderer::_put_circle_fill(Bitmap* bitmap, IVec2 center, int32_t radius, RGBA color) {
+	void Renderer::_put_circle_fill(Bitmap* bitmap, IVec2 center, int32_t radius, Color color) {
 		CPUProfilingScope_Render();
 		for (IVec2 point : quarter_circle_points(radius)) {
 			IVec2 bottom_left = center + IVec2 { -point.x, point.y };
@@ -425,7 +425,7 @@ namespace engine {
 		};
 
 		/* Draw image line by line */
-		RGBA color = RGBA::lerp(RGBA::white(), options.tint, options.tint.a / 255.0f).with_alpha((uint8_t)(255.0f * options.alpha));
+		Color color = Color::lerp(Color::white(), options.tint, options.tint.a / 255.0f).with_alpha((uint8_t)(255.0f * options.alpha));
 		for (int32_t y = 0; y < rect.height; y++) {
 			Vertex left = {
 				.pos = { rect.x, rect.y + y },
@@ -453,15 +453,15 @@ namespace engine {
 		int32_t x_end = engine::min(options.clip.width, image.width);
 		for (int32_t y_offset = 0; y_offset < y_end; y_offset++) {
 			for (int32_t x_offset = 0; x_offset < x_end; x_offset++) {
-				RGBA color = RGBA::tint(image.get(options.clip.x + x_offset, options.clip.y + y_offset), options.tint);
+				Color color = Color::tint(image.get(options.clip.x + x_offset, options.clip.y + y_offset), options.tint);
 				int32_t x = options.flip_h ? pos.x + (options.clip.width - 1 - x_offset) : pos.x + x_offset;
 				int32_t y = options.flip_v ? pos.y + (options.clip.height - 1 - y_offset) : pos.y + y_offset;
-				bitmap->put(x, y, Pixel::from_rgb(color), color.a / 255.0f * options.alpha);
+				bitmap->put(x, y, Pixel::from_color(color), color.a / 255.0f * options.alpha);
 			}
 		}
 	}
 
-	void Renderer::_put_text(Bitmap* bitmap, const Typeface& font, int32_t font_size, Rect rect, RGBA color, const std::string& text, DrawTextOptions options) {
+	void Renderer::_put_text(Bitmap* bitmap, const Typeface& font, int32_t font_size, Rect rect, Color color, const std::string& text, DrawTextOptions options) {
 		const int32_t ascent = font.ascent(font_size);
 		const int32_t descent = font.descent(font_size);
 		const int32_t line_height = ascent - descent;
@@ -511,7 +511,7 @@ namespace engine {
 					const engine::Glyph& glyph = font.glyph(font_size, character);
 					for (int32_t y = 0; y < glyph.height; y++) {
 						for (int32_t x = 0; x < glyph.width; x++) {
-							engine::Pixel pixel = engine::Pixel::from_rgb(color);
+							engine::Pixel pixel = engine::Pixel::from_color(color);
 							float alpha = (glyph.get(x, y) / 255.0f) * (color.a / 255.0f);
 							int32_t pixel_x = rect.x + cursor_x + glyph.left_side_bearing + x;
 							int32_t pixel_y = rect.y + cursor_y + y + glyph.y_offset;
@@ -534,7 +534,7 @@ namespace engine {
 
 		/* Debug render bounding rect */
 		if (options.debug_draw_box) {
-			_put_rect(bitmap, rect, RGBA::green());
+			_put_rect(bitmap, rect, Color::green());
 		}
 	}
 

@@ -2,10 +2,10 @@
 
 #include <engine/debug/filename_from_path.h>
 #include <engine/graphics/bitmap.h>
+#include <engine/graphics/color.h>
 #include <engine/graphics/font_id.h>
 #include <engine/graphics/image_id.h>
 #include <engine/graphics/rect.h>
-#include <engine/graphics/rgba.h>
 #include <engine/math/ivec2.h>
 
 #include <format>
@@ -25,7 +25,7 @@ namespace engine {
 
 	struct Vertex {
 		IVec2 pos;
-		RGBA color;
+		Color color;
 		Vec2 uv; // bottom left (0,0), top right (1,1)
 		bool operator==(const Vertex& rhs) const = default;
 	};
@@ -35,7 +35,7 @@ namespace engine {
 		bool flip_h = false;
 		bool flip_v = false;
 		float alpha = 1.0f;
-		RGBA tint = RGBA::white();
+		Color tint = Color::white();
 	};
 
 	enum class HorizontalAlignment {
@@ -57,19 +57,19 @@ namespace engine {
 		// tags next draw command, shows up in Tracy
 		void add_tag(std::string tag);
 
-		void clear_screen(RGBA color = { 0, 0, 0, 255 });
+		void clear_screen(Color color = { 0, 0, 0, 255 });
 		void draw_point(Vertex v1);
 		void draw_line(Vertex v1, Vertex v2);
-		void draw_line(IVec2 pos1, IVec2 pos2, RGBA color);
-		void draw_rect(Rect rect, RGBA color);
-		void draw_rect_fill(Rect rect, RGBA color);
-		void draw_circle(IVec2 center, int32_t radius, RGBA color);
-		void draw_circle_fill(IVec2 center, int32_t radius, RGBA color);
+		void draw_line(IVec2 pos1, IVec2 pos2, Color color);
+		void draw_rect(Rect rect, Color color);
+		void draw_rect_fill(Rect rect, Color color);
+		void draw_circle(IVec2 center, int32_t radius, Color color);
+		void draw_circle_fill(IVec2 center, int32_t radius, Color color);
 		void draw_triangle(Vertex v1, Vertex v2, Vertex v3);
 		void draw_triangle_fill(Vertex v1, Vertex v2, Vertex v3);
 		void draw_image(ImageID image_id, IVec2 pos, DrawImageOptions options = {});
 		void draw_image_scaled(ImageID image_id, Rect rect, DrawImageOptions options = {});
-		void draw_text(FontID font_id, int32_t font_size, Rect rect, RGBA color, std::string text, DrawTextOptions options = {});
+		void draw_text(FontID font_id, int32_t font_size, Rect rect, Color color, std::string text, DrawTextOptions options = {});
 
 		const Bitmap& bitmap();
 		IVec2 screen_resolution() const;
@@ -78,7 +78,7 @@ namespace engine {
 
 	private:
 		struct ClearScreen {
-			RGBA color;
+			Color color;
 		};
 		struct DrawPoint {
 			Vertex v1;
@@ -89,13 +89,13 @@ namespace engine {
 		};
 		struct DrawRect {
 			Rect rect;
-			RGBA color;
+			Color color;
 			bool filled;
 		};
 		struct DrawCircle {
 			IVec2 center;
 			int32_t radius;
-			RGBA color;
+			Color color;
 			bool filled;
 		};
 		struct DrawTriangle {
@@ -113,7 +113,7 @@ namespace engine {
 			FontID font_id;
 			int32_t font_size;
 			Rect rect;
-			RGBA color;
+			Color color;
 			std::string text;
 			DrawTextOptions options;
 		};
@@ -138,18 +138,18 @@ namespace engine {
 		std::vector<DrawData> m_draw_data;
 
 		std::string _take_current_tag();
-		void _clear_screen(Bitmap* bitmap, RGBA color);
+		void _clear_screen(Bitmap* bitmap, Color color);
 		void _put_point(Bitmap* bitmap, Vertex v1);
 		void _put_line(Bitmap* bitmap, Vertex v1, Vertex v2, const Image* image);
-		void _put_rect(Bitmap* bitmap, Rect rect, RGBA color);
-		void _put_rect_fill(Bitmap* bitmap, Rect rect, RGBA color);
-		void _put_circle(Bitmap* bitmap, IVec2 center, int32_t radius, RGBA color);
-		void _put_circle_fill(Bitmap* bitmap, IVec2 center, int32_t radius, RGBA color);
+		void _put_rect(Bitmap* bitmap, Rect rect, Color color);
+		void _put_rect_fill(Bitmap* bitmap, Rect rect, Color color);
+		void _put_circle(Bitmap* bitmap, IVec2 center, int32_t radius, Color color);
+		void _put_circle_fill(Bitmap* bitmap, IVec2 center, int32_t radius, Color color);
 		void _put_triangle(Bitmap* bitmap, Vertex v1, Vertex v2, Vertex v3);
 		void _put_triangle_fill(Bitmap* bitmap, Vertex v1, Vertex v2, Vertex v3);
 		void _put_image(Bitmap* bitmap, const Image& image, IVec2 pos, DrawImageOptions options);
 		void _put_image_scaled(Bitmap* bitmap, const Image& image, Rect rect, DrawImageOptions options);
-		void _put_text(Bitmap* bitmap, const Typeface& typeface, int32_t font_size, Rect rect, RGBA color, const std::string& text, DrawTextOptions options);
+		void _put_text(Bitmap* bitmap, const Typeface& typeface, int32_t font_size, Rect rect, Color color, const std::string& text, DrawTextOptions options);
 	};
 
 } // namespace engine

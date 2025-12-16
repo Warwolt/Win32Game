@@ -32,11 +32,11 @@ set(SRC
     src/engine/file/resource_manager.cpp
     src/engine/file/save_file.cpp
     src/engine/graphics/bitmap.cpp
+    src/engine/graphics/color.cpp
     src/engine/graphics/font.cpp
     src/engine/graphics/image.cpp
     src/engine/graphics/rect.cpp
     src/engine/graphics/renderer.cpp
-    src/engine/graphics/rgba.cpp
     src/engine/graphics/window.cpp
     src/engine/input/button.cpp
     src/engine/input/gamepad.cpp

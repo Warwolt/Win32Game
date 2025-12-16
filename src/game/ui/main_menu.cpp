@@ -66,20 +66,20 @@ namespace game {
 		const engine::DrawTextOptions options = { .h_alignment = engine::HorizontalAlignment::Center };
 
 		/* Title */
-		renderer->draw_text(engine::DEFAULT_FONT_ID, 32, { 2, 59 + 2, resolution.x, 0 }, engine::RGBA::dark_purple(), "Main Menu", options);
-		renderer->draw_text(engine::DEFAULT_FONT_ID, 32, { 1, 59 + 1, resolution.x, 0 }, engine::RGBA::dark_purple(), "Main Menu", options);
-		renderer->draw_text(engine::DEFAULT_FONT_ID, 32, { 0, 59 + 0, resolution.x, 0 }, engine::RGBA::purple(), "Main Menu", options);
+		renderer->draw_text(engine::DEFAULT_FONT_ID, 32, { 2, 59 + 2, resolution.x, 0 }, engine::Color::dark_purple(), "Main Menu", options);
+		renderer->draw_text(engine::DEFAULT_FONT_ID, 32, { 1, 59 + 1, resolution.x, 0 }, engine::Color::dark_purple(), "Main Menu", options);
+		renderer->draw_text(engine::DEFAULT_FONT_ID, 32, { 0, 59 + 0, resolution.x, 0 }, engine::Color::purple(), "Main Menu", options);
 
 		/* Menu items */
 		int menu_index = 1;
-		const engine::RGBA continue_color = m_save_file_exists ? engine::RGBA::white() : engine::RGBA::grey();
-		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, { 0, 75 + 16 + menu_index++ * 16, resolution.x, 0 }, engine::RGBA::white(), "New Game", options);
+		const engine::Color continue_color = m_save_file_exists ? engine::Color::white() : engine::Color::grey();
+		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, { 0, 75 + 16 + menu_index++ * 16, resolution.x, 0 }, engine::Color::white(), "New Game", options);
 		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, { 0, 75 + 16 + menu_index++ * 16, resolution.x, 0 }, continue_color, "Continue", options);
-		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, { 0, 75 + 16 + menu_index++ * 16, resolution.x, 0 }, engine::RGBA::white(), "Debug", options);
-		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, { 0, 75 + 16 + menu_index++ * 16, resolution.x, 0 }, engine::RGBA::white(), "Quit", options);
+		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, { 0, 75 + 16 + menu_index++ * 16, resolution.x, 0 }, engine::Color::white(), "Debug", options);
+		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, { 0, 75 + 16 + menu_index++ * 16, resolution.x, 0 }, engine::Color::white(), "Quit", options);
 
 		/* Cursor */
-		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, { 75, 75 + 32 + m_menu_index * 16 }, engine::RGBA::white(), ">");
+		renderer->draw_text(engine::DEFAULT_FONT_ID, 16, { 75, 75 + 32 + m_menu_index * 16 }, engine::Color::white(), ">");
 	}
 
 } // namespace game
