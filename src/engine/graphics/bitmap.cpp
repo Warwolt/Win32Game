@@ -4,7 +4,7 @@
 
 namespace engine {
 
-	Pixel Pixel::from_rgb(RGBA color) {
+	Pixel Pixel::from_color(Color color) {
 		return Pixel {
 			.b = color.b,
 			.g = color.g,

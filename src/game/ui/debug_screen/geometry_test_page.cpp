@@ -31,7 +31,7 @@ namespace game {
 		std::array<FillMode, 2> fill_modes = { FillMode::Outline, FillMode::Filled };
 		std::array<ColorMode, 2> color_modes = { ColorMode::Mono, ColorMode::Gradient };
 
-		const engine::RGBA color = { 0, 255, 0, m_alpha };
+		const engine::Color color = { 0, 255, 0, m_alpha };
 		const int32_t grid_size = 32;
 		const int32_t grid_spacing = 8;
 		engine::IVec2 grid_pos = { -1, 0 };
@@ -57,8 +57,8 @@ namespace game {
 				});
 		};
 
-		auto get_color = [this](engine::RGBA color, ColorMode mode) {
-			return mode == ColorMode::Mono ? engine::RGBA { 0, 255, 0, m_alpha } : color;
+		auto get_color = [this](engine::Color color, ColorMode mode) {
+			return mode == ColorMode::Mono ? engine::Color { 0, 255, 0, m_alpha } : color;
 		};
 
 		/* Draw line */

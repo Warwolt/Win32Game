@@ -19,7 +19,7 @@ namespace game {
 	}
 
 	void MenuScene::draw(const GameData& /*game*/, engine::Renderer* renderer) const {
-		renderer->clear_screen(engine::RGBA::black());
+		renderer->clear_screen(engine::Color::black());
 	}
 
 } // namespace game

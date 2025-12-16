@@ -2,7 +2,7 @@
 
 #include <engine/graphics/image.h>
 #include <engine/graphics/rect.h>
-#include <engine/graphics/rgba.h>
+#include <engine/graphics/color.h>
 
 #include <cmath>
 #include <stdint.h>
@@ -18,7 +18,7 @@ namespace engine {
 		uint8_t r;
 		uint8_t padding;
 
-		static Pixel from_rgb(RGBA color);
+		static Pixel from_color(Color color);
 		bool operator==(const Pixel& rhs) const = default;
 		Pixel lerp(Pixel rhs, float t) const;
 	};

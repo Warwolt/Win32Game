@@ -168,7 +168,7 @@ namespace game {
 	}
 
 	void GameplayScene::draw(const GameData& game, engine::Renderer* renderer) const {
-		renderer->clear_screen(engine::RGBA { 252, 216, 168, 255 });
+		renderer->clear_screen(engine::Color { 252, 216, 168, 255 });
 
 		constexpr int player_size = 16;
 		const engine::IVec2 world_origin = renderer->screen_resolution() / 2;
