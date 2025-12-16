@@ -59,8 +59,12 @@ namespace testing {
   </body>
 </html>)";
 
+	std::string snapshot_directory_root() {
+		return "test/snapshots/";
+	}
+
 	std::string snapshot_directory(std::string test_suite_name) {
-		return "test/snapshots/" + test_suite_name;
+		return snapshot_directory_root() + test_suite_name;
 	}
 
 	static std::string snapshot_report_directory(std::string test_suite_name) {
@@ -290,10 +294,19 @@ namespace testing {
 	}
 
 	void initialize_snapshot_tests(int argc, char** argv) {
+		bool should_clean_snapshots = false;
 		for (int i = 0; i < argc; i++) {
 			if (std::string(argv[i]) == "--update-snapshots") {
 				g_context.should_update_snapshots = true;
 			}
+			if (std::string(argv[i]) == "--clean-snapshots") {
+				should_clean_snapshots = true;
+			}
+		}
+
+		/* Clean up snapshots */
+		if (should_clean_snapshots) {
+			std::filesystem::remove_all(snapshot_directory_root());
 		}
 	}
 
