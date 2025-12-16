@@ -9,7 +9,6 @@
 #include <engine/graphics/renderer.h>
 #include <engine/math/ivec2.h>
 
-
 #include <optional>
 #include <variant>
 
@@ -180,8 +179,20 @@ namespace engine::ui {
 				const Typeface& typeface = resources.typeface(content->font_id);
 				const int32_t ascent = typeface.ascent(content->font_size);
 				const int32_t descent = typeface.descent(content->font_size);
-				content->width = m_window_size.x - margin.left - margin.right - border.left - border.right - padding.left - padding.right;
-				content->height = ascent - descent;
+				const int32_t desired_content_width = m_window_size.x - margin.left - margin.right - border.left - border.right - padding.left - padding.right;
+
+				int32_t num_lines = 1;
+				int32_t current_line_width = 0;
+				for (char character : content->text) {
+					current_line_width += typeface.glyph(content->font_size, character).advance_width;
+					if (current_line_width > desired_content_width) {
+						num_lines++;
+						current_line_width = 0;
+					}
+				}
+
+				content->width = desired_content_width;
+				content->height = num_lines * (ascent - descent);
 			}
 		}
 	}

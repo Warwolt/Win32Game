@@ -17,7 +17,7 @@ namespace engine {
 		int32_t width; // bitmap width
 		int32_t height; // bitmap height
 		int32_t y_offset; // distance from glyph origin to bitmap top
-		int32_t advance_width; // space to insert between this glyph and next
+		int32_t advance_width; // space from start of this glyph to start of next
 		int32_t left_side_bearing; // distance from horisontal position to glyph
 		std::vector<uint8_t> pixels; // bitmap data
 
