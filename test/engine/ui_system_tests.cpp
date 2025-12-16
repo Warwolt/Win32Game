@@ -210,37 +210,11 @@ namespace engine::ui {
 		const Padding& padding = element.box.padding;
 		const Text& content = std::get<Text>(element.content);
 
-		// FIXME: We need to compute the box in the layout pass
-		//
-		// The box height needs to be based on the text and font we're using If we just use
-		// `font_size` we'll clip characters like 'g' and 'j' Also, for multiple-line text we're not
-		// getting the right height.
-		//
-		// Big question: How do we share the Font with the UISystem? Font is owned by the
-		// ResourceManager Generally we want to avoid dependency injection in constructors and
-		// prefer to pass dependencies as arguments to the methods that need them.
-		//
-		// But, at what exact timing do we _need_ the ResourceManager? When do we do the layout
-		// pass?
-		//
-		// How does the timing of the layout pass affect our ability to handle input? We have to
-		// know the size and position of a box to be able to tell if the mouse is clicking it.
-		//
-		// Ideally we should be able to do all this in the same frame, without needing to keep any
-		// state and do diffing between frames.
-		//
-		// We could maybe keep "double buffer" the `Document` data structure?
-		// Each frame, we're updating one of the documents, and keeping a previous document around.
-		// Any queries on document state (e.g. if an element was clicked) refer to the _previous_ frame.
-		//
-		// Since we're re-computing the whole Document each frame _anyway_ there's no copy cost.
-		// We just have a doc 1 and doc 2 and "current document" will just flip back and forth.
-		//
 		Rect border_rect = {
 			.x = cursor->x + margin.left,
 			.y = cursor->y + margin.top,
-			.width = content.width + border.left + border.right,
-			.height = content.height + border.top + border.bottom,
+			.width = content.width + padding.left + padding.right + border.left + border.right,
+			.height = content.height + padding.top + padding.bottom + border.top + border.bottom,
 		};
 
 		Rect background_rect = {
@@ -308,6 +282,28 @@ TEST_F(UISystemTests, TextElement_SingleLineParagraph) {
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
 }
 
+TEST_F(UISystemTests, TextElement_SingleLineParagraph_WithPadding) {
+	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
+	ui::UISystem ui = ui::UISystem();
+	ui.set_window_size(BITMAP_WIDTH, BITMAP_HEIGHT);
+	renderer.clear_screen(RGBA::white());
+
+	ui.begin_frame();
+	ui::Style style = {
+		.margin = ui::Margin().with_value(1),
+		.border = ui::Border().with_value(1).with_color(RGBA::black()),
+		.padding = ui::Padding().with_value(10),
+		.background_color = RGBA::red(),
+		.font_size = TEST_FONT_SIZE,
+	};
+	ui.text("The quick brown fox.", style);
+	ui.end_frame(m_resources);
+
+	ui.draw(&renderer);
+	renderer.render(m_resources);
+	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
+}
+
 TEST_F(UISystemTests, TextElement_MultilineParagraph) {
 	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
 	ui::UISystem ui = ui::UISystem();
@@ -344,6 +340,28 @@ TEST_F(UISystemTests, TextElement_TwoSingleLineParagraphs) {
 	};
 	ui.text("The quick brown fox.", style);
 	ui.text("Jumps over the lazy dog.", style);
+	ui.end_frame(m_resources);
+
+	ui.draw(&renderer);
+	renderer.render(m_resources);
+	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
+}
+
+TEST_F(UISystemTests, TextElement_TwoMultilineParagraphs) {
+	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
+	ui::UISystem ui = ui::UISystem();
+	ui.set_window_size(BITMAP_WIDTH, BITMAP_HEIGHT);
+	renderer.clear_screen(RGBA::white());
+
+	ui.begin_frame();
+	ui::Style style = {
+		.margin = ui::Margin().with_value(1),
+		.border = ui::Border().with_value(1).with_color(RGBA::black()),
+		.background_color = RGBA::red(),
+		.font_size = TEST_FONT_SIZE,
+	};
+	ui.text("The quick brown fox jumps over the lazy dog.", style);
+	ui.text("Sphinx of black quarts, judge my vow!", style);
 	ui.end_frame(m_resources);
 
 	ui.draw(&renderer);
