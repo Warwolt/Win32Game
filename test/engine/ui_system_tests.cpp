@@ -114,7 +114,7 @@ namespace engine::ui {
 	};
 
 	struct Document {
-		Element root;
+		std::vector<Element> root_elements;
 	};
 
 	// The application programmer interface
@@ -133,7 +133,7 @@ namespace engine::ui {
 		void draw(Renderer* renderer) const;
 
 	private:
-		void _draw_element(Renderer* renderer, const Element& element) const;
+		void _draw_element(Renderer* renderer, IVec2* cursor, const Element& element) const;
 
 		IVec2 m_window_size;
 		Document m_document;
@@ -144,39 +144,64 @@ namespace engine::ui {
 	}
 
 	void UISystem::text(std::string text, Style style) {
-		m_document.root = Element {
-			.content = Text {
-				.text = text,
-				.font_id = style.font_id.value ? style.font_id : DEFAULT_FONT_ID,
-				.font_size = style.font_size ? style.font_size : 16,
-				.font_color = style.font_color ? style.font_color : RGBA::black(),
-			},
-			.box = {
-				.position = { 0, 0 },
-				.color = style.background_color,
-				.padding = style.padding,
-				.border = style.border,
-				.margin = style.margin,
+		m_document.root_elements.push_back(
+			Element {
+				.content = Text {
+					.text = text,
+					.font_id = style.font_id.value ? style.font_id : DEFAULT_FONT_ID,
+					.font_size = style.font_size ? style.font_size : 16,
+					.font_color = style.font_color ? style.font_color : RGBA::black(),
+				},
+				.box = {
+					.position = { 0, 0 },
+					.color = style.background_color,
+					.padding = style.padding,
+					.border = style.border,
+					.margin = style.margin,
+				},
 			}
-		};
+		);
 	}
 
 	void UISystem::draw(Renderer* renderer) const {
-		_draw_element(renderer, m_document.root);
+		IVec2 cursor = { 0, 0 };
+		for (const Element& element : m_document.root_elements) {
+			_draw_element(renderer, &cursor, element);
+		}
 	}
 
-	void UISystem::_draw_element(Renderer* renderer, const Element& element) const {
+	void UISystem::_draw_element(Renderer* renderer, IVec2* cursor, const Element& element) const {
 		const Margin& margin = element.box.margin;
 		const Border& border = element.box.border;
 		const Padding& padding = element.box.padding;
 		const Text& content = std::get<Text>(element.content);
 
+		// FIXME: We need to compute the box in the layout pass
+		//
+		// The box height needs to be based on the text and font we're using
+		// If we just use `font_size` we'll clip characters like 'g' and 'j'
+		// Also, for multiple-line text we're not getting the right height.
+		//
+		// Big question: how do we share the Font with the UISystem?
+		// Font is owned by the ResourceManager
+		// Generally we want to avoid dependency injection in constructors and prefer to pass
+		// dependencies as arguments to the methods that need them.
+		//
+		// But, at what exact timing do we _need_ the ResourceManager?
+		// When do we do the layout pass?
+		//
+		// How does the timing of the layout pass affect our ability to handle input?
+		// We have to know the size and position of a box to be able to tell if the mouse is clicking it.
+		//
+		// Ideally we should be able to do all this in the same frame, without needing to keep any
+		// state and do diffing between frames.
+		//
 		int32_t box_width = m_window_size.x - margin.left - margin.right;
 		int32_t box_height = content.font_size;
 
 		Rect border_rect = {
-			.x = margin.left,
-			.y = margin.top,
+			.x = cursor->x + margin.left,
+			.y = cursor->y + margin.top,
 			.width = box_width,
 			.height = box_height,
 		};
@@ -192,13 +217,16 @@ namespace engine::ui {
 			.x = background_rect.x + padding.left,
 			.y = background_rect.y + padding.top,
 			.width = background_rect.width - padding.left - padding.right,
-			.height = background_rect.height - padding.top - padding.bottom,
+			.height = m_window_size.y,
 		};
 
 		/* Draw */
 		renderer->draw_rect(border_rect, border.color); // border
 		renderer->draw_rect_fill(background_rect, element.box.color); // background
 		renderer->draw_text(content.font_id, content.font_size, content_rect, content.font_color, content.text); // content
+
+		/* Update cursor */
+		cursor->y += box_height + margin.top + margin.bottom;
 	}
 
 } // namespace engine::ui
@@ -222,7 +250,7 @@ public:
 	}
 };
 
-TEST_F(UISystemTests, TextElement_TopLeft_RedBackground_BlackBorder) {
+TEST_F(UISystemTests, TextElement_SingleLineParagraph) {
 	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
 	ui::UISystem ui = ui::UISystem();
 	ui.set_window_size(BITMAP_WIDTH, BITMAP_HEIGHT);
@@ -233,8 +261,30 @@ TEST_F(UISystemTests, TextElement_TopLeft_RedBackground_BlackBorder) {
 		.border = ui::Border().with_value(1).with_color(RGBA::black()),
 		.padding = { .left = 1 },
 		.background_color = RGBA::red(),
+		.font_size = TEST_FONT_SIZE,
 	};
-	ui.text("Hello world", style);
+	ui.text("The quick brown fox.", style);
+
+	ui.draw(&renderer);
+	renderer.render(m_resources);
+	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
+}
+
+TEST_F(UISystemTests, TextElement_TwoSingleLineParagraphs) {
+	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
+	ui::UISystem ui = ui::UISystem();
+	ui.set_window_size(BITMAP_WIDTH, BITMAP_HEIGHT);
+	renderer.clear_screen(RGBA::white());
+
+	ui::Style style = {
+		.margin = ui::Margin().with_value(1),
+		.border = ui::Border().with_value(1).with_color(RGBA::black()),
+		.padding = { .left = 1 },
+		.background_color = RGBA::red(),
+		.font_size = TEST_FONT_SIZE,
+	};
+	ui.text("The quick brown fox.", style);
+	ui.text("Jumps over the lazy dog.", style);
 
 	ui.draw(&renderer);
 	renderer.render(m_resources);
