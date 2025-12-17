@@ -136,6 +136,7 @@ namespace engine::ui {
 		void draw(Renderer* renderer) const;
 
 	private:
+		void _build_layout(Document* document, const ResourceManager& resources) const;
 		void _draw_element(Renderer* renderer, IVec2* cursor, const Element& element) const;
 
 		IVec2 m_window_size;
@@ -171,8 +172,22 @@ namespace engine::ui {
 	}
 
 	void UISystem::end_frame(const ResourceManager& resources) {
-		// layout pass
-		for (Element& element : m_document.root_elements) {
+		_build_layout(&m_document, resources);
+	}
+
+	void UISystem::draw(Renderer* renderer) const {
+		IVec2 cursor = { 0, 0 };
+		for (const Element& element : m_document.root_elements) {
+			_draw_element(renderer, &cursor, element);
+		}
+	}
+
+	void UISystem::_build_layout(Document* document, const ResourceManager& resources) const {
+		// Text element width by default AUTO, which means "use full available parent width"
+		// Text element height by default AUTO, which means "fit to font line height"
+		// Parent of all root elements is window
+		// Available width and height for root is window width and window height
+		for (Element& element : document->root_elements) {
 			const Margin& margin = element.box.margin;
 			const Border& border = element.box.border;
 			const Padding& padding = element.box.padding;
@@ -195,13 +210,6 @@ namespace engine::ui {
 				content->width = desired_content_width;
 				content->height = num_lines * (ascent - descent);
 			}
-		}
-	}
-
-	void UISystem::draw(Renderer* renderer) const {
-		IVec2 cursor = { 0, 0 };
-		for (const Element& element : m_document.root_elements) {
-			_draw_element(renderer, &cursor, element);
 		}
 	}
 
