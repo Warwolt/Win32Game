@@ -356,7 +356,7 @@ namespace testing {
 		}
 
 		if (!g_context.all_suites.empty()) {
-			printf("\nSnapshot test report updated: %s\n", "./snapshot_report/index.html");
+			printf("\nSnapshot test report: %s\n", "./snapshot_report/index.html");
 		}
 	}
 

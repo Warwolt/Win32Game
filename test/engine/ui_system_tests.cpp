@@ -137,6 +137,7 @@ namespace engine::ui {
 
 	private:
 		void _build_layout(Document* document, const ResourceManager& resources) const;
+		void _layout_element(Element* element, const ResourceManager& resources, IVec2 available_space) const;
 		void _draw_element(Renderer* renderer, IVec2* cursor, const Element& element) const;
 
 		IVec2 m_window_size;
@@ -188,28 +189,33 @@ namespace engine::ui {
 		// Parent of all root elements is window
 		// Available width and height for root is window width and window height
 		for (Element& element : document->root_elements) {
-			const Margin& margin = element.box.margin;
-			const Border& border = element.box.border;
-			const Padding& padding = element.box.padding;
-			if (Text* content = std::get_if<Text>(&element.content)) {
-				const Typeface& typeface = resources.typeface(content->font_id);
-				const int32_t ascent = typeface.ascent(content->font_size);
-				const int32_t descent = typeface.descent(content->font_size);
-				const int32_t desired_content_width = m_window_size.x - margin.left - margin.right - border.left - border.right - padding.left - padding.right;
+			_layout_element(&element, resources, m_window_size);
+		}
+	}
 
-				int32_t num_lines = 1;
-				int32_t current_line_width = 0;
-				for (char character : content->text) {
-					current_line_width += typeface.glyph(content->font_size, character).advance_width;
-					if (current_line_width > desired_content_width) {
-						num_lines++;
-						current_line_width = 0;
-					}
+	void UISystem::_layout_element(Element* element, const ResourceManager& resources, IVec2 available_space) const {
+		const Margin& margin = element->box.margin;
+		const Border& border = element->box.border;
+		const Padding& padding = element->box.padding;
+
+		if (Text* content = std::get_if<Text>(&element->content)) {
+			const Typeface& typeface = resources.typeface(content->font_id);
+			const int32_t ascent = typeface.ascent(content->font_size);
+			const int32_t descent = typeface.descent(content->font_size);
+			const int32_t desired_content_width = available_space.x - margin.left - margin.right - border.left - border.right - padding.left - padding.right;
+
+			int32_t num_lines = 1;
+			int32_t current_line_width = 0;
+			for (char character : content->text) {
+				current_line_width += typeface.glyph(content->font_size, character).advance_width;
+				if (current_line_width > desired_content_width) {
+					num_lines++;
+					current_line_width = 0;
 				}
-
-				content->width = desired_content_width;
-				content->height = num_lines * (ascent - descent);
 			}
+
+			content->width = desired_content_width;
+			content->height = num_lines * (ascent - descent);
 		}
 	}
 
