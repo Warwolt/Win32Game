@@ -28,6 +28,14 @@ namespace engine::ui {
 			this->bottom = value;
 			return *this;
 		}
+
+		int32_t horizontal() const {
+			return left + right;
+		}
+
+		int32_t vertical() const {
+			return top + bottom;
+		}
 	};
 
 	struct Border {
@@ -49,6 +57,14 @@ namespace engine::ui {
 			this->color = value;
 			return *this;
 		}
+
+		int32_t horizontal() const {
+			return left + right;
+		}
+
+		int32_t vertical() const {
+			return top + bottom;
+		}
 	};
 
 	struct Padding {
@@ -63,6 +79,14 @@ namespace engine::ui {
 			this->top = value;
 			this->bottom = value;
 			return *this;
+		}
+
+		int32_t horizontal() const {
+			return left + right;
+		}
+
+		int32_t vertical() const {
+			return top + bottom;
 		}
 	};
 
@@ -184,10 +208,6 @@ namespace engine::ui {
 	}
 
 	void UISystem::_build_layout(Document* document, const ResourceManager& resources) const {
-		// Text element width by default AUTO, which means "use full available parent width"
-		// Text element height by default AUTO, which means "fit to font line height"
-		// Parent of all root elements is window
-		// Available width and height for root is window width and window height
 		for (Element& element : document->root_elements) {
 			_layout_element(&element, resources, m_window_size);
 		}
@@ -200,7 +220,7 @@ namespace engine::ui {
 
 		if (Text* content = std::get_if<Text>(&element->content)) {
 			const Typeface& typeface = resources.typeface(content->font_id);
-			const int32_t desired_content_width = available_space.x - margin.left - margin.right - border.left - border.right - padding.left - padding.right;
+			const int32_t desired_content_width = available_space.x - margin.horizontal() - border.horizontal() - padding.horizontal();
 
 			int32_t num_lines = 1;
 			int32_t current_line_width = 0;
@@ -226,21 +246,21 @@ namespace engine::ui {
 		Rect border_rect = {
 			.x = cursor->x + margin.left,
 			.y = cursor->y + margin.top,
-			.width = content.width + padding.left + padding.right + border.left + border.right,
-			.height = content.height + padding.top + padding.bottom + border.top + border.bottom,
+			.width = content.width + padding.horizontal() + border.horizontal(),
+			.height = content.height + padding.vertical() + border.vertical(),
 		};
 
 		Rect background_rect = {
 			.x = border_rect.x + border.left,
 			.y = border_rect.y + border.top,
-			.width = border_rect.width - border.left - border.right,
-			.height = border_rect.height - border.top - border.bottom,
+			.width = border_rect.width - border.horizontal(),
+			.height = border_rect.height - border.vertical(),
 		};
 
 		Rect content_rect = {
 			.x = background_rect.x + padding.left + 1,
 			.y = background_rect.y + padding.top,
-			.width = background_rect.width - padding.left - padding.right,
+			.width = background_rect.width - padding.horizontal(),
 			.height = m_window_size.y,
 		};
 
@@ -250,7 +270,7 @@ namespace engine::ui {
 		renderer->draw_text(content.font_id, content.font_size, content_rect, content.font_color, content.text, { .alignment = content.alignment }); // content
 
 		/* Update cursor */
-		cursor->y += margin.top + margin.bottom + border.top + border.bottom + padding.top + padding.bottom + content.height;
+		cursor->y += margin.vertical() + border.vertical() + padding.vertical() + content.height;
 	}
 
 } // namespace engine::ui
