@@ -490,3 +490,37 @@ TEST_F(UISystemTests, ImageElement_SingleImage) {
 	renderer.render(m_resources);
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
 }
+
+TEST_F(UISystemTests, ImageElement_TwoImages_InColumn) {
+	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
+	ui::UISystem ui = ui::UISystem();
+	ui.set_window_size(BITMAP_WIDTH, BITMAP_HEIGHT);
+	renderer.clear_screen(Color::white());
+
+	ui.begin_frame();
+	ui.image(m_test_image_id);
+	ui.image(m_test_image_id);
+	ui.end_frame(m_resources);
+
+	ui.draw(&renderer);
+	renderer.render(m_resources);
+	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
+}
+
+TEST_F(UISystemTests, ImageElement_TextElement) {
+	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
+	ui::UISystem ui = ui::UISystem();
+	ui.set_window_size(BITMAP_WIDTH, BITMAP_HEIGHT);
+	renderer.clear_screen(Color::white());
+
+	ui.begin_frame();
+	ui.text("First image:");
+	ui.image(m_test_image_id, { .margin = { .bottom = 8 } });
+	ui.text("Second image:");
+	ui.image(m_test_image_id);
+	ui.end_frame(m_resources);
+
+	ui.draw(&renderer);
+	renderer.render(m_resources);
+	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
+}
