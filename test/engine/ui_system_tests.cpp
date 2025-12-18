@@ -92,6 +92,8 @@ namespace engine::ui {
 
 	struct Box {
 		IVec2 position;
+		int32_t width;
+		int32_t height;
 		Color color;
 		Padding padding;
 		Border border;
@@ -116,8 +118,6 @@ namespace engine::ui {
 	// <p>
 	struct TextContent {
 		std::string text;
-		int32_t width;
-		int32_t height;
 		FontID font_id;
 		int32_t font_size;
 		Color font_color;
@@ -232,8 +232,8 @@ namespace engine::ui {
 				}
 			}
 
-			content->width = desired_content_width;
-			content->height = num_lines * typeface.line_height(content->font_size);
+			element->box.width = desired_content_width;
+			element->box.height = num_lines * typeface.line_height(content->font_size);
 		}
 	}
 
@@ -241,13 +241,12 @@ namespace engine::ui {
 		const Margin& margin = element.box.margin;
 		const Border& border = element.box.border;
 		const Padding& padding = element.box.padding;
-		const TextContent& content = std::get<TextContent>(element.content);
 
 		Rect border_rect = {
 			.x = cursor->x + margin.left,
 			.y = cursor->y + margin.top,
-			.width = content.width + padding.horizontal() + border.horizontal(),
-			.height = content.height + padding.vertical() + border.vertical(),
+			.width = element.box.width + padding.horizontal() + border.horizontal(),
+			.height = element.box.height + padding.vertical() + border.vertical(),
 		};
 
 		Rect background_rect = {
@@ -265,12 +264,14 @@ namespace engine::ui {
 		};
 
 		/* Draw */
-		renderer->draw_rect(border_rect, border.color); // border
-		renderer->draw_rect_fill(background_rect, element.box.color); // background
-		renderer->draw_text(content.font_id, content.font_size, content_rect, content.font_color, content.text, { .alignment = content.alignment }); // content
+		if (const TextContent* content = std::get_if<TextContent>(&element.content)) {
+			renderer->draw_rect(border_rect, border.color); // border
+			renderer->draw_rect_fill(background_rect, element.box.color); // background
+			renderer->draw_text(content->font_id, content->font_size, content_rect, content->font_color, content->text, { .alignment = content->alignment }); // content
+		}
 
 		/* Update cursor */
-		cursor->y += margin.vertical() + border.vertical() + padding.vertical() + content.height;
+		cursor->y += margin.vertical() + border.vertical() + padding.vertical() + element.box.height;
 	}
 
 } // namespace engine::ui
