@@ -114,7 +114,7 @@ namespace engine::ui {
 	struct Element;
 
 	// <p>
-	struct Text {
+	struct TextContent {
 		std::string text;
 		int32_t width;
 		int32_t height;
@@ -125,16 +125,16 @@ namespace engine::ui {
 	};
 
 	// <img>
-	struct Image {
+	struct ImageContent {
 		ImageID image_id;
 	};
 
 	// <div>
-	struct Container {
+	struct ContainerContent {
 		std::vector<std::unique_ptr<Element>> children;
 	};
 
-	using Content = std::variant<Text, Image, Container>;
+	using Content = std::variant<TextContent, ImageContent, ContainerContent>;
 
 	struct Element {
 		Content content;
@@ -175,7 +175,7 @@ namespace engine::ui {
 	void UISystem::text(std::string text, Style style) {
 		m_document.root_elements.push_back(
 			Element {
-				.content = Text {
+				.content = TextContent {
 					.text = text,
 					.font_id = style.font_id.value ? style.font_id : DEFAULT_FONT_ID,
 					.font_size = style.font_size ? style.font_size : 16,
@@ -218,7 +218,7 @@ namespace engine::ui {
 		const Border& border = element->box.border;
 		const Padding& padding = element->box.padding;
 
-		if (Text* content = std::get_if<Text>(&element->content)) {
+		if (TextContent* content = std::get_if<TextContent>(&element->content)) {
 			const Typeface& typeface = resources.typeface(content->font_id);
 			const int32_t desired_content_width = available_width - margin.horizontal() - border.horizontal() - padding.horizontal();
 
@@ -241,7 +241,7 @@ namespace engine::ui {
 		const Margin& margin = element.box.margin;
 		const Border& border = element.box.border;
 		const Padding& padding = element.box.padding;
-		const Text& content = std::get<Text>(element.content);
+		const TextContent& content = std::get<TextContent>(element.content);
 
 		Rect border_rect = {
 			.x = cursor->x + margin.left,
