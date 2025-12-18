@@ -102,6 +102,8 @@ namespace engine::ui {
 
 	struct Style {
 		// box
+		int32_t width; // 0 means auto
+		int32_t height; // 0 means auto
 		Margin margin;
 		Border border;
 		Padding padding;
@@ -200,6 +202,8 @@ namespace engine::ui {
 				},
 				.box = {
 					.position = { 0, 0 },
+					.width = style.width,
+					.height = style.height,
 					.color = style.background_color,
 					.padding = style.padding,
 					.border = style.border,
@@ -255,8 +259,8 @@ namespace engine::ui {
 
 		if (ImageContent* content = std::get_if<ImageContent>(&element->content)) {
 			const Image& image = resources.image(content->image_id);
-			element->box.width = image.width;
-			element->box.height = image.height;
+			element->box.width = element->box.width ? element->box.width : image.width;
+			element->box.height = element->box.height ? element->box.height : image.height;
 		}
 	}
 
@@ -518,6 +522,22 @@ TEST_F(UISystemTests, ImageElement_TextElement) {
 	ui.image(m_test_image_id, { .margin = { .bottom = 8 } });
 	ui.text("Second image:");
 	ui.image(m_test_image_id);
+	ui.end_frame(m_resources);
+
+	ui.draw(&renderer);
+	renderer.render(m_resources);
+	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
+}
+
+TEST_F(UISystemTests, ImageElement_SingleImage_DoubleSize) {
+	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
+	ui::UISystem ui = ui::UISystem();
+	ui.set_window_size(BITMAP_WIDTH, BITMAP_HEIGHT);
+	renderer.clear_screen(Color::white());
+	const IVec2 image_size = m_resources.image(m_test_image_id).size();
+
+	ui.begin_frame();
+	ui.image(m_test_image_id, { .width = 2 * image_size.x, .height = 2 * image_size.y });
 	ui.end_frame(m_resources);
 
 	ui.draw(&renderer);

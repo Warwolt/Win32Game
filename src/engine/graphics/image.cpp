@@ -20,6 +20,10 @@ namespace engine {
 		return this->pixels[clamped_x + clamped_y * this->width];
 	}
 
+	IVec2 Image::size() const {
+		return { this->width, this->height };
+	}
+
 	std::optional<Image> Image::from_path(std::filesystem::path path) {
 		Image image;
 
