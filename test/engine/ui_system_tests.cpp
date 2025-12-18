@@ -559,6 +559,38 @@ TEST_F(UISystemTests, ImageElement_TextElement) {
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
 }
 
+TEST_F(UISystemTests, ImageElement_SingleImage_DoubleWidth) {
+	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
+	ui::UISystem ui = ui::UISystem();
+	ui.set_window_size(BITMAP_WIDTH, BITMAP_HEIGHT);
+	renderer.clear_screen(Color::white());
+	const IVec2 image_size = m_resources.image(m_test_image_id).size();
+
+	ui.begin_frame();
+	ui.image(m_test_image_id, { .width = 2 * image_size.x });
+	ui.end_frame(m_resources);
+
+	ui.draw(&renderer);
+	renderer.render(m_resources);
+	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
+}
+
+TEST_F(UISystemTests, ImageElement_SingleImage_DoubleHeight) {
+	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
+	ui::UISystem ui = ui::UISystem();
+	ui.set_window_size(BITMAP_WIDTH, BITMAP_HEIGHT);
+	renderer.clear_screen(Color::white());
+	const IVec2 image_size = m_resources.image(m_test_image_id).size();
+
+	ui.begin_frame();
+	ui.image(m_test_image_id, { .height = 2 * image_size.y });
+	ui.end_frame(m_resources);
+
+	ui.draw(&renderer);
+	renderer.render(m_resources);
+	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
+}
+
 TEST_F(UISystemTests, ImageElement_SingleImage_DoubleSize) {
 	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
 	ui::UISystem ui = ui::UISystem();
