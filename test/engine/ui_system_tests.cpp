@@ -161,7 +161,7 @@ namespace engine::ui {
 
 	private:
 		void _build_layout(Document* document, const ResourceManager& resources) const;
-		void _layout_element(Element* element, const ResourceManager& resources, IVec2 available_space) const;
+		void _layout_element(Element* element, const ResourceManager& resources, int32_t available_width, int32_t available_height) const;
 		void _draw_element(Renderer* renderer, IVec2* cursor, const Element& element) const;
 
 		IVec2 m_window_size;
@@ -209,18 +209,18 @@ namespace engine::ui {
 
 	void UISystem::_build_layout(Document* document, const ResourceManager& resources) const {
 		for (Element& element : document->root_elements) {
-			_layout_element(&element, resources, m_window_size);
+			_layout_element(&element, resources, m_window_size.x, m_window_size.y);
 		}
 	}
 
-	void UISystem::_layout_element(Element* element, const ResourceManager& resources, IVec2 available_space) const {
+	void UISystem::_layout_element(Element* element, const ResourceManager& resources, int32_t available_width, int32_t /*available_height*/) const {
 		const Margin& margin = element->box.margin;
 		const Border& border = element->box.border;
 		const Padding& padding = element->box.padding;
 
 		if (Text* content = std::get_if<Text>(&element->content)) {
 			const Typeface& typeface = resources.typeface(content->font_id);
-			const int32_t desired_content_width = available_space.x - margin.horizontal() - border.horizontal() - padding.horizontal();
+			const int32_t desired_content_width = available_width - margin.horizontal() - border.horizontal() - padding.horizontal();
 
 			int32_t num_lines = 1;
 			int32_t current_line_width = 0;
