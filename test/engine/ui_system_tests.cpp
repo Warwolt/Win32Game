@@ -15,6 +15,9 @@ using namespace engine;
 
 namespace engine::ui {
 
+	const int32_t AUTO_WIDTH = 0;
+	const int32_t AUTO_HEIGHT = 0;
+
 	struct Margin {
 		int32_t left;
 		int32_t right;
@@ -162,7 +165,7 @@ namespace engine::ui {
 		void draw(Renderer* renderer) const;
 
 	private:
-		void _build_layout(Document* document, const ResourceManager& resources) const;
+		void _layout_document(Document* document, const ResourceManager& resources) const;
 		void _layout_element(Element* element, const ResourceManager& resources, int32_t available_width, int32_t available_height) const;
 		void _draw_element(Renderer* renderer, IVec2* cursor, const Element& element) const;
 
@@ -185,6 +188,8 @@ namespace engine::ui {
 					.alignment = style.text_alignment },
 				.box = {
 					.position = { 0, 0 },
+					.width = style.width,
+					.height = style.height,
 					.color = style.background_color,
 					.padding = style.padding,
 					.border = style.border,
@@ -218,7 +223,7 @@ namespace engine::ui {
 	}
 
 	void UISystem::end_frame(const ResourceManager& resources) {
-		_build_layout(&m_document, resources);
+		_layout_document(&m_document, resources);
 	}
 
 	void UISystem::draw(Renderer* renderer) const {
@@ -228,7 +233,7 @@ namespace engine::ui {
 		}
 	}
 
-	void UISystem::_build_layout(Document* document, const ResourceManager& resources) const {
+	void UISystem::_layout_document(Document* document, const ResourceManager& resources) const {
 		for (Element& element : document->root_elements) {
 			_layout_element(&element, resources, m_window_size.x, m_window_size.y);
 		}
@@ -241,7 +246,8 @@ namespace engine::ui {
 
 		if (TextContent* content = std::get_if<TextContent>(&element->content)) {
 			const Typeface& typeface = resources.typeface(content->font_id);
-			const int32_t desired_content_width = available_width - margin.horizontal() - border.horizontal() - padding.horizontal();
+			const int32_t available_content_width = available_width - margin.horizontal() - border.horizontal() - padding.horizontal();
+			const int32_t desired_content_width = element->box.width ? element->box.width : available_content_width;
 
 			int32_t num_lines = 1;
 			int32_t current_line_width = 0;
@@ -254,7 +260,9 @@ namespace engine::ui {
 			}
 
 			element->box.width = desired_content_width;
-			element->box.height = num_lines * typeface.line_height(content->font_size);
+			if (element->box.height == AUTO_HEIGHT) {
+				element->box.height = num_lines * typeface.line_height(content->font_size);
+			}
 		}
 
 		if (ImageContent* content = std::get_if<ImageContent>(&element->content)) {
@@ -415,6 +423,28 @@ TEST_F(UISystemTests, TextElement_SingleLineParagraph_WithPadding_RightAligned) 
 	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
 }
 
+TEST_F(UISystemTests, TextElement_SingleLineParagraph_HalfWindowSize) {
+	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
+	ui::UISystem ui = ui::UISystem();
+	ui.set_window_size(BITMAP_WIDTH, BITMAP_HEIGHT);
+	renderer.clear_screen(Color::white());
+
+	ui.begin_frame();
+	ui::Style style = {
+		.width = BITMAP_WIDTH / 2,
+		.height = BITMAP_HEIGHT / 2,
+		.margin = ui::Margin().with_value(1),
+		.border = ui::Border().with_value(1).with_color(Color::black()),
+		.background_color = Color::red(),
+		.font_size = TEST_FONT_SIZE,
+	};
+	ui.text("The quick brown fox.", style);
+	ui.end_frame(m_resources);
+
+	ui.draw(&renderer);
+	renderer.render(m_resources);
+	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
+}
 TEST_F(UISystemTests, TextElement_TwoSingleLineParagraphs) {
 	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
 	ui::UISystem ui = ui::UISystem();
