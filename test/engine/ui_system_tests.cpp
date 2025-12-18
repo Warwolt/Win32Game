@@ -304,6 +304,7 @@ TEST_F(UISystemTests, TextElement_SingleLineParagraph) {
 	ui::Style style = {
 		.margin = ui::Margin().with_value(1),
 		.border = ui::Border().with_value(1).with_color(Color::black()),
+		.background_color = Color::red(),
 		.font_size = TEST_FONT_SIZE,
 	};
 	ui.text("The quick brown fox.", style);
@@ -325,6 +326,7 @@ TEST_F(UISystemTests, TextElement_SingleLineParagraph_WithPadding) {
 		.margin = ui::Margin().with_value(1),
 		.border = ui::Border().with_value(1).with_color(Color::black()),
 		.padding = ui::Padding().with_value(10),
+		.background_color = Color::red(),
 		.font_size = TEST_FONT_SIZE,
 	};
 	ui.text("The quick brown fox.", style);
@@ -346,6 +348,7 @@ TEST_F(UISystemTests, TextElement_SingleLineParagraph_WithPadding_Centered) {
 		.margin = ui::Margin().with_value(1),
 		.border = ui::Border().with_value(1).with_color(Color::black()),
 		.padding = ui::Padding().with_value(10),
+		.background_color = Color::red(),
 		.font_size = TEST_FONT_SIZE,
 		.text_alignment = Alignment::Center,
 	};
@@ -368,6 +371,7 @@ TEST_F(UISystemTests, TextElement_SingleLineParagraph_WithPadding_RightAligned) 
 		.margin = ui::Margin().with_value(1),
 		.border = ui::Border().with_value(1).with_color(Color::black()),
 		.padding = ui::Padding().with_value(10),
+		.background_color = Color::red(),
 		.font_size = TEST_FONT_SIZE,
 		.text_alignment = Alignment::Right,
 	};
@@ -389,6 +393,7 @@ TEST_F(UISystemTests, TextElement_TwoSingleLineParagraphs) {
 	ui::Style style = {
 		.margin = ui::Margin().with_value(1),
 		.border = ui::Border().with_value(1).with_color(Color::black()),
+		.background_color = Color::red(),
 		.font_size = TEST_FONT_SIZE,
 	};
 	ui.text("The quick brown fox.", style);
@@ -410,6 +415,7 @@ TEST_F(UISystemTests, TextElement_MultilineParagraph) {
 	ui::Style style = {
 		.margin = ui::Margin().with_value(1),
 		.border = ui::Border().with_value(1).with_color(Color::black()),
+		.background_color = Color::red(),
 		.font_size = TEST_FONT_SIZE,
 	};
 	ui.text("The quick brown fox jumps over the lazy dog.", style);
@@ -430,6 +436,7 @@ TEST_F(UISystemTests, TextElement_TwoMultilineParagraphs) {
 	ui::Style style = {
 		.margin = ui::Margin().with_value(1),
 		.border = ui::Border().with_value(1).with_color(Color::black()),
+		.background_color = Color::red(),
 		.font_size = TEST_FONT_SIZE,
 	};
 	ui.text("The quick brown fox jumps over the lazy dog.", style);
