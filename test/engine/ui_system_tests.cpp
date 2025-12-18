@@ -153,7 +153,7 @@ namespace engine::ui {
 		// void begin_box();
 		// void end_box();
 		void text(std::string text, Style = {});
-		// void image();
+		void image(ImageID image_id, Style = {});
 
 		void begin_frame();
 		void end_frame(const ResourceManager& resources);
@@ -181,6 +181,23 @@ namespace engine::ui {
 					.font_size = style.font_size ? style.font_size : 16,
 					.font_color = style.font_color ? style.font_color : Color::black(),
 					.alignment = style.text_alignment },
+				.box = {
+					.position = { 0, 0 },
+					.color = style.background_color,
+					.padding = style.padding,
+					.border = style.border,
+					.margin = style.margin,
+				},
+			}
+		);
+	}
+
+	void UISystem::image(ImageID image_id, Style style) {
+		m_document.root_elements.push_back(
+			Element {
+				.content = ImageContent {
+					.image_id = image_id,
+				},
 				.box = {
 					.position = { 0, 0 },
 					.color = style.background_color,
@@ -235,6 +252,12 @@ namespace engine::ui {
 			element->box.width = desired_content_width;
 			element->box.height = num_lines * typeface.line_height(content->font_size);
 		}
+
+		if (ImageContent* content = std::get_if<ImageContent>(&element->content)) {
+			const Image& image = resources.image(content->image_id);
+			element->box.width = image.width;
+			element->box.height = image.height;
+		}
 	}
 
 	void UISystem::_draw_element(Renderer* renderer, IVec2* cursor, const Element& element) const {
@@ -257,17 +280,21 @@ namespace engine::ui {
 		};
 
 		Rect content_rect = {
-			.x = background_rect.x + padding.left + 1,
+			.x = background_rect.x + padding.left,
 			.y = background_rect.y + padding.top,
 			.width = background_rect.width - padding.horizontal(),
-			.height = m_window_size.y,
+			.height = background_rect.height - padding.vertical(),
 		};
 
 		/* Draw */
+		renderer->draw_rect(border_rect, border.color); // border
+		renderer->draw_rect_fill(background_rect, element.box.color); // background
 		if (const TextContent* content = std::get_if<TextContent>(&element.content)) {
-			renderer->draw_rect(border_rect, border.color); // border
-			renderer->draw_rect_fill(background_rect, element.box.color); // background
-			renderer->draw_text(content->font_id, content->font_size, content_rect, content->font_color, content->text, { .alignment = content->alignment }); // content
+			content_rect.x += 1; // hack: add 1 pixel spacing between padding and text since it looks more correct
+			renderer->draw_text(content->font_id, content->font_size, content_rect, content->font_color, content->text, { .alignment = content->alignment });
+		}
+		if (const ImageContent* content = std::get_if<ImageContent>(&element.content)) {
+			renderer->draw_image_scaled(content->image_id, content_rect);
 		}
 
 		/* Update cursor */
@@ -442,6 +469,21 @@ TEST_F(UISystemTests, TextElement_TwoMultilineParagraphs) {
 	};
 	ui.text("The quick brown fox jumps over the lazy dog.", style);
 	ui.text("Sphinx of black quarts, judge my vow!", style);
+	ui.end_frame(m_resources);
+
+	ui.draw(&renderer);
+	renderer.render(m_resources);
+	EXPECT_IMAGE_EQ_SNAPSHOT(renderer.bitmap().to_image());
+}
+
+TEST_F(UISystemTests, ImageElement_SingleImage) {
+	Renderer renderer = Renderer::with_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
+	ui::UISystem ui = ui::UISystem();
+	ui.set_window_size(BITMAP_WIDTH, BITMAP_HEIGHT);
+	renderer.clear_screen(Color::white());
+
+	ui.begin_frame();
+	ui.image(m_test_image_id);
 	ui.end_frame(m_resources);
 
 	ui.draw(&renderer);
