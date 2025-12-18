@@ -89,6 +89,11 @@ namespace engine {
 		return font.glyphs.at(codepoint);
 	}
 
+	int32_t Typeface::line_height(int32_t size) const {
+		const Font& font = _get_font(size);
+		return font.ascent - font.descent;
+	}
+
 	int32_t Typeface::ascent(int32_t size) const {
 		const Font& font = _get_font(size);
 		return font.ascent;

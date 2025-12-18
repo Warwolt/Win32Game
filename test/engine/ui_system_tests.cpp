@@ -200,8 +200,6 @@ namespace engine::ui {
 
 		if (Text* content = std::get_if<Text>(&element->content)) {
 			const Typeface& typeface = resources.typeface(content->font_id);
-			const int32_t ascent = typeface.ascent(content->font_size);
-			const int32_t descent = typeface.descent(content->font_size);
 			const int32_t desired_content_width = available_space.x - margin.left - margin.right - border.left - border.right - padding.left - padding.right;
 
 			int32_t num_lines = 1;
@@ -215,7 +213,7 @@ namespace engine::ui {
 			}
 
 			content->width = desired_content_width;
-			content->height = num_lines * (ascent - descent);
+			content->height = num_lines * typeface.line_height(content->font_size);
 		}
 	}
 
